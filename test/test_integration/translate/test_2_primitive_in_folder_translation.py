@@ -277,10 +277,17 @@ def test_flat_to_flat(source_doc_flat, source_spec_flat, target_doc_flat, target
     actual: Dict = do_translate(source_doc_flat, source_spec_flat, target_spec_flat)
     assert actual == target_doc_flat
 
-def test_flat_to_one_folder(source_doc_flat, target_doc_one_folder):
-    pytest.fail()
+def test_flat_to_one_folder(source_doc_flat, source_spec_flat, target_doc_one_folder, target_spec_one_folder):
+    target_spec_one_folder.target_var_1.sources = ["source_var_1"]
+    target_spec_one_folder.target_var_2.sources = ["source_var_2"]
+    actual: Dict = do_translate(source_doc_flat, source_spec_flat, target_spec_flat)
+    assert actual == target_doc_flat
 
-def test_flat_to_two_folders(source_doc_flat, target_doc_two_folders):
+def test_flat_to_two_folders(source_doc_flat, source_spec_flat, target_doc_two_folders, target_spec_two_folders):
+    target_spec_two_folders.target_var_1.sources = ["source_var_1"]
+    target_spec_two_folders.target_var_2.sources = ["source_var_2"]
+    actual: Dict = do_translate(source_doc_flat, source_spec_flat, target_spec_flat)
+    assert actual == target_doc_flat
     pytest.fail()
 
 def test_flat_to_nested(source_doc_flat, target_doc_nested):
