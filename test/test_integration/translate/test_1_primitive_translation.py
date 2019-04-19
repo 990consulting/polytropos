@@ -6,7 +6,7 @@ from etl4.ontology.track import Track
 from etl4.translate import Translate
 
 @pytest.fixture()
-def source_specs() -> Addict:
+def source_spec() -> Addict:
     return Addict({
         "source_var_1": {
             "name": "first_source",
@@ -21,7 +21,7 @@ def source_specs() -> Addict:
     })
 
 @pytest.fixture()
-def target_specs() -> Addict:
+def target_spec() -> Addict:
     return Addict({
         "target_var_id": {
             "name": "the_target",
@@ -32,9 +32,9 @@ def target_specs() -> Addict:
     })
 
 @pytest.fixture()
-def translate(source_specs: Addict, target_specs: Addict) -> Translate:
-    source_track: Track = Track.build(source_specs)
-    target_track: Track = Track.build(target_specs)
+def translate(source_spec: Addict, target_spec: Addict) -> Translate:
+    source_track: Track = Track.build(source_spec)
+    target_track: Track = Track.build(target_spec)
     translate: Translate = Translate(source_track, target_track)
     return translate
 
@@ -45,12 +45,12 @@ def source_doc() -> Addict:
         "second_source": 102
     })
 
-def test_translate_no_sources_listed(target_specs: Addict, source_specs: Addict, source_doc: Addict):
+def test_translate_no_sources_listed(target_spec: Addict, source_spec: Addict, source_doc: Addict):
     """If a primitive is supposed to be translated but it has no sources, it is always null."""
-    source_track: Track = Track.build(source_specs)
+    source_track: Track = Track.build(source_spec)
 
-    target_specs.target_var_id.sources = []
-    target_track: Track = Track.build(target_specs)
+    target_spec.target_var_id.sources = []
+    target_track: Track = Track.build(target_spec)
 
     translate: Translate = Translate(source_track, target_track)
 
@@ -106,5 +106,30 @@ def test_translate_both_sources_have_values(translate: Translate, source_doc: Di
     }
     assert actual == expected
 
-def test_use_same_source_twice():
-    pytest.fail("Implement me")
+def test_use_same_source_twice(source_spec: Addict, source_doc: Addict):
+    """Two targets can use the same source."""
+    target_spec: Dict = {
+        "target_var_1": {
+            "name": "first_target",
+            "data_type": "Integer",
+            "sources": ["source_var_1"],
+            "sort_order": 0
+        },
+        "target_var_2": {
+            "name": "second_target",
+            "data_type": "Integer",
+            "sources": ["source_var_1"],
+            "sort_order": 1
+        }
+    }
+    source_track: Track = Track.build(source_spec)
+    target_track: Track = Track.build(target_spec)
+    translate: Translate = Translate(source_track, target_track)
+
+    actual: Dict[str, Any] = translate(source_doc)
+    expected: Dict[str, Any] = {
+        "first_target": 75,
+        "second_target": 75
+    }
+
+    assert actual == expected

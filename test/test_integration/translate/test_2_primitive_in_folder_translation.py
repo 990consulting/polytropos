@@ -1,18 +1,17 @@
 import pytest
-from addict import Dict as Addict
 from typing import Dict, Tuple, Callable, Iterable
 import itertools
 
 from etl4.ontology.track import Track
 from etl4.translate import Translate
 
-def source_flat() -> Tuple[Addict, Addict]:
-    source: Addict = Addict({
+def source_flat() -> Tuple[Dict, Dict]:
+    source: Dict = {
         "first_source": 75,
         "second_source": 102
-    })
+    }
 
-    spec: Addict = Addict({
+    spec: Dict = {
         "source_var_1": {
             "name": "first_source",
             "data_type": "Integer",
@@ -23,18 +22,18 @@ def source_flat() -> Tuple[Addict, Addict]:
             "data_type": "Integer",
             "sort_order": 1
         }
-    })
+    }
     return source, spec
 
-def source_one_folder() -> Tuple[Addict, Addict]:
-    source: Addict = Addict({
+def source_one_folder() -> Tuple[Dict, Dict]:
+    source: Dict = {
         "the_folder": {
             "first_source": 75,
             "second_source": 102
         }
-    })
+    }
 
-    spec: Addict = Addict({
+    spec: Dict = {
         "source_var_1": {
             "name": "first_source",
             "data_type": "Integer",
@@ -52,21 +51,21 @@ def source_one_folder() -> Tuple[Addict, Addict]:
             "data_type": "folder",
             "sort_order": 0
         }
-    })
+    }
 
     return source, spec
 
-def source_two_folders() -> Tuple[Addict, Addict]:
-    source: Addict = Addict({
+def source_two_folders() -> Tuple[Dict, Dict]:
+    source: Dict = {
         "first_folder": {
             "first_source": 75
         },
         "second_folder": {
             "second_source": 102,
         }
-    })
+    }
 
-    spec: Addict = Addict({
+    spec: Dict = {
         "source_var_1": {
             "name": "first_source",
             "data_type": "Integer",
@@ -89,20 +88,20 @@ def source_two_folders() -> Tuple[Addict, Addict]:
             "data_type": "folder",
             "sort_order": 1
         }
-    })
+    }
     return source, spec
 
-def source_nested() -> Tuple[Addict, Addict]:
-    source: Addict = Addict({
+def source_nested() -> Tuple[Dict, Dict]:
+    source: Dict = {
         "outer_s": {
             "first_source": 75,
             "inner_s": {
                 "second_source": 102,
             }
         }
-    })
+    }
 
-    spec: Addict = Addict({
+    spec: Dict = {
         "source_var_1": {
             "name": "first_source",
             "data_type": "Integer",
@@ -126,17 +125,17 @@ def source_nested() -> Tuple[Addict, Addict]:
             "parent": "source_folder_1",
             "sort_order": 1
         }
-    })
+    }
 
     return source, spec
 
-def target_flat() -> Tuple[Addict, Addict]:
-    target: Addict = Addict({
+def target_flat() -> Tuple[Dict, Dict]:
+    target: Dict = {
         "first_target": 75,
         "second_target": 102
-    })
+    }
 
-    spec: Addict = Addict({
+    spec: Dict = {
         "target_var_1": {
             "name": "first_target",
             "data_type": "Integer",
@@ -149,18 +148,18 @@ def target_flat() -> Tuple[Addict, Addict]:
             "sources": ["source_var_2"],
             "sort_order": 1
         }
-    })
+    }
     return target, spec
 
-def target_one_folder() -> Tuple[Addict, Addict]:
-    target: Addict = Addict({
+def target_one_folder() -> Tuple[Dict, Dict]:
+    target: Dict = {
         "the_folder": {
             "first_target": 75,
             "second_target": 102
         }
-    })
+    }
 
-    spec: Addict = Addict({
+    spec: Dict = {
         "target_var_1": {
             "name": "first_target",
             "data_type": "Integer",
@@ -180,20 +179,20 @@ def target_one_folder() -> Tuple[Addict, Addict]:
             "data_type": "folder",
             "sort_order": 0
         }
-    })
+    }
     return target, spec
 
-def target_two_folders() -> Tuple[Addict, Addict]:
-    target: Addict = Addict({
+def target_two_folders() -> Tuple[Dict, Dict]:
+    target: Dict = {
         "first_folder": {
             "first_target": 75
         },
         "second_folder": {
             "second_target": 102,
         }
-    })
+    }
 
-    spec: Addict = Addict({
+    spec: Dict = {
         "target_var_1": {
             "name": "first_target",
             "data_type": "Integer",
@@ -218,20 +217,20 @@ def target_two_folders() -> Tuple[Addict, Addict]:
             "data_type": "folder",
             "sort_order": 1
         }
-    })
+    }
     return target, spec
 
-def target_nested() -> Tuple[Addict, Addict]:
-    target: Addict = Addict({
+def target_nested() -> Tuple[Dict, Dict]:
+    target: Dict = {
         "outer_s": {
             "first_target": 75,
             "inner_s": {
                 "second_target": 102,
             }
         }
-    })
+    }
 
-    spec: Addict = Addict({
+    spec: Dict = {
         "target_var_1": {
             "name": "first_target",
             "data_type": "Integer",
@@ -257,7 +256,7 @@ def target_nested() -> Tuple[Addict, Addict]:
             "parent": "target_folder_1",
             "sort_order": 1
         }
-    })
+    }
     return target, spec
 
 sources: Iterable = [source_flat, source_one_folder, source_two_folders, source_nested]
