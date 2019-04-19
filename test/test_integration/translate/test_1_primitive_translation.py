@@ -105,3 +105,6 @@ def test_translate_both_sources_have_values(translate: Translate, source_doc: Di
         "the_target": 75
     }
     assert actual == expected
+
+def test_use_same_source_twice():
+    pytest.fail("Implement me")
