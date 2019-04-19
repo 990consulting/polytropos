@@ -48,7 +48,7 @@ def source_one_folder() -> Tuple[Dict, Dict]:
         },
         "source_folder": {
             "name": "the_folder",
-            "data_type": "folder",
+            "data_type": "Folder",
             "sort_order": 0
         }
     }
@@ -80,12 +80,12 @@ def source_two_folders() -> Tuple[Dict, Dict]:
         },
         "source_folder_1": {
             "name": "first_folder",
-            "data_type": "folder",
+            "data_type": "Folder",
             "sort_order": 0
         },
         "source_folder_2": {
             "name": "second_folder",
-            "data_type": "folder",
+            "data_type": "Folder",
             "sort_order": 1
         }
     }
@@ -116,12 +116,12 @@ def source_nested() -> Tuple[Dict, Dict]:
         },
         "source_folder_1": {
             "name": "outer_s",
-            "data_type": "folder",
+            "data_type": "Folder",
             "sort_order": 0
         },
         "source_folder_2": {
             "name": "inner_s",
-            "data_type": "folder",
+            "data_type": "Folder",
             "parent": "source_folder_1",
             "sort_order": 1
         }
@@ -176,7 +176,7 @@ def target_one_folder() -> Tuple[Dict, Dict]:
         },
         "target_folder": {
             "name": "the_folder",
-            "data_type": "folder",
+            "data_type": "Folder",
             "sort_order": 0
         }
     }
@@ -209,12 +209,12 @@ def target_two_folders() -> Tuple[Dict, Dict]:
         },
         "target_folder_1": {
             "name": "first_folder",
-            "data_type": "folder",
+            "data_type": "Folder",
             "sort_order": 0
         },
         "target_folder_2": {
             "name": "second_folder",
-            "data_type": "folder",
+            "data_type": "Folder",
             "sort_order": 1
         }
     }
@@ -247,12 +247,12 @@ def target_nested() -> Tuple[Dict, Dict]:
         },
         "target_folder_1": {
             "name": "outer_s",
-            "data_type": "folder",
+            "data_type": "Folder",
             "sort_order": 0
         },
         "target_folder_2": {
             "name": "inner_s",
-            "data_type": "folder",
+            "data_type": "Folder",
             "parent": "target_folder_1",
             "sort_order": 1
         }

@@ -1,3 +1,4 @@
 pytest
 glom
 addict
+pytest-repeat
