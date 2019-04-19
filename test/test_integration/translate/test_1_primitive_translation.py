@@ -1,59 +1,56 @@
-from typing import Dict, Any, Iterable
-
+from typing import Any, Dict
+from addict import Dict as Addict
 import pytest
 
 from etl4.ontology.track import Track
 from etl4.translate import Translate
 
 @pytest.fixture()
-def source_1_spec() -> Dict:
-    return {
-        "_id": "source_var_1",
-        "name": "first_source",
-        "data_type": "Integer"
-    }
+def source_specs() -> Addict:
+    return Addict({
+        "source_var_1": {
+            "name": "first_source",
+            "data_type": "Integer",
+            "sort_order": 0
+        },
+        "source_var_2": {
+            "name": "second_source",
+            "data_type": "Integer",
+            "sort_order": 1
+        }
+    })
 
 @pytest.fixture()
-def source_2_spec() -> Dict:
-    return {
-        "_id": "source_var_2",
-        "name": "second_source",
-        "data_type": "Integer"
-    }
+def target_specs() -> Addict:
+    return Addict({
+        "target_var_id": {
+            "name": "the_target",
+            "data_type": "Integer",
+            "sources": ["source_var_1", "source_var_2"],
+            "sort_order": 0
+        }
+    })
 
 @pytest.fixture()
-def source_specs(source_1_spec, source_2_spec) -> Iterable[Dict]:
-    return [source_1_spec, source_2_spec]
-
-@pytest.fixture()
-def target_spec() -> Dict:
-    return {
-        "_id": "target_var_id",
-        "name": "the_target",
-        "data_type": "Integer",
-        "sources": ["source_var_1", "source_var_2"]
-    }
-
-@pytest.fixture()
-def translate(source_specs: Iterable[Dict], target_spec: Dict) -> Translate:
+def translate(source_specs: Addict, target_specs: Addict) -> Translate:
     source_track: Track = Track.build(source_specs)
-    target_track: Track = Track.build([target_spec])
+    target_track: Track = Track.build(target_specs)
     translate: Translate = Translate(source_track, target_track)
     return translate
 
 @pytest.fixture()
-def source_doc() -> Dict:
-    return {
+def source_doc() -> Addict:
+    return Addict({
         "first_source": 75,
         "second_source": 102
-    }
+    })
 
-def test_translate_no_sources_listed(target_spec: Dict, source_specs: Iterable[Dict], source_doc: Dict):
+def test_translate_no_sources_listed(target_specs: Addict, source_specs: Addict, source_doc: Addict):
     """If a primitive is supposed to be translated but it has no sources, it is always null."""
     source_track: Track = Track.build(source_specs)
 
-    target_spec["sources"] = []
-    target_track: Track = Track.build([target_spec])
+    target_specs.target_var_id.sources = []
+    target_track: Track = Track.build(target_specs)
 
     translate: Translate = Translate(source_track, target_track)
 
@@ -61,6 +58,7 @@ def test_translate_no_sources_listed(target_spec: Dict, source_specs: Iterable[D
     expected: Dict[str, Any] = {
         "the_target": None
     }
+
     assert actual == expected
 
 def test_translate_neither_source_has_values(translate: Translate):
@@ -72,7 +70,7 @@ def test_translate_neither_source_has_values(translate: Translate):
     }
     assert actual == expected
 
-def test_translate_first_source_has_value(translate: Translate, source_doc: Dict):
+def test_translate_first_source_has_value(translate: Translate, source_doc: Addict):
     """If a primitive has two sources and the first one has a value, that value is captured."""
     del source_doc["second_source"]
     actual: Dict[str, Any] = translate(source_doc)
@@ -84,6 +82,15 @@ def test_translate_first_source_has_value(translate: Translate, source_doc: Dict
 def test_translate_second_source_has_value(translate: Translate, source_doc: Dict):
     """If a primitive has two sources and the second one has a value, that value is captured."""
     del source_doc["first_source"]
+    actual: Dict[str, Any] = translate(source_doc)
+    expected: Dict[str, Any] = {
+        "the_target": 102
+    }
+    assert actual == expected
+
+def test_translate_none_means_skip(translate: Translate, source_doc: Addict):
+    """If a source exists and has a null value, treat that as if it weren't there."""
+    source_doc.first_source = None
     actual: Dict[str, Any] = translate(source_doc)
     expected: Dict[str, Any] = {
         "the_target": 102
