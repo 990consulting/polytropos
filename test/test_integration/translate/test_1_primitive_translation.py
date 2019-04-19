@@ -10,9 +10,7 @@ def source_1_spec() -> Dict:
     return {
         "_id": "source_var_1",
         "name": "first_source",
-        "data_type": "Integer",
-        "local": True,
-        "temporal": True
+        "data_type": "Integer"
     }
 
 @pytest.fixture()
@@ -20,9 +18,7 @@ def source_2_spec() -> Dict:
     return {
         "_id": "source_var_2",
         "name": "second_source",
-        "data_type": "Integer",
-        "local": True,
-        "temporal": True
+        "data_type": "Integer"
     }
 
 @pytest.fixture()
@@ -35,8 +31,6 @@ def target_spec() -> Dict:
         "_id": "target_var_id",
         "name": "the_target",
         "data_type": "Integer",
-        "local": True,
-        "temporal": True,
         "sources": ["source_var_1", "source_var_2"]
     }
 
