@@ -1,9 +1,12 @@
 import pytest
-from typing import Dict
+from typing import Dict, Tuple
+
+from etl4.ontology.track import Track
+from etl4.translate import Translate
 
 @pytest.fixture()
-def source_doc() -> Dict:
-    return {
+def source() -> Tuple[Dict, Dict]:
+    doc: Dict = {
         "source_outer_folder": {
             "source_inner_list": [
                 {
@@ -26,9 +29,7 @@ def source_doc() -> Dict:
         }
     }
 
-@pytest.fixture()
-def source_spec() -> Dict:
-    return {
+    spec: Dict = {
         "source_folder": {
             "name": "source_outer_folder",
             "data_type": "Folder",
@@ -65,33 +66,31 @@ def source_spec() -> Dict:
             "sort_order": 0
         }
     }
+    return spec, doc
 
-@pytest.fixture()
-def target_flattened_doc() -> Dict:
-   return {
-       "the_list": [
-           {
-               "name": "Steve",
-               "color": "red"
-           },
-           {
-               "name": "Samantha",
-               "color": "blue"
-           }
-       ],
-       "the_named_list": {
-           "anne": {
-               "color": "orange"
-           },
-           "janet": {
-               "color": "green"
-           }
-       }
-   }
+def target_flattened() -> Tuple[Dict, Dict]:
+    doc: Dict = {
+        "the_list": [
+            {
+                "name": "Steve",
+                "color": "red"
+            },
+            {
+                "name": "Samantha",
+                "color": "blue"
+            }
+        ],
+        "the_named_list": {
+            "anne": {
+                "color": "orange"
+            },
+            "janet": {
+                "color": "green"
+            }
+        }
+    }
 
-@pytest.fixture()
-def target_flattened_spec() -> Dict:
-    return {
+    spec: Dict = {
         "target_list": {
             "name": "the_list",
             "data_type": "List",
@@ -133,9 +132,10 @@ def target_flattened_spec() -> Dict:
         }
     }
 
-@pytest.fixture()
-def target_nested_doc() -> Dict:
-    return {
+    return spec, doc
+
+def target_nested() -> Tuple[Dict, Dict]:
+    doc: Dict = {
         "outer": {
             "inner": {
                 "the_named_list": {
@@ -160,9 +160,7 @@ def target_nested_doc() -> Dict:
         }
     }
 
-@pytest.fixture()
-def target_nested_spec() -> Dict:
-    return {
+    spec: Dict = {
         "target_folder_outer": {
             "name": "outer",
             "data_type": "Folder",
@@ -217,3 +215,14 @@ def target_nested_spec() -> Dict:
         }
     }
 
+    return spec, doc
+
+@pytest.mark.parametrize("target", [target_nested, target_flattened])
+def test_list_in_folder(source, target):
+    source_spec, source_doc = source
+    target_spec, expected = target()
+    source_track: Track = Track.build(source_spec)
+    target_track: Track = Track.build(target_spec)
+    translate: Translate = Translate(source_track, target_track)
+    actual: Dict = translate(source_doc)
+    assert actual == expected

@@ -173,7 +173,7 @@ def test_two_sources_both_empty(source_spec: Dict, target_spec: Addict):
 
 def test_one_source(source_doc: Addict, source_spec: Dict, target_spec: Addict):
     """One source is specified; a target list is made from that source."""
-    del target_spec.source_child_mappings.source_root_1
+    del target_spec.target_root.source_child_mappings.source_root_1
     target_spec.sources = ["source_root_2"]
     expected: Dict = {
         "People": [
@@ -203,7 +203,8 @@ def test_two_sources_one_empty(source_doc: Addict, source_spec: Dict, target_spe
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_combine_lists(source_doc, source_spec, target_spec):
-    """Verify that, when two sources both have items, they get combined into one list."""
+    """Verify that, when two sources both have items, they get combined into one list. Remember that list source 1 has
+    two name fields, which are checked in order (see test_1_primitive_translation.py)."""
     expected: Dict = {
         "People": [
             {
@@ -228,7 +229,7 @@ def test_combine_lists(source_doc, source_spec, target_spec):
     }
     do_test(source_doc, source_spec, expected, target_spec)
 
-def test_source_order_matters(source_doc, source_spec, target_doc, target_spec):
+def test_source_order_matters(source_doc, source_spec, target_spec):
     """Reversing the order of the sources in the target list spec results in an equivalent change in the order of the
     resulting list."""
     target_spec.target_root.sources = ["source_root_2", "source_root_1"]
