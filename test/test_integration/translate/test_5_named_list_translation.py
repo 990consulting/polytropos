@@ -129,6 +129,7 @@ def target_spec() -> Addict:
         }
     })
 
+# TODO Used in multiple files -- should be a pytest.fixture
 def do_test(s_doc, s_spec, t_doc, t_spec):
     source_track: Track = Track.build(s_spec)
     target_track: Track = Track.build(t_spec)
