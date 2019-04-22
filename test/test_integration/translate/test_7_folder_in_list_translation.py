@@ -30,36 +30,36 @@ def source_nested() -> Tuple[Dict, Dict]:
     source_spec: Dict = {
         "source_list": {
             "name": "the_list",
-            "type": "List",
+            "data_type": "List",
             "sort_order": 0
         },
         "source_list_day": {
             "name": "day",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "source_list",
             "sort_order": 0
         },
         "source_list_folder": {
             "name": "the_folder",
-            "type": "Folder",
+            "data_type": "Folder",
             "parent": "source_list",
             "sort_order": 1
         },
         "source_list_name": {
             "name": "name",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "source_list_folder",
             "sort_order": 0
         },
         "source_list_color": {
             "name": "color",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "source_list_folder",
             "sort_order": 1
         },
         "source_meaning_of_life": {
             "name": "meaning_of_life",
-            "type": "Integer",
+            "data_type": "Integer",
             "sort_order": 1
         }
     }
@@ -85,30 +85,30 @@ def source_flat() -> Tuple[Dict, Dict]:
     source_spec: Dict = {
         "source_list": {
             "name": "the_list",
-            "type": "List",
+            "data_type": "List",
             "sort_order": 0
         },
         "source_list_day": {
             "name": "day",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "source_list",
             "sort_order": 0
         },
         "source_list_name": {
             "name": "name",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "source_list",
             "sort_order": 1
         },
         "source_list_color": {
             "name": "color",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "source_list",
             "sort_order": 2
         },
         "source_meaning_of_life": {
             "name": "meaning_of_life",
-            "type": "Integer",
+            "data_type": "Integer",
             "sort_order": 1
         }
     }
@@ -138,7 +138,7 @@ def target_nested() -> Tuple[Dict, Dict]:
     target_spec: Dict = {
         "target_list": {
             "name": "the_list",
-            "type": "List",
+            "data_type": "List",
             "sort_order": 0,
             "sources": ["source_list"],
             "source_child_mappings": {
@@ -150,31 +150,31 @@ def target_nested() -> Tuple[Dict, Dict]:
         },
         "target_list_day": {
             "name": "day",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "target_list",
             "sort_order": 0
         },
         "target_list_folder": {
             "name": "the_folder",
-            "type": "Folder",
+            "data_type": "Folder",
             "parent": "target_list",
             "sort_order": 1
         },
         "target_list_name": {
             "name": "name",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "target_list_folder",
             "sort_order": 0
         },
         "target_list_color": {
             "name": "color",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "target_list_folder",
             "sort_order": 1
         },
         "target_meaning_of_life": {
             "name": "meaning_of_life",
-            "type": "Integer",
+            "data_type": "Integer",
             "sort_order": 1,
             "sources": ["source_meaning_of_life"]
         }
@@ -201,7 +201,7 @@ def target_flat() -> Tuple[Dict, Dict]:
     target_spec: Dict = {
         "target_list": {
             "name": "the_list",
-            "type": "List",
+            "data_type": "List",
             "sort_order": 0,
             "sources": ["source_list"],
             "source_child_mappings": {
@@ -213,25 +213,25 @@ def target_flat() -> Tuple[Dict, Dict]:
         },
         "target_list_day": {
             "name": "day",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "target_list",
             "sort_order": 0
         },
         "target_list_name": {
             "name": "name",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "target_list",
             "sort_order": 1
         },
         "target_list_color": {
             "name": "color",
-            "type": "Text",
+            "data_type": "Text",
             "parent": "target_list",
             "sort_order": 2
         },
         "target_meaning_of_life": {
             "name": "meaning_of_life",
-            "type": "Integer",
+            "data_type": "Integer",
             "sort_order": 1,
             "sources": ["source_meaning_of_life"]
         }

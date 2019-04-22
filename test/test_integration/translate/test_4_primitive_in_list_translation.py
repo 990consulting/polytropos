@@ -34,7 +34,7 @@ def source_spec() -> Dict:
     return {
         "source_root_1": {
             "name": "list_source_1",
-            "data_type": "ListContainer",
+            "data_type": "List",
             "sort_order": 0
         },
         "source_root_1_name": {
@@ -69,7 +69,7 @@ def source_spec() -> Dict:
         },
         "source_root_2": {
             "name": "list_source_2",
-            "data_type": "ListContainer",
+            "data_type": "List",
             "sort_order": 1,
         },
         "source_root_2_nombre": {
