@@ -50,13 +50,13 @@ def source_spec() -> Dict:
         },
         "source_root_1_ice_cream": {
             "name": "ice cream",
-            "data_type": "text",
+            "data_type": "Text",
             "parent": "source_root_1",
             "sort_order": 2
         },
         "source_root_1_sport": {
             "name": "sport",
-            "data_type": "text",
+            "data_type": "Text",
             "parent": "source_root_1",
             "sort_order": 3
         },
