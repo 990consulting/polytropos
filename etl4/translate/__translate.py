@@ -15,7 +15,6 @@ class Translate(Callable):
             ][variable_id] = variable
 
     def find_in_document(self, variable_id, document):
-        print(variable_id, document)
         if document is None:
             return None
         variable = self.source.variables[variable_id]
@@ -42,7 +41,6 @@ class Translate(Callable):
             # Start with None as a default value
             output_document[variable.name] = None
             # Then try sources one by one
-            print(variable.sources)
             for source in sorted(
                 variable.sources,
                 key=lambda source: self.source.variables[source].sort_order
