@@ -98,6 +98,7 @@ def target_spec() -> Addict:
         "target_root": {
             "name": "People",
             "data_type": "List",
+            "sort_order": 0,
             "sources": ["source_root_1", "source_root_2"],
             "source_child_mappings": {
                 "source_root_1": {
@@ -117,21 +118,25 @@ def target_spec() -> Addict:
         "target_root_name": {
             "name": "Name",
             "data_type": "Text",
+            "sort_order": 0,
             "parent": "target_root"
         },
         "target_root_age": {
             "name": "Age",
             "data_type": "Integer",
+            "sort_order": 1,
             "parent": "target_root"
         },
         "target_root_ice_cream": {
             "name": "Ice cream",
             "data_type": "Text",
+            "sort_order": 2,
             "parent": "target_root"
         },
         "target_root_sport": {
             "name": "Sport",
             "data_type": "Text",
+            "sort_order": 3,
             "parent": "target_root"
         }
     })
