@@ -90,6 +90,7 @@ def target_spec() -> Dict:
         "apple": {
             "name": "apple",
             "data_type": "Integer",
+            "sources": ["apple"],
             "parent": "blue_folder",
             "sort_order": 1
         },
@@ -102,12 +103,14 @@ def target_spec() -> Dict:
         "strawberry": {
             "name": "strawberry",
             "data_type": "Integer",
+            "sources": ["strawberry"],
             "parent": "green_folder",
             "sort_order": 0
         },
         "lemon": {
             "name": "lemon",
             "data_type": "Integer",
+            "sources": ["lemon"],
             "parent": "green_folder",
             "sort_order": 1
         },
@@ -119,18 +122,21 @@ def target_spec() -> Dict:
         "grape": {
             "name": "grape",
             "data_type": "Integer",
+            "sources": ["grape"],
             "parent": "orange_folder",
             "sort_order": 1,
         },
         "mango": {
             "name": "mango",
             "data_type": "Integer",
+            "sources": ["mango"],
             "parent": "orange_folder",
             "sort_order": 2
         },
         "papaya": {
             "name": "papaya",
             "data_type": "Integer",
+            "sources": ["papaya"],
             "parent": "orange_folder",
             "sort_order": 0
         }
