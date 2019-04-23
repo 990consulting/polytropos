@@ -50,13 +50,13 @@ def source_spec() -> Dict:
         },
         "source_root_1_ice_cream": {
             "name": "ice cream",
-            "data_type": "text",
+            "data_type": "Text",
             "parent": "source_root_1",
             "sort_order": 2
         },
         "source_root_1_sport": {
             "name": "sport",
-            "data_type": "text",
+            "data_type": "Text",
             "parent": "source_root_1",
             "sort_order": 3
         },
@@ -92,6 +92,7 @@ def target_spec() -> Addict:
             "name": "People",
             "data_type": "NamedList",
             "sources": ["source_root_1", "source_root_2"],
+            "sort_order": 0,
             "source_child_mappings": {
                 "source_root_1": {
                     "target_root_name": ["source_root_1_name"],
@@ -110,21 +111,25 @@ def target_spec() -> Addict:
         "target_root_name": {
             "name": "Name",
             "data_type": "Text",
+            "sort_order": 0,
             "parent": "target_root"
         },
         "target_root_age": {
             "name": "Age",
             "data_type": "Integer",
+            "sort_order": 1,
             "parent": "target_root"
         },
         "target_root_ice_cream": {
             "name": "Ice cream",
             "data_type": "Text",
+            "sort_order": 2,
             "parent": "target_root"
         },
         "target_root_sport": {
             "name": "Sport",
             "data_type": "Text",
+            "sort_order": 3,
             "parent": "target_root"
         }
     })
