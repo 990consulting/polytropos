@@ -81,10 +81,10 @@ def target_flattened() -> Tuple[Dict, Dict]:
             }
         ],
         "the_named_list": {
-            "anne": {
+            "Anne": {
                 "color": "orange"
             },
-            "janet": {
+            "Janet": {
                 "color": "green"
             }
         }
@@ -141,10 +141,10 @@ def target_nested() -> Tuple[Dict, Dict]:
         "outer": {
             "inner": {
                 "the_named_list": {
-                    "anne": {
+                    "Anne": {
                         "color": "orange"
                     },
-                    "janet": {
+                    "Janet": {
                         "color": "green"
                     }
                 }
