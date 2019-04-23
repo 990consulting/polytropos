@@ -68,10 +68,7 @@ class Translate(Callable):
         results = []
         # The resulting list is the concatenation of all the translations,
         # source by source
-        for source in sorted(
-            variable.sources,
-            key=lambda source: self.source.variables[source].sort_order
-        ):
+        for source in variable.sources:
             # get the document values for the current source
             list_source = self.find_in_document(source, document, parent)
             # update the sources for the source variables
@@ -95,10 +92,7 @@ class Translate(Callable):
         logic is almost the same as for lists but taking care of the keys.
         Raises ValueError on duplicate keys"""
         results = {}
-        for source in sorted(
-            variable.sources,
-            key=lambda source: self.source.variables[source].sort_order
-        ):
+        for source in variable.sources:
             list_source = self.find_in_document(source, document, parent)
             self.replace_sources(variable.source_child_mappings[source])
             if list_source is None:
