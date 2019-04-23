@@ -121,7 +121,9 @@ def target_flattened() -> Tuple[Dict, Dict]:
             "sort_order": 1,
             "sources": ["source_named_list"],
             "source_child_mappings": {
-                "target_named_list_color": ["source_named_list_color"]
+                "source_named_list": {
+                    "target_named_list_color": ["source_named_list_color"]
+                }
             }
         },
         "target_named_list_color": {
@@ -204,7 +206,9 @@ def target_nested() -> Tuple[Dict, Dict]:
             "sort_order": 0,
             "sources": ["source_named_list"],
             "source_child_mappings": {
-                "target_named_list_color": ["source_named_list_color"]
+                "source_named_list": {
+                    "target_named_list_color": ["source_named_list_color"]
+                }
             }
         },
         "target_named_list_color": {
