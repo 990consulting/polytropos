@@ -1,6 +1,5 @@
 pytest
 glom
-addict
 pytest-repeat
 marshmallow
 dacite

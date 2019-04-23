@@ -1,13 +1,12 @@
 from typing import Any, Dict
-from addict import Dict as Addict
 import pytest
 
 from etl4.ontology.track import Track
 from etl4.translate import Translate
 
 @pytest.fixture()
-def source_spec() -> Addict:
-    return Addict({
+def source_spec() -> Dict:
+    return {
         "source_var_1": {
             "name": "first_source",
             "data_type": "Integer",
@@ -18,38 +17,38 @@ def source_spec() -> Addict:
             "data_type": "Integer",
             "sort_order": 1
         }
-    })
+    }
 
 @pytest.fixture()
-def target_spec() -> Addict:
-    return Addict({
+def target_spec() -> Dict:
+    return {
         "target_var_id": {
             "name": "the_target",
             "data_type": "Integer",
             "sources": ["source_var_1", "source_var_2"],
             "sort_order": 0
         }
-    })
+    }
 
 @pytest.fixture()
-def translate(source_spec: Addict, target_spec: Addict) -> Translate:
+def translate(source_spec: Dict, target_spec: Dict) -> Translate:
     source_track: Track = Track.build(source_spec)
     target_track: Track = Track.build(target_spec)
     translate: Translate = Translate(source_track, target_track)
     return translate
 
 @pytest.fixture()
-def source_doc() -> Addict:
-    return Addict({
+def source_doc() -> Dict:
+    return {
         "first_source": 75,
         "second_source": 102
-    })
+    }
 
-def test_translate_no_sources_listed(target_spec: Addict, source_spec: Addict, source_doc: Addict):
+def test_translate_no_sources_listed(target_spec: Dict, source_spec: Dict, source_doc: Dict):
     """If a primitive is supposed to be translated but it has no sources, it is always null."""
     source_track: Track = Track.build(source_spec)
 
-    target_spec.target_var_id.sources = []
+    target_spec["target_var_id"]["sources"] = []
     target_track: Track = Track.build(target_spec)
 
     translate: Translate = Translate(source_track, target_track)
@@ -70,7 +69,7 @@ def test_translate_neither_source_has_values(translate: Translate):
     }
     assert actual == expected
 
-def test_translate_first_source_has_value(translate: Translate, source_doc: Addict):
+def test_translate_first_source_has_value(translate: Translate, source_doc: Dict):
     """If a primitive has two sources and the first one has a value, that value is captured."""
     del source_doc["second_source"]
     actual: Dict[str, Any] = translate(source_doc)
@@ -88,9 +87,9 @@ def test_translate_second_source_has_value(translate: Translate, source_doc: Dic
     }
     assert actual == expected
 
-def test_translate_none_means_skip(translate: Translate, source_doc: Addict):
+def test_translate_none_means_skip(translate: Translate, source_doc: Dict):
     """If a source exists and has a null value, treat that as if it weren't there."""
-    source_doc.first_source = None
+    source_doc["first_source"] = None
     actual: Dict[str, Any] = translate(source_doc)
     expected: Dict[str, Any] = {
         "the_target": 102
@@ -106,7 +105,7 @@ def test_translate_both_sources_have_values(translate: Translate, source_doc: Di
     }
     assert actual == expected
 
-def test_use_same_source_twice(source_spec: Addict, source_doc: Addict):
+def test_use_same_source_twice(source_spec: Dict, source_doc: Dict):
     """Two targets can use the same source."""
     target_spec: Dict = {
         "target_var_1": {

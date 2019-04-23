@@ -1,12 +1,11 @@
 import pytest
 from typing import Dict
-from addict import Dict as Addict
 from etl4.ontology.track import Track
 from etl4.translate import Translate
 
 @pytest.fixture()
-def source_doc() -> Addict:
-    return Addict({
+def source_doc() -> Dict:
+    return {
         "list_source_1": {
             "Steve": {
                 "name": "Steve",
@@ -26,7 +25,7 @@ def source_doc() -> Addict:
                 "helado": "chocolate"
             }
         }
-    })
+    }
 
 @pytest.fixture()
 def source_spec() -> Dict:
@@ -86,8 +85,8 @@ def source_spec() -> Dict:
     }
 
 @pytest.fixture()
-def target_spec() -> Addict:
-    return Addict({
+def target_spec() -> Dict:
+    return {
         "target_root": {
             "name": "People",
             "data_type": "NamedList",
@@ -132,7 +131,7 @@ def target_spec() -> Addict:
             "sort_order": 3,
             "parent": "target_root"
         }
-    })
+    }
 
 # TODO Used in multiple files -- should be a pytest.fixture
 def do_test(s_doc, s_spec, t_doc, t_spec):
@@ -142,16 +141,16 @@ def do_test(s_doc, s_spec, t_doc, t_spec):
     actual: Dict = translate(s_doc)
     assert actual == t_doc
 
-def test_no_sources(source_doc: Addict, source_spec: Dict, target_spec: Addict):
+def test_no_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     """No sources defined; empty dict is returned."""
-    target_spec.source_child_mappings = {}
-    target_spec.sources = []
+    target_spec["source_child_mappings"] = {}
+    target_spec["sources"] = []
     expected: Dict = {
         "People": {}
     }
     do_test(source_doc, source_spec, expected, target_spec)
 
-def test_two_sources_both_missing(source_spec: Dict, target_spec: Addict):
+def test_two_sources_both_missing(source_spec: Dict, target_spec: Dict):
     """Two sources defined, but both are missing from the source document; empty dict is returned."""
     source_doc = {}
     expected: Dict = {
@@ -159,7 +158,7 @@ def test_two_sources_both_missing(source_spec: Dict, target_spec: Addict):
     }
     do_test(source_doc, source_spec, expected, target_spec)
 
-def test_two_sources_both_empty(source_spec: Dict, target_spec: Addict):
+def test_two_sources_both_empty(source_spec: Dict, target_spec: Dict):
     """Two sources defined, and both are present but empty; empty dict is returned."""
     source_doc = {
         "list_source_1": {},
@@ -170,9 +169,9 @@ def test_two_sources_both_empty(source_spec: Dict, target_spec: Addict):
     }
     do_test(source_doc, source_spec, expected, target_spec)
 
-def test_one_source(source_doc: Addict, source_spec: Dict, target_spec: Addict):
+def test_one_source(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     """One source is specified; a target list is made from that source."""
-    del target_spec.target_root.source_child_mappings.source_root_1
+    del target_spec["target_root"]["source_child_mappings"]["source_root_1"]
     target_spec.sources = ["source_root_2"]
     expected: Dict = {
         "People": {
@@ -185,9 +184,9 @@ def test_one_source(source_doc: Addict, source_spec: Dict, target_spec: Addict):
     }
     do_test(source_doc, source_spec, expected, target_spec)
 
-def test_two_sources_one_empty(source_doc: Addict, source_spec: Dict, target_spec: Addict):
+def test_two_sources_one_empty(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     """Two sources are defined, but one is empty."""
-    source_doc.list_source_1 = []
+    source_doc["list_source_1"] = []
     expected: Dict = {
         "People": {
             "Stacy": {
@@ -229,7 +228,7 @@ def test_combine_lists(source_doc, source_spec, target_spec):
 def test_source_order_matters(source_doc, source_spec, target_spec):
     """Reversing the order of the sources in the target list spec results in an equivalent change in the order of the
     resulting list."""
-    target_spec.target_root.sources = ["source_root_2", "source_root_1"]
+    target_spec["target_root"]["sources"] = ["source_root_2", "source_root_1"]
     expected: Dict = {
         "People": {
             "Stacy": {
@@ -255,7 +254,7 @@ def test_source_order_matters(source_doc, source_spec, target_spec):
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_duplicate_name_raises(source_doc, source_spec, target_spec):
-    source_doc.list_source_1.Stacy = {
+    source_doc["list_source_1"]["Stacy"] = {
         "Name": "Another Stacy"
     }
     with pytest.raises(ValueError):
