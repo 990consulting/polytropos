@@ -77,6 +77,9 @@ class Translate(Callable):
             if list_source is None:
                 continue
             for key, value in list_source.items():
+                if key in results:
+                    # No duplicate keys
+                    raise ValueError
                 results[key] = self(
                     {self.source.variables[source].name: value},
                     variable_id,
