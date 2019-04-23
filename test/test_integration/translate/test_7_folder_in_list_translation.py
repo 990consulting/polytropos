@@ -143,6 +143,7 @@ def target_nested() -> Tuple[Dict, Dict]:
             "sources": ["source_list"],
             "source_child_mappings": {
                 "source_list": {
+                    "target_list_day": ["source_list_day"],
                     "target_list_name": ["source_list_name"],
                     "target_list_color": ["source_list_color"]
                 }
@@ -206,6 +207,7 @@ def target_flat() -> Tuple[Dict, Dict]:
             "sources": ["source_list"],
             "source_child_mappings": {
                 "source_list": {
+                    "target_list_day": ["source_list_day"],
                     "target_list_name": ["source_list_name"],
                     "target_list_color": ["source_list_color"]
                 }
