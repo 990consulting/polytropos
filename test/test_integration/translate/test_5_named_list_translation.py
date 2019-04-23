@@ -143,8 +143,8 @@ def do_test(s_doc, s_spec, t_doc, t_spec):
 
 def test_no_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     """No sources defined; empty dict is returned."""
-    target_spec["source_child_mappings"] = {}
-    target_spec["sources"] = []
+    target_spec["target_root"]["source_child_mappings"] = {}
+    target_spec["target_root"]["sources"] = []
     expected: Dict = {
         "People": {}
     }
@@ -172,10 +172,11 @@ def test_two_sources_both_empty(source_spec: Dict, target_spec: Dict):
 def test_one_source(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     """One source is specified; a target list is made from that source."""
     del target_spec["target_root"]["source_child_mappings"]["source_root_1"]
-    target_spec.sources = ["source_root_2"]
+    target_spec["target_root"]["sources"] = ["source_root_2"]
     expected: Dict = {
         "People": {
             "Stacy": {
+                "Name": "Stacy",
                 "Age": 26,
                 "Ice cream": "chocolate",
                 "Sport": None
@@ -186,7 +187,7 @@ def test_one_source(source_doc: Dict, source_spec: Dict, target_spec: Dict):
 
 def test_two_sources_one_empty(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     """Two sources are defined, but one is empty."""
-    source_doc["list_source_1"] = []
+    source_doc["list_source_1"] = {}
     expected: Dict = {
         "People": {
             "Stacy": {
