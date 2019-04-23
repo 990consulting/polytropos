@@ -59,9 +59,9 @@ class Translate(Callable):
             for value in list_source:
                 results.append(
                     self(
-                        {self.source.variables[source].name: value},
+                        value,  # {self.source.variables[source].name: value},
                         variable_id,
-                        self.source.variables[source].name
+                        source
                     )
                 )
         return results
@@ -81,9 +81,9 @@ class Translate(Callable):
                     # No duplicate keys
                     raise ValueError
                 results[key] = self(
-                    {self.source.variables[source].name: value},
+                    value,  # {self.source.variables[source].name: value},
                     variable_id,
-                    self.source.variables[source].name
+                    source  # self.source.variables[source].name
                 )
         return results
 
