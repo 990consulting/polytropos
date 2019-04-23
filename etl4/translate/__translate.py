@@ -50,10 +50,6 @@ class Translate(Callable):
         pass
 
     def __call__(self, document, parent=''):
-        if isinstance(document, Addict):
-            # Addict has a weird behavior when a key is not present and returns
-            # a dict instead of None or throwing an exception
-            document = document.to_dict()
         output_document = {}
         # Translate all variables with the same parent
         for variable_id, variable in self.target_variables_by_parent[
