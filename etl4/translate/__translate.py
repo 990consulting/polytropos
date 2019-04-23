@@ -29,7 +29,8 @@ class Translate(Callable):
             # recursively find the parent in the document
             parent = self.find_in_document(
                 variable.parent,
-                document
+                document,
+                parent
             )
             if parent is None:
                 return None
@@ -129,5 +130,4 @@ class Translate(Callable):
             output_document[variable.name] = translate(
                 variable_id, variable, document, source_parent
             )
-
         return output_document
