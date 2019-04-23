@@ -64,14 +64,17 @@ class URL(Variable):
     pass
 
 
+@dataclass
 class Folder(Container):
     pass
 
 
+@dataclass
 class List(Container):
     pass
 
 
+@dataclass
 class NamedList(Container):
     pass
 

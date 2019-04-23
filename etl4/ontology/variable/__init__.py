@@ -1,7 +1,7 @@
 from addict import Dict as Addict
 from dacite import from_dict
 import etl4.ontology.variable.__variable
-from etl4.ontology.variable.__variable import Variable
+from etl4.ontology.variable.__variable import Variable, Folder, List, NamedList
 
 
 def build_variable(data):

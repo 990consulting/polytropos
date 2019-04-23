@@ -2,6 +2,7 @@ from addict import Dict as Addict
 from collections.abc import Callable
 from collections import defaultdict
 from etl4.ontology.track import Track
+from etl4.ontology.variable import NamedList, List, Folder
 
 
 class Translate(Callable):
@@ -28,6 +29,26 @@ class Translate(Callable):
             return parent.get(variable.name)
         return document.get(variable.name)
 
+    def translate_generic(self, variable_id, variable, document):
+        # Try sources one by one
+        for source in sorted(
+            variable.sources,
+            key=lambda source: self.source.variables[source].sort_order
+        ):
+            result = self.find_in_document(source, document)
+            if result is not None:
+                return result
+        return None
+
+    def translate_folder(self, variable_id, variable, document):
+        return self(document, variable_id)
+
+    def translate_list(self, variable_id, variable, document):
+        pass
+
+    def translate_named_list(self, variable_id, variable, document):
+        pass
+
     def __call__(self, document, parent=''):
         if isinstance(document, Addict):
             # Addict has a weird behavior when a key is not present and returns
@@ -38,21 +59,18 @@ class Translate(Callable):
         for variable_id, variable in self.target_variables_by_parent[
             parent
         ].items():
-            # Start with None as a default value
-            output_document[variable.name] = None
-            # Then try sources one by one
-            for source in sorted(
-                variable.sources,
-                key=lambda source: self.source.variables[source].sort_order
-            ):
-                output_document[variable.name] = self.find_in_document(
-                    source, document
-                )
-                # Terminate the search if an actual value is found
-                if output_document[variable.name] is not None:
-                    break
-            if output_document[variable.name] is None:
-                container = self(document, variable_id)
-                if container:
-                    output_document[variable.name] = container
+            translate = None
+            if isinstance(variable, NamedList):
+                translate = self.translate_named_list
+            elif isinstance(variable, List):
+                translate = self.translate_list
+            elif isinstance(variable, Folder):
+                translate = self.translate_folder
+            else:
+                translate = self.translate_generic
+
+            output_document[variable.name] = translate(
+                variable_id, variable, document
+            )
+
         return output_document
