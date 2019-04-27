@@ -50,3 +50,9 @@ def test_move_to_non_container_raises():
 
 def test_move_to_nonexistent_parent_raises():
     pytest.fail()
+
+def test_add_parent_removes_from_root_list():
+    pytest.fail()
+
+def test_remove_parent_adds_to_root_list():
+    pytest.fail()

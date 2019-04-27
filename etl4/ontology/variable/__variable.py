@@ -50,8 +50,12 @@ class Variable:
         """A JSON-compatible serial representation of this variable. (For serialization.)"""
         pass
 
-    def descendants_that(self, data_type: str=None, ) -> Iterator[str]:
-        """Provides a list of variable IDs descending from this variable that meet certain criteria."""
+    def descendants_that(self, data_type: str=None, targets: int=0, container: int=0) -> Iterator[str]:
+        """Provides a list of variable IDs descending from this variable that meet certain criteria.
+        :param data_type: The type of descendant to be found.
+        :param targets: If -1, include only variables that lack targets; if 1, only variables without targets.
+        :param container: If -1, include only primitives; if 1, only containers.
+        """
         pass
 
     @property
