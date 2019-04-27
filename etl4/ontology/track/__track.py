@@ -1,11 +1,12 @@
-from typing import Iterable, Dict
-
+from typing import Iterator, Dict, TYPE_CHECKING
 from etl4.ontology.variable import build_variable
 
+if TYPE_CHECKING:
+    from etl4.ontology.variable import Variable
 
 class Track:
 
-    def __init__(self, variables):
+    def __init__(self, variables: Dict):
         self.variables = variables
 
     @classmethod
@@ -17,3 +18,23 @@ class Track:
                 for variable_id, variable_data in specs.items()
             }
         )
+
+    def roots(self) -> Iterator["Variable"]:
+        """Gets an iterator of all the roots of this track's variable tree."""
+        pass
+
+    def insert(self, spec: Dict, var_id: str=None) -> None:
+        """Validate and then insert a new variable into the track."""
+        pass
+
+    def duplicate(self, source_var_id: str, new_var_id: str=None):
+        """Creates a duplicate of a node, including its sources, but not including its targets."""
+        pass
+
+    def delete(self, var_id: str) -> None:
+        """Attempts to delete a node. Fails if the node has children or targets"""
+        pass
+
+    def move(self, var_id: str, parent_id: str, sort_order: int):
+        """Attempts to change the location of a node within the tree."""
+        pass
