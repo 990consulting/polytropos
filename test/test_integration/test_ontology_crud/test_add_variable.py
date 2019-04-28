@@ -1,5 +1,8 @@
 import pytest
 
+def test_add_variable_without_id_generates_default():
+    pytest.fail()
+
 def test_add_track_non_unique_id_raises():
     pytest.fail()
 

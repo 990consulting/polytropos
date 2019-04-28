@@ -1,4 +1,5 @@
-from typing import Iterator, Dict, TYPE_CHECKING
+import json
+from typing import Iterator, Dict, TYPE_CHECKING, List
 from etl4.ontology.variable import build_variable
 
 if TYPE_CHECKING:
@@ -6,25 +7,26 @@ if TYPE_CHECKING:
 
 class Track:
 
-    def __init__(self, variables: Dict):
+    def __init__(self, variables: Dict, name: str):
         self.variables = variables
+        self.name = name
 
     @classmethod
-    def build(cls, specs: Dict):
+    def build(cls, specs: Dict, name: str):
         """Convert specs into a Variable hierarchy, then construct a Track instance."""
         return Track(
             {
                 variable_id: build_variable(variable_data)
                 for variable_id, variable_data in specs.items()
-            }
+            }, name
         )
 
     def roots(self) -> Iterator["Variable"]:
         """Gets an iterator of all the roots of this track's variable tree."""
         pass
 
-    def insert(self, spec: Dict, var_id: str=None) -> None:
-        """Validate and then insert a new variable into the track."""
+    def add(self, spec: Dict, var_id: str=None) -> None:
+        """Validate, create, and then insert a new variable into the track."""
         pass
 
     def duplicate(self, source_var_id: str, new_var_id: str=None):
@@ -46,3 +48,13 @@ class Track:
         :param container: If -1, include only primitives; if 1, only containers.
         """
         pass
+
+    @property
+    def as_list(self) -> List:
+        """A list representation of this variable."""
+        pass
+
+    @property
+    def json(self) -> str:
+        """A JSON-compatible list representation of this track. (For serialization.)"""
+        return json.dumps(self.as_list)

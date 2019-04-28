@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass, field
 from typing import List, Dict, Iterator
 from etl4.ontology.schemas import DATA_TYPES
@@ -46,9 +47,14 @@ class Variable:
         """A tree representing the descendants of this node. (For UI)"""
 
     @property
-    def json(self) -> str:
-        """A JSON-compatible serial representation of this variable. (For serialization.)"""
+    def as_dict(self) -> Dict:
+        """A dictionary representation of this variable."""
         pass
+
+    @property
+    def json(self) -> str:
+        """A JSON-compatible representation of this variable. (For serialization.)"""
+        return json.dumps(self.as_dict)
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0) -> Iterator[str]:
         """Provides a list of variable IDs descending from this variable that meet certain criteria.
