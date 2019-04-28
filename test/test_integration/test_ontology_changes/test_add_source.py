@@ -23,3 +23,6 @@ def test_add_source_to_folder_raises():
 
 def test_add_existing_source_raises():
     pytest.fail()
+
+def test_add_source_to_list_descendent_raises():
+    pytest.fail()

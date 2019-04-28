@@ -15,3 +15,8 @@ def test_change_name_alters_relative_path():
 def test_change_name_alters_tree():
     pytest.fail()
 
+def test_set_locally_non_unique_name_raises():
+    pytest.fail()
+
+def test_set_illegal_name_raises():
+    pytest.fail()
