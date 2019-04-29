@@ -36,8 +36,9 @@ class Track:
             }, source, name
         )
 
+    @property
     def roots(self) -> Iterator["Variable"]:
-        """Gets an iterator of all the roots of this track's variable tree."""
+        """All the roots of this track's variable tree."""
         pass
 
     def add(self, spec: Dict, var_id: str=None) -> None:

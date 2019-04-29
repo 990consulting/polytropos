@@ -79,7 +79,7 @@ def test_add_with_sources_alters_source_of_for_source(target_nested_dict_track, 
     target_nested_dict_track.add(nested_new_var_spec, "A")
 
     source_var: Variable = source_track.variables["source_var_1"]
-    actual: Set = set(source_var.source_of("Target"))
+    actual: Set = set(source_var.source_for_vars_in("Target"))
     expected: Set = {"A", "target_var_1"}
     assert actual == expected
 

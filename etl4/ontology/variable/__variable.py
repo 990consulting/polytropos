@@ -60,7 +60,7 @@ class Variable:
     )
 
     # For lists and named lists, a mapping of
-    def source_of(self, stage: str) -> Iterator[str]:
+    def source_for_vars_in(self, stage: str) -> Iterator[str]:
         """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
         stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
         pass

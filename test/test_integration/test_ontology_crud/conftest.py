@@ -35,7 +35,7 @@ def source_nested_dict_track() -> Track:
             "name": "third_source",
             "data_type": "Integer",
             "parent": "source_folder_2",
-            "sort_order": 2
+            "sort_order": 1
         },
         "source_folder_3": {
             "name": "initially_empty_folder",
