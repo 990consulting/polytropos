@@ -1,5 +1,5 @@
 import json
-from typing import Iterator, Dict, TYPE_CHECKING, List
+from typing import Iterator, Dict, TYPE_CHECKING, List, Any, Iterable
 from etl4.ontology.variable import build_variable
 
 if TYPE_CHECKING:
@@ -58,3 +58,32 @@ class Track:
     def json(self) -> str:
         """A JSON-compatible list representation of this track. (For serialization.)"""
         return json.dumps(self.as_list)
+
+    def set_primitive_expected_value(self, var_id: str, instance_id: str, value: Any):
+        """Declare that a particular value is expected for a particular variable in a particular instance hierarchy.
+        This is initiated in Track, rather than in Variable, in order to maintain an index of instances to be checked."""
+        pass
+
+    def remove_primitive_expected_value(self, var_id: str, instance_id: str):
+        """Declare that we no longer expect any particular value for a particular variable in a particular instance."""
+        pass
+
+    def set_children_to_test(self, var_id: str, child_ids: Iterable[str]):
+        """Identify the child fields whose values should be checked when verifying expected values for lists."""
+        pass
+
+    def set_list_expected_values(self, var_id: str, instance_id: str, values: Iterable[str, Any]):
+        """Indicate the (unordered) list of observations expected for selected descendents of a particular list container
+        in a particular instance hierarchy"""
+        pass
+
+    def set_named_list_expected_values(self, var_id: str, instance_id: str, values: Dict[str, Any]):
+        """Indicate the dictionary of observations expected for selected descendents of a particular named list in a
+        particular instance hierarchy"""
+        pass
+
+    @property
+    def test_cases(self) -> Iterator[str]:
+        """The set of all instance hierarchy IDs for which expected values have been set for any variable."""
+        pass
+

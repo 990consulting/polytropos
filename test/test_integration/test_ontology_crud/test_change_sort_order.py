@@ -12,7 +12,7 @@ def test_change_sort_order_within_list_ok():
     """Moving a variable within its existing level is permitted, even in a list."""
     pytest.fail()
 
-def test_change_sort_order_alters_json():
+def test_change_sort_order_alters_dict():
     """changing a variable's sort_order alters its json representation."""
     pytest.fail()
 

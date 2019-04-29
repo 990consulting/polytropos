@@ -6,7 +6,7 @@ def test_change_var_id_alters_parent_tree():
 def test_change_var_id_alters_track_index():
     pytest.fail()
 
-def test_change_var_id_alters_track_json():
+def test_change_var_id_alters_track_list():
     pytest.fail()
 
 def test_change_var_id_alters_source_of():

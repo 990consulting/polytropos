@@ -25,8 +25,10 @@ def test_change_parent_cascades_on_descendants_that():
     """changing the parent of a variable affects descendants_that() for upstream antecedents."""
     pytest.fail()
 
-def test_change_parent_of_list_descendent_raises():
-    """attempting to change the topology of list descendents is illegal."""
+def test_move_list_descendent_out_of_list_raises():
+    pytest.fail()
+
+def test_move_non_list_descendent_into_list_raises():
     pytest.fail()
 
 def test_change_parent_does_not_affect_source_status():
@@ -37,8 +39,8 @@ def test_change_parent_does_not_affect_target_status():
     """moving a variable does not alter its status as a target."""
     pytest.fail()
 
-def test_change_parent_alters_json():
-    """changing a variable's parent alters its json representation."""
+def test_change_parent_alters_dict():
+    """changing a variable's parent alters its dictionary representation."""
     pytest.fail()
 
 def test_change_parent_alters_tree():

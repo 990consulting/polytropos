@@ -27,10 +27,10 @@ def test_add_with_sources_alters_has_targets_for_source():
 def test_add_with_parent_alters_children_for_parent():
     pytest.fail()
 
-def test_add_changes_track_json():
+def test_add_changes_track_list():
     pytest.fail()
 
-def test_add_changes_parent_json():
+def test_add_changes_parent_dict():
     pytest.fail()
 
 def test_add_non_container_parent_raises():
@@ -46,4 +46,7 @@ def test_add_pushes_sort_order_down():
     pytest.fail()
 
 def test_invalid_sort_order_raises():
+    pytest.fail()
+
+def test_add_variable_with_expected_values_updates_test_cases():
     pytest.fail()

@@ -3,7 +3,7 @@ import pytest
 def test_add_source_changes_sources_list():
     pytest.fail()
 
-def test_add_source_changes_json():
+def test_add_source_changes_dict():
     pytest.fail()
 
 def test_add_source_adds_this_to_source_targets():

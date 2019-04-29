@@ -1,22 +1,65 @@
 import json
 from dataclasses import dataclass, field
-from typing import List, Dict, Iterator
+from typing import List, Dict, Iterator, Any, Set, Iterable
 from etl4.ontology.schemas import DATA_TYPES
 from datetime import datetime
 
 @dataclass
 class Variable:
+    # The name of the node, as used in paths. Not to be confused with its ID, which is path-invariant.
     name: str
+
+    # The order that this variable appears in instance hierarchies.
     sort_order: int
+
+    # Metadata: any information about the variable that the operator chooses to include.
     notes: str
+
+    # An alphabetically sortable indicator of when this field first came into use.
     earliest_epoch: str
+
+    # An alphabetically sortable indicator of when this field ceased to be used.
     latest_epoch: str
+
+    # The variable IDs (not names!) from the preceding stage from which to derive values for this variable, if any.
     sources: List[str] = field(default_factory=list)
+
+    # The container variable above this variable in the hierarchy, if any.
     parent: str = field(default_factory=str)
+
+    # TODO If it would be possible to move subclass-specific properties to their respective subclasses, I think that
+    #  would be nice
+    # For lists and named lists, sources for any list descendents relative to a particular root source.
     source_child_mappings: Dict[str, Dict[str, List[str]]] = field(
         default_factory=dict
     )
 
+    # For primitives only, the value expected for this variable in a specified instance hierarchy
+    simple_expected_values: Dict[str, Any] = field(
+        default_factory=dict
+    )
+
+    # For lists and named lists, the set of fields for which expected values are to be supplied. (We do not necessarily
+    # have expected values for every descendant.) Descendants are identified by their IDs, not their paths.
+    list_expected_values_fields: Set[str] = field(
+        default_factory=set
+    )
+
+    # For lists, a mapping of instance hierarchy ID to set of per-subfield expected values. Note that
+    # the set of expected values for a given instance hierarchy may be zero-length (we explicitly expect that the list
+    # is empty).
+    list_expected_values: Dict[str, Iterable[Dict[str, Any]]] = field(
+        default_factory=dict
+    )
+
+    # For named lists, a mapping of instance hierarchy ID to a mapping of name to per-subfield expected values. Note
+    # that the set of expected values for a given instance hierarchy may be zero-length (we explicitly expect that
+    # the named list is empty).
+    named_list_expected_values: Dict[str, Dict[str, Dict[str, Any]]] = field(
+        default_factory=dict
+    )
+
+    # For lists and named lists, a mapping of
     def source_of(self, stage: str) -> Iterator[str]:
         """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
         stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""

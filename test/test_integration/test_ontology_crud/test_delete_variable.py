@@ -26,3 +26,9 @@ def test_delete_updates_has_targets_for_source():
 
 def test_delete_updates_descendants_that():
     pytest.fail()
+
+def test_delete_changes_track_list():
+    pytest.fail()
+
+def test_delete_variable_with_expected_values_updates_test_cases():
+    pytest.fail()

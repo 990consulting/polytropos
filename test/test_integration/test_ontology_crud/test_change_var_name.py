@@ -1,9 +1,9 @@
 import pytest
 
-def test_change_name_alters_variable_json():
+def test_change_name_alters_variable_dict():
     pytest.fail()
 
-def test_change_name_alters_track_json():
+def test_change_name_alters_track_list():
     pytest.fail()
 
 def test_change_name_alters_absolute_path():
