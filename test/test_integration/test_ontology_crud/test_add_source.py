@@ -1,15 +1,19 @@
+from typing import Dict, List
 import pytest
 
-def test_add_source_changes_sources_list():
+from etl4.ontology.track import Track
+
+
+def test_add_source_changes_sources_list(source_specs, target_specs):
     pytest.fail()
 
-def test_add_source_changes_dict():
+def test_add_source_changes_dict(source_specs, target_specs):
     pytest.fail()
 
-def test_add_source_adds_this_to_source_targets():
+def test_add_source_adds_this_to_source_targets(source_specs, target_specs):
     pytest.fail()
 
-def test_add_source_changes_has_targets():
+def test_add_source_changes_has_targets(source_specs, target_specs):
     pytest.fail()
 
 def test_nonexistent_source_raises():

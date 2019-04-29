@@ -175,8 +175,8 @@ def test_rearrange(source_doc: Dict, source_spec: Dict, target_doc: Dict, target
     order in which the variables happen to be defined in the spec. """
     shuffled_source_spec = shuffle(source_spec)
     shuffled_target_spec = shuffle(target_spec)
-    source_track: Track = Track.build(shuffled_source_spec)
-    target_track: Track = Track.build(shuffled_target_spec)
-    translate: Translate = Translate(source_track, target_track)
+    source_track: Track = Track.build(shuffled_source_spec, None, "Source")
+    target_track: Track = Track.build(shuffled_target_spec, source_track, "Target")
+    translate: Translate = Translate(target_track)
     actual: Dict = translate(source_doc)
     assert actual == target_doc

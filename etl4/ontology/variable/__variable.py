@@ -13,13 +13,13 @@ class Variable:
     sort_order: int
 
     # Metadata: any information about the variable that the operator chooses to include.
-    notes: str
+    notes: str = field(default=None)
 
     # An alphabetically sortable indicator of when this field first came into use.
-    earliest_epoch: str
+    earliest_epoch: str = field(default=None)
 
     # An alphabetically sortable indicator of when this field ceased to be used.
-    latest_epoch: str
+    latest_epoch: str = field(default=None)
 
     # The variable IDs (not names!) from the preceding stage from which to derive values for this variable, if any.
     sources: List[str] = field(default_factory=list)
@@ -160,7 +160,8 @@ class Email(Variable):
 class URL(Variable):
     pass
 
-
+# TODO The following three produce an error in PyCharm (although the code runs). "Inherited non-default arguments
+#  defined in Container follows inherited default arguments defined in Variable."
 @dataclass
 class Folder(Container):
     pass

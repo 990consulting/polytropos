@@ -78,9 +78,9 @@ def target_spec() -> Dict:
 
 @pytest.fixture()
 def translate(source_spec: Dict, target_spec: Dict) -> Translate:
-    source_track: Track = Track.build(source_spec)
-    target_track: Track = Track.build(target_spec)
-    translate: Translate = Translate(source_track, target_track)
+    source_track: Track = Track.build(source_spec, None, "Source")
+    target_track: Track = Track.build(target_spec, source_track, "Target")
+    translate: Translate = Translate(target_track)
     return translate
 
 

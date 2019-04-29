@@ -225,8 +225,8 @@ def target_nested() -> Tuple[Dict, Dict]:
 def test_list_in_folder(source, target):
     source_spec, source_doc = source
     target_spec, expected = target()
-    source_track: Track = Track.build(source_spec)
-    target_track: Track = Track.build(target_spec)
-    translate: Translate = Translate(source_track, target_track)
+    source_track: Track = Track.build(source_spec, None, "Source")
+    target_track: Track = Track.build(target_spec, source_track, "Target")
+    translate: Translate = Translate(target_track)
     actual: Dict = translate(source_doc)
     assert actual == expected

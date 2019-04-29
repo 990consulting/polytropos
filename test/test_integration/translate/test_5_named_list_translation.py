@@ -135,9 +135,9 @@ def target_spec() -> Dict:
 
 # TODO Used in multiple files -- should be a pytest.fixture
 def do_test(s_doc, s_spec, t_doc, t_spec):
-    source_track: Track = Track.build(s_spec)
-    target_track: Track = Track.build(t_spec)
-    translate: Translate = Translate(source_track, target_track)
+    source_track: Track = Track.build(s_spec, None, "Source")
+    target_track: Track = Track.build(t_spec, source_track, "Target")
+    translate: Translate = Translate(target_track)
     actual: Dict = translate(s_doc)
     assert actual == t_doc
 

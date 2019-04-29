@@ -32,9 +32,9 @@ def target_spec() -> Dict:
 
 @pytest.fixture()
 def translate(source_spec: Dict, target_spec: Dict) -> Translate:
-    source_track: Track = Track.build(source_spec)
-    target_track: Track = Track.build(target_spec)
-    translate: Translate = Translate(source_track, target_track)
+    source_track: Track = Track.build(source_spec, None, "Source")
+    target_track: Track = Track.build(target_spec, source_track, "Target")
+    translate: Translate = Translate(target_track)
     return translate
 
 @pytest.fixture()
@@ -46,12 +46,12 @@ def source_doc() -> Dict:
 
 def test_translate_no_sources_listed(target_spec: Dict, source_spec: Dict, source_doc: Dict):
     """If a primitive is supposed to be translated but it has no sources, it is always null."""
-    source_track: Track = Track.build(source_spec)
+    source_track: Track = Track.build(source_spec, None, "Source")
 
     target_spec["target_var_id"]["sources"] = []
-    target_track: Track = Track.build(target_spec)
+    target_track: Track = Track.build(target_spec, source_track, "Target")
 
-    translate: Translate = Translate(source_track, target_track)
+    translate: Translate = Translate(target_track)
 
     actual: Dict[str, Any] = translate(source_doc)
     expected: Dict[str, Any] = {
@@ -121,9 +121,9 @@ def test_use_same_source_twice(source_spec: Dict, source_doc: Dict):
             "sort_order": 1
         }
     }
-    source_track: Track = Track.build(source_spec)
-    target_track: Track = Track.build(target_spec)
-    translate: Translate = Translate(source_track, target_track)
+    source_track: Track = Track.build(source_spec, None, "Source")
+    target_track: Track = Track.build(target_spec, source_track, "Target")
+    translate: Translate = Translate(target_track)
 
     actual: Dict[str, Any] = translate(source_doc)
     expected: Dict[str, Any] = {

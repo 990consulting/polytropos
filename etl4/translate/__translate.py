@@ -8,8 +8,8 @@ from etl4.ontology.variable import NamedList, List, Folder
 class Translate(Callable):
     """Class in charge of translating documents given a source track and a
     target track"""
-    def __init__(self, source: Track, target: Track):
-        self.source = source
+    def __init__(self, target: Track):
+        self.source = target.source
         self.target = target
         # We need to group by variables by parent to be able to efficiently do
         # a recursion in the translate function
