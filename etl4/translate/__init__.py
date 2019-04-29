@@ -1,1 +1,0 @@
-from etl4.translate.__translate import Translate

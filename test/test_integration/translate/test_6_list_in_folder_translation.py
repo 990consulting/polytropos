@@ -2,7 +2,7 @@ import pytest
 from typing import Dict, Tuple
 
 from etl4.ontology.track import Track
-from etl4.translate import Translate
+from etl4.transform.translate import Translate
 
 @pytest.fixture()
 def source() -> Tuple[Dict, Dict]:

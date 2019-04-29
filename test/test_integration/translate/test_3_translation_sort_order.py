@@ -3,7 +3,7 @@ from typing import Dict, List
 import random
 
 from etl4.ontology.track import Track
-from etl4.translate import Translate
+from etl4.transform.translate import Translate
 
 @pytest.fixture()
 def source_doc() -> Dict:

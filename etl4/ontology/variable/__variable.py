@@ -109,6 +109,10 @@ class Variable:
     def children(self) -> Iterator["Variable"]:
         pass
 
+    @property
+    def data_type(self) -> str:
+        return self.__class__.__name__
+
 @dataclass
 class Container(Variable):
     pass

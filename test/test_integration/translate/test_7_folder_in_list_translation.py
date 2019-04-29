@@ -3,7 +3,7 @@ import random
 import pytest
 from typing import Dict, Tuple, List
 from etl4.ontology.track import Track
-from etl4.translate import Translate
+from etl4.transform.translate import Translate
 import itertools
 
 def source_nested() -> Tuple[Dict, Dict]:
