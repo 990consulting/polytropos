@@ -89,12 +89,10 @@ class Variable:
     def tree(self) -> Dict:
         """A tree representing the descendants of this node. (For UI)"""
 
-    @property
     def dump(self) -> Dict:
         """A dictionary representation of this variable."""
         pass
 
-    @property
     def dumps(self) -> str:
         """A JSON-compatible representation of this variable. (For serialization.)"""
         pass
