@@ -90,14 +90,14 @@ class Variable:
         """A tree representing the descendants of this node. (For UI)"""
 
     @property
-    def as_dict(self) -> Dict:
+    def dump(self) -> Dict:
         """A dictionary representation of this variable."""
         pass
 
     @property
-    def json(self) -> str:
+    def dumps(self) -> str:
         """A JSON-compatible representation of this variable. (For serialization.)"""
-        return json.dumps(self.as_dict)
+        pass
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0) -> Iterator[str]:
         """Provides a list of variable IDs descending from this variable that meet certain criteria.

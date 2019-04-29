@@ -11,9 +11,10 @@ class Track:
     which are structured identically. The two tracks interact during the Analysis step in the generation of this entity
     type's data."""
 
-    def __init__(self, variables: Dict, source: Optional["Track"], name: str):
+    # TODO Remove default for invariant
+    def __init__(self, variables: Dict[str, "Variable"], source: Optional["Track"], name: str, invariant: bool=False):
         """Do not call directly; use Track.build()."""
-        self.variables = variables
+        self.variables: Dict[str, "Variable"] = variables
         self.name = name
         self.source = source
 
@@ -97,4 +98,4 @@ class Track:
 
     def dumps(self) -> str:
         """A pretty JSON string representation of this track."""
-        return json.dumps(self.dump())
+        pass
