@@ -56,7 +56,7 @@ class Variable:
         """A dictionary representation of this variable."""
         representation = {}
         representation['name'] = self.name
-        representation['data_type'] = type(self).__name__
+        representation['data_type'] = self.data_type
         for var_field in fields(self):
             if var_field.name == 'name':
                 continue
