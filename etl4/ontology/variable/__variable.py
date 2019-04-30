@@ -124,7 +124,7 @@ class Variable:
     def targets(self) -> Iterator[str]:
         """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
         stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
-        return map(lambda child: child.var_id, self.children)
+        pass
 
     @property
     def children(self) -> Iterator["Variable"]:
@@ -196,11 +196,16 @@ class URL(Primitive):
     pass
 
 
+@dataclass
+class Date(Primitive):
+    pass
+
+
 # TODO The following three produce an error in PyCharm (although the code runs). "Inherited non-default arguments
 #  defined in Container follows inherited default arguments defined in Variable."
 @dataclass
 class Folder(Container):
-    def targets_in(self):
+    def targets(self):
         raise AttributeError
 
 

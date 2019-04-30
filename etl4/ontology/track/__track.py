@@ -1,7 +1,9 @@
 from dataclasses import asdict
 import json
 from typing import Iterator, Dict, TYPE_CHECKING, List, Any, Iterable, Optional
-from etl4.ontology.variable import build_variable
+from etl4.ontology.variable import (
+    build_variable, Primitive, Container, GenericList
+)
 
 if TYPE_CHECKING:
     from etl4.ontology.variable import Variable
@@ -50,7 +52,38 @@ class Track:
 
     def add(self, spec: Dict, var_id: str=None) -> None:
         """Validate, create, and then insert a new variable into the track."""
-        pass
+        if var_id is None:
+            # TODO Include stage name
+            var_id = 'Target_{}'.format(len(self.variables) + 1)
+        if var_id in self.variables:
+            # Duplicated var id
+            raise ValueError
+        if var_id == '':
+            # Invalid var id
+            raise ValueError
+        variable = build_variable(spec)
+        variable.set_track(self)
+        variable.set_id(var_id)
+        if '/' in variable.name or '.' in variable.name:
+            # Invalid variable name
+            raise ValueError
+        for source in variable.sources:
+            if source not in self.variables:
+                # Invalid source
+                raise ValueError
+        if variable.parent and variable.parent not in self.variables:
+            # Invalid parent
+            raise ValueError
+        if (
+            variable.parent and
+            not isinstance(self.variables[variable.parent], Container)
+        ):
+            # Parent not container
+            raise ValueError
+        if isinstance(variable, GenericList) and variable.descends_from_list:
+            # Nested lists
+            raise ValueError
+        self.variables[var_id] = variable
 
     def duplicate(self, source_var_id: str, new_var_id: str=None):
         """Creates a duplicate of a node, including its sources, but not including its targets."""
@@ -58,7 +91,13 @@ class Track:
 
     def delete(self, var_id: str) -> None:
         """Attempts to delete a node. Fails if the node has children or targets"""
-        pass
+        if var_id not in self.variables:
+            raise ValueError
+        variable = self.variables[var_id]
+        if any(variable.children) or variable.has_targets:
+            print(variable.children)
+            raise ValueError
+        del self.variables[var_id]
 
     def move(self, var_id: str, parent_id: Optional[str], sort_order: int):
         """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
@@ -70,7 +109,19 @@ class Track:
         :param targets: If -1, include only variables that lack targets; if 1, only variables without targets.
         :param container: If -1, include only primitives; if 1, only containers.
         """
-        pass
+        for variable_id, variable in self.variables.items():
+            if data_type is None or variable.data_type == data_type:
+                if targets:
+                    if targets == -1 and variable.targets():
+                        continue
+                    if targets == 1 and not variable.targets():
+                        continue
+                if container:
+                    if container == -1 and not isinstance(variable, Primitive):
+                        continue
+                    if container == 1 and not isinstance(variable, Container):
+                        continue
+                yield variable_id
 
     def set_primitive_expected_value(self, var_id: str, instance_id: str, value: Any):
         """Declare that a particular value is expected for a particular variable in a particular instance hierarchy.
