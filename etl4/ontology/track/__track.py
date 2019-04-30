@@ -35,14 +35,18 @@ class Track:
                 for variable_id, variable_data in specs.items()
             }, source, name
         )
-        for variable in track.variables.values():
+        for variable_id, variable in track.variables.items():
             variable.set_track(track)
+            variable.set_id(variable_id)
         return track
 
     @property
     def roots(self) -> Iterator["Variable"]:
         """All the roots of this track's variable tree."""
-        pass
+        return filter(
+            lambda variable: not variable.parent,
+            self.variables.values()
+        )
 
     def add(self, spec: Dict, var_id: str=None) -> None:
         """Validate, create, and then insert a new variable into the track."""

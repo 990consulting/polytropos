@@ -33,11 +33,18 @@ class Variable:
     parent: str = field(default_factory=str)
 
     def __post_init__(self):
-        # The track to which this variable belongs
+        # The track to which this variable belongs, it's here because of
+        # forward references (need variable to define track and track to define
+        # variable)
         self.track = None
+        # Id of this variable in the corresponding track
+        self.var_id = None
 
     def set_track(self, track: "Track"):
         self.track = track
+
+    def set_id(self, var_id: str):
+        self.var_id = var_id
 
     @property
     def has_targets(self) -> bool:
@@ -47,21 +54,42 @@ class Variable:
     @property
     def descends_from_list(self) -> bool:
         """True iff this or any upstream variable is a list or named list."""
-        pass
+        if not self.parent:
+            return False
+        parent = self.track.variables[self.parent]
+        return isinstance(parent, GenericList) or parent.descends_from_list
 
     @property
     def relative_path(self) -> Iterator[str]:
         """The path from this node to the nearest list or or root."""
-        pass
+        if not self.parent:
+            return [self.name]
+        parent = self.track.variables[self.parent]
+        if isinstance(parent, GenericList):
+            return [self.name]
+        parent_path = parent.relative_path
+        return parent_path + [self.name]
 
     @property
     def absolute_path(self) -> Iterator[str]:
         """The path from this node to the root."""
-        pass
+        if not self.parent:
+            return [self.name]
+        parent_path = self.track.variables[self.parent].absolute_path
+        return parent_path + [self.name]
 
     @property
     def tree(self) -> Dict:
         """A tree representing the descendants of this node. (For UI)"""
+        children=[child.tree for child in self.children]
+        tree = dict(
+            title=self.name,
+            varId=self.var_id,
+            dataType=self.data_type,
+        )
+        if children:
+            tree['children'] = children
+        return tree
 
     def dump(self) -> Dict:
         """A dictionary representation of this variable."""
@@ -93,9 +121,17 @@ class Variable:
         """
         pass
 
+    def targets(self) -> Iterator[str]:
+        """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
+        stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
+        return map(lambda child: child.var_id, self.children)
+
     @property
     def children(self) -> Iterator["Variable"]:
-        pass
+        return filter(
+            lambda variable: variable.parent == self.var_id,
+            self.track.variables.values()
+        )
 
     @property
     def data_type(self) -> str:
@@ -164,7 +200,8 @@ class URL(Primitive):
 #  defined in Container follows inherited default arguments defined in Variable."
 @dataclass
 class Folder(Container):
-    pass
+    def targets_in(self):
+        raise AttributeError
 
 
 @dataclass
@@ -178,12 +215,6 @@ class GenericList(Container):
     list_expected_values_fields: Set[str] = field(
         default_factory=set
     )
-
-    # For lists and named lists, a mapping of
-    def source_for_vars_in(self, stage: str) -> Iterator[str]:
-        """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
-        stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
-        pass
 
 
 @dataclass
