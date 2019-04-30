@@ -103,11 +103,13 @@ class Track:
         """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
         pass
 
-    def descendants_that(self, data_type: str=None, targets: int=0, container: int=0) -> Iterator[str]:
+    def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
+            -> Iterator[str]:
         """Provides a list of variable IDs in this track that meet certain criteria.
         :param data_type: The type of descendant to be found.
         :param targets: If -1, include only variables that lack targets; if 1, only variables without targets.
         :param container: If -1, include only primitives; if 1, only containers.
+        :param inside_list: If -1, include only elements outside lists; if 1, only inside lists.
         """
         for variable_id, variable in self.variables.items():
             if data_type is None or variable.data_type == data_type:
