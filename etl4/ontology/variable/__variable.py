@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields, MISSING
 from typing import List, Dict, Iterator, Any, Set, Iterable
 from etl4.ontology.schemas import DATA_TYPES
 from datetime import datetime
@@ -91,11 +91,25 @@ class Variable:
 
     def dump(self) -> Dict:
         """A dictionary representation of this variable."""
-        pass
+        representation = {}
+        representation['name'] = self.name
+        representation['data_type'] = type(self).__name__
+        for var_field in fields(self):
+            if var_field.name == 'name':
+                continue
+            if (var_field.default == getattr(self, var_field.name)):
+                continue
+            if (
+                var_field.default_factory != MISSING and
+                var_field.default_factory() == getattr(self, var_field.name)
+            ):
+                continue
+            representation[var_field.name] = getattr(self, var_field.name)
+        return representation
 
     def dumps(self) -> str:
         """A JSON-compatible representation of this variable. (For serialization.)"""
-        pass
+        return json.dumps(self.dump, indent=4)
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0) -> Iterator[str]:
         """Provides a list of variable IDs descending from this variable that meet certain criteria.
@@ -112,6 +126,7 @@ class Variable:
     @property
     def data_type(self) -> str:
         return self.__class__.__name__
+
 
 @dataclass
 class Container(Variable):

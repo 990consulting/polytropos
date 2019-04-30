@@ -1,3 +1,4 @@
+from dataclasses import asdict
 import json
 from typing import Iterator, Dict, TYPE_CHECKING, List, Any, Iterable, Optional
 from etl4.ontology.variable import build_variable
@@ -28,7 +29,6 @@ class Track:
          (stage) of the analysis process that precedes this one for the particular entity type represented.
 
         :param name: The name of the stage/aspect."""
-
         return Track(
             {
                 variable_id: build_variable(variable_data)
@@ -95,8 +95,11 @@ class Track:
 
     def dump(self) -> Dict:
         """A Dict representation of this track."""
-        pass
+        representation = {}
+        for variable_id, variable in sorted(self.variables.items()):
+            representation[variable_id] = variable.dump()
+        return representation
 
     def dumps(self) -> str:
         """A pretty JSON string representation of this track."""
-        pass
+        return json.dumps(self.dump(), indent=4)
