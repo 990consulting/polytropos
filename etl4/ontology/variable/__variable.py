@@ -1,8 +1,13 @@
 import json
 from dataclasses import dataclass, field, fields, MISSING
-from typing import List, Dict, Iterator, Any, Set, Iterable
+from typing import List, Dict, Iterator, Any, Set, Iterable, TYPE_CHECKING
 from etl4.ontology.schemas import DATA_TYPES
 from datetime import datetime
+
+
+if TYPE_CHECKING:
+    from etl4.ontology.track import Track
+
 
 @dataclass
 class Variable:
@@ -27,6 +32,12 @@ class Variable:
     # The container variable above this variable in the hierarchy, if any.
     parent: str = field(default_factory=str)
 
+    def __post_init__(self):
+        # The track to which this variable belongs
+        self.track = None
+
+    def set_track(self, track: "Track"):
+        self.track = track
 
     @property
     def has_targets(self) -> bool:

@@ -29,12 +29,15 @@ class Track:
          (stage) of the analysis process that precedes this one for the particular entity type represented.
 
         :param name: The name of the stage/aspect."""
-        return Track(
+        track = Track(
             {
                 variable_id: build_variable(variable_data)
                 for variable_id, variable_data in specs.items()
             }, source, name
         )
+        for variable in track.variables.values():
+            variable.set_track(track)
+        return track
 
     @property
     def roots(self) -> Iterator["Variable"]:
