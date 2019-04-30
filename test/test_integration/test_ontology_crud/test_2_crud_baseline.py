@@ -8,7 +8,7 @@ from etl4.ontology.variable import Variable
 def test_targets_for_var_in(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
-    actual: Set[str] = set(source_track.variables["source_var_2"].source_for_vars_in("Target"))
+    actual: Set[str] = set(source_track.variables["source_var_2"].targets())
     expected: Set[str] = {"target_var_2"}
     assert actual == expected
 
