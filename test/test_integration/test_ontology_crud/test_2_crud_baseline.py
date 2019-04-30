@@ -85,7 +85,7 @@ def test_absolute_path_named_list(target_list_track):
 def test_relative_path_named_list(target_list_track):
     var: Variable = target_list_track.variables["target_named_list_color"]
     expected: List[str] = ["color"]
-    actual: List[str] = list(var.absolute_path)
+    actual: List[str] = list(var.relative_path)
     assert actual == expected
 
 def test_absolute_path_folder(simple_track):
@@ -102,5 +102,5 @@ def test_absolute_path_list(target_list_track):
 
 def test_relative_path_list(target_list_track):
     var: Variable = target_list_track.variables["target_list_color"]
-    assert list(var.absolute_path) == ["color"]
+    assert list(var.relative_path) == ["color"]
 
