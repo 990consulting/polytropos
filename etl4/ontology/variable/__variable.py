@@ -27,43 +27,6 @@ class Variable:
     # The container variable above this variable in the hierarchy, if any.
     parent: str = field(default_factory=str)
 
-    # TODO If it would be possible to move subclass-specific properties to their respective subclasses, I think that
-    #  would be nice
-    # For lists and named lists, sources for any list descendents relative to a particular root source.
-    source_child_mappings: Dict[str, Dict[str, List[str]]] = field(
-        default_factory=dict
-    )
-
-    # For primitives only, the value expected for this variable in a specified instance hierarchy
-    simple_expected_values: Dict[str, Any] = field(
-        default_factory=dict
-    )
-
-    # For lists and named lists, the set of fields for which expected values are to be supplied. (We do not necessarily
-    # have expected values for every descendant.) Descendants are identified by their IDs, not their paths.
-    list_expected_values_fields: Set[str] = field(
-        default_factory=set
-    )
-
-    # For lists, a mapping of instance hierarchy ID to set of per-subfield expected values. Note that
-    # the set of expected values for a given instance hierarchy may be zero-length (we explicitly expect that the list
-    # is empty).
-    list_expected_values: Dict[str, Iterable[Dict[str, Any]]] = field(
-        default_factory=dict
-    )
-
-    # For named lists, a mapping of instance hierarchy ID to a mapping of name to per-subfield expected values. Note
-    # that the set of expected values for a given instance hierarchy may be zero-length (we explicitly expect that
-    # the named list is empty).
-    named_list_expected_values: Dict[str, Dict[str, Dict[str, Any]]] = field(
-        default_factory=dict
-    )
-
-    # For lists and named lists, a mapping of
-    def source_for_vars_in(self, stage: str) -> Iterator[str]:
-        """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
-        stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
-        pass
 
     @property
     def has_targets(self) -> bool:
@@ -134,48 +97,57 @@ class Container(Variable):
 
 
 @dataclass
-class Integer(Variable):
+class Primitive(Variable):
+    # For primitives only, the value expected for this variable in a specified instance hierarchy
+    simple_expected_values: Dict[str, Any] = field(
+        default_factory=dict
+    )
+
+
+@dataclass
+class Integer(Primitive):
     pass
 
 
 @dataclass
-class Text(Variable):
+class Text(Primitive):
     pass
 
 
 @dataclass
-class Decimal(Variable):
+class Decimal(Primitive):
     pass
 
 
 @dataclass
-class Unary(Variable):
+class Unary(Primitive):
     pass
 
 
 @dataclass
-class Binary(Variable):
+class Binary(Primitive):
     pass
 
 
 @dataclass
-class Currency(Variable):
+class Currency(Primitive):
     pass
 
 
 @dataclass
-class Phone(Variable):
+class Phone(Primitive):
     pass
 
 
 @dataclass
-class Email(Variable):
+class Email(Primitive):
     pass
 
 
 @dataclass
-class URL(Variable):
+class URL(Primitive):
     pass
+
 
 # TODO The following three produce an error in PyCharm (although the code runs). "Inherited non-default arguments
 #  defined in Container follows inherited default arguments defined in Variable."
@@ -185,12 +157,39 @@ class Folder(Container):
 
 
 @dataclass
-class List(Container):
-    pass
+class GenericList(Container):
+    # For lists and named lists, sources for any list descendents relative to a particular root source.
+    source_child_mappings: Dict[str, Dict[str, List[str]]] = field(
+        default_factory=dict
+    )
+    # For lists and named lists, the set of fields for which expected values are to be supplied. (We do not necessarily
+    # have expected values for every descendant.) Descendants are identified by their IDs, not their paths.
+    list_expected_values_fields: Set[str] = field(
+        default_factory=set
+    )
+
+    # For lists and named lists, a mapping of
+    def source_for_vars_in(self, stage: str) -> Iterator[str]:
+        """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
+        stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
+        pass
 
 
 @dataclass
-class NamedList(Container):
-    pass
+class List(GenericList):
+    # For lists, a mapping of instance hierarchy ID to set of per-subfield expected values. Note that
+    # the set of expected values for a given instance hierarchy may be zero-length (we explicitly expect that the list
+    # is empty).
+    list_expected_values: Dict[str, Iterable[Dict[str, Any]]] = field(
+        default_factory=dict
+    )
 
 
+@dataclass
+class NamedList(GenericList):
+    # For named lists, a mapping of instance hierarchy ID to a mapping of name to per-subfield expected values. Note
+    # that the set of expected values for a given instance hierarchy may be zero-length (we explicitly expect that
+    # the named list is empty).
+    named_list_expected_values: Dict[str, Dict[str, Dict[str, Any]]] = field(
+        default_factory=dict
+    )
