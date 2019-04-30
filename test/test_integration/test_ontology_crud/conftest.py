@@ -134,7 +134,7 @@ def source_list_track() -> Track:
             "sort_order": 0
         }
     }
-    return Track(spec, None, "Source")
+    return Track.build(spec, None, "Source")
 
 @pytest.fixture()
 def target_list_track(source_list_track) -> Track:
@@ -194,7 +194,7 @@ def target_list_track(source_list_track) -> Track:
             "sort_order": 0
         }
     }
-    return Track(spec, source_list_track, "Target")
+    return Track.build(spec, source_list_track, "Target")
 
 @pytest.fixture()
 def source_named_list_track() -> Track:
