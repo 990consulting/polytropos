@@ -25,7 +25,7 @@ def test_dumps_pretty(simple_spec):
         "target_folder": simple_spec["target_folder"]
     }
 
-    track: Track = Track(out_of_order_spec, None, "OOO")
+    track: Track = Track.build(out_of_order_spec, None, "OOO")
     actual: str = track.dumps()
     expected: str = inspect.cleandoc("""
     {

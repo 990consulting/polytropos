@@ -22,7 +22,7 @@ def simple_spec() -> Dict:
 
 @pytest.fixture()
 def simple_track(simple_spec) -> Track:
-    return Track(simple_spec, None, "Sample")
+    return Track.build(simple_spec, None, "Sample")
 
 @pytest.fixture()
 def source_nested_dict_track() -> Track:
