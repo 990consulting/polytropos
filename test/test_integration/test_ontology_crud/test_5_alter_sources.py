@@ -85,12 +85,12 @@ def test_add_source_to_folder_raises(sources, target_nested_dict_track):
 
 @pytest.mark.parametrize("sources", [
     [],
-    ["source_list_day"],
+    ["source_list_name"],
     ["not_a_thing"]
 ])
 def test_directly_assign_source_to_list_descendent_raises(sources, target_list_track):
     track: Track = target_list_track
-    var: Variable = track.variables["target_list_day"]
+    var: Variable = track.variables["target_list_name"]
     with pytest.raises(ValueError):
         var.sources = sources
 

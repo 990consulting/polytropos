@@ -1,4 +1,6 @@
-from typing import Dict, Set
+from typing import Dict, Set, List
+
+import pytest
 
 from etl4.ontology.track import Track
 from etl4.ontology.variable import Variable
@@ -73,3 +75,32 @@ def test_track_roots(source_nested_dict_track):
     expected: Set[str] = {"source_folder_3", "source_folder_1"}
     actual: Set[str] = {v.name for v in track.roots}
     assert expected == actual
+
+def test_absolute_path_named_list(target_list_track):
+    var: Variable = target_list_track.variables["target_named_list_color"]
+    expected: List[str] = ["outer", "inner", "the_named_list", "color"]
+    actual: List[str] = list(var.absolute_path)
+    assert actual == expected
+
+def test_relative_path_named_list(target_list_track):
+    var: Variable = target_list_track.variables["target_named_list_color"]
+    expected: List[str] = ["color"]
+    actual: List[str] = list(var.absolute_path)
+    assert actual == expected
+
+def test_absolute_path_folder(simple_track):
+    var: Variable = simple_track.variables["target_var_id"]
+    assert list(var.absolute_path) == ["the_folder", "the_target"]
+
+def test_relative_path_folder(simple_track):
+    var: Variable = simple_track.variables["target_var_id"]
+    assert list(var.relative_path) == ["the_folder", "the_target"]
+
+def test_absolute_path_list(target_list_track):
+    var: Variable = target_list_track.variables["target_list_color"]
+    assert list(var.absolute_path) == ["outer", "the_list", "color"]
+
+def test_relative_path_list(target_list_track):
+    var: Variable = target_list_track.variables["target_list_color"]
+    assert list(var.absolute_path) == ["color"]
+

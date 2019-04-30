@@ -8,39 +8,21 @@ from etl4.ontology.track import Track
 import sys
 import inspect
 
-@pytest.fixture()
-def spec() -> Dict:
-    return {
-        "target_folder": {
-            "name": "the_folder",
-            "data_type": "Folder",
-            "sort_order": 1
-        },
-        "target_var_id": {
-            "name": "the_target",
-            "data_type": "Integer",
-            "sort_order": 0
-        }
-    }
 
-@pytest.fixture()
-def track(spec) -> Track:
-    return Track(spec, None, "Sample")
-
-def test_dump(track, spec):
+def test_dump(simple_track, simple_spec):
     """Convert the source spec dict to a track, then back to a dict"""
-    actual: Dict = track.dump()
-    assert spec == actual
+    actual: Dict = simple_track.dump()
+    assert simple_spec == actual
 
-def test_dumps_pretty(spec):
+def test_dumps_pretty(simple_spec):
     """Verify that, regardless of how the input dict was formatted, dumps is pretty and alphabetized by variable ID."""
 
     # Dictionary insertion order is preserved (as a language feature) from Python 3.7 onward
     assert sys.version_info >= (3, 7), "This module requires Python 3.7+"
 
     out_of_order_spec: Dict = {
-        "target_var_id": spec["target_var_id"],
-        "target_folder": spec["target_folder"]
+        "target_var_id": simple_spec["target_var_id"],
+        "target_folder": simple_spec["target_folder"]
     }
 
     track: Track = Track(out_of_order_spec, None, "OOO")

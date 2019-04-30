@@ -6,6 +6,25 @@ from etl4.ontology.track import Track
 from etl4.ontology.variable import Variable
 
 @pytest.fixture()
+def simple_spec() -> Dict:
+    return {
+        "target_folder": {
+            "name": "the_folder",
+            "data_type": "Folder",
+            "sort_order": 1
+        },
+        "target_var_id": {
+            "name": "the_target",
+            "data_type": "Integer",
+            "sort_order": 0
+        }
+    }
+
+@pytest.fixture()
+def simple_track(simple_spec) -> Track:
+    return Track(simple_spec, None, "Sample")
+
+@pytest.fixture()
 def source_nested_dict_track() -> Track:
     spec: Dict = {
         "source_var_1": {
@@ -79,91 +98,103 @@ def target_nested_dict_track(source_nested_dict_track) -> Track:
 @pytest.fixture()
 def source_list_track() -> Track:
     spec: Dict = {
-        "source_list": {
-            "name": "the_list",
-            "data_type": "List",
-            "sort_order": 0
-        },
-        "source_list_day": {
-            "name": "day",
-            "data_type": "Integer",
-            "parent": "source_list",
-            "sort_order": 0
-        },
-        "source_list_folder": {
-            "name": "the_folder",
+        "source_folder": {
+            "name": "source_outer_folder",
             "data_type": "Folder",
-            "parent": "source_list",
-            "sort_order": 1
+            "sort_order": 0
+        },
+        "source_list": {
+            "name": "source_inner_list",
+            "data_type": "List",
+            "parent": "source_folder",
+            "sort_order": 0,
         },
         "source_list_name": {
             "name": "name",
             "data_type": "Text",
-            "parent": "source_list_folder",
+            "parent": "source_list",
             "sort_order": 0
         },
         "source_list_color": {
             "name": "color",
             "data_type": "Text",
-            "parent": "source_list_folder",
+            "parent": "source_list",
             "sort_order": 1
         },
-        "source_meaning_of_life": {
-            "name": "meaning_of_life",
-            "data_type": "Integer",
+        "source_named_list": {
+            "name": "source_inner_named_list",
+            "data_type": "NamedList",
+            "parent": "source_folder",
             "sort_order": 1
+        },
+        "source_named_list_color": {
+            "name": "color",
+            "data_type": "Text",
+            "parent": "source_named_list",
+            "sort_order": 0
         }
     }
-    return Track.build(spec, None, "Source")
+    return Track(spec, None, "Source")
 
 @pytest.fixture()
 def target_list_track(source_list_track) -> Track:
     spec: Dict = {
+        "target_folder_outer": {
+            "name": "outer",
+            "data_type": "Folder",
+            "sort_order": 0
+        },
+        "target_folder_inner": {
+            "name": "inner",
+            "data_type": "Folder",
+            "parent": "target_folder_outer",
+            "sort_order": 0
+        },
         "target_list": {
             "name": "the_list",
             "data_type": "List",
-            "sort_order": 0,
+            "parent": "target_folder_outer",
+            "sort_order": 1,
             "sources": ["source_list"],
             "source_child_mappings": {
                 "source_list": {
-                    "target_list_day": ["source_list_day"],
                     "target_list_name": ["source_list_name"],
                     "target_list_color": ["source_list_color"]
                 }
             }
         },
-        "target_list_day": {
-            "name": "day",
-            "data_type": "Integer",
-            "parent": "target_list",
-            "sort_order": 0
-        },
-        "target_list_folder": {
-            "name": "the_folder",
-            "data_type": "Folder",
-            "parent": "target_list",
-            "sort_order": 1
-        },
         "target_list_name": {
             "name": "name",
             "data_type": "Text",
-            "parent": "target_list_folder",
+            "parent": "target_list",
             "sort_order": 0
         },
         "target_list_color": {
             "name": "color",
             "data_type": "Text",
-            "parent": "target_list_folder",
+            "parent": "target_list",
             "sort_order": 1
         },
-        "target_meaning_of_life": {
-            "name": "meaning_of_life",
-            "data_type": "Integer",
-            "sort_order": 1,
-            "sources": ["source_meaning_of_life"]
+        "target_named_list": {
+            "name": "the_named_list",
+            "data_type": "NamedList",
+            "parent": "target_folder_inner",
+            "sort_order": 0,
+            "sources": ["source_named_list"],
+            "source_child_mappings": {
+                "source_named_list": {
+                    "target_named_list_color": ["source_named_list_color"]
+                }
+            }
+        },
+        "target_named_list_color": {
+            "name": "color",
+            "data_type": "Text",
+            "parent": "target_named_list",
+            "sort_order": 0
         }
     }
-    return Track.build(spec, source_list_track, "Target")
+    return Track(spec, source_list_track, "Target")
 
 @pytest.fixture()
 def source_named_list_track() -> Track:
