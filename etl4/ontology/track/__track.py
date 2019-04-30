@@ -53,8 +53,8 @@ class Track:
         """Attempts to delete a node. Fails if the node has children or targets"""
         pass
 
-    def move(self, var_id: str, parent_id: str, sort_order: int):
-        """Attempts to change the location of a node within the tree."""
+    def move(self, var_id: str, parent_id: Optional[str], sort_order: int):
+        """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
         pass
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0) -> Iterator[str]:

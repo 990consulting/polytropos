@@ -69,6 +69,7 @@ def test_change_name_alters_tree(source_nested_dict_track):
 
 def test_set_locally_non_unique_name_raises(source_nested_dict_track):
     var: Variable = source_nested_dict_track.variables["source_var_2"]
+
     with pytest.raises(ValueError):
         var.name = "third_source"
 
