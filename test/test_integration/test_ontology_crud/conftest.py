@@ -16,7 +16,8 @@ def simple_spec() -> Dict:
         "target_var_id": {
             "name": "the_target",
             "data_type": "Integer",
-            "sort_order": 0
+            "sort_order": 0,
+            "parent": "target_folder"
         }
     }
 

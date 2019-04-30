@@ -37,7 +37,8 @@ def test_dumps_pretty(simple_spec):
         "target_var_id": {
             "name": "the_target",
             "data_type": "Integer",
-            "sort_order": 0
+            "sort_order": 0,
+            "parent": "target_folder"
         }
     }
     """)
