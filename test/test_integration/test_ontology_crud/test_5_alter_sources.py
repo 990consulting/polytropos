@@ -102,6 +102,6 @@ def test_directly_assign_source_to_list_descendent_raises(sources, target_list_t
 ])
 def test_directly_assign_source_to_named_list_descendent_raises(sources, target_named_list_track):
     track: Track = target_named_list_track
-    var: Variable = track.variables["target_list_day"]
+    var: Variable = track.variables["target_root_age"]
     with pytest.raises(ValueError):
         var.sources = sources

@@ -5,6 +5,11 @@ import pytest
 from etl4.ontology.track import Track
 from etl4.ontology.variable import Variable
 
+
+def children_to_set(children):
+    return set(child.var_id for child in children)
+
+
 # TODO In order for this to work, the setter for the parent property may need to make a callback to the track to
 #  update its internal state.
 def test_change_parent_alters_relative_path(target_list_track):
@@ -40,14 +45,14 @@ def test_change_parent_alters_absolute_path(target_list_track):
     assert actual == expected
 
 def test_change_parent_alters_original_parent_children(source_nested_dict_track):
-    assert set(source_nested_dict_track.variables["source_folder_1"].children) == {"source_var_1", "source_folder_2"}
+    assert children_to_set(source_nested_dict_track.variables["source_folder_1"].children) == {"source_var_1", "source_folder_2"}
     source_nested_dict_track.move("source_var_1", "source_folder_3", 0)
-    assert set(source_nested_dict_track.variables["source_folder_1"].children) == {"source_folder_2"}
+    assert children_to_set(source_nested_dict_track.variables["source_folder_1"].children) == {"source_folder_2"}
 
 def test_change_parent_alters_new_parent_children(source_nested_dict_track):
-    assert set(source_nested_dict_track.variables["source_folder_3"].children) == set()
+    assert children_to_set(source_nested_dict_track.variables["source_folder_3"].children) == set()
     source_nested_dict_track.move("source_var_1", "source_folder_3", 0)
-    assert set(source_nested_dict_track.variables["source_folder_3"].children) == {"source_var_1"}
+    assert children_to_set(source_nested_dict_track.variables["source_folder_3"].children) == {"source_var_1"}
 
 def test_change_parent_alters_original_descendants_that(source_nested_dict_track):
     """after changing the parent, the original parent no longer includes the node in descendents_that()."""
@@ -184,7 +189,7 @@ def test_change_parent_alters_tree(simple_track):
             {
                 "title": "the_target",
                 "varId": "target_var_id",
-                "data_type": "Integer"
+                "dataType": "Integer"
             }
         ]
     }
@@ -200,12 +205,12 @@ def test_move_to_nonexistent_parent_raises(simple_track):
         simple_track.move("target_var_id", "something that doesn't exist", 0)
 
 def test_add_parent_removes_from_root_list(simple_track):
-    assert {v.name for v in simple_track.roots} == {"target_folder", "target_var_id"}
+    assert {v.var_id for v in simple_track.roots} == {"target_folder", "target_var_id"}
     simple_track.move("target_var_id", "target_folder", 0)
-    assert {v.name for v in simple_track.roots} == {"target_folder"}
+    assert {v.var_id for v in simple_track.roots} == {"target_folder"}
 
 def test_remove_parent_adds_to_root_list(source_nested_dict_track):
     track: Track = source_nested_dict_track
-    assert {v.name for v in track.roots} == {"source_folder_1", "source_folder_3"}
+    assert {v.var_id for v in track.roots} == {"source_folder_1", "source_folder_3"}
     source_nested_dict_track.move("source_var_2", None, 0)
-    assert {v.name for v in track.roots} == {"source_folder_1", "source_folder_3", "source_var_2"}
+    assert {v.var_id for v in track.roots} == {"source_folder_1", "source_folder_3", "source_var_2"}
