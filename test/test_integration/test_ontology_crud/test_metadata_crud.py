@@ -1,5 +1,15 @@
 import pytest
 
+from etl4.ontology.track import Track
+
+@pytest.fixture()
+def has_all_track() -> Track:
+    pass
+
+@pytest.fixture()
+def has_none_track() -> Track:
+    pass
+
 def test_no_earliest_epoch_dict():
     pytest.fail()
 

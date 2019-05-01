@@ -59,6 +59,12 @@ class Variable:
         default_factory=dict
     )
 
+    def alter_list_child_source_mappings(self, list_root: str, child_source_mappings: Iterable[str]):
+        pass
+
+    def alter_named_list_child_source_mappings(self, list_root: str, child_source_mappings: Iterable[str]):
+        pass
+
     # For lists and named lists, a mapping of
     def source_for_vars_in(self, stage: str) -> Iterator[str]:
         """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
