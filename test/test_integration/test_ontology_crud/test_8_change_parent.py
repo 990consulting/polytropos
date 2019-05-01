@@ -36,7 +36,7 @@ def test_change_parent_alters_absolute_path(target_list_track):
     target_list_track.add(new_folder_spec, "new_nested_folder")
     target_list_track.move("target_named_list_color", "new_nested_folder", 0)
     expected: List[str] = ["outer", "inner", "the_named_list", "a_new_folder", "color"]
-    actual: List[str] = list(var.relative_path)
+    actual: List[str] = list(var.absolute_path)
     assert actual == expected
 
 def test_change_parent_alters_original_parent_children(source_nested_dict_track):
@@ -47,7 +47,7 @@ def test_change_parent_alters_original_parent_children(source_nested_dict_track)
 def test_change_parent_alters_new_parent_children(source_nested_dict_track):
     assert set(source_nested_dict_track.variables["source_folder_3"].children) == set()
     source_nested_dict_track.move("source_var_1", "source_folder_3", 0)
-    assert set(source_nested_dict_track.variables["source_folder_3"].children) == set("source_var_1")
+    assert set(source_nested_dict_track.variables["source_folder_3"].children) == {"source_var_1"}
 
 def test_change_parent_alters_original_descendants_that(source_nested_dict_track):
     """after changing the parent, the original parent no longer includes the node in descendents_that()."""
