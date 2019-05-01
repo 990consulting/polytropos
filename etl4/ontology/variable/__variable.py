@@ -1,14 +1,59 @@
 import json
 from dataclasses import dataclass, field, fields, MISSING
 from typing import List, Dict, Iterator, Any, Set, Iterable, TYPE_CHECKING
-from etl4.ontology.variable.__descriptors import (
-    SourceDescriptor, ParentDescriptor
-)
 from datetime import datetime
 
 
 if TYPE_CHECKING:
     from etl4.ontology.track import Track
+
+
+class Validator:
+    @staticmethod
+    def validate_sources(variable, sources):
+        if variable.track is not None:
+            if sources == []:
+                return
+            if isinstance(variable, Folder):
+                raise ValueError
+            if (
+                variable.parent and
+                isinstance(
+                    variable.track.variables[variable.parent], GenericList
+                )
+            ):
+                raise ValueError
+            for source in sources:
+                if source not in variable.track.source.variables:
+                    raise ValueError
+                if (
+                    variable.track.source.variables[source].__class__ !=
+                    variable.__class__
+                ):
+                    raise ValueError
+
+    @staticmethod
+    def validate_parent(variable, parent):
+        if variable.track is not None:
+            if parent == '':
+                return
+            if parent not in variable.track.variables:
+                # invalid parent
+                raise ValueError
+            if not isinstance(variable.track.variables[parent], Container):
+                # parent not container
+                raise ValueError
+            if (
+                isinstance(variable, GenericList) and
+                variable.descends_from_list
+            ):
+                # nested lists
+                raise ValueError
+
+    @staticmethod
+    def validate_name(variable, name):
+        if '/' in name or '.' in name:
+            raise ValueError
 
 
 @dataclass
@@ -29,10 +74,10 @@ class Variable:
     latest_epoch: str = field(default=None)
 
     # The variable IDs (not names!) from the preceding stage from which to derive values for this variable, if any.
-    sources: List[str] = field(default=SourceDescriptor())
+    sources: List[str] = field(default_factory=list)
 
     # The container variable above this variable in the hierarchy, if any.
-    parent: str = field(default=ParentDescriptor())
+    parent: str = field(default='')
 
     # The track to which this variable belongs
     track = None
@@ -44,6 +89,17 @@ class Variable:
 
     def set_id(self, var_id: str):
         self.var_id = var_id
+
+    def __setattr__(self, attribute, value):
+        if attribute == 'name':
+            Validator.validate_name(self, value)
+        if attribute == 'sources':
+            Validator.validate_sources(self, value)
+        if attribute == 'parent':
+            Validator.validate_parent(self, value)
+        if attribute == 'data_type':
+            raise AttributeError
+        self.__dict__[attribute] = value
 
     @property
     def has_targets(self) -> bool:

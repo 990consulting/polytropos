@@ -3,7 +3,7 @@ from dataclasses import asdict
 import json
 from typing import Iterator, Dict, TYPE_CHECKING, List, Any, Iterable, Optional
 from etl4.ontology.variable import (
-    build_variable, Primitive, Container, GenericList
+    build_variable, Primitive, Container, GenericList, Validator
 )
 
 if TYPE_CHECKING:
@@ -68,25 +68,9 @@ class Track:
         variable = build_variable(spec)
         variable.set_track(self)
         variable.set_id(var_id)
-        if '/' in variable.name or '.' in variable.name:
-            # Invalid variable name
-            raise ValueError
-        for source in variable.sources:
-            if source not in self.variables:
-                # Invalid source
-                raise ValueError
-        if variable.parent and variable.parent not in self.variables:
-            # Invalid parent
-            raise ValueError
-        if (
-            variable.parent and
-            not isinstance(self.variables[variable.parent], Container)
-        ):
-            # Parent not container
-            raise ValueError
-        if isinstance(variable, GenericList) and variable.descends_from_list:
-            # Nested lists
-            raise ValueError
+        Validator.validate_name(variable, variable.name)
+        Validator.validate_parent(variable, variable.parent)
+        Validator.validate_sources(variable, variable.sources)
         self.variables[var_id] = variable
 
     def duplicate(self, source_var_id: str, new_var_id: str=None):
