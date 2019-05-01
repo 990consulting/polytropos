@@ -101,6 +101,12 @@ class Variable:
             raise AttributeError
         self.__dict__[attribute] = value
 
+    def alter_list_child_source_mappings(self, list_root: str, child_source_mappings: Iterable[str]):
+        pass
+
+    def alter_named_list_child_source_mappings(self, list_root: str, child_source_mappings: Iterable[str]):
+        pass
+
     @property
     def has_targets(self) -> bool:
         """True iff any downstream track contains a variable that depends on this one."""
