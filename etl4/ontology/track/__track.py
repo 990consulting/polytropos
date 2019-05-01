@@ -41,6 +41,9 @@ class Track:
         for variable_id, variable in track.variables.items():
             variable.set_track(track)
             variable.set_id(variable_id)
+            Validator.validate_name(variable, variable.name)
+            Validator.validate_parent(variable, variable.parent)
+            Validator.validate_sources(variable, variable.sources)
         return track
 
     @property
