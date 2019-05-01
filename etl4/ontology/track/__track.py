@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dataclasses import asdict
 import json
 from typing import Iterator, Dict, TYPE_CHECKING, List, Any, Iterable, Optional
@@ -50,11 +51,14 @@ class Track:
             self.variables.values()
         )
 
+    def new_var_id(self):
+        # TODO Include stage name
+        return 'Target_{}'.format(len(self.variables) + 1)
+
     def add(self, spec: Dict, var_id: str=None) -> None:
         """Validate, create, and then insert a new variable into the track."""
         if var_id is None:
-            # TODO Include stage name
-            var_id = 'Target_{}'.format(len(self.variables) + 1)
+            var_id = self.new_var_id()
         if var_id in self.variables:
             # Duplicated var id
             raise ValueError
@@ -87,7 +91,11 @@ class Track:
 
     def duplicate(self, source_var_id: str, new_var_id: str=None):
         """Creates a duplicate of a node, including its sources, but not including its targets."""
-        pass
+        if new_var_id is None:
+            new_var_id = self.new_var_id()
+        if new_var_id in self.variables:
+            raise ValueError
+        self.variables[new_var_id] = deepcopy(self.variables[source_var_id])
 
     def delete(self, var_id: str) -> None:
         """Attempts to delete a node. Fails if the node has children or targets"""
@@ -101,7 +109,7 @@ class Track:
 
     def move(self, var_id: str, parent_id: Optional[str], sort_order: int):
         """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
-        pass
+        self.variables[var_id].parent = parent_id or ''
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
             -> Iterator[str]:

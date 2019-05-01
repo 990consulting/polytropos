@@ -1,7 +1,9 @@
 import json
 from dataclasses import dataclass, field, fields, MISSING
 from typing import List, Dict, Iterator, Any, Set, Iterable, TYPE_CHECKING
-from etl4.ontology.schemas import DATA_TYPES
+from etl4.ontology.variable.__descriptors import (
+    SourceDescriptor, ParentDescriptor
+)
 from datetime import datetime
 
 
@@ -27,18 +29,15 @@ class Variable:
     latest_epoch: str = field(default=None)
 
     # The variable IDs (not names!) from the preceding stage from which to derive values for this variable, if any.
-    sources: List[str] = field(default_factory=list)
+    sources: List[str] = field(default=SourceDescriptor())
 
     # The container variable above this variable in the hierarchy, if any.
-    parent: str = field(default_factory=str)
+    parent: str = field(default=ParentDescriptor())
 
-    def __post_init__(self):
-        # The track to which this variable belongs, it's here because of
-        # forward references (need variable to define track and track to define
-        # variable)
-        self.track = None
-        # Id of this variable in the corresponding track
-        self.var_id = None
+    # The track to which this variable belongs
+    track = None
+    # The variable id of the variable in the corresponding track
+    var_id = None
 
     def set_track(self, track: "Track"):
         self.track = track
@@ -81,7 +80,7 @@ class Variable:
     @property
     def tree(self) -> Dict:
         """A tree representing the descendants of this node. (For UI)"""
-        children=[child.tree for child in self.children]
+        children = [child.tree for child in self.children]
         tree = dict(
             title=self.name,
             varId=self.var_id,
@@ -96,15 +95,11 @@ class Variable:
         representation = {}
         representation['name'] = self.name
         representation['data_type'] = self.data_type
+        representation['sort_order'] = self.sort_order
         for var_field in fields(self):
-            if var_field.name == 'name':
+            if var_field.name == 'name' or var_field.name == 'sort_order':
                 continue
-            if (var_field.default == getattr(self, var_field.name)):
-                continue
-            if (
-                var_field.default_factory != MISSING and
-                var_field.default_factory() == getattr(self, var_field.name)
-            ):
+            if not getattr(self, var_field.name):
                 continue
             representation[var_field.name] = getattr(self, var_field.name)
         return representation
