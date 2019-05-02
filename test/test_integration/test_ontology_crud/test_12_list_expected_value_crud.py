@@ -49,19 +49,19 @@ def list_ev_track() -> Track:
         "first_list_with_evs_field_1": {
             "name": "B",
             "data_type": "Integer",
-            "parent": "first_list_without_evs",
+            "parent": "first_list_with_evs",
             "sort_order": 0
         },
         "first_list_with_evs_field_2": {
             "name": "C",
             "data_type": "Integer",
-            "parent": "first_list_without_evs",
+            "parent": "first_list_with_evs",
             "sort_order": 1
         },
         "first_list_with_evs_field_3": {
             "name": "D",
             "data_type": "Integer",
-            "parent": "first_list_without_evs",
+            "parent": "first_list_with_evs",
             "sort_order": 1
         },
         "second_list_with_evs": {

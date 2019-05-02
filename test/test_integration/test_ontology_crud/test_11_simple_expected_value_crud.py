@@ -55,7 +55,7 @@ def test_remove_simple_expected_value_affects_var_dict(simple_ev_track):
     }
 
 def test_replace_simple_expected_value_affects_var_dict(simple_ev_track):
-    simple_ev_track.set_primitive_expected_value("with_ev", "case 0", "XYZ")
+    simple_ev_track.set_primitive_expected_value("with_ev", "case_0", "XYZ")
     assert simple_ev_track.variables["with_ev"].dump() == {
         "name": "var_with_ev",
         "data_type": "Text",
@@ -82,7 +82,7 @@ def test_remove_simple_expected_value_where_two_exist(simple_ev_track):
     simple_ev_track.remove_primitive_expected_value("another_with_ev", "case_1")
     assert set(simple_ev_track.test_cases) == {"case_0", "case_1"}
 
-def test_replace_simple_expected_value_does_not_affect_track_test_cases():
-    simple_ev_track.set_primitive_expected_value("with_ev", "case 0", "XYZ")
+def test_replace_simple_expected_value_does_not_affect_track_test_cases(simple_ev_track):
+    simple_ev_track.set_primitive_expected_value("with_ev", "case_0", "XYZ")
     assert set(simple_ev_track.test_cases) == {"case_0", "case_1"}
 

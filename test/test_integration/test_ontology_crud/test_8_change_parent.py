@@ -162,9 +162,9 @@ def test_change_parent_does_not_affect_target_status(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
 
-    assert set(source_track.variables["target_var_1"].source_for_vars_in("Target")) == {"target_var_1"}
+    assert set(source_track.variables["source_var_1"].targets()) == {"target_var_1"}
     target_track.move("target_var_1", None, 0)
-    assert set(source_track.variables["target_var_1"].source_for_vars_in("Target")) == {"target_var_1"}
+    assert set(source_track.variables["source_var_1"].targets()) == {"target_var_1"}
 
 def test_change_parent_alters_dict(simple_track):
     """changing a variable's parent alters its dictionary representation."""
@@ -204,10 +204,10 @@ def test_move_to_nonexistent_parent_raises(simple_track):
     with pytest.raises(ValueError):
         simple_track.move("target_var_id", "something that doesn't exist", 0)
 
-def test_add_parent_removes_from_root_list(simple_track):
-    assert {v.var_id for v in simple_track.roots} == {"target_folder", "target_var_id"}
-    simple_track.move("target_var_id", "target_folder", 0)
-    assert {v.var_id for v in simple_track.roots} == {"target_folder"}
+def test_add_parent_removes_from_root_list(simple_flat_track):
+    assert {v.var_id for v in simple_flat_track.roots} == {"target_folder", "target_var_id"}
+    simple_flat_track.move("target_var_id", "target_folder", 0)
+    assert {v.var_id for v in simple_flat_track.roots} == {"target_folder"}
 
 def test_remove_parent_adds_to_root_list(source_nested_dict_track):
     track: Track = source_nested_dict_track

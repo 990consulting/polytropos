@@ -22,8 +22,27 @@ def simple_spec() -> Dict:
     }
 
 @pytest.fixture()
+def simple_flat_spec() -> Dict:
+    return {
+        "target_folder": {
+            "name": "the_folder",
+            "data_type": "Folder",
+            "sort_order": 1
+        },
+        "target_var_id": {
+            "name": "the_target",
+            "data_type": "Integer",
+            "sort_order": 0
+        }
+    }
+
+@pytest.fixture()
 def simple_track(simple_spec) -> Track:
     return Track.build(simple_spec, None, "Sample")
+
+@pytest.fixture()
+def simple_flat_track(simple_flat_spec) -> Track:
+    return Track.build(simple_flat_spec, None, "Sample")
 
 @pytest.fixture()
 def source_nested_dict_track() -> Track:
