@@ -163,7 +163,29 @@ class Track:
 
     def set_children_to_test(self, var_id: str, child_ids: Iterable[str]):
         """Identify the child fields whose values should be checked when verifying expected values for lists."""
-        self.variables[var_id].list_expected_values_fields = list(child_ids)
+        variable = self.variables[var_id]
+        variable.list_expected_values_fields = []
+        evs = (
+            variable.list_expected_values
+            if isinstance(variable, VarList)
+            else variable.named_list_expected_values
+        )
+        for child_id in child_ids:
+            if child_id not in self.variables:
+                raise ValueError
+            variable.list_expected_values_fields.append(child_id)
+            for instance, _lst in evs.items():
+                lst = _lst if isinstance(variable, VarList) else _lst.values()
+                for value in lst:
+                    if child_id not in value:
+                        value[child_id] = None
+        for instance, _lst in evs.items():
+            lst = _lst if isinstance(variable, VarList) else _lst.values()
+            for value in lst:
+                for key in list(value.keys()):
+                    if key not in variable.list_expected_values_fields:
+                        del value[key]
+
 
     def set_list_expected_values(self, var_id: str, instance_id: str, values: Iterable[Dict[str, Any]]):
         """Indicate the (unordered) list of observations expected for selected descendents of a particular list container
