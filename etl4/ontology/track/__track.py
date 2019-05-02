@@ -65,6 +65,19 @@ class Track:
         # TODO Include stage name
         return 'Target_{}'.format(len(self.variables) + 1)
 
+    def _update_sort_order(self, variable, old_order=None, new_order=None):
+        if old_order is None:
+            old_order = len(list(variable.siblings)) + 1
+        if new_order is None:
+            new_order = len(list(variable.siblings)) + 1
+        for sibling in variable.siblings:
+            if sibling == variable.var_id:
+                continue
+            if variable.track.variables[sibling].sort_order >= new_order:
+                variable.track.variables[sibling].sort_order += 1
+            if variable.track.variables[sibling].sort_order >= old_order:
+                variable.track.variables[sibling].sort_order -= 1
+
     def add(self, spec: Dict, var_id: str=None) -> None:
         """Validate, create, and then insert a new variable into the track."""
         if var_id is None:
@@ -79,6 +92,7 @@ class Track:
         variable.set_track(self)
         variable.set_id(var_id)
         Validator.validate(variable)
+        self._update_sort_order(variable, None, variable.sort_order)
         self.variables[var_id] = variable
         if variable.parent != '':
             parent = self.variables[variable.parent]
@@ -99,6 +113,7 @@ class Track:
         if var_id not in self.variables:
             raise ValueError
         variable = self.variables[var_id]
+        self._update_sort_order(variable, variable.sort_order, None)
         if any(variable.children) or variable.has_targets:
             raise ValueError
         if variable.parent != '':
@@ -117,6 +132,7 @@ class Track:
         if variable.descends_from_list != old_descends_from_list:
             variable.parent = old_parent
             raise ValueError
+        self._update_sort_order(variable, variable.sort_order, sort_order)
         variable.sort_order = sort_order
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
@@ -130,9 +146,9 @@ class Track:
         for variable_id, variable in self.variables.items():
             if data_type is None or variable.data_type == data_type:
                 if targets:
-                    if targets == -1 and any(variable.targets()):
+                    if targets == -1 and variable.has_targets:
                         continue
-                    if targets == 1 and not any(variable.targets()):
+                    if targets == 1 and not variable.has_targets:
                         continue
                 if container:
                     if container == -1 and not isinstance(variable, Primitive):

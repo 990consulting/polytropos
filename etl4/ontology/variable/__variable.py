@@ -118,6 +118,15 @@ class Variable:
             Validator.validate_name(self, value)
         if attribute == 'sources':
             Validator.validate_sources(self, value)
+            if self.track and isinstance(self, GenericList):
+                for source in value:
+                    if source not in self.source_child_mappings:
+                        self.source_child_mappings[source] = {
+                            child.var_id: [] for child in self.children
+                        }
+                for key in list(self.source_child_mappings.keys()):
+                    if key not in value:
+                        del self.source_child_mappings[key]
         if attribute == 'parent':
             Validator.validate_parent(self, value)
         if attribute == 'sort_order':
@@ -240,6 +249,11 @@ class Variable:
             for variable_id, variable in self.track.target.variables.items():
                 if self.var_id in variable.sources:
                     yield variable_id
+                if isinstance(variable, GenericList):
+                    for mapping in variable.source_child_mappings.values():
+                        for var_id, lst in mapping.items():
+                            if self.var_id in lst:
+                                yield var_id
 
     @property
     def children(self) -> Iterator["Variable"]:
