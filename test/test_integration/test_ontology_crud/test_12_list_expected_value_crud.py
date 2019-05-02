@@ -111,7 +111,6 @@ def test_remove_all_checked_descendents(list_ev_track):
         "name": "First of two lists that have EVs",
         "data_type": "List",
         "sort_order": 1,
-        "list_expected_values_fields": ["first_list_with_evs_field_1"],
         "list_expected_values": {
             "case_0": [
                 {},
@@ -133,7 +132,8 @@ def test_add_checked_descendent(list_ev_track):
         "sort_order": 1,
         "list_expected_values_fields": [
             "first_list_with_evs_field_1",
-            "first_list_with_evs_field_2"
+            "first_list_with_evs_field_2",
+            "first_list_with_evs_field_3"
         ],
         "list_expected_values": {
             "case_0": [  # Explicitly expect that case_0 has two observations

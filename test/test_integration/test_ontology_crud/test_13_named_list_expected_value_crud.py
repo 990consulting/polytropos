@@ -102,7 +102,6 @@ def test_remove_all_checked_descendents(named_list_ev_track):
         "name": "First of two named lists that have EVs",
         "data_type": "NamedList",
         "sort_order": 1,
-        "list_expected_values_fields": ["first_named_list_with_evs_field_1"],
         "named_list_expected_values": {
             "case_0": {
                 "steve": {},
@@ -124,7 +123,8 @@ def test_add_checked_descendent(named_list_ev_track):
         "sort_order": 1,
         "list_expected_values_fields": [
             "first_named_list_with_evs_field_1",
-            "first_named_list_with_evs_field_2"
+            "first_named_list_with_evs_field_2",
+            "first_named_list_with_evs_field_3"
         ],
         "named_list_expected_values": {
             "case_0": {
@@ -154,7 +154,7 @@ def test_add_list_expected_value_affects_var_dict(named_list_ev_track):
         "conor": {}
     })
     assert named_list_ev_track.variables["named_list_without_evs"].dump() == {
-        "name": "A list that has no EVs",
+        "name": "A named list that has no EVs",
         "data_type": "NamedList",
         "sort_order": 0,
         "named_list_expected_values": {
