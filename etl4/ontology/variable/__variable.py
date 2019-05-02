@@ -58,8 +58,9 @@ class Validator:
             sibling_names = set([
                 variable.track.variables[sibling].name
                 for sibling in variable.siblings
+                if sibling != variable.var_id
             ])
-            if name != variable.name and name in sibling_names:
+            if name in sibling_names:
                 raise ValueError
 
     @staticmethod
@@ -130,10 +131,20 @@ class Variable:
         self.__dict__[attribute] = value
 
     def alter_list_child_source_mappings(self, list_root: str, child_source_mappings: Iterable[str]):
-        pass
+        parent = self.track.variables[self.parent]
+        if list_root not in parent.source_child_mappings:
+            raise ValueError
+        parent.source_child_mappings[list_root][self.var_id] = list(
+            child_source_mappings
+        )
 
     def alter_named_list_child_source_mappings(self, list_root: str, child_source_mappings: Iterable[str]):
-        pass
+        parent = self.track.variables[self.parent]
+        if list_root not in parent.source_child_mappings:
+            raise ValueError
+        parent.source_child_mappings[list_root][self.var_id] = list(
+            child_source_mappings
+        )
 
     @property
     def siblings(self) -> Iterator[str]:
@@ -215,7 +226,12 @@ class Variable:
         :param container: If -1, include only primitives; if 1, only containers.
         :param inside_list: If -1, include only elements outside lists; if 1, only inside lists.
         """
-        pass
+        for variable_id in self.track.descendants_that(
+            data_type, targets, container, inside_list
+        ):
+            variable = self.track.variables[variable_id]
+            if self.var_id == variable.parent:
+                yield variable_id
 
     def targets(self) -> Iterator[str]:
         """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified

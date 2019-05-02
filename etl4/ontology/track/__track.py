@@ -3,7 +3,9 @@ from dataclasses import asdict
 import json
 from typing import Iterator, Dict, TYPE_CHECKING, List, Any, Iterable, Optional
 from etl4.ontology.variable import (
-    build_variable, Primitive, Container, GenericList, Validator
+    build_variable,
+    Primitive, Container, GenericList, Validator,
+    List as VarList, NamedList
 )
 
 if TYPE_CHECKING:
@@ -78,6 +80,11 @@ class Track:
         variable.set_id(var_id)
         Validator.validate(variable)
         self.variables[var_id] = variable
+        if variable.parent != '':
+            parent = self.variables[variable.parent]
+            if isinstance(parent, GenericList):
+                for source, mapping in parent.source_child_mappings.items():
+                    mapping[var_id] = []
 
     def duplicate(self, source_var_id: str, new_var_id: str=None):
         """Creates a duplicate of a node, including its sources, but not including its targets."""
@@ -94,12 +101,23 @@ class Track:
         variable = self.variables[var_id]
         if any(variable.children) or variable.has_targets:
             raise ValueError
+        if variable.parent != '':
+            parent = self.variables[variable.parent]
+            if isinstance(parent, GenericList):
+                for source, mapping in parent.source_child_mappings.items():
+                    del mapping[var_id]
         del self.variables[var_id]
 
     def move(self, var_id: str, parent_id: Optional[str], sort_order: int):
         """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
-        self.variables[var_id].parent = parent_id or ''
-        self.variables[var_id].sort_order = sort_order
+        variable = self.variables[var_id]
+        old_parent = variable.parent
+        old_descends_from_list = variable.descends_from_list
+        variable.parent = parent_id or ''
+        if variable.descends_from_list != old_descends_from_list:
+            variable.parent = old_parent
+            raise ValueError
+        variable.sort_order = sort_order
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
             -> Iterator[str]:
@@ -121,6 +139,11 @@ class Track:
                         continue
                     if container == 1 and not isinstance(variable, Container):
                         continue
+                if inside_list:
+                    if inside_list == -1 and variable.descends_from_list:
+                        continue
+                    if inside_list == 1 and not variable.descends_from_list:
+                        continue
                 yield variable_id
 
     def set_primitive_expected_value(self, var_id: str, instance_id: str, value: Any):
@@ -130,7 +153,13 @@ class Track:
 
     def remove_primitive_expected_value(self, var_id: str, instance_id: str):
         """Declare that we no longer expect any particular value for a particular variable in a particular instance."""
-        del self.variables[var_id].simple_expected_values[instance_id]
+        variable = self.variables[var_id]
+        if isinstance(variable, Primitive):
+            del variable.simple_expected_values[instance_id]
+        if isinstance(variable, VarList):
+            del variable.list_expected_values[instance_id]
+        if isinstance(variable, NamedList):
+            del variable.named_list_expected_values[instance_id]
 
     def set_children_to_test(self, var_id: str, child_ids: Iterable[str]):
         """Identify the child fields whose values should be checked when verifying expected values for lists."""
@@ -139,12 +168,25 @@ class Track:
     def set_list_expected_values(self, var_id: str, instance_id: str, values: Iterable[Dict[str, Any]]):
         """Indicate the (unordered) list of observations expected for selected descendents of a particular list container
         in a particular instance hierarchy"""
-        self.variables[var_id].list_expected_values[instance_id] = list(values)
+        variable = self.variables[var_id]
+        variable.list_expected_values[instance_id] = []
+        for value in values:
+            if list(value.keys()) != variable.list_expected_values_fields:
+                print(value.keys(), variable.list_expected_values_fields)
+                raise ValueError
+            variable.list_expected_values[instance_id].append(value)
+
 
     def set_named_list_expected_values(self, var_id: str, instance_id: str, values: Dict[str, Dict[str, Any]]):
         """Indicate the dictionary of observations expected for selected descendents of a particular named list in a
         particular instance hierarchy"""
-        self.variables[var_id].named_list_expected_values[instance_id] = list(values)
+        variable = self.variables[var_id]
+        variable.named_list_expected_values[instance_id] = {}
+        for key, value in values.items():
+            if list(value.keys()) != variable.list_expected_values_fields:
+                print(value.keys(), variable.list_expected_values_fields)
+                raise ValueError
+            variable.named_list_expected_values[instance_id][key] = value
 
     @property
     def test_cases(self) -> Iterator[str]:
