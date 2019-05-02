@@ -73,7 +73,7 @@ def test_change_sort_order_alters_tree(source_named_list_track):
             {
                 "title": "sport",
                 "varId": "source_root_1_sport",
-                "data_type": "Text"
+                "dataType": "Text"
             }
         ]
     }
