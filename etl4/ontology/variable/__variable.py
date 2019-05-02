@@ -199,7 +199,12 @@ class Variable:
     @property
     def tree(self) -> Dict:
         """A tree representing the descendants of this node. (For UI)"""
-        children = [child.tree for child in self.children]
+        children = [
+            child.tree
+            for child in sorted(
+                self.children, key=lambda child: child.sort_order
+            )
+        ]
         tree = dict(
             title=self.name,
             varId=self.var_id,
