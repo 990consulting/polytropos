@@ -14,7 +14,7 @@ def test_add_root_source(target_list_track):
     }
     source_track.add(new_source_spec, "A")
     target_list_track.variables["target_list"].sources = ["source_list", "A"]
-    assert target_track.variables["target_list"].dumps() == {
+    assert target_track.variables["target_list"].dump() == {
         "name": "the_list",
         "data_type": "List",
         "parent": "target_folder_outer",

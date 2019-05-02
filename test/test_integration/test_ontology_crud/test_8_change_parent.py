@@ -64,7 +64,7 @@ def test_change_parent_alters_original_descendants_that(source_nested_dict_track
 def test_change_parent_alters_new_descendants_that(source_nested_dict_track):
     """after changing the parent, the new parent includes the node in descendents_that()."""
     new_root: Variable = source_nested_dict_track.variables["source_folder_3"]
-    assert set(new_root.descendants_that()) == {}
+    assert set(new_root.descendants_that()) == set()
     source_nested_dict_track.move("source_var_3", "source_folder_3", 0)
     assert set(new_root.descendants_that()) == {"source_var_3"}
 

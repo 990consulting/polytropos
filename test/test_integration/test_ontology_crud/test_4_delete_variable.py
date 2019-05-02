@@ -10,9 +10,9 @@ def test_delete_var_with_children_raises(source_nested_dict_track):
     with pytest.raises(ValueError):
         track.delete("source_folder_1")
 
-# TODO This will require some kind of means of source_var_2 knowing it will be used by target_var_2
-def test_delete_var_with_targets_raises(source_nested_dict_track):
-    track: Track = source_nested_dict_track
+def test_delete_var_with_targets_raises(target_nested_dict_track):
+    target_track: Track = target_nested_dict_track
+    track: Track = target_track.source
 
     with pytest.raises(ValueError):
         track.delete("source_var_2")

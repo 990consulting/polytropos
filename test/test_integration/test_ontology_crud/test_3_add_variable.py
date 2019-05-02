@@ -10,7 +10,7 @@ from etl4.ontology.variable import Variable
 def nested_new_var_spec() -> Dict:
     return {
         "name": "the new one",  # Note -- spaces are OK!
-        "data_type": "Date",
+        "data_type": "Integer",
         "parent": "target_folder_2",
         "sort_order": 1
     }
@@ -53,7 +53,7 @@ def test_add_track_non_unique_id_raises(target_nested_dict_track, nested_new_var
         target_nested_dict_track.add(nested_new_var_spec, "target_var_2")
 
 def test_add_locally_non_unique_name_raises(target_nested_dict_track, nested_new_var_spec):
-    nested_new_var_spec["name"] = "target_var_2"
+    nested_new_var_spec["name"] = "second_target"
     with pytest.raises(ValueError):
         target_nested_dict_track.add(nested_new_var_spec, "A")
 

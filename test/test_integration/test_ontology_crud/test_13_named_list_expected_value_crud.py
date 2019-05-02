@@ -97,7 +97,7 @@ def test_remove_checked_descendent(named_list_ev_track):
     }
 
 def test_remove_all_checked_descendents(named_list_ev_track):
-    named_list_ev_track.set_children_to_test("first_named_list_with_evs", [])
+    named_list_ev_track.set_children_to_test("first_named_list_with_evs", {})
     assert named_list_ev_track.variables["first_named_list_with_evs"].dump() == {
         "name": "First of two named lists that have EVs",
         "data_type": "NamedList",
@@ -148,12 +148,12 @@ def test_designate_nonexistent_descendent_raises(named_list_ev_track):
         named_list_ev_track.set_children_to_test("first_named_list_with_evs", ["not a real variable ID"])
 
 def test_add_list_expected_value_affects_var_dict(named_list_ev_track):
-    named_list_ev_track.set_named_list_expected_values("list_without_evs", "case_1", {
+    named_list_ev_track.set_named_list_expected_values("named_list_without_evs", "case_1", {
         "steve": {},
         "mary": {},
         "conor": {}
     })
-    assert named_list_ev_track.variables["list_without_evs"].dump() == {
+    assert named_list_ev_track.variables["named_list_without_evs"].dump() == {
         "name": "A list that has no EVs",
         "data_type": "NamedList",
         "sort_order": 0,
@@ -169,8 +169,8 @@ def test_add_list_expected_value_affects_var_dict(named_list_ev_track):
 
 def test_add_list_expected_value_with_unexpected_descendent_raises(named_list_ev_track):
     with pytest.raises(ValueError):
-        named_list_ev_track.set_named_list_expected_values("list_without_evs", "case_1", {
-            "steve": {"list_without_evs_field": 72}
+        named_list_ev_track.set_named_list_expected_values("named_list_without_evs", "case_1", {
+            "steve": {"named_list_without_evs_field": 72}
         })
 
 def test_remove_list_expected_value_affects_var_dict(named_list_ev_track):
@@ -189,7 +189,7 @@ def test_remove_list_expected_value_affects_var_dict(named_list_ev_track):
     }
 
 def test_replace_list_expected_value_affects_var_dict(named_list_ev_track):
-    named_list_ev_track.set_named_list_expected_values("first_named_list_with_evs", "case_0", [])
+    named_list_ev_track.set_named_list_expected_values("first_named_list_with_evs", "case_0", {})
     assert named_list_ev_track.variables["first_named_list_with_evs"].dump() == {
         "name": "First of two named lists that have EVs",
         "data_type": "NamedList",
@@ -205,7 +205,7 @@ def test_replace_list_expected_value_affects_var_dict(named_list_ev_track):
     }
 
 def test_add_variable_test_case_affects_track_test_cases(named_list_ev_track):
-    named_list_ev_track.set_named_list_expected_values("list_without_evs", "case_3", {
+    named_list_ev_track.set_named_list_expected_values("named_list_without_evs", "case_3", {
         "steve": {},
         "mary": {},
         "conor": {}
