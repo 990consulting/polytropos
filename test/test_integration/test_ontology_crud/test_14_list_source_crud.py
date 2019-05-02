@@ -39,8 +39,6 @@ def test_delete_root_source(target_list_track):
         "data_type": "List",
         "parent": "target_folder_outer",
         "sort_order": 1,
-        "sources": [],
-        "source_child_mappings": {}
     }
 
 def test_add_child_source_mapping(target_list_track):

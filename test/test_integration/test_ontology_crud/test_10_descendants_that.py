@@ -78,7 +78,8 @@ def test_dt_require_container_contradiction(list_with_outside_primitives):
 def test_dt_require_primitive_contradiction(list_with_outside_primitives):
     assert set(list_with_outside_primitives.descendants_that(container=-1, data_type="Folder")) == set()
 
-def test_dt_require_targets(source_list_track):
+def test_dt_require_targets(target_list_track):
+    source_list_track = target_list_track.source
     assert set(source_list_track.descendants_that(targets=1)) == {
         "source_list",
         "source_list_name",
@@ -87,19 +88,22 @@ def test_dt_require_targets(source_list_track):
         "source_named_list_color"
     }
 
-def test_dt_require_no_targets(source_list_track):
+def test_dt_require_no_targets(target_list_track):
+    source_list_track = target_list_track.source
     assert set(source_list_track.descendants_that(targets=-1)) == {
         "source_folder"
     }
 
-def test_dt_require_primitive_with_targets(source_list_track):
+def test_dt_require_primitive_with_targets(target_list_track):
+    source_list_track = target_list_track.source
     assert set(source_list_track.descendants_that(targets=1, container=-1)) == {
         "source_list_name",
         "source_list_color",
         "source_named_list_color"
     }
 
-def test_dt_require_container_with_targets(source_list_track):
+def test_dt_require_container_with_targets(target_list_track):
+    source_list_track = target_list_track.source
     assert set(source_list_track.descendants_that(targets=1, container=1)) == {
         "source_list",
         "source_named_list"
