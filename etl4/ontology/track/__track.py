@@ -21,6 +21,10 @@ class Track:
         self.variables: Dict[str, "Variable"] = variables
         self.name = name
         self.source = source
+        self.target = None
+        if source:
+            source.target = self
+
 
     @classmethod
     def build(cls, specs: Dict, source: Optional["Track"], name: str):
@@ -41,16 +45,17 @@ class Track:
         for variable_id, variable in track.variables.items():
             variable.set_track(track)
             variable.set_id(variable_id)
-            Validator.validate_name(variable, variable.name)
-            Validator.validate_parent(variable, variable.parent)
-            Validator.validate_sources(variable, variable.sources)
+        # we only validate after the whole thing is built to be able to
+        # accurately compute siblings, parents and children
+        for variable in track.variables.values():
+            Validator.validate(variable)
         return track
 
     @property
     def roots(self) -> Iterator["Variable"]:
         """All the roots of this track's variable tree."""
         return filter(
-            lambda variable: not variable.parent,
+            lambda variable: variable.parent == '',
             self.variables.values()
         )
 
@@ -71,9 +76,7 @@ class Track:
         variable = build_variable(spec)
         variable.set_track(self)
         variable.set_id(var_id)
-        Validator.validate_name(variable, variable.name)
-        Validator.validate_parent(variable, variable.parent)
-        Validator.validate_sources(variable, variable.sources)
+        Validator.validate(variable)
         self.variables[var_id] = variable
 
     def duplicate(self, source_var_id: str, new_var_id: str=None):
@@ -90,13 +93,13 @@ class Track:
             raise ValueError
         variable = self.variables[var_id]
         if any(variable.children) or variable.has_targets:
-            print(variable.children)
             raise ValueError
         del self.variables[var_id]
 
     def move(self, var_id: str, parent_id: Optional[str], sort_order: int):
         """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
         self.variables[var_id].parent = parent_id or ''
+        self.variables[var_id].sort_order = sort_order
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
             -> Iterator[str]:
@@ -109,9 +112,9 @@ class Track:
         for variable_id, variable in self.variables.items():
             if data_type is None or variable.data_type == data_type:
                 if targets:
-                    if targets == -1 and variable.targets():
+                    if targets == -1 and any(variable.targets()):
                         continue
-                    if targets == 1 and not variable.targets():
+                    if targets == 1 and not any(variable.targets()):
                         continue
                 if container:
                     if container == -1 and not isinstance(variable, Primitive):
@@ -123,30 +126,32 @@ class Track:
     def set_primitive_expected_value(self, var_id: str, instance_id: str, value: Any):
         """Declare that a particular value is expected for a particular variable in a particular instance hierarchy.
         This is initiated in Track, rather than in Variable, in order to maintain an index of instances to be checked."""
-        pass
+        self.variables[var_id].simple_expected_values[instance_id] = value
 
     def remove_primitive_expected_value(self, var_id: str, instance_id: str):
         """Declare that we no longer expect any particular value for a particular variable in a particular instance."""
-        pass
+        del self.variables[var_id].simple_expected_values[instance_id]
 
     def set_children_to_test(self, var_id: str, child_ids: Iterable[str]):
         """Identify the child fields whose values should be checked when verifying expected values for lists."""
-        pass
+        self.variables[var_id].list_expected_values_fields = list(child_ids)
 
     def set_list_expected_values(self, var_id: str, instance_id: str, values: Iterable[Dict[str, Any]]):
         """Indicate the (unordered) list of observations expected for selected descendents of a particular list container
         in a particular instance hierarchy"""
-        pass
+        self.variables[var_id].list_expected_values[instance_id] = list(values)
 
     def set_named_list_expected_values(self, var_id: str, instance_id: str, values: Dict[str, Dict[str, Any]]):
         """Indicate the dictionary of observations expected for selected descendents of a particular named list in a
         particular instance hierarchy"""
-        pass
+        self.variables[var_id].named_list_expected_values[instance_id] = list(values)
 
     @property
     def test_cases(self) -> Iterator[str]:
         """The set of all instance hierarchy IDs for which expected values have been set for any variable."""
-        pass
+        for variable in self.variables.values():
+            for test_case in variable.test_cases:
+                yield test_case
 
     def dump(self) -> Dict:
         """A Dict representation of this track."""

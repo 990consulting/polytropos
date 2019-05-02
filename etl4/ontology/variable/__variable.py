@@ -54,6 +54,28 @@ class Validator:
     def validate_name(variable, name):
         if '/' in name or '.' in name:
             raise ValueError
+        if variable.track is not None:
+            sibling_names = set([
+                variable.track.variables[sibling].name
+                for sibling in variable.siblings
+            ])
+            if name != variable.name and name in sibling_names:
+                raise ValueError
+
+    @staticmethod
+    def validate_sort_order(variable, sort_order):
+        if sort_order < 0:
+            raise ValueError
+        if variable.track is not None:
+            if sort_order > len(list(variable.siblings)):
+                raise ValueError
+
+    @classmethod
+    def validate(cls, variable):
+        cls.validate_parent(variable, variable.parent)
+        cls.validate_name(variable, variable.name)
+        cls.validate_sources(variable, variable.sources)
+        cls.validate_sort_order(variable, variable.sort_order)
 
 
 @dataclass
@@ -97,6 +119,12 @@ class Variable:
             Validator.validate_sources(self, value)
         if attribute == 'parent':
             Validator.validate_parent(self, value)
+        if attribute == 'sort_order':
+            Validator.validate_sort_order(self, value)
+        if attribute in {'notes', 'earliest_epoch', 'latest_epoch'}:
+            if value is not None:
+                self.__dict__[attribute] = value.strip()
+                return
         if attribute == 'data_type':
             raise AttributeError
         self.__dict__[attribute] = value
@@ -108,9 +136,18 @@ class Variable:
         pass
 
     @property
+    def siblings(self) -> Iterator[str]:
+        if self.parent == '':
+            return map(lambda root: root.var_id, self.track.roots)
+        return map(
+            lambda child: child.var_id,
+            self.track.variables[self.parent].children
+        )
+
+    @property
     def has_targets(self) -> bool:
         """True iff any downstream track contains a variable that depends on this one."""
-        pass
+        return any(self.targets())
 
     @property
     def descends_from_list(self) -> bool:
@@ -168,7 +205,7 @@ class Variable:
 
     def dumps(self) -> str:
         """A JSON-compatible representation of this variable. (For serialization.)"""
-        return json.dumps(self.dump, indent=4)
+        return json.dumps(self.dump(), indent=4)
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
             -> Iterator[str]:
@@ -183,7 +220,10 @@ class Variable:
     def targets(self) -> Iterator[str]:
         """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
         stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
-        pass
+        if self.track.target:
+            for variable_id, variable in self.track.target.variables.items():
+                if self.var_id in variable.sources:
+                    yield variable_id
 
     @property
     def children(self) -> Iterator["Variable"]:
@@ -191,6 +231,10 @@ class Variable:
             lambda variable: variable.parent == self.var_id,
             self.track.variables.values()
         )
+
+    @property
+    def test_cases(self) -> Iterator[str]:
+        return []
 
     @property
     def data_type(self) -> str:
@@ -208,6 +252,10 @@ class Primitive(Variable):
     simple_expected_values: Dict[str, Any] = field(
         default_factory=dict
     )
+
+    @property
+    def test_cases(self) -> Iterator[str]:
+        return self.simple_expected_values.keys()
 
 
 @dataclass
@@ -264,6 +312,10 @@ class Date(Primitive):
 #  defined in Container follows inherited default arguments defined in Variable."
 @dataclass
 class Folder(Container):
+    @property
+    def has_targets(self):
+        return False
+
     def targets(self):
         raise AttributeError
 
@@ -276,8 +328,8 @@ class GenericList(Container):
     )
     # For lists and named lists, the set of fields for which expected values are to be supplied. (We do not necessarily
     # have expected values for every descendant.) Descendants are identified by their IDs, not their paths.
-    list_expected_values_fields: Set[str] = field(
-        default_factory=set
+    list_expected_values_fields: List[str] = field(
+        default_factory=list
     )
 
 
@@ -290,6 +342,9 @@ class List(GenericList):
         default_factory=dict
     )
 
+    @property
+    def test_cases(self) -> Iterator[str]:
+        return self.list_expected_values.keys()
 
 @dataclass
 class NamedList(GenericList):
@@ -299,3 +354,7 @@ class NamedList(GenericList):
     named_list_expected_values: Dict[str, Dict[str, Dict[str, Any]]] = field(
         default_factory=dict
     )
+
+    @property
+    def test_cases(self) -> Iterator[str]:
+        return self.named_list_expected_values.keys()
