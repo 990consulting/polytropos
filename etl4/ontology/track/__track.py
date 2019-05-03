@@ -1,11 +1,10 @@
 from copy import deepcopy
-from dataclasses import asdict
 import json
-from typing import Iterator, Dict, TYPE_CHECKING, List, Any, Iterable, Optional
+from typing import Iterator, Dict, TYPE_CHECKING, Any, Iterable, Optional
 from etl4.ontology.variable import (
     build_variable,
     Primitive, Container, GenericList, Validator,
-    List as VarList, NamedList
+    List, NamedList
 )
 
 if TYPE_CHECKING:
@@ -62,23 +61,10 @@ class Track:
         )
 
     def new_var_id(self):
-        # TODO Include stage name
+        """If no ID is supplied, use <stage name>_<temporal|invarant>_<n+1>,
+        where n is the number of variables."""
+        # Missing the temporal/invariant part for now
         return '{}_{}'.format(self.name, len(self.variables) + 1)
-
-    def _update_sort_order(self, variable, old_order=None, new_order=None):
-        if old_order is None:
-            old_order = len(list(variable.siblings)) + 1
-        if new_order is None:
-            new_order = len(list(variable.siblings)) + 1
-        for sibling in variable.siblings:
-            if sibling == variable.var_id:
-                continue
-            diff = 0
-            if variable.track.variables[sibling].sort_order >= new_order:
-                diff += 1
-            if variable.track.variables[sibling].sort_order >= old_order:
-                diff -= 1
-            variable.track.variables[sibling].__dict__['sort_order'] += diff
 
     def add(self, spec: Dict, var_id: str=None) -> None:
         """Validate, create, and then insert a new variable into the track."""
@@ -94,12 +80,12 @@ class Track:
         variable.set_track(self)
         variable.set_id(var_id)
         Validator.validate(variable, init=True, adding=True)
-        self._update_sort_order(variable, None, variable.sort_order)
+        variable.update_sort_order(None, variable.sort_order)
         self.variables[var_id] = variable
         if variable.parent != '':
             parent = self.variables[variable.parent]
             if isinstance(parent, GenericList):
-                for source, mapping in parent.source_child_mappings.items():
+                for mapping in parent.source_child_mappings.values():
                     mapping[var_id] = []
 
     def duplicate(self, source_var_id: str, new_var_id: str=None):
@@ -115,13 +101,13 @@ class Track:
         if var_id not in self.variables:
             raise ValueError
         variable = self.variables[var_id]
-        self._update_sort_order(variable, variable.sort_order, None)
+        variable.update_sort_order(variable.sort_order, None)
         if any(variable.children) or variable.has_targets:
             raise ValueError
         if variable.parent != '':
             parent = self.variables[variable.parent]
             if isinstance(parent, GenericList):
-                for source, mapping in parent.source_child_mappings.items():
+                for mapping in parent.source_child_mappings.values():
                     del mapping[var_id]
         del self.variables[var_id]
 
@@ -136,12 +122,12 @@ class Track:
             raise ValueError
         old_parent = variable.parent
         old_descends_from_list = variable.descends_from_list
-        self._update_sort_order(variable, variable.sort_order, None)
+        variable.update_sort_order(variable.sort_order, None)
         variable.parent = parent_id
         if variable.descends_from_list != old_descends_from_list:
             variable.parent = old_parent
             raise ValueError
-        self._update_sort_order(variable, None, sort_order)
+        variable.update_sort_order(None, sort_order)
         variable.sort_order = sort_order
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
@@ -181,7 +167,7 @@ class Track:
         variable = self.variables[var_id]
         if isinstance(variable, Primitive):
             del variable.simple_expected_values[instance_id]
-        if isinstance(variable, VarList):
+        if isinstance(variable, List):
             del variable.list_expected_values[instance_id]
         if isinstance(variable, NamedList):
             del variable.named_list_expected_values[instance_id]
@@ -192,20 +178,20 @@ class Track:
         variable.list_expected_values_fields = []
         evs = (
             variable.list_expected_values
-            if isinstance(variable, VarList)
+            if isinstance(variable, List)
             else variable.named_list_expected_values
         )
         for child_id in child_ids:
             if child_id not in self.variables:
                 raise ValueError
             variable.list_expected_values_fields.append(child_id)
-            for instance, _lst in evs.items():
-                lst = _lst if isinstance(variable, VarList) else _lst.values()
+            for _lst in evs.values():
+                lst = _lst if isinstance(variable, List) else _lst.values()
                 for value in lst:
                     if child_id not in value:
                         value[child_id] = None
-        for instance, _lst in evs.items():
-            lst = _lst if isinstance(variable, VarList) else _lst.values()
+        for _lst in evs.values():
+            lst = _lst if isinstance(variable, List) else _lst.values()
             for value in lst:
                 for key in list(value.keys()):
                     if key not in variable.list_expected_values_fields:

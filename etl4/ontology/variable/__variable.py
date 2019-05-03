@@ -1,7 +1,8 @@
 import json
-from dataclasses import dataclass, field, fields, MISSING
-from typing import List, Dict, Iterator, Any, Set, Iterable, TYPE_CHECKING
-from datetime import datetime
+from dataclasses import dataclass, field, fields
+from typing import(
+    List as ListType, Dict, Iterator, Any, Iterable, TYPE_CHECKING
+)
 
 
 if TYPE_CHECKING:
@@ -15,20 +16,15 @@ class Validator:
             if not init:
                 if isinstance(variable, Folder):
                     raise ValueError
-                if (
-                    variable.parent and
-                    isinstance(
+                if (variable.parent and isinstance(
                         variable.track.variables[variable.parent], GenericList
-                    )
-                ):
+                )):
                     raise ValueError
             for source in sources:
                 if source not in variable.track.source.variables:
                     raise ValueError
-                if (
-                    variable.track.source.variables[source].__class__ !=
-                    variable.__class__
-                ):
+                source_var = variable.track.source.variables[source]
+                if source_var.__class__ != variable.__class__:
                     raise ValueError
 
     @staticmethod
@@ -43,8 +39,8 @@ class Validator:
                 # parent not container
                 raise ValueError
             if (
-                isinstance(variable, GenericList) and
-                variable.descends_from_list
+                    isinstance(variable, GenericList) and
+                    variable.descends_from_list
             ):
                 # nested lists
                 raise ValueError
@@ -54,11 +50,11 @@ class Validator:
         if '/' in name or '.' in name:
             raise ValueError
         if variable.track is not None:
-            sibling_names = set([
+            sibling_names = set(
                 variable.track.variables[sibling].name
                 for sibling in variable.siblings
                 if sibling != variable.var_id
-            ])
+            )
             if name in sibling_names:
                 raise ValueError
 
@@ -96,7 +92,7 @@ class Variable:
     latest_epoch: str = field(default=None)
 
     # The variable IDs (not names!) from the preceding stage from which to derive values for this variable, if any.
-    sources: List[str] = field(default_factory=list)
+    sources: ListType[str] = field(default_factory=list)
 
     # The container variable above this variable in the hierarchy, if any.
     parent: str = field(default='')
@@ -153,6 +149,21 @@ class Variable:
         parent.source_child_mappings[list_root][self.var_id] = list(
             child_source_mappings
         )
+
+    def update_sort_order(self, old_order=None, new_order=None):
+        if old_order is None:
+            old_order = len(list(self.siblings)) + 1
+        if new_order is None:
+            new_order = len(list(self.siblings)) + 1
+        for sibling in self.siblings:
+            if sibling == self.var_id:
+                continue
+            diff = 0
+            if self.track.variables[sibling].sort_order >= new_order:
+                diff += 1
+            if self.track.variables[sibling].sort_order >= old_order:
+                diff -= 1
+            self.track.variables[sibling].__dict__['sort_order'] += diff
 
     @property
     def siblings(self) -> Iterator[str]:
@@ -250,7 +261,6 @@ class Variable:
         for variable_id in self.track.descendants_that(
             data_type, targets, container, inside_list
         ):
-            variable = self.track.variables[variable_id]
             if self.check_ancestor(variable_id):
                 yield variable_id
 
@@ -365,12 +375,12 @@ class Folder(Container):
 @dataclass
 class GenericList(Container):
     # For lists and named lists, sources for any list descendents relative to a particular root source.
-    source_child_mappings: Dict[str, Dict[str, List[str]]] = field(
+    source_child_mappings: Dict[str, Dict[str, ListType[str]]] = field(
         default_factory=dict
     )
     # For lists and named lists, the set of fields for which expected values are to be supplied. (We do not necessarily
     # have expected values for every descendant.) Descendants are identified by their IDs, not their paths.
-    list_expected_values_fields: List[str] = field(
+    list_expected_values_fields: ListType[str] = field(
         default_factory=list
     )
 
