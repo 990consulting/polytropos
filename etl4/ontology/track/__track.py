@@ -50,7 +50,7 @@ class Track:
         # we only validate after the whole thing is built to be able to
         # accurately compute siblings, parents and children
         for variable in track.variables.values():
-            Validator.validate(variable)
+            Validator.validate(variable, init=True)
         return track
 
     @property
@@ -63,7 +63,7 @@ class Track:
 
     def new_var_id(self):
         # TODO Include stage name
-        return 'Target_{}'.format(len(self.variables) + 1)
+        return '{}_{}'.format(self.name, len(self.variables) + 1)
 
     def _update_sort_order(self, variable, old_order=None, new_order=None):
         if old_order is None:
@@ -73,10 +73,12 @@ class Track:
         for sibling in variable.siblings:
             if sibling == variable.var_id:
                 continue
+            diff = 0
             if variable.track.variables[sibling].sort_order >= new_order:
-                variable.track.variables[sibling].sort_order += 1
+                diff += 1
             if variable.track.variables[sibling].sort_order >= old_order:
-                variable.track.variables[sibling].sort_order -= 1
+                diff -= 1
+            variable.track.variables[sibling].__dict__['sort_order'] += diff
 
     def add(self, spec: Dict, var_id: str=None) -> None:
         """Validate, create, and then insert a new variable into the track."""
@@ -91,7 +93,7 @@ class Track:
         variable = build_variable(spec)
         variable.set_track(self)
         variable.set_id(var_id)
-        Validator.validate(variable)
+        Validator.validate(variable, init=True)
         self._update_sort_order(variable, None, variable.sort_order)
         self.variables[var_id] = variable
         if variable.parent != '':
@@ -123,16 +125,23 @@ class Track:
                     del mapping[var_id]
         del self.variables[var_id]
 
+
     def move(self, var_id: str, parent_id: Optional[str], sort_order: int):
         """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
         variable = self.variables[var_id]
+        parent_id = parent_id or ''
+        if parent_id and parent_id not in self.variables:
+            raise ValueError
+        if parent_id and variable.check_ancestor(parent_id):
+            raise ValueError
         old_parent = variable.parent
         old_descends_from_list = variable.descends_from_list
-        variable.parent = parent_id or ''
+        self._update_sort_order(variable, variable.sort_order, None)
+        variable.parent = parent_id
         if variable.descends_from_list != old_descends_from_list:
             variable.parent = old_parent
             raise ValueError
-        self._update_sort_order(variable, variable.sort_order, sort_order)
+        self._update_sort_order(variable, None, sort_order)
         variable.sort_order = sort_order
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \

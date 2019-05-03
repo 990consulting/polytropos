@@ -10,19 +10,18 @@ if TYPE_CHECKING:
 
 class Validator:
     @staticmethod
-    def validate_sources(variable, sources):
+    def validate_sources(variable, sources, init=False):
         if variable.track is not None:
-            if sources == []:
-                return
-            if isinstance(variable, Folder):
-                raise ValueError
-            if (
-                variable.parent and
-                isinstance(
-                    variable.track.variables[variable.parent], GenericList
-                )
-            ):
-                raise ValueError
+            if not init:
+                if isinstance(variable, Folder):
+                    raise ValueError
+                if (
+                    variable.parent and
+                    isinstance(
+                        variable.track.variables[variable.parent], GenericList
+                    )
+                ):
+                    raise ValueError
             for source in sources:
                 if source not in variable.track.source.variables:
                     raise ValueError
@@ -72,10 +71,10 @@ class Validator:
                 raise ValueError
 
     @classmethod
-    def validate(cls, variable):
+    def validate(cls, variable, init=False):
         cls.validate_parent(variable, variable.parent)
         cls.validate_name(variable, variable.name)
-        cls.validate_sources(variable, variable.sources)
+        cls.validate_sources(variable, variable.sources, init)
         cls.validate_sort_order(variable, variable.sort_order)
 
 
@@ -232,6 +231,14 @@ class Variable:
         """A JSON-compatible representation of this variable. (For serialization.)"""
         return json.dumps(self.dump(), indent=4)
 
+    def check_ancestor(self, child):
+        variable = self.track.variables[child]
+        if variable.parent == '':
+            return False
+        if variable.parent == self.var_id:
+            return True
+        return self.check_ancestor(variable.parent)
+
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
             -> Iterator[str]:
         """Provides a list of variable IDs descending from this variable that meet certain criteria.
@@ -244,7 +251,7 @@ class Variable:
             data_type, targets, container, inside_list
         ):
             variable = self.track.variables[variable_id]
-            if self.var_id == variable.parent:
+            if self.check_ancestor(variable_id):
                 yield variable_id
 
     def targets(self) -> Iterator[str]:
