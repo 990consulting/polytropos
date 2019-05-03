@@ -93,7 +93,7 @@ class Track:
         variable = build_variable(spec)
         variable.set_track(self)
         variable.set_id(var_id)
-        Validator.validate(variable, init=True)
+        Validator.validate(variable, init=True, adding=True)
         self._update_sort_order(variable, None, variable.sort_order)
         self.variables[var_id] = variable
         if variable.parent != '':

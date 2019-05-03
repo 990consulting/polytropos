@@ -63,19 +63,19 @@ class Validator:
                 raise ValueError
 
     @staticmethod
-    def validate_sort_order(variable, sort_order):
+    def validate_sort_order(variable, sort_order, adding=False):
         if sort_order < 0:
             raise ValueError
         if variable.track is not None:
-            if sort_order > len(list(variable.siblings)):
+            if sort_order >= len(list(variable.siblings)) + (1 if adding else 0):
                 raise ValueError
 
     @classmethod
-    def validate(cls, variable, init=False):
+    def validate(cls, variable, init=False, adding=False):
         cls.validate_parent(variable, variable.parent)
         cls.validate_name(variable, variable.name)
         cls.validate_sources(variable, variable.sources, init)
-        cls.validate_sort_order(variable, variable.sort_order)
+        cls.validate_sort_order(variable, variable.sort_order, adding)
 
 
 @dataclass
