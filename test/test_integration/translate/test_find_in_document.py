@@ -30,7 +30,7 @@ def source_spec() -> Dict:
             "name": "the_folder",
             "data_type": "Folder",
             "parent": "source_folder",
-            "sort_order": 1
+            "sort_order": 0
         },
         "source_folder_name": {
             "name": "name",
