@@ -32,7 +32,7 @@ def test_dumps_pretty(simple_spec):
         "target_folder": {
             "name": "the_folder",
             "data_type": "Folder",
-            "sort_order": 1
+            "sort_order": 0
         },
         "target_var_id": {
             "name": "the_target",

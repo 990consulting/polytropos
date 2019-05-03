@@ -117,7 +117,7 @@ def test_move_to_root(source_nested_dict_track):
             "name": "third_source",
             "data_type": "Integer",
             "parent": "source_folder_2",
-            "sort_order": 1
+            "sort_order": 0   # Got pushed up by source_var_2 going away
         },
         "source_folder_3": {
             "name": "initially_empty_folder",
