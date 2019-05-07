@@ -10,7 +10,7 @@ from etl4.ontology.variable import Variable
 def nested_new_var_spec() -> Dict:
     return {
         "name": "the new one",  # Note -- spaces are OK!
-        "data_type": "Date",
+        "data_type": "Integer",
         "parent": "target_folder_2",
         "sort_order": 1
     }
@@ -19,7 +19,7 @@ def test_add_adds_to_track_variable_table(target_nested_dict_track, nested_new_v
     track: Track = target_nested_dict_track
     track.add(nested_new_var_spec, "A")
     new_var: Variable = track.variables["A"]
-    new_var_dict: Dict = new_var.dump
+    new_var_dict: Dict = new_var.dump()
     assert new_var_dict == nested_new_var_spec
 
 def test_add_changes_track_list(target_nested_dict_track, nested_new_var_spec):
@@ -53,7 +53,7 @@ def test_add_track_non_unique_id_raises(target_nested_dict_track, nested_new_var
         target_nested_dict_track.add(nested_new_var_spec, "target_var_2")
 
 def test_add_locally_non_unique_name_raises(target_nested_dict_track, nested_new_var_spec):
-    nested_new_var_spec["name"] = "target_var_2"
+    nested_new_var_spec["name"] = "second_target"
     with pytest.raises(ValueError):
         target_nested_dict_track.add(nested_new_var_spec, "A")
 
@@ -79,7 +79,7 @@ def test_add_with_sources_alters_source_of_for_source(target_nested_dict_track, 
     target_nested_dict_track.add(nested_new_var_spec, "A")
 
     source_var: Variable = source_track.variables["source_var_1"]
-    actual: Set = set(source_var.source_for_vars_in("Target"))
+    actual: Set = set(source_var.targets())
     expected: Set = {"A", "target_var_1"}
     assert actual == expected
 
@@ -97,7 +97,9 @@ def test_add_with_parent_alters_children_for_parent_after(target_nested_dict_tra
     target_folder_2: Variable = target_nested_dict_track.variables["target_folder_2"]
 
     expected: Set = {"target_var_2", "A"}
-    actual: Set = set(target_folder_2.children)
+    actual: Set = set(
+        map(lambda child: child.var_id, target_folder_2.children)
+    )
     assert expected == actual
 
 def test_add_non_container_parent_raises(target_nested_dict_track, nested_new_var_spec):

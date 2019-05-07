@@ -14,10 +14,10 @@ def test_add_root_source(target_named_list_track):
     }
     source_track.add(new_source_spec, "A")
     target_named_list_track.variables["target_root"].sources = ["source_root_1", "source_root_2", "A"]
-    assert target_track.variables["target_root"].dumps() == {
+    assert target_track.variables["target_root"].dump() == {
         "name": "People",
         "data_type": "NamedList",
-        "sources": ["source_root_1", "source_root_2"],
+        "sources": ["source_root_1", "source_root_2", "A"],
         "sort_order": 0,
         "source_child_mappings": {
             "source_root_1": {
@@ -36,6 +36,7 @@ def test_add_root_source(target_named_list_track):
                 "target_root_name": [],
                 "target_root_age": [],
                 "target_root_ice_cream": [],
+                "target_root_sport": []
             }
         }
     }

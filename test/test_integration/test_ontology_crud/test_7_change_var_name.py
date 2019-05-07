@@ -12,7 +12,8 @@ def test_change_name_alters_variable_dict(simple_track, simple_spec):
     expected: Dict = {
         "name": "Sir Robert",
         "data_type": "Integer",
-        "sort_order": 0
+        "sort_order": 0,
+        "parent": "target_folder"
     }
 
     actual = var.dump()
@@ -39,7 +40,7 @@ def test_change_name_alters_relative_path(target_list_track):
     var: Variable = target_list_track.variables["target_named_list_color"]
     var.name = "Sir Robert"
     expected: List[str] = ["Sir Robert"]
-    actual: List[str] = list(var.absolute_path)
+    actual: List[str] = list(var.relative_path)
     assert actual == expected
 
 def test_change_name_alters_tree(source_nested_dict_track):

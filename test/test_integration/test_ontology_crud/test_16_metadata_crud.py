@@ -53,7 +53,7 @@ def test_add_metadata_field(has_none_track):
 def test_alter_metadata_field(has_all_track, value):
     """Leading and trailing whitespace should be ignored, as these values will be coming from a web form"""
     has_all_track.variables["the_var_id"].notes = value
-    assert has_none_track.variables["the_var_id"].dump() == {
+    assert has_all_track.variables["the_var_id"].dump() == {
         "name": "var with all metadata",
         "data_type": "Integer",
         "sort_order": 0,
@@ -62,9 +62,9 @@ def test_alter_metadata_field(has_all_track, value):
         "latest_epoch": "2019-01-02"
     }
 
-def test_clear_metadata_field():
+def test_clear_metadata_field(has_all_track):
     has_all_track.variables["the_var_id"].notes = None
-    assert has_none_track.variables["the_var_id"].dump() == {
+    assert has_all_track.variables["the_var_id"].dump() == {
         "name": "var with all metadata",
         "data_type": "Integer",
         "sort_order": 0,
@@ -76,7 +76,7 @@ def test_clear_metadata_field():
 @pytest.mark.parametrize("value", ["", " ", "  ", "\n", "\t", "\r\n"])
 def test_empty_string_same_as_none(has_all_track, value):
     has_all_track.variables["the_var_id"].notes = value
-    assert has_none_track.variables["the_var_id"].dump() == {
+    assert has_all_track.variables["the_var_id"].dump() == {
         "name": "var with all metadata",
         "data_type": "Integer",
         "sort_order": 0,

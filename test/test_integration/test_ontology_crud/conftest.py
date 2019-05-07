@@ -11,6 +11,22 @@ def simple_spec() -> Dict:
         "target_folder": {
             "name": "the_folder",
             "data_type": "Folder",
+            "sort_order": 0
+        },
+        "target_var_id": {
+            "name": "the_target",
+            "data_type": "Integer",
+            "sort_order": 0,
+            "parent": "target_folder"
+        }
+    }
+
+@pytest.fixture()
+def simple_flat_spec() -> Dict:
+    return {
+        "target_folder": {
+            "name": "the_folder",
+            "data_type": "Folder",
             "sort_order": 1
         },
         "target_var_id": {
@@ -22,7 +38,11 @@ def simple_spec() -> Dict:
 
 @pytest.fixture()
 def simple_track(simple_spec) -> Track:
-    return Track(simple_spec, None, "Sample")
+    return Track.build(simple_spec, None, "Sample")
+
+@pytest.fixture()
+def simple_flat_track(simple_flat_spec) -> Track:
+    return Track.build(simple_flat_spec, None, "Sample")
 
 @pytest.fixture()
 def source_nested_dict_track() -> Track:
@@ -134,7 +154,7 @@ def source_list_track() -> Track:
             "sort_order": 0
         }
     }
-    return Track(spec, None, "Source")
+    return Track.build(spec, None, "Source")
 
 @pytest.fixture()
 def target_list_track(source_list_track) -> Track:
@@ -194,7 +214,7 @@ def target_list_track(source_list_track) -> Track:
             "sort_order": 0
         }
     }
-    return Track(spec, source_list_track, "Target")
+    return Track.build(spec, source_list_track, "Target")
 
 @pytest.fixture()
 def source_named_list_track() -> Track:

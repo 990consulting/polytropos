@@ -25,19 +25,20 @@ def test_dumps_pretty(simple_spec):
         "target_folder": simple_spec["target_folder"]
     }
 
-    track: Track = Track(out_of_order_spec, None, "OOO")
+    track: Track = Track.build(out_of_order_spec, None, "OOO")
     actual: str = track.dumps()
     expected: str = inspect.cleandoc("""
     {
         "target_folder": {
             "name": "the_folder",
             "data_type": "Folder",
-            "sort_order": 1
+            "sort_order": 0
         },
         "target_var_id": {
             "name": "the_target",
             "data_type": "Integer",
-            "sort_order": 0
+            "sort_order": 0,
+            "parent": "target_folder"
         }
     }
     """)

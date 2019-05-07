@@ -8,7 +8,7 @@ from etl4.ontology.variable import Variable
 def test_targets_for_var_in(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
-    actual: Set[str] = set(source_track.variables["source_var_2"].source_for_vars_in("Target"))
+    actual: Set[str] = set(source_track.variables["source_var_2"].targets())
     expected: Set[str] = {"target_var_2"}
     assert actual == expected
 
@@ -72,7 +72,7 @@ def test_tree_from_source_folder_1(source_nested_dict_track):
 def test_track_roots(source_nested_dict_track):
     track: Track = source_nested_dict_track
     track.delete("source_folder_3")
-    expected: Set[str] = {"source_folder_3", "source_folder_1"}
+    expected: Set[str] = {"outer_s"}
     actual: Set[str] = {v.name for v in track.roots}
     assert expected == actual
 
@@ -85,7 +85,7 @@ def test_absolute_path_named_list(target_list_track):
 def test_relative_path_named_list(target_list_track):
     var: Variable = target_list_track.variables["target_named_list_color"]
     expected: List[str] = ["color"]
-    actual: List[str] = list(var.absolute_path)
+    actual: List[str] = list(var.relative_path)
     assert actual == expected
 
 def test_absolute_path_folder(simple_track):
@@ -102,5 +102,5 @@ def test_absolute_path_list(target_list_track):
 
 def test_relative_path_list(target_list_track):
     var: Variable = target_list_track.variables["target_list_color"]
-    assert list(var.absolute_path) == ["color"]
+    assert list(var.relative_path) == ["color"]
 

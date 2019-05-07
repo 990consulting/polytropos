@@ -30,16 +30,16 @@ def test_alter_source_changes_dict(target_nested_dict_track):
 def test_add_source_alters_source_for_vars_in(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
-    assert set(source_track.variables["source_var_3"].source_for_vars_in("Target")) == set()
+    assert set(source_track.variables["source_var_3"].targets()) == set()
     do_source_swap(target_track)
-    assert set(source_track.variables["source_var_3"].source_for_vars_in("Target")) == {"target_var_2"}
+    assert set(source_track.variables["source_var_3"].targets()) == {"target_var_2"}
 
-def test_remove_source_alters_source_for_vars_in(target_nested_dict_track):
+def test_remove_source_alters_targets(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
-    assert set(source_track.variables["source_var_2"].source_for_vars_in("Target")) == {"target_var_2"}
+    assert set(source_track.variables["source_var_2"].targets()) == {"target_var_2"}
     do_source_swap(target_track)
-    assert set(source_track.variables["source_var_2"].source_for_vars_in("Target")) == set()
+    assert set(source_track.variables["source_var_2"].targets()) == set()
 
 def test_add_source_changes_has_targets(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
@@ -102,6 +102,6 @@ def test_directly_assign_source_to_list_descendent_raises(sources, target_list_t
 ])
 def test_directly_assign_source_to_named_list_descendent_raises(sources, target_named_list_track):
     track: Track = target_named_list_track
-    var: Variable = track.variables["target_list_day"]
+    var: Variable = track.variables["target_root_age"]
     with pytest.raises(ValueError):
         var.sources = sources

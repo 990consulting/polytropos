@@ -10,9 +10,9 @@ def test_delete_var_with_children_raises(source_nested_dict_track):
     with pytest.raises(ValueError):
         track.delete("source_folder_1")
 
-# TODO This will require some kind of means of source_var_2 knowing it will be used by target_var_2
-def test_delete_var_with_targets_raises(source_nested_dict_track):
-    track: Track = source_nested_dict_track
+def test_delete_var_with_targets_raises(target_nested_dict_track):
+    target_track: Track = target_nested_dict_track
+    track: Track = target_track.source
 
     with pytest.raises(ValueError):
         track.delete("source_var_2")
@@ -49,7 +49,7 @@ def test_delete_updates_local_sort_order(source_nested_dict_track):
 def test_delete_root_updates_track_roots(source_nested_dict_track):
     track: Track = source_nested_dict_track
     track.delete("source_folder_3")
-    expected: Set[str] = {"source_folder_1"}
+    expected: Set[str] = {"outer_s"}
     actual: Set[str] = {v.name for v in track.roots}
     assert expected == actual
 
@@ -57,7 +57,7 @@ def test_delete_updates_source_for_vars_in(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
     target_track.delete("target_var_2")
-    actual: Set[str] = set(source_track.variables["source_var_2"].source_for_vars_in("Target"))
+    actual: Set[str] = set(source_track.variables["source_var_2"].targets())
     expected: Set[str] = set()
     assert actual == expected
 

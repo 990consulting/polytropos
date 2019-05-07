@@ -45,7 +45,8 @@ class Translate(Callable):
         variable_id -> new sources. This is used to move the
         source_child_mappings from the parent to the childs"""
         for variable_id, sources in source_data.items():
-            self.target.variables[variable_id].sources = sources
+            # skip validation
+            self.target.variables[variable_id].__dict__['sources'] = sources
 
     def translate_generic(self, variable_id, variable, document, parent):
         """Translate for primitive (non-container) variables"""

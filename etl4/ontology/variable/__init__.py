@@ -1,6 +1,9 @@
 from dacite import from_dict
 import etl4.ontology.variable.__variable
-from etl4.ontology.variable.__variable import Variable, Folder, List, NamedList
+from etl4.ontology.variable.__variable import (
+    Variable, Folder, List, NamedList, Primitive, Container, GenericList,
+    Validator
+)
 
 
 def build_variable(data):

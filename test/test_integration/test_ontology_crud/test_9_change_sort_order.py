@@ -36,7 +36,7 @@ def test_sort_order_before_pushes_down(source_named_list_track):
     track: Track = source_named_list_track
     track.move("source_root_1_ice_cream", "source_root_1", 0)
     assert track.variables["source_root_1_name"].sort_order == 1
-    assert track.variables["source_root_1_sport"].sort_order == 2
+    assert track.variables["source_root_1_age"].sort_order == 2
 
 def test_sort_order_after_pulls_up(source_named_list_track):
     """Placing a variable after other variables pulls all those other variables up."""
@@ -73,7 +73,7 @@ def test_change_sort_order_alters_tree(source_named_list_track):
             {
                 "title": "sport",
                 "varId": "source_root_1_sport",
-                "data_type": "Text"
+                "dataType": "Text"
             }
         ]
     }
