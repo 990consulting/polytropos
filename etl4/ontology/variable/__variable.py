@@ -130,7 +130,7 @@ class Variable:
             Validator.validate_parent(self, value)
         if attribute == 'sort_order':
             Validator.validate_sort_order(self, value)
-        if attribute in {'notes', 'earliest_epoch', 'latest_epoch'}:
+        if attribute in {'notes', 'earliest_epoch', 'latest_epoch', 'short_description', 'long_description'}:
             if value is not None:
                 self.__dict__[attribute] = value.strip()
                 return

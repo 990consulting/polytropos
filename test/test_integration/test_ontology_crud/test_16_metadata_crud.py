@@ -4,9 +4,6 @@ import pytest
 
 from etl4.ontology.track import Track
 
-# TODO Quimey, can you define a descriptor that allows me to add an arbitrary number of optional string metadata fields
-#  that use the same code and thus don't require repetitive tests?
-
 @pytest.fixture()
 def has_all_track() -> Track:
     spec: Dict = {
