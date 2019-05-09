@@ -91,6 +91,10 @@ class Variable:
     # An alphabetically sortable indicator of when this field ceased to be used.
     latest_epoch: str = field(default=None)
 
+    # Descriptions of the variable -- used in various situations
+    short_description: str = field(default=None)
+    long_description: str = field(default=None)
+
     # The variable IDs (not names!) from the preceding stage from which to derive values for this variable, if any.
     sources: ListType[str] = field(default_factory=list)
 
