@@ -1,4 +1,4 @@
-from addict import Dict as Addict
+import logging
 from collections.abc import Callable
 from collections import defaultdict
 from etl4.ontology.track import Track
@@ -127,8 +127,12 @@ class Translate(Callable):
         for variable_id, variable in self.target_variables_by_parent[
             parent
         ].items():
-            translate = self.get_translate_function(variable)
-            output_document[variable.name] = translate(
-                variable_id, variable, document, source_parent
-            )
+            try:
+                translate = self.get_translate_function(variable)
+                output_document[variable.name] = translate(
+                    variable_id, variable, document, source_parent
+                )
+            except:
+                logging.warning('Error translating variable %s', variable_id)
+                output_document[variable.name] = None
         return output_document
