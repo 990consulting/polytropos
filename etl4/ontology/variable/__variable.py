@@ -1,3 +1,4 @@
+import logging
 import json
 from dataclasses import dataclass, field, fields
 from typing import(
@@ -43,7 +44,8 @@ class Validator:
                     variable.descends_from_list
             ):
                 # nested lists
-                raise ValueError
+                logging.warning('Nested list: %s', variable)
+                # raise ValueError
 
     @staticmethod
     def validate_name(variable, name):
