@@ -3,6 +3,7 @@ from collections.abc import Callable
 from collections import defaultdict
 from etl4.ontology.track import Track
 from etl4.ontology.variable import NamedList, List, Folder
+from etl4.transform.translate.__reporter import Reporter
 
 
 class Translate(Callable):
@@ -14,6 +15,7 @@ class Translate(Callable):
         # We need to group by variables by parent to be able to efficiently do
         # a recursion in the translate function
         self.target_variables_by_parent = defaultdict(dict)
+        self.reporter = Reporter()
         for variable_id, variable in self.target.variables.items():
             self.target_variables_by_parent[
                 variable.parent
@@ -131,6 +133,9 @@ class Translate(Callable):
                 translate = self.get_translate_function(variable)
                 output_document[variable.name] = translate(
                     variable_id, variable, document, source_parent
+                )
+                self.reporter.report(
+                    variable_id, variable, output_document[variable.name]
                 )
             except:
                 logging.warning('Error translating variable %s', variable_id)
