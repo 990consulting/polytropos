@@ -1,3 +1,4 @@
+import csv
 from collections import defaultdict
 from etl4.ontology.variable import Primitive, List, NamedList
 
@@ -18,8 +19,10 @@ class Reporter:
             if expected == value:
                 self.primitive_match[var_id] += 1
             else:
-                self.primitive_mismatch[var_id] -= 1
-                self.primitive_failures.append((var_id, value, expected))
+                self.primitive_mismatch[var_id] += 1
+                self.primitive_failures.append(
+                    (var_id, self.document_name, value, expected)
+                )
 
     def report_list(self, var_id, variable, value):
         pass
@@ -40,13 +43,15 @@ class Reporter:
 
     def save(self):
         all_vars = (
-            set(self.primitive_match.keys()) +
+            set(self.primitive_match.keys()) |
             set(self.primitive_mismatch.keys())
         )
+        with open('primitive_report.csv', 'w') as f:
+            writer = csv.writer()
+            writer.write(['var_id', 'hits', 'misses'])
         for var_id in all_vars:
-            print(
+            writer.write([
                 var_id,
                 self.primitive_match.get(var_id, 0),
                 self.primitive_mismatch.get(var_id, 0),
-            )
-        pass
+            ])
