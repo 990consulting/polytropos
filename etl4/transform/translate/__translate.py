@@ -123,6 +123,9 @@ class Translate(Callable):
         else:
             return self.translate_generic
 
+    def set_document_name(self, name):
+        self.reporter.set_document_name(name)
+
     def __call__(self, document, parent='', source_parent=''):
         output_document = {}
         # Translate all variables with the same parent
