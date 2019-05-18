@@ -48,9 +48,9 @@ class Reporter:
         )
         with open('primitive_report.csv', 'w') as f:
             writer = csv.writer(f)
-            writer.write(['var_id', 'hits', 'misses'])
+            writer.writerow(['var_id', 'hits', 'misses'])
         for var_id in all_vars:
-            writer.write([
+            writer.writerow([
                 var_id,
                 self.primitive_match.get(var_id, 0),
                 self.primitive_mismatch.get(var_id, 0),
