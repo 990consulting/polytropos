@@ -41,12 +41,12 @@ class Reporter:
             # folders don't have expected values
             return
 
-    def save(self):
+    def save(self, prefix):
         all_vars = (
             set(self.primitive_match.keys()) |
             set(self.primitive_mismatch.keys())
         )
-        with open('primitive_report.csv', 'w') as f:
+        with open(prefix + '_primitive_report.csv', 'w') as f:
             writer = csv.writer(f)
             writer.writerow(['var_id', 'hits', 'misses'])
             for var_id in all_vars:
