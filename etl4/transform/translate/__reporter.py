@@ -55,7 +55,7 @@ class Reporter:
                     self.primitive_match.get(var_id, 0),
                     self.primitive_mismatch.get(var_id, 0),
                 ])
-        with open(prefix + '_primitive_failures.csv', 'w') as f:
+        with open(prefix + '_primitive_failures.csv', 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['var_id', 'instance', 'value', 'expected'])
             for failure in self.primitive_failures:
