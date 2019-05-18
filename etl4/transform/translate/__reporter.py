@@ -47,7 +47,7 @@ class Reporter:
             set(self.primitive_mismatch.keys())
         )
         with open('primitive_report.csv', 'w') as f:
-            writer = csv.writer()
+            writer = csv.writer(f)
             writer.write(['var_id', 'hits', 'misses'])
         for var_id in all_vars:
             writer.write([
