@@ -99,44 +99,34 @@ def target_spec() -> Dict:
             "data_type": "List",
             "sort_order": 0,
             "sources": ["source_root_1", "source_root_2"],
-            "source_child_mappings": {
-                "source_root_1": {
-                    "target_root_name": ["source_root_1_name", "source_root_1_nom"],
-                    "target_root_age": ["source_root_1_age"],
-                    "target_root_ice_cream": ["source_root_1_ice_cream"],
-                    "target_root_sport": ["source_root_1_sport"]
-                },
-                "source_root_2": {
-                    "target_root_name": ["source_root_2_nombre"],
-                    "target_root_age": ["source_root_2_edad"],
-                    "target_root_ice_cream": ["source_root_2_helado"],
-                    "target_root_sport": []
-                }
-            }
         },
         "target_root_name": {
             "name": "Name",
             "data_type": "Text",
             "sort_order": 0,
-            "parent": "target_root"
+            "parent": "target_root",
+            "sources": ["source_root_1_name", "source_root_1_nom", "source_root_2_nombre"]
         },
         "target_root_age": {
             "name": "Age",
             "data_type": "Integer",
             "sort_order": 1,
-            "parent": "target_root"
+            "parent": "target_root",
+            "source": ["source_root_1_age", "source_root_2_edad"],
         },
         "target_root_ice_cream": {
             "name": "Ice cream",
             "data_type": "Text",
             "sort_order": 2,
-            "parent": "target_root"
+            "parent": "target_root",
+            "source": ["source_root_1_ice_cream", "source_root_2_helado"],
         },
         "target_root_sport": {
             "name": "Sport",
             "data_type": "Text",
             "sort_order": 3,
-            "parent": "target_root"
+            "parent": "target_root",
+            "source": ["source_root_1_sport"]
         }
     }
 
@@ -149,7 +139,6 @@ def do_test(s_doc, s_spec, t_doc, t_spec):
 
 def test_no_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     """No sources defined; empty list is returned."""
-    target_spec["target_root"]["source_child_mappings"] = {}
     target_spec["target_root"]["sources"] = []
     expected: Dict = {
         "People": []
@@ -177,8 +166,12 @@ def test_two_sources_both_empty(source_spec: Dict, target_spec: Dict):
 
 def test_one_source(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     """One source is specified; a target list is made from that source."""
-    del target_spec["target_root"]["source_child_mappings"]["source_root_1"]
     target_spec["target_root"]["sources"] = ["source_root_2"]
+    target_spec["target_root_name"]["sources"] = ["source_root_2_nombre"]
+    target_spec["target_root_age"]["sources"] = ["source_root_2_edad"]
+    target_spec["target_root_ice_cream"]["sources"] = ["source_root_2_helado"]
+    target_spec["target_root_ice_sport"]["sources"] = []
+
     expected: Dict = {
         "People": [
             {

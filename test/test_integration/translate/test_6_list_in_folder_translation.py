@@ -96,41 +96,33 @@ def target_flattened() -> Tuple[Dict, Dict]:
             "data_type": "List",
             "sort_order": 0,
             "sources": ["source_list"],
-            "source_child_mappings": {
-                "source_list": {
-                    "target_list_name": ["source_list_name"],
-                    "target_list_color": ["source_list_color"]
-                }
-            }
         },
         "target_list_name": {
             "name": "name",
             "data_type": "Text",
             "parent": "target_list",
-            "sort_order": 0
+            "sort_order": 0,
+            "sources": ["source_list_name"]
         },
         "target_list_color": {
             "name": "color",
             "data_type": "Text",
             "parent": "target_list",
-            "sort_order": 1
+            "sort_order": 1,
+            "sources": ["source_list_color"]
         },
         "target_named_list": {
             "name": "the_named_list",
             "data_type": "NamedList",
             "sort_order": 1,
             "sources": ["source_named_list"],
-            "source_child_mappings": {
-                "source_named_list": {
-                    "target_named_list_color": ["source_named_list_color"]
-                }
-            }
         },
         "target_named_list_color": {
             "name": "color",
             "data_type": "Text",
             "parent": "target_named_list",
-            "sort_order": 0
+            "sort_order": 0,
+            "sources": ["source_named_list_color"]
         }
     }
 
@@ -180,24 +172,20 @@ def target_nested() -> Tuple[Dict, Dict]:
             "parent": "target_folder_outer",
             "sort_order": 1,
             "sources": ["source_list"],
-            "source_child_mappings": {
-                "source_list": {
-                    "target_list_name": ["source_list_name"],
-                    "target_list_color": ["source_list_color"]
-                }
-            }
         },
         "target_list_name": {
             "name": "name",
             "data_type": "Text",
             "parent": "target_list",
-            "sort_order": 0
+            "sort_order": 0,
+            "sources": ["source_list_name"]
         },
         "target_list_color": {
             "name": "color",
             "data_type": "Text",
             "parent": "target_list",
-            "sort_order": 1
+            "sort_order": 1,
+            "sources": ["source_list_color"]
         },
         "target_named_list": {
             "name": "the_named_list",
@@ -205,17 +193,13 @@ def target_nested() -> Tuple[Dict, Dict]:
             "parent": "target_folder_inner",
             "sort_order": 0,
             "sources": ["source_named_list"],
-            "source_child_mappings": {
-                "source_named_list": {
-                    "target_named_list_color": ["source_named_list_color"]
-                }
-            }
         },
         "target_named_list_color": {
             "name": "color",
             "data_type": "Text",
             "parent": "target_named_list",
-            "sort_order": 0
+            "sort_order": 0,
+            "sources": ["source_named_list_color"]
         }
     }
 

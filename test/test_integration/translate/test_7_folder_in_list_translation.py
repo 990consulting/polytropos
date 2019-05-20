@@ -141,19 +141,13 @@ def target_nested() -> Tuple[Dict, Dict]:
             "data_type": "List",
             "sort_order": 0,
             "sources": ["source_list"],
-            "source_child_mappings": {
-                "source_list": {
-                    "target_list_day": ["source_list_day"],
-                    "target_list_name": ["source_list_name"],
-                    "target_list_color": ["source_list_color"]
-                }
-            }
         },
         "target_list_day": {
             "name": "day",
             "data_type": "Text",
             "parent": "target_list",
-            "sort_order": 0
+            "sort_order": 0,
+            "sources": ["source_list_day"]
         },
         "target_list_folder": {
             "name": "the_folder",
@@ -165,13 +159,15 @@ def target_nested() -> Tuple[Dict, Dict]:
             "name": "name",
             "data_type": "Text",
             "parent": "target_list_folder",
-            "sort_order": 0
+            "sort_order": 0,
+            "sources": ["source_list_name"],
         },
         "target_list_color": {
             "name": "color",
             "data_type": "Text",
             "parent": "target_list_folder",
-            "sort_order": 1
+            "sort_order": 1,
+            "sources": ["source_list_color"]
         },
         "target_meaning_of_life": {
             "name": "meaning_of_life",
@@ -205,31 +201,27 @@ def target_flat() -> Tuple[Dict, Dict]:
             "data_type": "List",
             "sort_order": 0,
             "sources": ["source_list"],
-            "source_child_mappings": {
-                "source_list": {
-                    "target_list_day": ["source_list_day"],
-                    "target_list_name": ["source_list_name"],
-                    "target_list_color": ["source_list_color"]
-                }
-            }
         },
         "target_list_day": {
             "name": "day",
             "data_type": "Text",
             "parent": "target_list",
-            "sort_order": 0
+            "sort_order": 0,
+            "sources": ["source_list_day"]
         },
         "target_list_name": {
             "name": "name",
             "data_type": "Text",
             "parent": "target_list",
-            "sort_order": 1
+            "sort_order": 1,
+            "sources": ["source_list_name"]
         },
         "target_list_color": {
             "name": "color",
             "data_type": "Text",
             "parent": "target_list",
-            "sort_order": 2
+            "sort_order": 2,
+            "sources": ["source_list_color"]
         },
         "target_meaning_of_life": {
             "name": "meaning_of_life",
