@@ -112,21 +112,21 @@ def target_spec() -> Dict:
             "data_type": "Integer",
             "sort_order": 1,
             "parent": "target_root",
-            "source": ["source_root_1_age", "source_root_2_edad"],
+            "sources": ["source_root_1_age", "source_root_2_edad"],
         },
         "target_root_ice_cream": {
             "name": "Ice cream",
             "data_type": "Text",
             "sort_order": 2,
             "parent": "target_root",
-            "source": ["source_root_1_ice_cream", "source_root_2_helado"],
+            "sources": ["source_root_1_ice_cream", "source_root_2_helado"],
         },
         "target_root_sport": {
             "name": "Sport",
             "data_type": "Text",
             "sort_order": 3,
             "parent": "target_root",
-            "source": ["source_root_1_sport"]
+            "sources": ["source_root_1_sport"]
         }
     }
 
@@ -170,7 +170,7 @@ def test_one_source(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     target_spec["target_root_name"]["sources"] = ["source_root_2_nombre"]
     target_spec["target_root_age"]["sources"] = ["source_root_2_edad"]
     target_spec["target_root_ice_cream"]["sources"] = ["source_root_2_helado"]
-    target_spec["target_root_ice_sport"]["sources"] = []
+    target_spec["target_root_sport"]["sources"] = []
 
     expected: Dict = {
         "People": [
