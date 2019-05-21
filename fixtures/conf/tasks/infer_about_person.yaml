@@ -1,5 +1,18 @@
 ---
-starting_with: person/origin
+
+# Define the dataset and schema that the task is working with
+starting_with:
+    data: person/origin
+    schema: person/origin
+
+# Define the dataset and schema that the task should produce
+resulting_in:
+    data: person/actual
+    schema: person/origin  # We specify the schema so that we can validate the
+                           # composites if desired
+
+# Define the steps involved in this task. In this test, there is only one task
+# (a metamorphosis).
 steps:
 - Metamorphosis:
     lookups:
@@ -24,3 +37,9 @@ steps:
         gender_var: the_gender_var
         hsl_var: the_hsl_var
         sentence_var: the_sentence_var
+
+# After we get this task to run, I will implement a task that does a
+# metamorphosis, translates, then does another metamorphosis. This second
+# case is trickier than it sounds: the translation results in a schema change,
+# meaning that variables identified in the second metamorphosis will need to
+# come from the NEW schema.
