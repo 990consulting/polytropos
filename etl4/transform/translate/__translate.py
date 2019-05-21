@@ -55,7 +55,7 @@ class Translate(Callable):
         ):
             if parent_source and not parent_source.check_ancestor(source):
                 continue
-            result = self.find_in_document(source, document, parent, True)
+            result = self.find_in_document(source, document, parent)
             if result is not None:
                 return result
         return None
