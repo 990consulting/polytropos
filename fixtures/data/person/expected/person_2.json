@@ -1,8 +1,11 @@
 {
   "invariant": {
     "first_name": "Jane",
+    "gender": "female",
+    "sentence": "Jane's favorite color is blue (0000FF). Over the observation period, she gained 2.5 lbs.",
     "color_info": {
-      "favorite_color": "blue"
+      "favorite_color": "blue",
+      "rgb_val": "0000FF"
     }
   },
   "2010": {

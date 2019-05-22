@@ -16,7 +16,11 @@ class Change(Callable):
         #  temporality, and other attributes may be accessed.
         # TODO All required lookups should have a "lookup" decorator. At construction time, the decorator will verify
         #  that the required lookup has been loaded.
-        pass
+        # TODO: In each of the Change implementations in the fixtures, I explicitly enumerate all the subjects both in
+        #  the method parameters and in the decorators. I'll bet that you could use class decorators and __setattr__,
+        #  and then none of the classes would even need to implement constructors.
+        self.schema = schema
+        self.lookups = lookups
 
     @classmethod
     def deserialize(cls, spec: Dict) -> "Change":

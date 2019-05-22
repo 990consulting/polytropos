@@ -1,8 +1,12 @@
 {
   "invariant": {
     "first_name": "Steve",
+    "gender": "male",
+    "total_weight_gain": 3.9,
+    "sentence": "Steve's favorite color is orange (FFA500). Over the observation period, he gained 3.9 lbs.",
     "color_info": {
-      "favorite_color": "orange"
+      "favorite_color": "orange",
+      "rgb_value": "FFA500"
     }
   },
   "2013": {

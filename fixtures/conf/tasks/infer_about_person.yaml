@@ -8,8 +8,6 @@ starting_with:
 # Define the dataset and schema that the task should produce
 resulting_in:
     data: person/actual
-    schema: person/origin  # We specify the schema so that we can validate the
-                           # composites if desired
 
 # Define the steps involved in this task. In this test, there is only one task
 # (a metamorphosis).
@@ -25,21 +23,17 @@ steps:
     - ColorNameToRgb:
         color_name_var: the_color_var
         rgb_var: the_rgb_var
-    - Rgb2Hsl:
-        rgb_var: the_rgb_var
-        hsl_var: the_hsl_var
     - DetermineGender:
         person_name_var: the_person_name_var
         gender_var: the_gender_var
     - GeneratePersonDescription:
+        color_name_var: the_color_var
         weight_gain_var: the_weight_gain_var
         person_name_var: the_person_name_var
         gender_var: the_gender_var
-        hsl_var: the_hsl_var
+        rgb_var: the_rgb_var
         sentence_var: the_sentence_var
 
-# After we get this task to run, I will implement a task that does a
-# metamorphosis, translates, then does another metamorphosis. This second
-# case is trickier than it sounds: the translation results in a schema change,
-# meaning that variables identified in the second metamorphosis will need to
-# come from the NEW schema.
+# After we get this task to run, I will implement a task that starts with
+# a translation. In this case, all downstream steps will need to use the schema
+# of the TRANSLATION, not the original schema.
