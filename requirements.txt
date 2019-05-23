@@ -3,3 +3,4 @@ glom
 pytest-repeat
 marshmallow
 dacite
+pyyaml
