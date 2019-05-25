@@ -1,6 +1,5 @@
 from typing import Dict, List
-from etl4.ontology.metamorphosis.__change import Change
-from fixtures.conf.changes import all_changes
+from etl4.ontology.metamorphosis.__change import load_changes
 
 
 class Metamorphosis:
@@ -19,6 +18,7 @@ class Metamorphosis:
         constructor."""
         # TODO: load lookups
         change_instances = []
+        all_changes = load_changes()
         for spec in changes:
             # assume that spec only has one key
             for name, var_specs in spec.items():
