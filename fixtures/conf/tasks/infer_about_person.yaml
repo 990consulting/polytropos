@@ -20,7 +20,7 @@ steps:
     - CalculateWeightGain:
         weight_var: the_weight_var
         weight_gain_var: the_weight_gain_var
-    - ColorNameToRgb:
+    - ColorNameToRGB:
         color_name_var: the_color_var
         rgb_var: the_rgb_var
     - DetermineGender:
