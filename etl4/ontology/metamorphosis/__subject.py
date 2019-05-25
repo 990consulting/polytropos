@@ -9,4 +9,6 @@ def subject(*args, **kwargs):
 
     :param data_types: a set of acceptable data types for the subject.
     :param temporal: If 1, require a temporal variable; if -1; require an invariant variable. (If 0, no restriction.)"""
-    pass
+    def wrapper(f):
+        return f
+    return wrapper

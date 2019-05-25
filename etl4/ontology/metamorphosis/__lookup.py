@@ -7,4 +7,6 @@ from etl4.ontology.metamorphosis.__change import Change
 def lookup(*args, **kwargs):
     """Intended to be a decorator on the constructor for a Change. Verifies that the specified lookup table has been
     loaded."""
-    pass
+    def wrapper(f):
+        return f
+    return wrapper
