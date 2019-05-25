@@ -21,10 +21,11 @@ class Metamorphosis:
         all_changes = load_changes()
         for spec in changes:
             # assume that spec only has one key
+            assert len(spec) == 1
             for name, var_specs in spec.items():
                 # TODO: actually load the var here
                 variables = {
-                    var_name: var_id
+                    var_name: schema.get(var_id)
                     for var_name, var_id in var_specs.items()
                 }
                 change = all_changes[name](

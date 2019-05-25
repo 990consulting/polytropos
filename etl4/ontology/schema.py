@@ -11,6 +11,11 @@ class Schema:
     temporal: Track
     invariant: Track
 
+    def get(self, var_id):
+        if var_id in self.invariant.variables:
+            return self.invariant.variables[var_id]
+        return self.temporal.variables[var_id]
+
     @classmethod
     def load(cls, path):
         if path is None:
@@ -22,6 +27,10 @@ class Schema:
                     os.path.join(SCHEMAS_DIR, path, 'invariant.json'), 'r'
             ) as invariant:
                 return cls(
-                    temporal=json.load(temporal),
-                    invariant=json.load(invariant)
+                    temporal=Track.build(
+                        specs=json.load(temporal), source=None, name='temporal'
+                    ),
+                    invariant=Track.build(
+                        specs=json.load(invariant), source=None, name='invariant'
+                    )
                 )
