@@ -1,5 +1,10 @@
+import os
+import json
 from typing import Dict, List
 from etl4.ontology.metamorphosis.__change import load_changes
+
+
+LOOKUPS_DIR = 'fixtures/conf/lookups'
 
 
 class Metamorphosis:
@@ -16,20 +21,22 @@ class Metamorphosis:
     def build(cls, changes, lookups, schema) -> "Metamorphosis":
         """Loads in the specified lookup tables, constructs the specified Changes, and passes these Changes to the
         constructor."""
-        # TODO: load lookups
+        loaded_lookups = {}
+        for lookup in lookups:
+            with open(os.path.join(LOOKUPS_DIR, lookup + '.json'), 'r') as l:
+                loaded_lookups[lookup] = json.load(l)
         change_instances = []
         all_changes = load_changes()
         for spec in changes:
             # assume that spec only has one key
             assert len(spec) == 1
             for name, var_specs in spec.items():
-                # TODO: actually load the var here
                 variables = {
                     var_name: schema.get(var_id)
                     for var_name, var_id in var_specs.items()
                 }
                 change = all_changes[name](
-                    **variables, lookups=lookups, schema=schema
+                    **variables, lookups=loaded_lookups, schema=schema
                 )
                 change_instances.append(change)
         return cls(change_instances, lookups, schema)
