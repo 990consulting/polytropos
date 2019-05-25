@@ -18,7 +18,6 @@ class CalculateWeightGain(Change):
         self.weight_gain_var: Variable = weight_gain_var
 
     def __call__(self, composite: Dict):
-        print(composite)
         periods = set(composite.keys()) - {"invariant"}
         earliest = min(periods)
         latest = max(periods)
@@ -26,7 +25,6 @@ class CalculateWeightGain(Change):
         weight_path = list(self.weight_var.absolute_path)
 
         earliest_weight_path: list = [earliest] + weight_path
-        print(earliest_weight_path)
         earliest_weight: float = nesteddicts.get(composite, earliest_weight_path)
 
         latest_weight_path: list = [latest] + weight_path
