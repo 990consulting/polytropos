@@ -3,7 +3,7 @@ import glob
 from importlib import import_module
 from etl4.ontology.metamorphosis.__change import Change
 
-
+# TODO Quimey, please include a link to the SO thread where you found it
 # stackoverflow magic
 modules = [
     basename(f)[:-3]

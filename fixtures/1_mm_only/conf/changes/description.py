@@ -13,12 +13,12 @@ def get_value(composite: Dict, invariant_variable: Variable) -> Optional[Any]:
 
 class GeneratePersonDescription(Change):
 
-    @subject("color_name_var", data_types={"text"}, temporal=-1)
-    @subject("rgb_var", data_types={"text"}, temporal=-1)
-    @subject("person_name_var", data_types={"text"}, temporal=-1)
-    @subject("gender_var", data_types={"text"}, temporal=-1)
-    @subject("weight_gain_var", data_types={"decimal"}, temporal=-1)
-    @subject("sentence_var", data_types={"text"}, temporal=-1)
+    @subject("color_name_var", data_types={"Text"}, temporal=-1)
+    @subject("rgb_var", data_types={"Text"}, temporal=-1)
+    @subject("person_name_var", data_types={"Text"}, temporal=-1)
+    @subject("gender_var", data_types={"Text"}, temporal=-1)
+    @subject("weight_gain_var", data_types={"Decimal"}, temporal=-1)
+    @subject("sentence_var", data_types={"Text"}, temporal=-1)
     def __init__(self, schema: Schema, lookups: Dict, color_name_var, rgb_var, person_name_var, gender_var,
                  weight_gain_var, sentence_var):
         super().__init__(schema, lookups, color_name_var, rgb_var, person_name_var, gender_var, weight_gain_var,

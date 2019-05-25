@@ -1,5 +1,4 @@
-from typing import Dict, List
-from etl4.ontology.metamorphosis.__change import Change
+from typing import Dict
 from fixtures.conf.changes import all_changes
 
 

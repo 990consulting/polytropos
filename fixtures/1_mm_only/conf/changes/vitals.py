@@ -10,8 +10,8 @@ from etl4.util import nesteddicts
 class CalculateWeightGain(Change):
     """Determine the total weight gain over the observation period."""
 
-    @subject("weight_var", data_types={"decimal"}, temporal=1)
-    @subject("weight_gain_var", data_types={"decimal"}, temporal=-1)
+    @subject("weight_var", data_types={"Decimal"}, temporal=1)
+    @subject("weight_gain_var", data_types={"Decimal"}, temporal=-1)
     def __init__(self, schema: Schema, lookups: Dict, weight_var, weight_gain_var):
         super().__init__(schema, lookups, weight_var, weight_gain_var)
         self.weight_var: Variable = weight_var
@@ -39,8 +39,8 @@ class CalculateWeightGain(Change):
 class DetermineGender(Change):
     """Use a lookup table to determine the person's gender."""
     @lookup("genders")
-    @subject("person_name_var", data_types={"text"}, temporal=-1)
-    @subject("gender_var", data_types={"text"}, temporal=-1)
+    @subject("person_name_var", data_types={"Text"}, temporal=-1)
+    @subject("gender_var", data_types={"Text"}, temporal=-1)
     def __init__(self, schema: Schema, lookups: Dict, person_name_var, gender_var):
         super().__init__(schema, lookups, person_name_var, gender_var)
         self.person_name_var: Variable = person_name_var

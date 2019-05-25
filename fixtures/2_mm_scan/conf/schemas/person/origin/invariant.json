@@ -1,12 +1,61 @@
 {
-  "the_weight_var": {
-    "name": "weight",
-    "data_type": "Float",
+  "the_name_folder": {
+    "name": "name",
+    "data_type": "Folder",
     "sort_order": 0
   },
-  "the_bmi_var": {
-    "name": "bmi",
-    "data_type": "Float",
+  "the_first_name_var": {
+    "name": "first",
+    "data_type": "Text",
+    "parent": "the_name_folder",
+    "sort_order": 0
+  },
+  "the_last_name_var": {
+    "name": "last",
+    "data_type": "Text",
+    "parent": "the_name_folder",
     "sort_order": 1
+  },
+  "the_maleness_var": {
+    "name": "male",
+    "data_type": "Binary",
+    "sort_order": 1
+  },
+  "the_height_var": {
+    "name": "height",
+    "data_type": "Integer",
+    "sort_order": 2
+  },
+  "the_weight_change_folder": {
+    "name": "weight_change",
+    "data_type": "Folder",
+    "sort_order": 3
+  },
+  "the_slope_var": {
+    "name": "slope",
+    "data_type": "Decimal",
+    "parent": "the_weight_change_folder",
+    "sort_order": 0
+  },
+  "the_p_value_var": {
+    "name": "p_value",
+    "data_type": "Decimal",
+    "parent": "the_weight_change_folder",
+    "sort_order": 1
+  },
+  "the_mean_bmi_var": {
+    "name": "mean_bmi",
+    "data_type": "Decimal",
+    "sort_order": 4
+  },
+  "the_gender_rank_var": {
+    "name": "bmi_rank_within_gender",
+    "data_type": "Integer",
+    "sort_order": 5
+  },
+  "the_overall_rank_var": {
+    "name": "bmi_rank_overall",
+    "data_type": "Integer",
+    "sort_order": 6
   }
 }

@@ -10,8 +10,8 @@ class ColorNameToRGB(Change):
     """Look up the RGB value for the color name specified by color_name_var, and store it in rgb_var."""
 
     @lookup("color_names")
-    @subject("color_name_var", data_types={"text"}, temporal=-1)
-    @subject("rgb_var", data_types={"text"}, temporal=-1)
+    @subject("color_name_var", data_types={"Text"}, temporal=-1)
+    @subject("rgb_var", data_types={"Text"}, temporal=-1)
     def __init__(self, schema: Schema, lookups: Dict, color_name_var, rgb_var):
         super().__init__(schema, lookups, color_name_var, rgb_var)
         self.color_name_var: Variable = color_name_var
