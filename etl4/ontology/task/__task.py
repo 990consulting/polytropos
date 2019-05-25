@@ -2,11 +2,13 @@ from dataclasses import dataclass, field
 from typing import List, Any, TypeVar, Dict
 import os
 import yaml
+import json
 import dacite
 from etl4.ontology.metamorphosis import Metamorphosis
 
 
 TASKS_DIR = 'fixtures/conf/tasks'
+DATA_DIR = 'fixtures/data'
 STEP_TYPES = {
     'Metamorphosis': Metamorphosis
 }
@@ -52,3 +54,17 @@ class Task:
                     schema=self.starting_with.schema, **kwargs
                 )
                 self.steps.append(step_instance)
+
+    def run(self):
+        try:
+            os.mkdir(os.path.join(DATA_DIR, self.resulting_in.data))
+        except FileExistsError:
+            pass
+        for filename in os.listdir(
+                os.path.join(DATA_DIR, self.starting_with.data)
+        ):
+            with open(
+                    os.path.join(DATA_DIR, self.resulting_in.data, filename),
+                    'w'
+            ) as f:
+                json.dump({}, f)
