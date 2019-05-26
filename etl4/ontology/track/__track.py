@@ -17,7 +17,7 @@ class Track:
     type's data."""
 
     # TODO Remove default for invariant
-    def __init__(self, variables: Dict[str, "Variable"], source: Optional["Track"], name: str, invariant: bool):
+    def __init__(self, variables: Dict[str, "Variable"], source: Optional["Track"], name: str):
         """Do not call directly; use Track.build()."""
         self.variables: Dict[str, "Variable"] = variables
         self.name = name
