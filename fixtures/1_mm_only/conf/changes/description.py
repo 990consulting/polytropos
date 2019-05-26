@@ -52,5 +52,6 @@ class GeneratePersonDescription(Change):
         pronoun = self.get_pronoun(composite)
 
         sentence = template % (name, color, rgb, pronoun, weight_gain)
+        print(self.sentence_var)
         sentence_path = ["invariant"] + list(self.sentence_var.absolute_path)
-        nesteddicts.put(composite, sentence, sentence_path)
+        nesteddicts.put(composite, sentence_path, sentence)

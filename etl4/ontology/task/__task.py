@@ -1,54 +1,66 @@
-from dataclasses import dataclass, field
 from typing import List, Any, TypeVar, Dict
 import os
 import yaml
-import dacite
+import json
 from etl4.ontology.metamorphosis import Metamorphosis
+from etl4.ontology.schema import Schema
 
 
 TASKS_DIR = 'fixtures/conf/tasks'
+DATA_DIR = 'fixtures/data'
 STEP_TYPES = {
     'Metamorphosis': Metamorphosis
 }
 
 
-@dataclass
-class StartingWith:
-    data: str
-    schema: str
-
-@dataclass
-class ResultingIn:
-    data: str
-
-
-@dataclass
 class Task:
-    starting_with: StartingWith
-    resulting_in: ResultingIn
-    step_descriptions: List
-    steps: List = field(default_factory=list, init=False)
+    def __init__(
+        self,
+        origin_data, origin_schema,
+        target_data, target_schema=None
+    ):
+        self.origin_data = origin_data
+        self.origin_schema = origin_schema
+        self.target_data = target_data
+        self.target_schema = target_schema
+        self.steps = []
 
     @classmethod
     def build(cls, name):
         with open(os.path.join(TASKS_DIR, name + '.yaml'), 'r') as f:
             spec = yaml.safe_load(f)
-        # dirty trick
-        spec['step_descriptions'] = spec['steps']
-        del spec['steps']
-        task = dacite.from_dict(data_class=cls, data=spec)
-        task.load_starting_with()
-        task.load_steps()
+        task = cls(
+            origin_data=spec['starting_with']['data'],
+            origin_schema=Schema.load(spec['starting_with']['schema']),
+            target_data=spec['resulting_in']['data'],
+            target_schema=Schema.load(spec['resulting_in'].get('schema'))
+        )
+        task.load_steps(spec['steps'])
         return task
 
-    def load_starting_with(self):
-        pass
-
-    def load_steps(self):
-        for step in self.step_descriptions:
+    def load_steps(self, step_descriptions):
+        for step in step_descriptions:
             # expect only one key/value pair
+            assert len(step) == 1, (
+                'Step description can have only one key, value pair'
+            )
             for cls, kwargs in step.items():
                 step_instance = STEP_TYPES[cls].build(
-                    schema=self.starting_with.schema, **kwargs
+                    schema=self.origin_schema, **kwargs
                 )
                 self.steps.append(step_instance)
+
+    def run(self):
+        origin_path = os.path.join(DATA_DIR, self.origin_data)
+        actual_path = os.path.join(DATA_DIR, self.target_data)
+        try:
+            os.mkdir(actual_path)
+        except FileExistsError:
+            pass
+        for filename in os.listdir(origin_path):
+            with open(os.path.join(origin_path, filename), 'r') as origin:
+                data = json.load(origin)
+                for step in self.steps:
+                    step(data)
+            with open(os.path.join(actual_path, filename), 'w') as target:
+                json.dump(data, target)

@@ -1,22 +1,22 @@
 {
   "the_person_name_var": {
     "name": "first_name",
-    "data_type": "text",
+    "data_type": "Text",
     "sort_order": 0
   },
   "the_gender_var": {
     "name": "gender",
-    "data_type": "text",
+    "data_type": "Text",
     "sort_order": 1
   },
   "the_weight_gain_var": {
     "name": "total_weight_gain",
-    "data_type": "integer",
+    "data_type": "Integer",
     "sort_order": 2
   },
   "the_sentence_var": {
     "name": "personal_summary",
-    "data_type": "text",
+    "data_type": "Text",
     "sort_order": 3
   },
   "color_folder": {
@@ -26,13 +26,13 @@
   },
   "the_color_var": {
     "name": "favorite_color",
-    "data_type": "text",
+    "data_type": "Text",
     "parent": "color_folder",
     "sort_order": 0
   },
   "the_rgb_var": {
     "name": "rgb_value",
-    "data_type": "text",
+    "data_type": "Text",
     "parent": "color_folder",
     "sort_order": 1
   }
