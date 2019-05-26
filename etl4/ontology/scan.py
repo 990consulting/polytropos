@@ -15,7 +15,7 @@ class Scan(ABC):
     @abstractmethod
     def analyze(self, extracts: Iterable[Tuple[str, Any]]) -> None:
         """Collect, process, and store the global information provided from each composite during the scan() step.
-        :param extracts: Tuple of (composite id, whatever is returned by scan)"""
+        :param extracts: Tuple of (composite id, whatever is returned by extract)"""
         pass
 
     @abstractmethod
