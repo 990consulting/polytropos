@@ -4,6 +4,8 @@ from etl4.ontology.metamorphosis import Change
 from etl4.ontology.metamorphosis.__subject import subject
 from etl4.ontology.schema import Schema
 from etl4.ontology.variable import Variable
+from etl4.util import composites
+import numpy
 
 class AssignAnnualBMI(Change):
     @subject("annual_weight_var", data_types={"Decimal"}, temporal=1)
@@ -16,7 +18,10 @@ class AssignAnnualBMI(Change):
         self.annual_bmi_var: Variable = annual_bmi_var
 
     def __call__(self, composite: Dict):
-        pass
+        h_squared = composites.get_property(composite, self.height_var) ** 2
+        for period, weight in composites.get_all_observations(composite, self.annual_weight_var):
+            bmi = weight / h_squared * 703
+            composites.put_observation(composite, period, self.annual_bmi_var, bmi)
 
 class AssignMeanBMI(Change):
     @subject("annual_bmi_var", data_types={"Decimal"}, temporal=1)
@@ -27,4 +32,6 @@ class AssignMeanBMI(Change):
         self.mean_bmi_var: Variable = mean_bmi_var
 
     def __call__(self, composite: Dict):
-        pass
+        bmis = (bmi for period, bmi in composites.get_all_observations(composite, self.annual_bmi_var))
+        mean_bmi = numpy.average(bmis)
+        composites.put_property(composite, self.mean_bmi_var, mean_bmi)

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Any, Iterable
+from typing import Dict, Optional, Any, Iterable, Tuple
 
 class Scan(ABC):
     """Scan iterates through all of the composites in the task pipeline twice: once to gather global information, and
@@ -8,17 +8,18 @@ class Scan(ABC):
     assigning ranks, or computing a property relative to peers sharing some other property."""
 
     @abstractmethod
-    def scan(self, composite: Dict) -> Optional[Any]:
+    def extract(self, composite: Dict) -> Optional[Any]:
         """Gather the information to be used in the analysis."""
         pass
 
     @abstractmethod
-    def analyze(self, extracts: Iterable[Any]) -> None:
-        """Collect, process, and store the global information provided from each composite during the scan() step."""
+    def analyze(self, extracts: Iterable[Tuple[str, Any]]) -> None:
+        """Collect, process, and store the global information provided from each composite during the scan() step.
+        :param extracts: Tuple of (composite id, whatever is returned by scan)"""
         pass
 
     @abstractmethod
-    def alter(self, composite: Dict) -> None:
+    def alter(self, composite_id: str, composite: Dict) -> None:
         """Alter the supplied composite in place. The resulting composite will then overwrite the original, completing
         the alteration."""
         pass
