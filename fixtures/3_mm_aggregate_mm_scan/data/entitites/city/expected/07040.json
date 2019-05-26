@@ -1,0 +1,24 @@
+{
+  "2011": {
+    "n_companies": 2,
+    "mean_employees": 5,
+    "employee_productivity": 0.16999999999999998
+  },
+  "2012": {
+    "n_companies": 2,
+    "mean_employees": 4,
+    "employee_productivity": 0.27
+  },
+  "2013": {
+    "n_companies": 3,
+    "mean_employees": 3.3333333333333335,
+    "employee_productivity": 0.194
+  },
+  "invariant": {
+    "zip_code": "07040",
+    "state": "New Jersey",
+    "city": "Maplewood",
+    "mean_productivity": 0.21133333333333335,
+    "productivity_rank": 1
+  }
+}
