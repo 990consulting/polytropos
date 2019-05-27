@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Dict
 
 from etl4.ontology.metamorphosis.__change import Change
@@ -7,15 +8,19 @@ from etl4.ontology.schema import Schema
 from etl4.ontology.variable import Variable
 from etl4.util import nesteddicts
 
+
+@dataclass
 class CalculateWeightGain(Change):
     """Determine the total weight gain over the observation period."""
+    weight_var: Variable
+    weight_gain_var: Variable
 
-    @subject("weight_var", data_types={"Decimal"}, temporal=1)
-    @subject("weight_gain_var", data_types={"Decimal"}, temporal=-1)
-    def __init__(self, schema: Schema, lookups: Dict, weight_var, weight_gain_var):
-        super().__init__(schema, lookups, weight_var, weight_gain_var)
-        self.weight_var: Variable = weight_var
-        self.weight_gain_var: Variable = weight_gain_var
+    # @subject("weight_var", data_types={"Decimal"}, temporal=1)
+    # @subject("weight_gain_var", data_types={"Decimal"}, temporal=-1)
+    # def __init__(self, schema: Schema, lookups: Dict, weight_var, weight_gain_var):
+    #     super().__init__(schema, lookups, weight_var, weight_gain_var)
+    #     self.weight_var: Variable = weight_var
+    #     self.weight_gain_var: Variable = weight_gain_var
 
     def __call__(self, composite: Dict):
         periods = set(composite.keys()) - {"invariant"}
@@ -36,15 +41,20 @@ class CalculateWeightGain(Change):
         weight_gain_path = ["invariant"] + list(self.weight_gain_var.absolute_path)
         nesteddicts.put(composite, weight_gain_path, weight_gain)
 
+
+@dataclass
 class DetermineGender(Change):
     """Use a lookup table to determine the person's gender."""
-    @lookup("genders")
-    @subject("person_name_var", data_types={"Text"}, temporal=-1)
-    @subject("gender_var", data_types={"Text"}, temporal=-1)
-    def __init__(self, schema: Schema, lookups: Dict, person_name_var, gender_var):
-        super().__init__(schema, lookups, person_name_var, gender_var)
-        self.person_name_var: Variable = person_name_var
-        self.gender_var: Variable = gender_var
+    person_name_var: Variable
+    gender_var: Variable
+
+    # @lookup("genders")
+    # @subject("person_name_var", data_types={"Text"}, temporal=-1)
+    # @subject("gender_var", data_types={"Text"}, temporal=-1)
+    # def __init__(self, schema: Schema, lookups: Dict, person_name_var, gender_var):
+    #     super().__init__(schema, lookups, person_name_var, gender_var)
+    #     self.person_name_var: Variable = person_name_var
+    #     self.gender_var: Variable = gender_var
 
     def __call__(self, composite: Dict):
         person_name_path = ["invariant"] + list(self.person_name_var.absolute_path)
