@@ -27,7 +27,7 @@ class Change(Callable):
 
 
 def load_changes():
-    # stackoverflow magic
+    # stackoverflow magic https://stackoverflow.com/a/1057765/225617
     modules = [
         basename(f)[:-3]
         for f in glob.glob(join(CHANGES_FOLDER, "*.py"))
