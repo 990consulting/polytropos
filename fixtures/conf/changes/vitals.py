@@ -36,7 +36,7 @@ class CalculateWeightGain(Change):
         latest_weight: float = nesteddicts.get(composite, latest_weight_path)
 
         # I know, should have called it "weight change."
-        weight_gain = latest_weight - earliest_weight
+        weight_gain = round(latest_weight - earliest_weight, 2)
 
         weight_gain_path = ["invariant"] + list(self.weight_gain_var.absolute_path)
         nesteddicts.put(composite, weight_gain_path, weight_gain)
