@@ -29,13 +29,6 @@ class Change(Callable):
         self.schema = schema
         self.lookups = lookups
 
-    @classmethod
-    def deserialize(cls, spec: Dict) -> "Change":
-        # TODO Quimey,  you may wish to handle the Metamorphosis->Change serialization/deserialization process exactly
-        #  as you did in the Track->Variable case, in which case please feel free to trash these stubs and rewrite any
-        #  tests that depend on them.
-        pass
-
     @abstractmethod
     def __call__(self, composite: Dict):
         """Perform the change on the supplied composite."""
