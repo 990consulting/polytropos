@@ -35,7 +35,7 @@ def load_changes():
     ]
 
     for name in modules:
-        module = import_module('fixtures.conf.changes.' + name)
+        import_module('fixtures.conf.changes.' + name)
 
     return {
         cls.__name__: cls
