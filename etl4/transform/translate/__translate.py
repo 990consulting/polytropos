@@ -42,21 +42,19 @@ class Translate(Callable):
         # the document
         return document.get(variable.name)
 
-    def replace_sources(self, source_data):
-        """This function replaces sources of target variables using a dict of
-        variable_id -> new sources. This is used to move the
-        source_child_mappings from the parent to the childs"""
-        for variable_id, sources in source_data.items():
-            # skip validation
-            self.target.variables[variable_id].__dict__['sources'] = sources
-
     def translate_generic(self, variable_id, variable, document, parent):
         """Translate for primitive (non-container) variables"""
+        # We have to restric the sources to the descendants of parent
+        parent_source = None
+        if parent:
+            parent_source = variable.track.source.variables[parent]
         # Just look for the value in the sources, sorted using `sort_order`
         for source in sorted(
             variable.sources,
             key=lambda source: self.source.variables[source].sort_order
         ):
+            if parent_source and not parent_source.check_ancestor(source):
+                continue
             result = self.find_in_document(source, document, parent)
             if result is not None:
                 return result
@@ -70,13 +68,18 @@ class Translate(Callable):
     def translate_list(self, variable_id, variable, document, parent):
         """Translate for lists"""
         results = []
+        # We have to restric the sources to the descendants of parent
+        parent_source = None
+        parent_source = None
+        if parent:
+            parent_source = variable.track.source.variables[parent]
         # The resulting list is the concatenation of all the translations,
         # source by source
         for source in variable.sources:
+            if parent_source and not parent_source.check_ancestor(source):
+                continue
             # get the document values for the current source
             list_source = self.find_in_document(source, document, parent)
-            # update the sources for the source variables
-            self.replace_sources(variable.source_child_mappings[source])
             if list_source is None:
                 continue
             for value in list_source:
@@ -96,9 +99,15 @@ class Translate(Callable):
         logic is almost the same as for lists but taking care of the keys.
         Raises ValueError on duplicate keys"""
         results = {}
+        # We have to restric the sources to the descendants of parent
+        parent_source = None
+        parent_source = None
+        if parent:
+            parent_source = variable.track.source.variables[parent]
         for source in variable.sources:
+            if parent_source and not parent_source.check_ancestor(source):
+                continue
             list_source = self.find_in_document(source, document, parent)
-            self.replace_sources(variable.source_child_mappings[source])
             if list_source is None:
                 continue
             for key, value in list_source.items():
