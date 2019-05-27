@@ -35,6 +35,7 @@ class CalculateWeightGain(Change):
         nesteddicts.put(composite, weight_gain_path, weight_gain)
 
 
+@lookup('genders')
 @dataclass
 class DetermineGender(Change):
     """Use a lookup table to determine the person's gender."""
