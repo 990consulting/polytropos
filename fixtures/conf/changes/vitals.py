@@ -3,17 +3,17 @@ from typing import Dict
 
 from etl4.ontology.metamorphosis.__change import Change
 from etl4.ontology.metamorphosis.__lookup import lookup
-from etl4.ontology.metamorphosis.__subject import subject
+from etl4.ontology.metamorphosis.__subject import SubjectValidator
 from etl4.ontology.schema import Schema
-from etl4.ontology.variable import Variable
+from etl4.ontology.variable import Variable, Decimal
 from etl4.util import nesteddicts
 
 
 @dataclass
 class CalculateWeightGain(Change):
     """Determine the total weight gain over the observation period."""
-    weight_var: Variable
-    weight_gain_var: Variable
+    weight_var: Decimal = SubjectValidator(data_type=Decimal)
+    weight_gain_var: Decimal = SubjectValidator(data_type=Decimal)
 
     # @subject("weight_var", data_types={"Decimal"}, temporal=1)
     # @subject("weight_gain_var", data_types={"Decimal"}, temporal=-1)
