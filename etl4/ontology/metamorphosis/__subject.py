@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from typing import Optional, Set
 
 
@@ -6,9 +6,15 @@ class SubjectValidator:
     def __init__(self, validators=None,  **kwargs):
         self.validators = validators or []
         if 'data_type' in kwargs:
-            self.validators.append(
-                lambda value: isinstance(value, kwargs['data_type'])
-            )
+            data_type = kwargs['data_type']
+            if isinstance(data_type, Iterable):
+                self.validators.append(
+                    lambda value: any(isinstance(value, t) for t in data_type)
+                )
+            else:
+                self.validators.append(
+                    lambda value: isinstance(value, data_type)
+                )
 
     def __set_name__(self, owner, name):
         self.name = name
