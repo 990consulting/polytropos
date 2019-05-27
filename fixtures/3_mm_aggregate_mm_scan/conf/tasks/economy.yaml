@@ -27,13 +27,13 @@ steps:
       name: EconomicOverview
       target_schema: city/origin
       id_var: city_zip_var
-      subjects:
+      input_schema_vars:
         n_employee_var: company_empl_var
         revenue_var: company_rev_var
         source_zip_var: company_zip_var
         source_city_var: company_city_var
         source_state_var: company_state_var
-      objects:
+      output_schema_vars:
         n_company_var: city_n_var
         mean_employee_var: city_empl_var
         annual_prod_var: city_annual_prod_var

@@ -9,8 +9,8 @@ class AssignAverageBMIRank(Scan):
 
     @subject("male_flag", data_types={"Binary"}, temporal=-1)
     @subject("mean_bmi_var", data_types={"Decimal"}, temporal=-1)
-    @subject("bmi_rank_gender_var", data_type={"Decimal"}, temporal=-1)
-    @subject("bmi_rank_overall_var", data_type={"Decimal"}, temporal=-1)
+    @subject("bmi_rank_gender_var", data_type={"Integer"}, temporal=-1)
+    @subject("bmi_rank_overall_var", data_type={"Integer"}, temporal=-1)
     def __init__(self, male_flag, mean_bmi_var, bmi_rank_gender_var, bmi_rank_overall_var):
         self.male_flag: Variable = male_flag
         self.mean_bmi_var: Variable = mean_bmi_var
