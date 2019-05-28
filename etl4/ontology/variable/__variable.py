@@ -1,6 +1,7 @@
 import logging
 import json
 from dataclasses import dataclass, field, fields
+from collections import defaultdict
 from typing import(
     List as ListType, Dict, Iterator, Any, Iterable, TYPE_CHECKING
 )
@@ -119,6 +120,21 @@ class Variable:
             Validator.validate_name(self, value)
         if attribute == 'sources':
             Validator.validate_sources(self, value)
+            if self.track and isinstance(self, GenericList):
+                child_sources = defaultdict(list)
+                for child in self.children:
+                    for source in child.sources:
+                        child_sources[source].append(child)
+                safe = set()
+                for source in value:
+                    source_var = self.track.source.variables[source]
+                    for child_source in child_sources:
+                        if source_var.check_ancestor(child_source):
+                            safe.add(child_source)
+                for child_source, children in child_sources.items():
+                    if child_source not in safe:
+                        for child in children:
+                            child.sources.remove(child_source)
         if attribute == 'parent':
             Validator.validate_parent(self, value)
         if attribute == 'sort_order':

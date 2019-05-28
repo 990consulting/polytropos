@@ -41,8 +41,7 @@ def test_delete_root_source_cascades(target_named_list_track):
         "name": "Name",
         "data_type": "Text",
         "sort_order": 0,
-        "parent": "target_root",
-        "sources": []
+        "parent": "target_root"
     }
     actual: Dict = target_named_list_track.variables["target_root_name"].dump()
     assert expected == actual
