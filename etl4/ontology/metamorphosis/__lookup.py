@@ -1,8 +1,17 @@
-# TODO Quimey I forget how parametrized decorators work, and maybe you'll think we shouldn't be using decorators at all
-#  so just look at how I actually used this and decide how you want to implement it.
-def lookup(*args, **kwargs):
+from collections.abc import Callable
+
+from etl4.ontology.metamorphosis.__change import Change
+
+
+def lookup(name):
     """Intended to be a decorator on the constructor for a Change. Verifies that the specified lookup table has been
     loaded."""
-    def wrapper(f):
-        return f
-    return wrapper
+    def decorator(cls):
+        old_init = cls.__init__
+        def __init__(self, *args, **kwargs):
+            old_init(self, *args, **kwargs)
+            if name not in kwargs['lookups']:
+                raise ValueError(f'Lookup {name} not loaded')
+        cls.__init__ = __init__
+        return cls
+    return decorator

@@ -1,14 +1,28 @@
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from typing import Optional, Set
 
-# TODO Quimey I forget how parametrized decorators work, and maybe you'll think we shouldn't be using decorators at all
-#  so just look at how I actually used this and decide how you want to implement it.
-def subject(*args, **kwargs):
-    """Used as a decorator on the constructor for a Change. At construction time, the decorator validates that a
-    particular variable ID meets the conditions specified, and then replaces it with a Variable object.
 
-    :param data_types: a set of acceptable data types for the subject.
-    :param temporal: If 1, require a temporal variable; if -1; require an invariant variable. (If 0, no restriction.)"""
-    def wrapper(f):
-        return f
-    return wrapper
+class SubjectValidator:
+    def __init__(self, validators=None,  **kwargs):
+        self.validators = validators or []
+        if 'data_type' in kwargs:
+            data_type = kwargs['data_type']
+            if isinstance(data_type, Iterable):
+                self.validators.append(
+                    lambda value: any(isinstance(value, t) for t in data_type)
+                )
+            else:
+                self.validators.append(
+                    lambda value: isinstance(value, data_type)
+                )
+
+    def __set_name__(self, owner, name):
+        self.name = name
+
+    def __set__(self, instance, value):
+        for validator in self.validators:
+            if not validator(value):
+                raise ValueError(
+                    f'Validation error for {self.name} with value {value}'
+                )
+        instance.__dict__[self.name] = value

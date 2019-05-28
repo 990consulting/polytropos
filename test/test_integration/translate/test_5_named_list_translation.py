@@ -255,4 +255,8 @@ def test_duplicate_name_raises(source_doc, source_spec, target_spec):
         "Name": "Another Stacy"
     }
     with pytest.raises(ValueError):
-        do_test(source_doc, source_spec, {}, target_spec)
+        source_track: Track = Track.build(source_spec, None, "Source")
+        target_track: Track = Track.build(target_spec, source_track, "Target")
+        translate: Translate = Translate(target_track)
+        translate(source_doc)
+
