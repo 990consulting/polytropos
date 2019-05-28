@@ -140,22 +140,6 @@ class Variable:
             raise AttributeError
         self.__dict__[attribute] = value
 
-    def alter_list_child_source_mappings(self, list_root: str, child_source_mappings: Iterable[str]):
-        parent = self.track.variables[self.parent]
-        if list_root not in parent.source_child_mappings:
-            raise ValueError
-        parent.source_child_mappings[list_root][self.var_id] = list(
-            child_source_mappings
-        )
-
-    def alter_named_list_child_source_mappings(self, list_root: str, child_source_mappings: Iterable[str]):
-        parent = self.track.variables[self.parent]
-        if list_root not in parent.source_child_mappings:
-            raise ValueError
-        parent.source_child_mappings[list_root][self.var_id] = list(
-            child_source_mappings
-        )
-
     def update_sort_order(self, old_order=None, new_order=None):
         if old_order is None:
             old_order = len(list(self.siblings)) + 1

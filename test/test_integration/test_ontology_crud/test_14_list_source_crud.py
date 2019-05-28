@@ -41,44 +41,6 @@ def test_delete_root_source(target_list_track):
         "sort_order": 1,
     }
 
-def test_add_child_source_mapping(target_list_track):
-    target_list_track.variables["target_list_name"].alter_list_child_source_mappings("source_list", [
-        "source_list_name",
-        "source_list_color"
-    ])
-    assert target_list_track.variables["target_list"].dump() == {
-        "name": "the_list",
-        "data_type": "List",
-        "parent": "target_folder_outer",
-        "sort_order": 1,
-        "sources": ["source_list"],
-        "source_child_mappings": {
-            "source_list": {
-                "target_list_name": ["source_list_name", "source_list_color"],
-                "target_list_color": ["source_list_color"]
-            }
-        }
-    }
-
-def test_remove_child_source_mapping(target_list_track):
-    target_list_track.variables["target_list_name"].alter_list_child_source_mappings("source_list", [])
-    assert target_list_track.variables["target_list"].dump() == {
-        "name": "the_list",
-        "data_type": "List",
-        "parent": "target_folder_outer",
-        "sort_order": 1,
-        "sources": ["source_list"],
-        "source_child_mappings": {
-            "source_list": {
-                "target_list_name": [],
-                "target_list_color": ["source_list_color"]
-            }
-        }
-    }
-
-def test_alter_mapping_for_nonexistent_root_raises(target_list_track):
-    with pytest.raises(ValueError):
-        target_list_track.variables["target_list_name"].alter_list_child_source_mappings("not_a_real_root", [])
 
 def test_add_child(target_list_track):
     new_list_child_spec: Dict = {
@@ -99,21 +61,6 @@ def test_add_child(target_list_track):
                 "target_list_name": ["source_list_name"],
                 "target_list_color": ["source_list_color"],
                 "A": []
-            }
-        }
-    }
-
-def test_remove_child_alters_child_source_mappings(target_list_track):
-    target_list_track.delete("target_list_name")
-    assert target_list_track.variables["target_list"].dump() == {
-        "name": "the_list",
-        "data_type": "List",
-        "parent": "target_folder_outer",
-        "sort_order": 1,
-        "sources": ["source_list"],
-        "source_child_mappings": {
-            "source_list": {
-                "target_list_color": ["source_list_color"]
             }
         }
     }

@@ -58,59 +58,6 @@ def test_delete_root_source(target_named_list_track):
         }
     }
 
-def test_add_child_source_mapping(target_named_list_track):
-    target_named_list_track.variables["target_root_name"].alter_list_child_source_mappings("source_root_1", [
-        "source_root_1_name",
-        "source_root_1_ice_cream"
-    ])
-    assert target_named_list_track.variables["target_root"].dump() == {
-        "name": "People",
-        "data_type": "NamedList",
-        "sources": ["source_root_1", "source_root_2"],
-        "sort_order": 0,
-        "source_child_mappings": {
-            "source_root_1": {
-                "target_root_name": ["source_root_1_name", "source_root_1_ice_cream"],
-                "target_root_age": ["source_root_1_age"],
-                "target_root_ice_cream": ["source_root_1_ice_cream"],
-                "target_root_sport": ["source_root_1_sport"]
-            },
-            "source_root_2": {
-                "target_root_name": ["source_root_2_nombre"],
-                "target_root_age": ["source_root_2_edad"],
-                "target_root_ice_cream": ["source_root_2_helado"],
-                "target_root_sport": []
-            }
-        }
-    }
-
-def test_remove_child_source_mapping(target_named_list_track):
-    target_named_list_track.variables["target_root_name"].alter_list_child_source_mappings("source_root_1", [])
-    assert target_named_list_track.variables["target_root"].dump() == {
-        "name": "People",
-        "data_type": "NamedList",
-        "sources": ["source_root_1", "source_root_2"],
-        "sort_order": 0,
-        "source_child_mappings": {
-            "source_root_1": {
-                "target_root_name": [],
-                "target_root_age": ["source_root_1_age"],
-                "target_root_ice_cream": ["source_root_1_ice_cream"],
-                "target_root_sport": ["source_root_1_sport"]
-            },
-            "source_root_2": {
-                "target_root_name": ["source_root_2_nombre"],
-                "target_root_age": ["source_root_2_edad"],
-                "target_root_ice_cream": ["source_root_2_helado"],
-                "target_root_sport": []
-            }
-        }
-    }
-
-def test_alter_mapping_for_nonexistent_root_raises(target_named_list_track):
-    with pytest.raises(ValueError):
-        target_named_list_track.variables["target_root_name"].alter_list_child_source_mappings("not_a_real_root", [])
-
 def test_add_child(target_named_list_track):
     new_list_child_spec: Dict = {
         "name": "the new list member",
