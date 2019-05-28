@@ -46,7 +46,7 @@ def source() -> Tuple[Dict, Dict]:
         },
         "inner_named_list_1_id": {
             "name": "inner_named_list",
-            "data_type": "List",
+            "data_type": "NamedList",
             "parent": "outer_list_1_id",
             "sort_order": 0
         },
@@ -63,7 +63,7 @@ def source() -> Tuple[Dict, Dict]:
         },
         "inner_named_list_2_id": {
             "name": "inner_named_list",
-            "data_type": "List",
+            "data_type": "NamedList",
             "parent": "outer_list_2_id",
             "sort_order": 0
         },
@@ -117,7 +117,7 @@ def target() -> Tuple[Dict, Dict]:
         },
         "inner_named_list_id": {
             "name": "inner_named_list",
-            "data_type": "List",
+            "data_type": "NamedList",
             "parent": "outer_list_id",
             "sort_order": 0,
             "sources": ["inner_named_list_1_id", "inner_named_list_2_id"]
