@@ -93,7 +93,8 @@ def test_dt_require_no_targets(target_list_track):
     # TODO The fixture needs to be updated to reflect the new list source handling setup
     source_list_track = target_list_track.source
     assert set(source_list_track.descendants_that(targets=-1)) == {
-        "source_folder"
+        "source_folder",
+        "random_text_field"
     }
 
 def test_dt_require_primitive_with_targets(target_list_track):

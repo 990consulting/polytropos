@@ -79,7 +79,7 @@ def source() -> Tuple[Dict, Dict]:
 
 @pytest.fixture
 def target() -> Tuple[Dict, Dict]:
-    source_doc: Dict = {
+    target_doc: Dict = {
         "outer_list": [
             {
                 "inner_named_list": {
@@ -108,7 +108,7 @@ def target() -> Tuple[Dict, Dict]:
         ]
     }
 
-    source_spec: Dict = {
+    target_spec: Dict = {
         "outer_list_id": {
             "name": "outer_list",
             "data_type": "List",
@@ -131,7 +131,7 @@ def target() -> Tuple[Dict, Dict]:
         }
     }
 
-    return source_spec, source_doc
+    return target_spec, target_doc
 
 def test_named_list_in_list(source, target):
     """Reversing the order of the sources in the target list spec results in an equivalent change in the order of the
