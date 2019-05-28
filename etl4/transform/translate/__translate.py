@@ -9,7 +9,7 @@ from etl4.transform.translate.__reporter import Reporter
 class Translate(Callable):
     """Class in charge of translating documents given a source track and a
     target track"""
-    def __init__(self, target: Track):
+    def __init__(self, target: Track, failsafe=False):
         self.source = target.source
         self.target = target
         # We need to group by variables by parent to be able to efficiently do
@@ -20,6 +20,8 @@ class Translate(Callable):
             self.target_variables_by_parent[
                 variable.parent
             ][variable_id] = variable
+        # when failsafe is true exceptions are catched and ignored
+        self.failsafe = failsafe
 
     def find_in_document(self, variable_id, document, parent=''):
         """Function that finds a variable (given its id) in a document. The
@@ -82,6 +84,9 @@ class Translate(Callable):
             list_source = self.find_in_document(source, document, parent)
             if list_source is None:
                 continue
+            # sometimes lists with one element are represented as folders
+            if isinstance(list_source, dict):
+                list_source = [list_source]
             for value in list_source:
                 # translate the values in the list one by one and add them to
                 # the result
@@ -150,6 +155,9 @@ class Translate(Callable):
                     variable_id, variable, output_document[variable.name]
                 )
             except:
-                logging.warning('Error translating variable %s', variable_id)
-                output_document[variable.name] = None
+                if self.failsafe:
+                    logging.warning('Error translating variable %s', variable_id)
+                    output_document[variable.name] = None
+                else:
+                    raise
         return output_document
