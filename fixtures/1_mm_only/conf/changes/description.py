@@ -2,17 +2,14 @@ from dataclasses import dataclass
 from typing import Dict, Optional, Any
 
 from etl4.ontology.metamorphosis.__change import Change
-from etl4.ontology.schema import Schema
 from etl4.ontology.variable import Text, Decimal, Variable
 from etl4.ontology.metamorphosis.__subject import SubjectValidator
 from etl4.util import nesteddicts
-
 
 def get_value(composite: Dict, invariant_variable: Variable) -> Optional[Any]:
     path = ["invariant"] + list(invariant_variable.absolute_path)
     value = nesteddicts.get(composite, path)
     return value
-
 
 @dataclass
 class GeneratePersonDescription(Change):

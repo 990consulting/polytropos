@@ -1,7 +1,7 @@
 from typing import Iterable, Tuple, Dict
 
-from etl4.ontology.export import Export
+from etl4.ontology.consume import Consume
 
-class ExportToJSON(Export):
+class ExportToJSON(Consume):
     def __call__(self, composites: Iterable[Tuple[str, Dict]]):
         pass
