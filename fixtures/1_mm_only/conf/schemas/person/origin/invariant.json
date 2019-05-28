@@ -11,7 +11,7 @@
   },
   "the_weight_gain_var": {
     "name": "total_weight_gain",
-    "data_type": "Integer",
+    "data_type": "Decimal",
     "sort_order": 2
   },
   "the_sentence_var": {

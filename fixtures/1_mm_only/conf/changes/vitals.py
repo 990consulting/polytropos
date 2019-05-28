@@ -1,21 +1,19 @@
+from dataclasses import dataclass
 from typing import Dict
 
 from etl4.ontology.metamorphosis.__change import Change
 from etl4.ontology.metamorphosis.__lookup import lookup
-from etl4.ontology.metamorphosis.__subject import subject
+from etl4.ontology.metamorphosis.__subject import SubjectValidator
 from etl4.ontology.schema import Schema
-from etl4.ontology.variable import Variable
+from etl4.ontology.variable import Variable, Decimal
 from etl4.util import nesteddicts
 
+
+@dataclass
 class CalculateWeightGain(Change):
     """Determine the total weight gain over the observation period."""
-
-    @subject("weight_var", data_types={"Decimal"}, temporal=1)
-    @subject("weight_gain_var", data_types={"Decimal"}, temporal=-1)
-    def __init__(self, schema: Schema, lookups: Dict, weight_var, weight_gain_var):
-        super().__init__(schema, lookups, weight_var, weight_gain_var)
-        self.weight_var: Variable = weight_var
-        self.weight_gain_var: Variable = weight_gain_var
+    weight_var: Decimal = SubjectValidator(data_type=Decimal)
+    weight_gain_var: Decimal = SubjectValidator(data_type=Decimal)
 
     def __call__(self, composite: Dict):
         periods = set(composite.keys()) - {"invariant"}
@@ -31,20 +29,20 @@ class CalculateWeightGain(Change):
         latest_weight: float = nesteddicts.get(composite, latest_weight_path)
 
         # I know, should have called it "weight change."
-        weight_gain = latest_weight - earliest_weight
+        weight_gain = round(latest_weight - earliest_weight, 2)
 
         weight_gain_path = ["invariant"] + list(self.weight_gain_var.absolute_path)
         nesteddicts.put(composite, weight_gain_path, weight_gain)
 
+
+@lookup('genders')
+@dataclass
 class DetermineGender(Change):
     """Use a lookup table to determine the person's gender."""
-    @lookup("genders")
-    @subject("person_name_var", data_types={"Text"}, temporal=-1)
-    @subject("gender_var", data_types={"Text"}, temporal=-1)
-    def __init__(self, schema: Schema, lookups: Dict, person_name_var, gender_var):
-        super().__init__(schema, lookups, person_name_var, gender_var)
-        self.person_name_var: Variable = person_name_var
-        self.gender_var: Variable = gender_var
+    person_name_var: Variable
+    gender_var: Variable
+
+    # @lookup("genders")
 
     def __call__(self, composite: Dict):
         person_name_path = ["invariant"] + list(self.person_name_var.absolute_path)
