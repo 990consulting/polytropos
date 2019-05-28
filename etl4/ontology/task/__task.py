@@ -1,13 +1,11 @@
-from typing import List, Any, TypeVar, Dict
 import os
 import yaml
 import json
 from etl4.ontology.metamorphosis import Metamorphosis
 from etl4.ontology.schema import Schema
+from etl4.ontology.task.__paths import TASKS_DIR, DATA_DIR
 
 
-TASKS_DIR = 'fixtures/conf/tasks'
-DATA_DIR = 'fixtures/data'
 STEP_TYPES = {
     'Metamorphosis': Metamorphosis
 }
