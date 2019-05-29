@@ -1,17 +1,18 @@
+from dataclasses import dataclass
 from typing import Dict, Iterable, Tuple, Any
 
-from etl4.ontology.metamorphosis.__subject import subject
+from etl4.ontology.metamorphosis.__subject import SubjectValidator
 from etl4.ontology.scan import Scan
-from etl4.ontology.variable import Variable
+from etl4.ontology.variable import Variable, Decimal, Integer
 from etl4.util import composites
 
-class AssignProductivityRank(Scan):
-    @subject("mean_prod_var", data_types={"Decimal"}, temporal=-1)
-    @subject("prod_rank_var", data_type={"Integer"}, temporal=-1)
-    def __init__(self, mean_prod_var, prod_rank_var):
-        self.mean_prod_var: Variable = mean_prod_var
-        self.prod_rank_var: Variable = prod_rank_var
 
+@dataclass
+class AssignProductivityRank(Scan):
+    mean_prod_var: Decimal = SubjectValidator(data_type=Decimal, temporal=-1)
+    prod_rank_var: Integer = SubjectValidator(data_type=Integer, temporal=-1)
+
+    def __post_init(self):
         self.ranked: Dict[str, int] = {}
 
     def extract(self, composite: Dict) -> float:

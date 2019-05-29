@@ -28,6 +28,6 @@ class AssignMeanBMI(Change):
     mean_bmi_var: Decimal = SubjectValidator(data_type=Decimal, temporal=-1)
 
     def __call__(self, composite: Dict):
-        bmis = (bmi for period, bmi in composites.get_all_observations(composite, self.annual_bmi_var))
+        bmis = [bmi for period, bmi in composites.get_all_observations(composite, self.annual_bmi_var)]
         mean_bmi = numpy.average(bmis)
         composites.put_property(composite, self.mean_bmi_var, mean_bmi)

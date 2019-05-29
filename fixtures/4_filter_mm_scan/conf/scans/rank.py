@@ -1,18 +1,18 @@
+from dataclasses import dataclass
 from typing import Dict, Iterable, Any, Tuple
 
-from etl4.ontology.metamorphosis.__subject import subject
+from etl4.ontology.metamorphosis.__subject import SubjectValidator
 from etl4.ontology.scan import Scan
-from etl4.ontology.variable import Variable
+from etl4.ontology.variable import Variable, Decimal, Integer
 from etl4.util import composites
 
+
+@dataclass
 class AssignAverageBMIRank(Scan):
+    mean_bmi_var: Decimal = SubjectValidator(data_type=Decimal, temporal=-1)
+    bmi_rank_var: Integer = SubjectValidator(data_type=Integer, temporal=-1)
 
-    @subject("mean_bmi_var", data_types={"Decimal"}, temporal=-1)
-    @subject("bmi_rank_var", data_type={"Integer"}, temporal=-1)
-    def __init__(self, mean_bmi_var, bmi_rank_var):
-        self.mean_bmi_var: Variable = mean_bmi_var
-        self.bmi_rank_var: Variable = bmi_rank_var
-
+    def __post_init__(self):
         self.ranked: Dict[str, int] = {}
 
     def extract(self, composite: Dict) -> float:

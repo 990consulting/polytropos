@@ -20,9 +20,9 @@ steps:
   - Metamorphosis:
       changes:
         - AssignCityState:
-          zip_var: company_zip_var
-          city_var: company_city_var
-          state_var: company_state_var
+            zip_var: company_zip_var
+            city_var: company_city_var
+            state_var: company_state_var
   - Aggregation:
       name: EconomicOverview
       target_schema: city/origin
@@ -43,8 +43,8 @@ steps:
   - Metamorphosis:
       changes:
         - CalculateMeanProductivity:
-          annual_prod_var: city_annual_prod_var
-          mean_prod_var: city_mean_prod_var
+            annual_prod_var: city_annual_prod_var
+            mean_prod_var: city_mean_prod_var
   - Scan:
       name: AssignProductivityRank
       subjects:

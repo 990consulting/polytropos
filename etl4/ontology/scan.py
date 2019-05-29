@@ -1,10 +1,11 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+from collections.abc import Callable
 from typing import Dict, Optional, Any, Iterable, Tuple
 
 from etl4.ontology.task.__loader import load
 
 
-class Scan(ABC):
+class Scan(Callable):
     """Scan iterates through all of the composites in the task pipeline twice: once to gather global information, and
     then a second time to make alterations to the composites on the basis of the globally gathered information. In
     between, an arbitrary analysis may be performed on the basis of the global information. Example use cases include
@@ -33,4 +34,7 @@ class Scan(ABC):
     def alter(self, composite_id: str, composite: Dict) -> None:
         """Alter the supplied composite in place. The resulting composite will then overwrite the original, completing
         the alteration."""
+        pass
+
+    def __call__(self, data):
         pass

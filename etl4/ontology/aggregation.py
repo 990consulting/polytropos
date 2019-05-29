@@ -7,6 +7,13 @@ class Aggregation(ABC):
     """Iterates over all composites following one schema, and produces a new set of composites, representing a different
     kind of entity, and following a different schema."""
 
+    @classmethod
+    def build(
+            cls, path_locator, schema, name, target_schema, id_var,
+            input_schema_vars, output_schema_vars
+    ): 
+        pass
+
     @abstractmethod
     def extract(self, composite: Dict) -> Optional[Any]:
         """Gather the information to be used in the analysis."""

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Dict
 
 import scipy.stats
+import numpy as np
 
 from etl4.ontology.metamorphosis import Change
 from etl4.ontology.metamorphosis.__subject import SubjectValidator
@@ -18,7 +19,9 @@ class AssignRegressionStats(Change):
 
     def __call__(self, composite: Dict):
         years = sorted([int(year) for year in composites.get_periods(composite)])
-        weights = (composites.get_observation(composite, str(year), self.annual_weight_var) for year in years)
-        slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(years, weights)
+        weights = [composites.get_observation(composite, str(year), self.annual_weight_var) for year in years]
+        slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(
+            np.asarray(years), np.asarray(weights)
+        )
         composites.put_property(composite, self.weight_slope_var, slope)
         composites.put_property(composite, self.weight_pval_var, slope)

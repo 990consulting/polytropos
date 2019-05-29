@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Dict
 
 from etl4.ontology.metamorphosis import Change
@@ -5,13 +6,12 @@ from etl4.ontology.schema import Schema
 from etl4.ontology.variable import Variable
 from etl4.util import composites
 
+@dataclass
 class AssignCityState(Change):
-    # Quimey -- I stubbed this constructor until I see what your constructor implementation looks like
-    def __init__(self, schema: Schema, lookups: Dict, *subjects):
-        super().__init__(schema, lookups, *subjects)
-        self.zip_var: Variable = None
-        self.city_var: Variable = None
-        self.state_var: Variable = None
+    # TODO: Validation
+    zip_var: Variable
+    city_var: Variable
+    state_var: Variable
 
     def __call__(self, composite: Dict):
         zip_code: str = composites.get_property(composite, self.zip_var)

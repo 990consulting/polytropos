@@ -1,22 +1,19 @@
+from dataclasses import dataclass
 from typing import Dict
 
 import scipy.stats
 
 from etl4.ontology.metamorphosis import Change
-from etl4.ontology.metamorphosis.__subject import subject
+from etl4.ontology.metamorphosis.__subject import SubjectValidator
 from etl4.ontology.schema import Schema
-from etl4.ontology.variable import Variable
+from etl4.ontology.variable import Variable, Decimal
 from etl4.util import composites
 
+@dataclass
 class AssignRegressionStats(Change):
-    @subject("annual_weight_var", data_types={"Decimal"}, temporal=1)
-    @subject("weight_slope_var", data_types={"Decimal"}, temporal=-1)
-    @subject("weight_pval_var", data_types={"Decimal"}, temporal=-1)
-    def __init__(self, schema: Schema, lookups: Dict, annual_weight_var, weight_slope_var, weight_pval_var):
-        super().__init__(schema, lookups, annual_weight_var, weight_slope_var, weight_pval_var)
-        self.annual_weight_var: Variable = annual_weight_var
-        self.weight_slope_var = weight_slope_var
-        self.weight_pval_var = weight_pval_var
+    annual_weight_var: Decimal = SubjectValidator(data_type=Decimal, temporal=1)
+    weight_slope_var: Decimal = SubjectValidator(data_type=Decimal, temporal=-1)
+    weight_pval_var: Decimal = SubjectValidator(data_type=Decimal, temporal=-1)
 
     def __call__(self, composite: Dict):
         years = sorted([int(year) for year in composites.get_periods(composite)])

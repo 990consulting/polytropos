@@ -17,20 +17,20 @@ steps:
   - Filter:
       name: RetainOnlyFemales
       subjects:
-        - male_flag: the_maleness_var
+        male_flag: the_maleness_var
   - Metamorphosis:
       changes:
         - AssignAnnualBMI:
-          annual_weight_var: the_weight_var
-          annual_bmi_var: the_bmi_var
-          height_var: the_height_var
+            annual_weight_var: the_weight_var
+            annual_bmi_var: the_bmi_var
+            height_var: the_height_var
         - AssignRegressionStats:
-          annual_weight_var: the_weight_var
-          weight_slope_var: the_slope_var
-          weight_pval_var: the_p_value_var
+            annual_weight_var: the_weight_var
+            weight_slope_var: the_slope_var
+            weight_pval_var: the_p_value_var
         - AssignMeanBMI:
-          annual_bmi_var: the_bmi_var
-          mean_bmi_var: the_mean_bmi_var
+            annual_bmi_var: the_bmi_var
+            mean_bmi_var: the_mean_bmi_var
   - Scan:
       name: AssignAverageBMIRank
       subjects:
