@@ -8,7 +8,6 @@ from etl4.ontology.schema import Schema
 from etl4.ontology.variable import Variable, Decimal
 from etl4.util import nesteddicts
 
-
 @dataclass
 class CalculateWeightGain(Change):
     """Determine the total weight gain over the observation period."""
@@ -33,7 +32,6 @@ class CalculateWeightGain(Change):
 
         weight_gain_path = ["invariant"] + list(self.weight_gain_var.absolute_path)
         nesteddicts.put(composite, weight_gain_path, weight_gain)
-
 
 @lookup('genders')
 @dataclass

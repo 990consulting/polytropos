@@ -3,7 +3,6 @@ from typing import Dict
 from etl4.ontology.metamorphosis.__change import Change
 from etl4.ontology.metamorphosis.__lookup import lookup
 from etl4.ontology.metamorphosis.__subject import SubjectValidator
-from etl4.ontology.schema import Schema
 from etl4.ontology.variable import Variable, Text
 from etl4.util import nesteddicts
 
@@ -14,7 +13,6 @@ class ColorNameToRGB(Change):
     """Look up the RGB value for the color name specified by color_name_var, and store it in rgb_var."""
     color_name_var: Text = SubjectValidator(data_type=Text)
     rgb_var: Text = SubjectValidator(data_type=Text)
-
 
     def __call__(self, composite: Dict):
         # IRL, you'd have to handle nulls, decide how to deal with temporal variables, etc.
