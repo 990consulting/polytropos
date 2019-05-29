@@ -17,6 +17,10 @@ def test_task(scenario, task_name):
     task = Task.build(scenario, task_name)
     task.run()
     path = os.path.join(task.path_locator.entities_dir, 'person')
+    assert (
+        os.listdir(os.path.join(path, 'actual')) ==
+        os.listdir(os.path.join(path, 'expected'))
+    )
     for filename in os.listdir(os.path.join(path, 'actual')):
         with open(os.path.join(path, 'actual', filename), 'r') as f:
             with open(os.path.join(path, 'expected', filename), 'r') as g:
