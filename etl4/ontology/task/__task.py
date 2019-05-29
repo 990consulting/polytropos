@@ -3,7 +3,7 @@ import yaml
 import json
 from etl4.ontology.metamorphosis import Metamorphosis
 from etl4.ontology.schema import Schema
-from etl4.ontology.task.__paths import TASKS_DIR, DATA_DIR
+from etl4.ontology.task.__paths import TaskPathLocator
 
 
 STEP_TYPES = {
@@ -13,10 +13,11 @@ STEP_TYPES = {
 
 class Task:
     def __init__(
-        self,
+        self, path_locator,
         origin_data, origin_schema,
         target_data, target_schema=None
     ):
+        self.path_locator = path_locator
         self.origin_data = origin_data
         self.origin_schema = origin_schema
         self.target_data = target_data
@@ -24,14 +25,22 @@ class Task:
         self.steps = []
 
     @classmethod
-    def build(cls, name):
-        with open(os.path.join(TASKS_DIR, name + '.yaml'), 'r') as f:
+    def build(cls, scenario, name):
+        path_locator = TaskPathLocator(scenario)
+        with open(
+                os.path.join(path_locator.tasks_dir, name + '.yaml'), 'r'
+        ) as f:
             spec = yaml.safe_load(f)
         task = cls(
+            path_locator=path_locator,
             origin_data=spec['starting_with']['data'],
-            origin_schema=Schema.load(spec['starting_with']['schema']),
+            origin_schema=Schema.load(
+                path_locator, spec['starting_with']['schema']
+            ),
             target_data=spec['resulting_in']['data'],
-            target_schema=Schema.load(spec['resulting_in'].get('schema'))
+            target_schema=Schema.load(
+                path_locator, spec['resulting_in'].get('schema')
+            )
         )
         task.load_steps(spec['steps'])
         return task
@@ -44,13 +53,13 @@ class Task:
             )
             for cls, kwargs in step.items():
                 step_instance = STEP_TYPES[cls].build(
-                    schema=self.origin_schema, **kwargs
+                    path_locator=self.path_locator, schema=self.origin_schema, **kwargs
                 )
                 self.steps.append(step_instance)
 
     def run(self):
-        origin_path = os.path.join(DATA_DIR, self.origin_data)
-        actual_path = os.path.join(DATA_DIR, self.target_data)
+        origin_path = os.path.join(self.path_locator.entities_dir, self.origin_data)
+        actual_path = os.path.join(self.path_locator.entities_dir, self.target_data)
         try:
             os.mkdir(actual_path)
         except FileExistsError:

@@ -7,7 +7,6 @@ from collections.abc import Callable
 from typing import Dict
 
 from etl4.ontology.schema import Schema
-from etl4.ontology.task.__paths import CHANGES_DIR
 
 
 @dataclass
@@ -24,16 +23,16 @@ class Change(Callable):
         pass
 
 
-def load_changes():
+def load_changes(path_locator):
     # stackoverflow magic https://stackoverflow.com/a/1057765/225617
     modules = [
         basename(f)[:-3]
-        for f in glob.glob(join(CHANGES_DIR, "*.py"))
+        for f in glob.glob(join(path_locator.changes_dir, "*.py"))
         if isfile(f) and not f.endswith('__init__.py')
     ]
 
     for name in modules:
-        import_module('fixtures.conf.changes.' + name)
+        import_module(path_locator.changes_import + '.' + name)
 
     return {
         cls.__name__: cls
