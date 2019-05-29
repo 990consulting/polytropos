@@ -9,17 +9,18 @@ class Metamorphosis:
     reference to any other composite. Each change is defined in terms of one or more subject variables, which may be
     inputs, outputs, or both (in a case where a change alters a value in place)."""
 
-    def __init__(self, path_locator, changes, lookups, schema):
+    def __init__(self, path_locator, changes, schema, lookups):
         self.path_locator = path_locator
         self.changes = changes
         self.lookups = lookups
         self.schema = schema
 
     @classmethod
-    def build(cls, path_locator, changes, lookups, schema) -> "Metamorphosis":
+    def build(cls, path_locator, changes, schema, lookups=None) -> "Metamorphosis":
         """Loads in the specified lookup tables, constructs the specified Changes, and passes these Changes to the
         constructor."""
         loaded_lookups = {}
+        lookups = lookups or []
         for lookup in lookups:
             with open(os.path.join(path_locator.lookups_dir, lookup + '.json'), 'r') as l:
                 loaded_lookups[lookup] = json.load(l)

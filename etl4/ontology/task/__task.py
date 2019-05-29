@@ -2,12 +2,14 @@ import os
 import yaml
 import json
 from etl4.ontology.metamorphosis import Metamorphosis
+from etl4.ontology.scan import Scan
 from etl4.ontology.schema import Schema
 from etl4.ontology.task.__paths import TaskPathLocator
 
 
 STEP_TYPES = {
-    'Metamorphosis': Metamorphosis
+    'Metamorphosis': Metamorphosis,
+    'Scan': Scan
 }
 
 
