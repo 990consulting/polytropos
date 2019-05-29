@@ -3,9 +3,10 @@ import json
 from typing import Dict, List
 from etl4.ontology.task.__loader import load
 from etl4.ontology.metamorphosis.__change import Change
+from etl4.ontology.step import Step
 
 
-class Metamorphosis:
+class Metamorphosis(Step):
     """A metamorphosis represents a series of changes that are made to a single composite, in order, and without
     reference to any other composite. Each change is defined in terms of one or more subject variables, which may be
     inputs, outputs, or both (in a case where a change alters a value in place)."""

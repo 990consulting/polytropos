@@ -2,10 +2,11 @@ from abc import abstractmethod
 from collections.abc import Callable
 from typing import Dict, Optional, Any, Iterable, Tuple
 
+from etl4.ontology.step import Step
 from etl4.ontology.task.__loader import load
 
 
-class Scan(Callable):
+class Scan(Step):
     """Scan iterates through all of the composites in the task pipeline twice: once to gather global information, and
     then a second time to make alterations to the composites on the basis of the globally gathered information. In
     between, an arbitrary analysis may be performed on the basis of the global information. Example use cases include

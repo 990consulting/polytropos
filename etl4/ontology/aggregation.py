@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, Any, Iterable, Tuple, Iterator
 
+from etl4.ontology.step import Step
+
 # TODO Quimey, if it doesn't make it too difficult to implement with parallelism, supporting lookups here would be
 #  great.
-class Aggregation(ABC):
+class Aggregation(Step):
     """Iterates over all composites following one schema, and produces a new set of composites, representing a different
     kind of entity, and following a different schema."""
 
@@ -28,4 +30,7 @@ class Aggregation(ABC):
     @abstractmethod
     def emit(self) -> Iterator[Tuple[str, Dict]]:
         """Lazily produce instances of the target entity. Yields tuples of (new entity ID, new entity content)."""
+        pass
+
+    def __call__(self, data):
         pass
