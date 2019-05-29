@@ -10,6 +10,7 @@ from etl4.ontology.task import Task
         ('1_mm_only', 'infer_about_person'),
         ('2_mm_scan', 'bmi_rank'),
         ('3_mm_aggregate_mm_scan', 'economy'),
+        ('4_filter_mm_scan', 'bmi_rank'),
     ]
 )
 def test_task(scenario, task_name):
