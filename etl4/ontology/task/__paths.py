@@ -42,6 +42,16 @@ class TaskPathLocator:
         ).replace('/', '.')
 
     @property
+    def scans_dir(self):
+        return os.path.join(self.conf_dir, 'scans')
+
+    @property
+    def scans_import(self):
+        return os.path.relpath(
+            self.scans_dir, self.base_dir
+        ).replace('/', '.')
+
+    @property
     def schemas_dir(self):
         return os.path.join(self.conf_dir, 'schemas')
 
