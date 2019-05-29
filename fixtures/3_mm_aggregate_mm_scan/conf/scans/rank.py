@@ -12,7 +12,7 @@ class AssignProductivityRank(Scan):
     mean_prod_var: Decimal = SubjectValidator(data_type=Decimal, temporal=-1)
     prod_rank_var: Integer = SubjectValidator(data_type=Integer, temporal=-1)
 
-    def __post_init(self):
+    def __post_init__(self):
         self.ranked: Dict[str, int] = {}
 
     def extract(self, composite: Dict) -> float:

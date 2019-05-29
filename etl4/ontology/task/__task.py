@@ -1,6 +1,7 @@
 import os
+from shutil import rmtree
 import yaml
-import json
+from tempfile import TemporaryDirectory
 from etl4.ontology.metamorphosis import Metamorphosis
 from etl4.ontology.scan import Scan
 from etl4.ontology.filter import Filter
@@ -66,10 +67,18 @@ class Task:
     def run(self):
         origin_path = os.path.join(self.path_locator.entities_dir, self.origin_data)
         actual_path = os.path.join(self.path_locator.entities_dir, self.target_data)
-        try:
-            os.mkdir(actual_path)
-        except FileExistsError:
-            pass
+        rmtree(actual_path)
+        os.mkdir(actual_path)
+        current_path = origin_path
+        current_path_obj = None
+        next_path = None
         for step in self.steps:
-            step(origin_path, actual_path)
-
+            next_path = TemporaryDirectory(dir=self.path_locator.data_dir)
+            step(current_path, next_path.name)
+            if current_path_obj:
+                current_path_obj.cleanup()
+            current_path = next_path.name
+            current_path_obj = next_path
+        os.rename(next_path.name, actual_path)
+        os.mkdir(next_path.name)
+        next_path.cleanup()

@@ -14,11 +14,10 @@ class AssignAverageBMIRank(Scan):
     bmi_rank_gender_var: Integer = SubjectValidator(data_type=Integer, temporal=-1)
     bmi_rank_overall_var: Integer = SubjectValidator(data_type=Integer, temporal=-1)
 
-    def __post_init(self):
+    def __post_init__(self):
         self.ranked: Dict[str, Dict[str, int]] = {}
 
     def extract(self, composite: Dict) -> Tuple[bool, float]:
-        print(composite)
         mean_bmi = composites.get_property(composite, self.mean_bmi_var)
         is_male = composites.get_property(composite, self.male_flag)
         return is_male, mean_bmi
@@ -29,6 +28,7 @@ class AssignAverageBMIRank(Scan):
         genders = ["male", "female", "overall"]
         for gender in genders:
             mean_bmi_dict[gender] = {}
+            self.ranked[gender] = {}
 
         for composite_id, (is_male, mean_bmi) in extracts:
             if is_male:
