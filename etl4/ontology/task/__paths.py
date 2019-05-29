@@ -52,6 +52,16 @@ class TaskPathLocator:
         ).replace('/', '.')
 
     @property
+    def aggregations_dir(self):
+        return os.path.join(self.conf_dir, 'aggregations')
+
+    @property
+    def aggregations_import(self):
+        return os.path.relpath(
+            self.aggregations_dir, self.base_dir
+        ).replace('/', '.')
+
+    @property
     def filters_dir(self):
         return os.path.join(self.conf_dir, 'filters')
 

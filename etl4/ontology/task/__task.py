@@ -53,6 +53,7 @@ class Task:
         return task
 
     def load_steps(self, step_descriptions):
+        current_schema = self.origin_schema
         for step in step_descriptions:
             # expect only one key/value pair
             assert len(step) == 1, (
@@ -60,9 +61,11 @@ class Task:
             )
             for cls, kwargs in step.items():
                 step_instance = STEP_TYPES[cls].build(
-                    path_locator=self.path_locator, schema=self.origin_schema, **kwargs
+                    path_locator=self.path_locator, schema=current_schema, **kwargs
                 )
                 self.steps.append(step_instance)
+                if cls == 'Aggregation':
+                    current_schema = step_instance.target_schema
 
     def run(self):
         origin_path = os.path.join(self.path_locator.entities_dir, self.origin_data)

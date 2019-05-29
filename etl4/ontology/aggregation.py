@@ -1,20 +1,39 @@
+from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, Any, Iterable, Tuple, Iterator
 
 from etl4.ontology.step import Step
+from etl4.ontology.task.__loader import load
+from etl4.ontology.schema import Schema
+
 
 # TODO Quimey, if it doesn't make it too difficult to implement with parallelism, supporting lookups here would be
 #  great.
+@dataclass
 class Aggregation(Step):
     """Iterates over all composites following one schema, and produces a new set of composites, representing a different
     kind of entity, and following a different schema."""
+    target_schema: Schema
 
     @classmethod
     def build(
             cls, path_locator, schema, name, target_schema, id_var,
             input_schema_vars, output_schema_vars
     ): 
-        pass
+        target_schema = Schema.load(path_locator, target_schema)
+        aggregations = load(
+            path_locator.aggregations_dir,
+            path_locator.aggregations_import, cls
+        )
+        input_variables = {
+            var_name: schema.get(var_id)
+            for var_name, var_id in input_schema_vars.items()
+        }
+        output_variables = {
+            var_name: target_schema.get(var_id)
+            for var_name, var_id in output_schema_vars.items()
+        }
+        return aggregations[name](target_schema=target_schema, **input_variables, **output_variables)
 
     @abstractmethod
     def extract(self, composite: Dict) -> Optional[Any]:

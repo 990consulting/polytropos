@@ -1,27 +1,28 @@
+from dataclasses import dataclass
 from typing import Iterator, Tuple, Dict, Iterable, Any, Optional
 
 from etl4.ontology.aggregation import Aggregation
 from etl4.ontology.variable import Variable
 from etl4.util import composites
 
+
+@dataclass
 class EconomicOverview(Aggregation):
-    # TODO Quimey, I punted on this constructor until I see how you handle Change. Once I see that, I'll update this.
-    def __init__(self):
-        # Input schema variables
-        self.n_employee_var: Variable = None
-        self.revenue_var: Variable = None
-        self.source_zip_var: Variable = None
-        self.source_city_var: Variable = None
-        self.source_state_var: Variable = None
+    n_employee_var: Variable
+    revenue_var: Variable
+    source_zip_var: Variable
+    source_city_var: Variable
+    source_state_var: Variable
 
-        # Output schema variables
-        self.n_company_var: Variable = None
-        self.mean_employee_var: Variable = None
-        self.annual_prod_var: Variable = None
-        self.target_zip_var: Variable = None
-        self.target_city_var: Variable = None
-        self.target_state_var: Variable = None
+    # Output schema variables
+    n_company_var: Variable
+    mean_employee_var: Variable
+    annual_prod_var: Variable
+    target_zip_var: Variable
+    target_city_var: Variable
+    target_state_var: Variable
 
+    def __post_init__(self):
         # Internal variable used for reduce/analyze step
         self.city_data: Dict[str, Dict] = {}
 
