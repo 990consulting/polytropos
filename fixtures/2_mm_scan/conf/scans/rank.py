@@ -18,6 +18,7 @@ class AssignAverageBMIRank(Scan):
         self.ranked: Dict[str, Dict[str, int]] = {}
 
     def extract(self, composite: Dict) -> Tuple[bool, float]:
+        print(composite)
         mean_bmi = composites.get_property(composite, self.mean_bmi_var)
         is_male = composites.get_property(composite, self.male_flag)
         return is_male, mean_bmi

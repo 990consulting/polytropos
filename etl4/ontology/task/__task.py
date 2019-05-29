@@ -70,10 +70,6 @@ class Task:
             os.mkdir(actual_path)
         except FileExistsError:
             pass
-        for filename in os.listdir(origin_path):
-            with open(os.path.join(origin_path, filename), 'r') as origin:
-                data = json.load(origin)
-                for step in self.steps:
-                    step(data)
-            with open(os.path.join(actual_path, filename), 'w') as target:
-                json.dump(data, target)
+        for step in self.steps:
+            step(origin_path, actual_path)
+

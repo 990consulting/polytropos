@@ -1,3 +1,5 @@
+import os
+import json
 from abc import abstractmethod
 from collections.abc import Callable
 from typing import Dict, Optional, Any, Iterable, Tuple
@@ -37,5 +39,16 @@ class Scan(Step):
         the alteration."""
         pass
 
-    def __call__(self, data):
-        pass
+    def __call__(self, origin, target):
+        extracts = []
+        for filename in os.listdir(origin):
+            with open(os.path.join(origin, filename), 'r') as origin_file:
+                composite = json.load(origin_file)
+                extracts.append((filename, self.extract(composite)))
+        self.analyze(extracts)
+        for filename in os.listdir(origin):
+            with open(os.path.join(origin, filename), 'r') as origin_file:
+                composite = json.load(origin_file)
+                self.alter(filename, composite)
+            with open(os.path.join(target, filename), 'w') as target_file:
+                json.dump(composite, target_file)

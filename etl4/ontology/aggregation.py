@@ -32,5 +32,5 @@ class Aggregation(Step):
         """Lazily produce instances of the target entity. Yields tuples of (new entity ID, new entity content)."""
         pass
 
-    def __call__(self, data):
+    def __call__(self, origin, target):
         pass

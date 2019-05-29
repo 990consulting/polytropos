@@ -24,5 +24,5 @@ class Filter(Step):
     def passes(self, composite: Dict) -> bool:
         pass
 
-    def __call__(self, data):
+    def __call__(self, origin, target):
         pass

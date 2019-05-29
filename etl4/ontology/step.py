@@ -10,5 +10,5 @@ class Step(Callable):
         pass
 
     @abstractmethod
-    def __call__(self, data):
+    def __call__(self, origin, target):
         pass

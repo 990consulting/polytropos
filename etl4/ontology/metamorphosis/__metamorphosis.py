@@ -46,6 +46,11 @@ class Metamorphosis(Step):
                 change_instances.append(change)
         return cls(path_locator, change_instances, lookups, schema)
 
-    def __call__(self, composite: Dict) -> None:
-        for change in self.changes:
-            change(composite)
+    def __call__(self, origin, target):
+        for filename in os.listdir(origin):
+            with open(os.path.join(origin, filename), 'r') as origin_file:
+                composite = json.load(origin_file)
+                for change in self.changes:
+                    change(composite)
+            with open(os.path.join(target, filename), 'w') as target_file:
+                json.dump(composite, target_file)
