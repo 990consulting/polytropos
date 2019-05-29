@@ -1,7 +1,8 @@
 import os
 import json
 from typing import Dict, List
-from etl4.ontology.metamorphosis.__change import load_changes
+from etl4.ontology.task.__loader import load
+from etl4.ontology.metamorphosis.__change import Change
 
 
 class Metamorphosis:
@@ -25,7 +26,11 @@ class Metamorphosis:
             with open(os.path.join(path_locator.lookups_dir, lookup + '.json'), 'r') as l:
                 loaded_lookups[lookup] = json.load(l)
         change_instances = []
-        all_changes = load_changes(path_locator)
+        all_changes = load(
+            path_locator.changes_dir,
+            path_locator.changes_import,
+            Change
+        )
         for spec in changes:
             # assume that spec only has one key
             assert len(spec) == 1
