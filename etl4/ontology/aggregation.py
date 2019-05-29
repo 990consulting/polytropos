@@ -33,4 +33,12 @@ class Aggregation(Step):
         pass
 
     def __call__(self, origin, target):
-        pass
+        extracts = []
+        for filename in os.listdir(origin):
+            with open(os.path.join(origin, filename), 'r') as origin_file:
+                composite = json.load(origin_file)
+                extracts.append((filename, self.extract(composite)))
+        self.analyze(extracts)
+        for filename, composite in self.emit():
+            with open(os.path.join(target, filename), 'w') as target_file:
+                json.dump(composite, target_file)
