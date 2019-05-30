@@ -72,6 +72,16 @@ class TaskPathLocator:
         ).replace('/', '.')
 
     @property
+    def consumes_dir(self):
+        return os.path.join(self.conf_dir, 'consumes')
+
+    @property
+    def consumes_import(self):
+        return os.path.relpath(
+            self.consumes_dir, self.base_dir
+        ).replace('/', '.')
+
+    @property
     def schemas_dir(self):
         return os.path.join(self.conf_dir, 'schemas')
 
