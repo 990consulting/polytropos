@@ -16,12 +16,14 @@ from etl4.ontology.task import Task
 def test_task(scenario, task_name):
     task = Task.build(scenario, task_name)
     task.run()
-    path = os.path.join(task.path_locator.entities_dir, 'person')
-    assert (
-        os.listdir(os.path.join(path, 'actual')) ==
-        os.listdir(os.path.join(path, 'expected'))
+    actual_path = os.path.join(
+        task.path_locator.entities_dir, task.target_data
     )
-    for filename in os.listdir(os.path.join(path, 'actual')):
-        with open(os.path.join(path, 'actual', filename), 'r') as f:
-            with open(os.path.join(path, 'expected', filename), 'r') as g:
+    expected_path = os.path.join(
+        task.path_locator.entities_dir, 'expected'
+    )
+    assert os.listdir(actual_path) == os.listdir(expected_path)
+    for filename in os.listdir(actual_path):
+        with open(os.path.join(actual_path, filename), 'r') as f:
+            with open(os.path.join(expected_path, filename), 'r') as g:
                 assert json.load(f) == json.load(g)
