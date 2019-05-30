@@ -61,5 +61,5 @@ class Aggregation(Step):
                 extracts.append((filename, self.extract(composite)))
         self.analyze(extracts)
         for filename, composite in self.emit():
-            with open(os.path.join(target, filename), 'w') as target_file:
+            with open(os.path.join(target, filename + '.json'), 'w') as target_file:
                 json.dump(composite, target_file)
