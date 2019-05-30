@@ -11,6 +11,7 @@ from etl4.ontology.task import Task
         ('2_mm_scan', 'bmi_rank'),
         ('3_mm_aggregate_mm_scan', 'economy'),
         ('4_filter_mm_scan', 'bmi_rank'),
+        ('6_tr_export', 'custom_consumer'),
     ]
 )
 def test_task(scenario, task_name):

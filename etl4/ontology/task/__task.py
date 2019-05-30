@@ -6,15 +6,15 @@ from etl4.ontology.metamorphosis import Metamorphosis
 from etl4.ontology.scan import Scan
 from etl4.ontology.filter import Filter
 from etl4.ontology.aggregation import Aggregation
+from etl4.ontology.consume import Consume
+from etl4.ontology.step import Step
 from etl4.ontology.schema import Schema
 from etl4.ontology.task.__paths import TaskPathLocator
 
 
 STEP_TYPES = {
-    'Metamorphosis': Metamorphosis,
-    'Scan': Scan,
-    'Aggregation': Aggregation,
-    'Filter': Filter
+    cls.__name__: cls
+    for cls in Step.__subclasses__()
 }
 
 

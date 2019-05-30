@@ -1,9 +1,18 @@
 from collections.abc import Callable
 from abc import abstractmethod
 from typing import Tuple, Dict, Iterable
+from etl4.ontology.step import Step
+from etl4.ontology.task.__loader import load
 
-class Consume(Callable):
+
+class Consume(Step):
     """Export data from a set of composites to a single file."""
+    @classmethod
+    def build(cls, path_locator, schema, name):
+        consumes = load(
+            path_locator.consumes_dir, path_locator.consumes_import, cls
+        )
+        return consumes[name]()
 
     def before(self):
         """Optional actions to be performed after the constructor runs but before starting to consume composites."""
@@ -16,9 +25,11 @@ class Consume(Callable):
     def consume(self, composite_id: str, composite: Dict):
         pass
 
-    def __call__(self, composites: Iterable[Tuple[str, Dict]]):
+    def __call__(self, origin, target):
         """Generate the export file."""
         self.before()
-        for composite_id, composite in composites:
-            self.consume(composite_id, composite)
+        for filename in os.listdir(origin):
+            with open(os.path.join(origin, filename), 'r') as origin_file:
+                composite = json.load(origin_file)
+                self.consume(filename, composite)
         self.after()
