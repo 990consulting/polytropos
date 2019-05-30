@@ -1,4 +1,5 @@
-from typing import Iterable, Tuple, Dict
+from dataclasses import dataclass
+from typing import Dict
 
 from etl4.ontology.consume import Consume
 
@@ -7,7 +8,10 @@ from etl4.ontology.consume import Consume
 #  "after" step. In each consume step, emit '"<composite_id>": <composite>. On all but the first one, you will also
 #  need to emit ', ' at the start of each composite.
 
+@dataclass
 class ExportToJSON(Consume):
+    filename: str
+
     """Create a single JSON file consisting of a JSON dict, where the keys are the composite IDs and the values are the
     composites themselves. """
     def before(self):

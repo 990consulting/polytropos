@@ -1,0 +1,12 @@
+---
+
+starting_with:
+  data: record/origin
+  schema: record/origin
+
+steps:
+  - Translate:
+      schema: record/target
+  - Consume:
+      name: ExportToJSON
+      filename: records.json
