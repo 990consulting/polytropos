@@ -70,7 +70,10 @@ class Task:
     def run(self):
         origin_path = os.path.join(self.path_locator.entities_dir, self.origin_data)
         actual_path = os.path.join(self.path_locator.entities_dir, self.target_data)
-        rmtree(actual_path)
+        try:
+            rmtree(actual_path)
+        except FileNotFoundError:
+            pass
         os.mkdir(actual_path)
         current_path = origin_path
         current_path_obj = None
