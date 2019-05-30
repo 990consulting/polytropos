@@ -1,0 +1,9 @@
+id,outer_list/_index,outer_list/alias_for_inner_list/_index,outer_list/alias_for_inner_list/name,some_other_field
+record_0,0,0,A_1_1_1,X
+record_0,0,1,A_1_1_2,X
+record_0,1,0,B_1_2_1,X
+record_0,1,1,B_1_2_1,X
+record_1,0,0,C_1_1_1,Y
+record_1,0,1,C_1_1_2,Y
+record_1,1,0,D_1_2_1,Y
+record_1,1,1,D_1_2_1,Y
