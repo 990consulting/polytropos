@@ -1,10 +1,14 @@
 from collections.abc import Callable
 from abc import abstractmethod
+from dataclasses import dataclass
 from typing import Tuple, Dict, Iterable
 from etl4.ontology.step import Step
 from etl4.ontology.task.__loader import load
 
 
+# TODO Quimey, unlike the other tasks, consumers may take arguments that are not variables. We may want the ability to
+#  do this in general--for example, if a task does a statistical analysis and we want to provide some tuning parameter.
+#  I'm not sure if this actually creates a problem or not.
 class Consume(Step):
     """Export data from a set of composites to a single file."""
     @classmethod
