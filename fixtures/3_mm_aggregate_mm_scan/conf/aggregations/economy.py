@@ -39,15 +39,15 @@ class EconomicOverview(Aggregation):
 
             # Create a transient composite for the city. It will be processed into its final form in emit().
             if zip_code not in self.city_data:
-                self.city_data[zip_code] = {
+                self.city_data[zip_code] = {'invariant': {
                     "zip": zip_code,
                     "city": city,
                     "state": state
-                }
+                }}
 
             for period in composites.get_periods(company):
                 if period not in self.city_data[zip_code]:
-                    self.city_data[zip_code] = {
+                    self.city_data[zip_code][period] = {
                         "n_companies": 0,
                         "tot_employees": 0,
                         "tot_revenue": 0.0
@@ -59,7 +59,7 @@ class EconomicOverview(Aggregation):
                 p_dict["tot_revenue"] += composites.get_observation(company, period, self.revenue_var)
 
     def emit(self) -> Iterator[Tuple[str, Dict]]:
-        for zip_code, transient in self.city_data:
+        for zip_code, transient in self.city_data.items():
             city: Dict = {}
             composites.put_property(city, self.target_zip_var, transient["invariant"]["zip"])
             composites.put_property(city, self.target_city_var, transient["invariant"]["city"])
