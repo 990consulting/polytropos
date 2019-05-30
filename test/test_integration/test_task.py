@@ -7,23 +7,23 @@ from etl4.util.compare import compare
 
 
 @pytest.mark.parametrize(
-    'scenario,task_name',
+    'scenario,task_name,expected_location',
     [
-        ('1_mm_only', 'infer_about_person'),
-        ('2_mm_scan', 'bmi_rank'),
-        ('3_mm_aggregate_mm_scan', 'economy'),
-        ('4_filter_mm_scan', 'bmi_rank'),
-        ('6_tr_export', 'custom_consumer'),
+        ('1_mm_only', 'infer_about_person', 'person/expected'),
+        ('2_mm_scan', 'bmi_rank', 'person/expected'),
+        ('3_mm_aggregate_mm_scan', 'economy', 'city/expected'),
+        ('4_filter_mm_scan', 'bmi_rank', 'person/expected'),
+        ('6_tr_export', 'custom_consumer', ''),
     ]
 )
-def test_task(scenario, task_name):
+def test_task(scenario, task_name, expected_location):
     task = Task.build(scenario, task_name)
     task.run()
     actual_path = os.path.join(
         task.path_locator.entities_dir, task.target_data
     )
     expected_path = os.path.join(
-        task.path_locator.entities_dir, 'expected'
+        task.path_locator.entities_dir, expected_location
     )
     assert os.listdir(actual_path) == os.listdir(expected_path)
     for filename in os.listdir(actual_path):
