@@ -18,6 +18,8 @@ resulting_in:
 # origin schema. IN GENERAL, ONLY THE "resulting_in" DATA SHOULD BE ALTERED BY A TASK.
 steps:
   - Metamorphosis:
+      lookups:
+        - zipcodes
       changes:
         - AssignCityState:
             zip_var: company_zip_var

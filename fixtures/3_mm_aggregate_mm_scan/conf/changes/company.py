@@ -16,8 +16,8 @@ class AssignCityState(Change):
     def __call__(self, composite: Dict):
         zip_code: str = composites.get_property(composite, self.zip_var)
 
-        city = self.lookups["zipcodes"][zip_code]["city"]
+        city = self.lookups["zipcodes"][zip_code]["City"]
         composites.put_property(composite, self.city_var, city)
 
-        state = self.lookups["zipcodes"][zip_code]["state"]
+        state = self.lookups["zipcodes"][zip_code]["State"]
         composites.put_property(composite, self.state_var, state)
