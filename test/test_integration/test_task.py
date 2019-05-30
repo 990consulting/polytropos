@@ -1,7 +1,9 @@
 import pytest
+from difflib import Differ
 import json
 import os
 from etl4.ontology.task import Task
+from etl4.util.compare import compare
 
 
 @pytest.mark.parametrize(
@@ -27,4 +29,12 @@ def test_task(scenario, task_name):
     for filename in os.listdir(actual_path):
         with open(os.path.join(actual_path, filename), 'r') as f:
             with open(os.path.join(expected_path, filename), 'r') as g:
-                assert json.load(f) == json.load(g)
+                actual_data = json.load(f)
+                expected_data = json.load(g)
+                diff = Differ().compare(
+                    json.dumps(actual_data, indent=4).split('\n'),
+                    json.dumps(expected_data, indent=4).split('\n')
+                )
+                assert compare(actual_data, expected_data), (
+                    'Diff: ' + '\n'.join(line for line in diff)
+                )
