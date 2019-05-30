@@ -26,6 +26,10 @@ def compare_float(data1, data2):
 
 
 def compare(data1, data2):
+    if type(data1) == int and type(data2) == float:
+        return compare_float(data1, data2)
+    if type(data1) == float and type(data2) == int:
+        return compare_float(data1, data2)
     if type(data1) != type(data2):
         return False
     if isinstance(data1, dict):
@@ -35,7 +39,7 @@ def compare(data1, data2):
     elif isinstance(data1, str):
         return compare_str(data1, data2)
     elif isinstance(data1, int):
-        return compare_str(data1, data2)
+        return compare_int(data1, data2)
     elif isinstance(data1, float):
         return compare_float(data1, data2)
     else:

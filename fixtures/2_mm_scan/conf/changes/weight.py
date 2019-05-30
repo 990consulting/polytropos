@@ -24,4 +24,4 @@ class AssignRegressionStats(Change):
             np.asarray(years), np.asarray(weights)
         )
         composites.put_property(composite, self.weight_slope_var, slope)
-        composites.put_property(composite, self.weight_pval_var, slope)
+        composites.put_property(composite, self.weight_pval_var, p_value)

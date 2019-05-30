@@ -27,6 +27,6 @@
       "p_value": 0.007915750673531563
     },
     "mean_bmi": 50.97741870464929,
-    "bmi_rank": 1
+    "bmi_rank_within_gender": 1
   }
 }

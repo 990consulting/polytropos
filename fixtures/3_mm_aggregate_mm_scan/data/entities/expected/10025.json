@@ -1,29 +1,29 @@
 {
   "2011": {
     "n_companies": 2,
-    "mean_employees": 74.5,
-    "employee_productivity": 0.08868852459016394
+    "employee_productivity": 0.1089261744966443,
+    "mean_employees": 74.5
   },
   "2012": {
     "n_companies": 2,
-    "mean_employees": 75,
-    "employee_productivity": 0.11166666666666666
+    "employee_productivity": 0.11166666666666666,
+    "mean_employees": 75 
   },
   "2013": {
     "n_companies": 2,
-    "mean_employees": 80,
-    "employee_productivity": 0.12625000000000003
+    "employee_productivity": 0.11943750000000002, 
+    "mean_employees": 80
   },
   "2014": {
     "n_companies": 1,
-    "mean_employees": 105,
-    "employee_productivity": 0.17714285714285716
+    "employee_productivity": 0.17714285714285716,
+    "mean_employees": 105
   },
   "invariant": {
     "zip_code": "10025",
-    "state": "New York",
     "city": "New York",
-    "mean_productivity": 0.12593701209992195,
+    "state": "New York",
+    "mean_productivity": 0.12929329957654204,
     "productivity_rank": 2
   }
 }

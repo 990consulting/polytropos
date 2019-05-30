@@ -61,11 +61,7 @@ class EconomicOverview(Aggregation):
     def emit(self) -> Iterator[Tuple[str, Dict]]:
         for zip_code, transient in self.city_data.items():
             city: Dict = {}
-            composites.put_property(city, self.target_zip_var, transient["invariant"]["zip"])
-            composites.put_property(city, self.target_city_var, transient["invariant"]["city"])
-            composites.put_property(city, self.target_state_var, transient["invariant"]["state"])
-
-            for period in composites.get_periods(transient):
+            for period in sorted(composites.get_periods(transient)):
                 n_companies = transient[period]["n_companies"]
                 tot_employees = transient[period]["tot_employees"]
                 tot_revenue = transient[period]["tot_revenue"]
@@ -76,4 +72,9 @@ class EconomicOverview(Aggregation):
                 composites.put_observation(city, period, self.n_company_var, n_companies)
                 composites.put_observation(city, period, self.annual_prod_var, productivity)
                 composites.put_observation(city, period, self.mean_employee_var, mean_employees)
+
+            composites.put_property(city, self.target_zip_var, transient["invariant"]["zip"])
+            composites.put_property(city, self.target_city_var, transient["invariant"]["city"])
+            composites.put_property(city, self.target_state_var, transient["invariant"]["state"])
+            
             yield zip_code, city

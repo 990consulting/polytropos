@@ -20,4 +20,4 @@ class AssignRegressionStats(Change):
         weights = [composites.get_observation(composite, str(year), self.annual_weight_var) for year in years]
         slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(years, weights)
         composites.put_property(composite, self.weight_slope_var, slope)
-        composites.put_property(composite, self.weight_pval_var, slope)
+        composites.put_property(composite, self.weight_pval_var, p_value)
