@@ -9,6 +9,7 @@ from etl4.ontology.aggregation import Aggregation
 from etl4.ontology.consume import Consume
 from etl4.ontology.step import Step
 from etl4.ontology.schema import Schema
+from etl4.ontology.translate_step import TranslateStep
 from etl4.ontology.task.__paths import TaskPathLocator
 
 
