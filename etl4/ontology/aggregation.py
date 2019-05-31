@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Optional, Any, Iterable, Tuple, Iterator
 
 from etl4.ontology.step import Step
-from etl4.ontology.task.__loader import load
+from etl4.util.loader import load
 from etl4.ontology.schema import Schema
 
 
