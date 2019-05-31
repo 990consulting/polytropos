@@ -12,11 +12,11 @@ from etl4.util.loader import load
 class Consume(Step):
     """Export data from a set of composites to a single file."""
     @classmethod
-    def build(cls, path_locator, schema, name):
+    def build(cls, path_locator, schema, name, **kwargs):
         consumes = load(
             path_locator.consumes_dir, path_locator.consumes_import, cls
         )
-        return consumes[name]()
+        return consumes[name](**kwargs)
 
     def before(self):
         """Optional actions to be performed after the constructor runs but before starting to consume composites."""
