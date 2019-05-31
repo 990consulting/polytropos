@@ -23,7 +23,7 @@ class Task:
     def __init__(
         self, path_locator,
         origin_data, origin_schema,
-        target_data, target_schema=None
+        target_data=None, target_schema=None
     ):
         self.path_locator = path_locator
         self.origin_data = origin_data
@@ -41,18 +41,21 @@ class Task:
                 os.path.join(path_locator.tasks_dir, name + '.yaml'), 'r'
         ) as f:
             spec = yaml.safe_load(f)
+        resulting_in = spec.get('resulting_in', {})
         task = cls(
             path_locator=path_locator,
             origin_data=spec['starting_with']['data'],
             origin_schema=Schema.load(
                 path_locator, spec['starting_with']['schema']
             ),
-            target_data=spec['resulting_in']['data'],
+            target_data=resulting_in.get('data'),
             target_schema=Schema.load(
-                path_locator, spec['resulting_in'].get('schema')
+                path_locator, resulting_in.get('schema')
             )
         )
         task.load_steps(spec['steps'])
+        # If the last step is a Consume step we don't need target data
+        assert task.target_data is not None or isinstance(task.steps[-1], Consume)
         return task
 
     def load_steps(self, step_descriptions):
@@ -76,7 +79,10 @@ class Task:
         """Run the task: run steps one by one handling intermediate outputs in
         temporary folders"""
         origin_path = os.path.join(self.path_locator.entities_dir, self.origin_data)
-        actual_path = os.path.join(self.path_locator.entities_dir, self.target_data)
+        if self.target_data is not None:
+            actual_path = os.path.join(
+                self.path_locator.entities_dir, self.target_data
+            )
         try:
             rmtree(actual_path)
         except FileNotFoundError:
@@ -96,7 +102,8 @@ class Task:
             current_path = next_path.name
             current_path_obj = next_path
         # Move the last temporary folder to destination
-        os.rename(next_path.name, actual_path)
+        if self.target_data is not None:
+            os.rename(next_path.name, actual_path)
         # Hack to avoid leaving unfinished objects
         os.mkdir(next_path.name)
         next_path.cleanup()
