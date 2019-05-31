@@ -4,9 +4,12 @@ from abc import abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Dict
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
 
 from etl4.util.loader import load
 from etl4.ontology.step import Step
+from etl4.util.config import MAX_WORKERS
 
 
 @dataclass
@@ -26,10 +29,16 @@ class Filter(Step):
     def passes(self, composite: Dict) -> bool:
         pass
 
+    def process_composite(self, origin, target, filename):
+        with open(os.path.join(origin, filename), 'r') as origin_file:
+            composite = json.load(origin_file)
+            if self.passes(composite):
+                with open(os.path.join(target, filename), 'w') as target_file:
+                    json.dump(composite, target_file)
+
     def __call__(self, origin, target):
-        for filename in os.listdir(origin):
-            with open(os.path.join(origin, filename), 'r') as origin_file:
-                composite = json.load(origin_file)
-                if self.passes(composite):
-                    with open(os.path.join(target, filename), 'w') as target_file:
-                        json.dump(composite, target_file)
+        with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            executor.map(
+                partial(self.process_composite, origin, target),
+                os.listdir(origin)
+            )

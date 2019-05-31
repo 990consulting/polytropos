@@ -1,7 +1,11 @@
 import os
 import json
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
 from typing import Dict, List
+
 from etl4.util.loader import load
+from etl4.util.config import MAX_WORKERS
 from etl4.ontology.metamorphosis.__change import Change
 from etl4.ontology.step import Step
 
@@ -46,11 +50,18 @@ class Metamorphosis(Step):
                 change_instances.append(change)
         return cls(path_locator, change_instances, lookups, schema)
 
+    def process_composite(self, origin, target, filename):
+        with open(os.path.join(origin, filename), 'r') as origin_file:
+            composite = json.load(origin_file)
+            for change in self.changes:
+                change(composite)
+        with open(os.path.join(target, filename), 'w') as target_file:
+            print(composite, filename)
+            json.dump(composite, target_file)
+
     def __call__(self, origin, target):
-        for filename in os.listdir(origin):
-            with open(os.path.join(origin, filename), 'r') as origin_file:
-                composite = json.load(origin_file)
-                for change in self.changes:
-                    change(composite)
-            with open(os.path.join(target, filename), 'w') as target_file:
-                json.dump(composite, target_file)
+        with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            executor.map(
+                partial(self.process_composite, origin, target),
+                os.listdir(origin)
+            )
