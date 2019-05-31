@@ -6,7 +6,7 @@ starting_with:
 
 steps:
   - TranslateStep:
-      schema: record/target
+      target_schema: record/target
   - Consume:
       name: ExportToCSV
       invariant: true
