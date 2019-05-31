@@ -26,6 +26,8 @@ def compare_float(data1, data2):
 
 
 def compare(data1, data2):
+    """Compare two json-like nested structures using approximate matching for
+    numeric values"""
     if type(data1) == int and type(data2) == float:
         return compare_float(data1, data2)
     if type(data1) == float and type(data2) == int:

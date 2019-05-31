@@ -4,6 +4,7 @@ import os
 
 @dataclass
 class TaskPathLocator:
+    """Path locator class. It knows the internal structure of a scenario"""
     scenario: str
 
     @property

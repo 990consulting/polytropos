@@ -12,6 +12,7 @@ from etl4.ontology.schema import Schema
 from etl4.ontology.task.__paths import TaskPathLocator
 
 
+# Step class name deserialization
 STEP_TYPES = {
     cls.__name__: cls
     for cls in Step.__subclasses__()
@@ -33,6 +34,8 @@ class Task:
 
     @classmethod
     def build(cls, scenario, name):
+        """Build task from yaml, read all input data and create corresponding
+        objects"""
         path_locator = TaskPathLocator(scenario)
         with open(
                 os.path.join(path_locator.tasks_dir, name + '.yaml'), 'r'
@@ -53,6 +56,7 @@ class Task:
         return task
 
     def load_steps(self, step_descriptions):
+        """Load steps of the current task"""
         current_schema = self.origin_schema
         for step in step_descriptions:
             # expect only one key/value pair
@@ -64,10 +68,13 @@ class Task:
                     path_locator=self.path_locator, schema=current_schema, **kwargs
                 )
                 self.steps.append(step_instance)
+                # Aggregation changes schema
                 if cls == 'Aggregation':
                     current_schema = step_instance.target_schema
 
     def run(self):
+        """Run the task: run steps one by one handling intermediate outputs in
+        temporary folders"""
         origin_path = os.path.join(self.path_locator.entities_dir, self.origin_data)
         actual_path = os.path.join(self.path_locator.entities_dir, self.target_data)
         try:
@@ -75,6 +82,9 @@ class Task:
         except FileNotFoundError:
             pass
         os.mkdir(actual_path)
+        # There are always two paths in play, current and next, each step
+        # will read from current and write to next, after the step is done we
+        # can delete the current_path folder because it's not used anymore
         current_path = origin_path
         current_path_obj = None
         next_path = None
@@ -85,6 +95,8 @@ class Task:
                 current_path_obj.cleanup()
             current_path = next_path.name
             current_path_obj = next_path
+        # Move the last temporary folder to destination
         os.rename(next_path.name, actual_path)
+        # Hack to avoid leaving unfinished objects
         os.mkdir(next_path.name)
         next_path.cleanup()
