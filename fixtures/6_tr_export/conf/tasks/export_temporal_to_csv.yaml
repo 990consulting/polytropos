@@ -5,7 +5,7 @@ starting_with:
   schema: record/origin
 
 steps:
-  - Translate:
+  - TranslateStep:
       schema: record/target
   - Consume:
       name: ExportToCSV
