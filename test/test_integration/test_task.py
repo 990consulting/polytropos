@@ -14,6 +14,9 @@ from etl4.util.compare import compare
         ('3_mm_aggregate_mm_scan', 'economy', 'city/expected'),
         ('4_filter_mm_scan', 'bmi_rank', 'person/expected'),
         ('6_tr_export', 'custom_consumer', ''),
+        ('6_tr_export', 'export_invariant_to_csv', ''),
+        ('6_tr_export', 'export_temporal_to_csv', ''),
+        ('6_tr_export', 'export_to_json', ''),
     ]
 )
 def test_task(scenario, task_name, expected_location):
