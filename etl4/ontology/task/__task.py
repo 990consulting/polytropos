@@ -84,11 +84,11 @@ class Task:
             actual_path = os.path.join(
                 self.path_locator.entities_dir, self.target_data
             )
-        try:
-            rmtree(actual_path)
-        except FileNotFoundError:
-            pass
-        os.mkdir(actual_path)
+            try:
+                rmtree(actual_path)
+            except FileNotFoundError:
+                pass
+            os.mkdir(actual_path)
         # There are always two paths in play, current and next, each step
         # will read from current and write to next, after the step is done we
         # can delete the current_path folder because it's not used anymore
@@ -102,9 +102,9 @@ class Task:
                 current_path_obj.cleanup()
             current_path = next_path.name
             current_path_obj = next_path
-        # Move the last temporary folder to destination
         if self.target_data is not None:
+            # Move the last temporary folder to destination
             os.rename(next_path.name, actual_path)
-        # Hack to avoid leaving unfinished objects
-        os.mkdir(next_path.name)
+            # Hack to avoid leaving unfinished objects
+            os.mkdir(next_path.name)
         next_path.cleanup()

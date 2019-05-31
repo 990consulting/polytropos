@@ -74,7 +74,7 @@ class TaskPathLocator:
 
     @property
     def consumes_dir(self):
-        return os.path.join(self.conf_dir, 'consumes')
+        return os.path.join(self.conf_dir, 'consumers')
 
     @property
     def consumes_import(self):

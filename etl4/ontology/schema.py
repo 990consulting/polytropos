@@ -17,9 +17,11 @@ class Schema:
         return self.temporal.variables[var_id]
 
     @classmethod
-    def load(cls, path_locator, path):
+    def load(cls, path_locator, path, source_schema=None):
         if path is None:
             return None
+        source_invariant = source_schema.invariant if source_schema else None
+        source_temporal = source_schema.temporal if source_schema else None
         with open(
                 os.path.join(path_locator.schemas_dir, path, 'temporal.json'), 'r'
         ) as temporal:
@@ -28,9 +30,9 @@ class Schema:
             ) as invariant:
                 return cls(
                     temporal=Track.build(
-                        specs=json.load(temporal), source=None, name='temporal'
+                        specs=json.load(temporal), source=source_temporal, name='temporal'
                     ),
                     invariant=Track.build(
-                        specs=json.load(invariant), source=None, name='invariant'
+                        specs=json.load(invariant), source=source_invariant, name='invariant'
                     )
                 )
