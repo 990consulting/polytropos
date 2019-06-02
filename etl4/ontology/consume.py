@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import os
 import json
+import csv
 from collections.abc import Callable
 from abc import abstractmethod
 from dataclasses import dataclass
@@ -81,5 +82,26 @@ class ExportToCSV(Consume):
     columns: Dict
     invariant: bool
 
-    def consume(self, composite_id, composite):
+    def __post_init__(self):
+        self.fobj = None
+
+    @property
+    def fields(self):
+        return []
+
+    def get_rows(self, composite_id, composite):
         pass
+
+    def before(self):
+        self.fobj = open(
+            os.path.join(self.path_locator.conf, '../', self.filename), 'w'
+        )
+        self.writer = csv.DictWriter(self.fobj, self.fields)
+        self.writer.writeheader()
+
+    def consume(self, composite_id, composite):
+        for row in self.get_rows(composite_id, composite):
+            self.writer.writerow(row)
+
+    def after(self):
+        self.fobj.close()
