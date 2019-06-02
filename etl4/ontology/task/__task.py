@@ -73,7 +73,7 @@ class Task:
                 )
                 self.steps.append(step_instance)
                 # Aggregation changes schema
-                if cls == 'Aggregation':
+                if cls in ('Aggregation', 'TranslateStep'):
                     current_schema = step_instance.target_schema
 
     def run(self):

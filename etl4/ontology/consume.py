@@ -46,6 +46,7 @@ class Consume(Step):
 @dataclass
 class ExportToJSON(Consume):
     filename: str
+    indent: int = 2
 
     def __post_init__(self):
         self.fobj = None
@@ -61,12 +62,12 @@ class ExportToJSON(Consume):
         if not self.first:
             self.fobj.write(',\n')
         self.first = False
-        self.fobj.write(f'    "{composite_id}": ')
-        data = json.dumps(composite, indent=4).split('\n')
+        self.fobj.write(' ' * self.indent + f'"{composite_id}": ')
+        data = json.dumps(composite, indent=self.indent).split('\n')
         for i, line in enumerate(data):
             if i:
                 self.fobj.write('\n')
-                self.fobj.write('    ')
+                self.fobj.write(' ' * self.indent)
             self.fobj.write(line)
 
     def after(self):
