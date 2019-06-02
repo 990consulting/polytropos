@@ -82,11 +82,6 @@ class Track:
         Validator.validate(variable, init=True, adding=True)
         variable.update_sort_order(None, variable.sort_order)
         self.variables[var_id] = variable
-        if variable.parent != '':
-            parent = self.variables[variable.parent]
-            if isinstance(parent, GenericList):
-                for mapping in parent.source_child_mappings.values():
-                    mapping[var_id] = []
 
     def duplicate(self, source_var_id: str, new_var_id: str=None):
         """Creates a duplicate of a node, including its sources, but not including its targets."""
@@ -104,11 +99,6 @@ class Track:
         variable.update_sort_order(variable.sort_order, None)
         if any(variable.children) or variable.has_targets:
             raise ValueError
-        if variable.parent != '':
-            parent = self.variables[variable.parent]
-            if isinstance(parent, GenericList):
-                for mapping in parent.source_child_mappings.values():
-                    del mapping[var_id]
         del self.variables[var_id]
 
 

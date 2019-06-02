@@ -1,6 +1,7 @@
 import logging
 import json
 from dataclasses import dataclass, field, fields
+from collections import defaultdict
 from typing import(
     List as ListType, Dict, Iterator, Any, Iterable, TYPE_CHECKING
 )
@@ -121,14 +122,20 @@ class Variable:
         if attribute == 'sources':
             Validator.validate_sources(self, value)
             if self.track and isinstance(self, GenericList):
+                child_sources = defaultdict(list)
+                for child in self.children:
+                    for source in child.sources:
+                        child_sources[source].append(child)
+                safe = set()
                 for source in value:
-                    if source not in self.source_child_mappings:
-                        self.source_child_mappings[source] = {
-                            child.var_id: [] for child in self.children
-                        }
-                for key in list(self.source_child_mappings.keys()):
-                    if key not in value:
-                        del self.source_child_mappings[key]
+                    source_var = self.track.source.variables[source]
+                    for child_source in child_sources:
+                        if source_var.check_ancestor(child_source):
+                            safe.add(child_source)
+                for child_source, children in child_sources.items():
+                    if child_source not in safe:
+                        for child in children:
+                            child.sources.remove(child_source)
         if attribute == 'parent':
             Validator.validate_parent(self, value)
         if attribute == 'sort_order':
@@ -140,22 +147,6 @@ class Variable:
         if attribute == 'data_type':
             raise AttributeError
         self.__dict__[attribute] = value
-
-    def alter_list_child_source_mappings(self, list_root: str, child_source_mappings: Iterable[str]):
-        parent = self.track.variables[self.parent]
-        if list_root not in parent.source_child_mappings:
-            raise ValueError
-        parent.source_child_mappings[list_root][self.var_id] = list(
-            child_source_mappings
-        )
-
-    def alter_named_list_child_source_mappings(self, list_root: str, child_source_mappings: Iterable[str]):
-        parent = self.track.variables[self.parent]
-        if list_root not in parent.source_child_mappings:
-            raise ValueError
-        parent.source_child_mappings[list_root][self.var_id] = list(
-            child_source_mappings
-        )
 
     def update_sort_order(self, old_order=None, new_order=None):
         if old_order is None:
@@ -278,11 +269,6 @@ class Variable:
             for variable_id, variable in self.track.target.variables.items():
                 if self.var_id in variable.sources:
                     yield variable_id
-                if isinstance(variable, GenericList):
-                    for mapping in variable.source_child_mappings.values():
-                        for var_id, lst in mapping.items():
-                            if self.var_id in lst:
-                                yield var_id
 
     @property
     def children(self) -> Iterator["Variable"]:
@@ -382,9 +368,6 @@ class Folder(Container):
 @dataclass
 class GenericList(Container):
     # For lists and named lists, sources for any list descendents relative to a particular root source.
-    source_child_mappings: Dict[str, Dict[str, ListType[str]]] = field(
-        default_factory=dict
-    )
     # For lists and named lists, the set of fields for which expected values are to be supplied. (We do not necessarily
     # have expected values for every descendant.) Descendants are identified by their IDs, not their paths.
     list_expected_values_fields: ListType[str] = field(

@@ -112,26 +112,6 @@ def test_add_non_existent_parent_raises(target_nested_dict_track, nested_new_var
     with pytest.raises(ValueError):
         target_nested_dict_track.add(nested_new_var_spec, "A")
 
-def test_add_creates_nested_lists_raises():
-    spec: Dict = {
-        "outer_list": {
-            "name": "the outer list",
-            "data_type": "List",
-            "sort_order": 0
-        }
-    }
-
-    new_var: Dict = {
-        "name": "the inner list",
-        "data_type": "List",
-        "parent": "outer_list",
-        "sort_order": 0
-    }
-
-    track: Track = Track.build(spec, None, "Test")
-    with pytest.raises(ValueError):
-        track.add(new_var, "a")
-
 def test_add_no_sort_order_change(target_nested_dict_track, nested_new_var_spec):
     target_nested_dict_track.add(nested_new_var_spec, "A")
 

@@ -3,7 +3,6 @@ from typing import Dict
 import pytest
 
 from etl4.ontology.track import Track
-from etl4.ontology.variable import Variable
 
 @pytest.fixture()
 def simple_spec() -> Dict:
@@ -152,6 +151,11 @@ def source_list_track() -> Track:
             "data_type": "Text",
             "parent": "source_named_list",
             "sort_order": 0
+        },
+        "random_text_field": {
+            "name": "I'm not part of the list",
+            "data_type": "Text",
+            "sort_order": 1
         }
     }
     return Track.build(spec, None, "Source")
@@ -175,43 +179,35 @@ def target_list_track(source_list_track) -> Track:
             "data_type": "List",
             "parent": "target_folder_outer",
             "sort_order": 1,
-            "sources": ["source_list"],
-            "source_child_mappings": {
-                "source_list": {
-                    "target_list_name": ["source_list_name"],
-                    "target_list_color": ["source_list_color"]
-                }
-            }
+            "sources": ["source_list"]
         },
         "target_list_name": {
             "name": "name",
             "data_type": "Text",
             "parent": "target_list",
-            "sort_order": 0
+            "sort_order": 0,
+            "sources": ["source_list_name"]
         },
         "target_list_color": {
             "name": "color",
             "data_type": "Text",
             "parent": "target_list",
-            "sort_order": 1
+            "sort_order": 1,
+            "sources": ["source_list_color"]
         },
         "target_named_list": {
             "name": "the_named_list",
             "data_type": "NamedList",
             "parent": "target_folder_inner",
             "sort_order": 0,
-            "sources": ["source_named_list"],
-            "source_child_mappings": {
-                "source_named_list": {
-                    "target_named_list_color": ["source_named_list_color"]
-                }
-            }
+            "sources": ["source_named_list"]
         },
         "target_named_list_color": {
             "name": "color",
             "data_type": "Text",
             "parent": "target_named_list",
-            "sort_order": 0
+            "sort_order": 0,
+            "sources": ["source_named_list_color"]
         }
     }
     return Track.build(spec, source_list_track, "Target")
@@ -270,6 +266,11 @@ def source_named_list_track() -> Track:
             "data_type": "Text",
             "parent": "source_root_2",
             "sort_order": 2
+        },
+        "random_text_field": {
+            "name": "I'm not part of the list",
+            "data_type": "Text",
+            "sort_order": 2
         }
     }
     return Track.build(spec, None, "Source")
@@ -281,45 +282,176 @@ def target_named_list_track(source_named_list_track) -> Track:
             "name": "People",
             "data_type": "NamedList",
             "sources": ["source_root_1", "source_root_2"],
-            "sort_order": 0,
-            "source_child_mappings": {
-                "source_root_1": {
-                    "target_root_name": ["source_root_1_name"],
-                    "target_root_age": ["source_root_1_age"],
-                    "target_root_ice_cream": ["source_root_1_ice_cream"],
-                    "target_root_sport": ["source_root_1_sport"]
-                },
-                "source_root_2": {
-                    "target_root_name": ["source_root_2_nombre"],
-                    "target_root_age": ["source_root_2_edad"],
-                    "target_root_ice_cream": ["source_root_2_helado"],
-                    "target_root_sport": []
-                }
-            }
+            "sort_order": 0
         },
         "target_root_name": {
             "name": "Name",
             "data_type": "Text",
             "sort_order": 0,
-            "parent": "target_root"
+            "parent": "target_root",
+            "sources": ["source_root_1_name", "source_root_2_nombre"]
         },
         "target_root_age": {
             "name": "Age",
             "data_type": "Integer",
             "sort_order": 1,
-            "parent": "target_root"
+            "parent": "target_root",
+            "sources": ["source_root_1_age", "source_root_2_edad"]
         },
         "target_root_ice_cream": {
             "name": "Ice cream",
             "data_type": "Text",
             "sort_order": 2,
-            "parent": "target_root"
+            "parent": "target_root",
+            "sources": ["source_root_1_ice_cream", "source_root_2_helado"]
         },
         "target_root_sport": {
             "name": "Sport",
             "data_type": "Text",
             "sort_order": 3,
-            "parent": "target_root"
+            "parent": "target_root",
+            "sources": ["source_root_1_sport"]
         }
     }
     return Track.build(spec, source_named_list_track, "Target")
+
+@pytest.fixture
+def source_nested_list_track():
+    source_spec: Dict = {
+        "outer_list_1_id": {
+            "name": "outer_list_1",
+            "data_type": "List",
+            "sort_order": 0
+        },
+        "descended_from_outer_list": {
+            "name": "I am descended from the outer list",
+            "data_type": "Text",
+            "sort_order": 1
+        },
+        "inner_list_1_id": {
+            "name": "inner_list",
+            "data_type": "List",
+            "parent": "outer_list_1_id",
+            "sort_order": 0
+        },
+        "name_1_id": {
+            "name": "name",
+            "data_type": "Text",
+            "parent": "inner_list_1_id",
+            "sort_order": 0
+        },
+        "outer_list_2_id": {
+            "name": "outer_list_2",
+            "data_type": "List",
+            "sort_order": 0
+        },
+        "inner_list_2_id": {
+            "name": "inner_list",
+            "data_type": "List",
+            "parent": "outer_list_2_id",
+            "sort_order": 0
+        },
+        "name_2_id": {
+            "name": "name",
+            "data_type": "Text",
+            "parent": "inner_list_2_id",
+            "sort_order": 0
+        }
+    }
+    return Track.build(source_spec, None, "Source")
+
+@pytest.fixture
+def target_nested_list_track(source_nested_list_track):
+    target_spec: Dict = {
+        "outer_list_id": {
+            "name": "outer_list",
+            "data_type": "List",
+            "sort_order": 0,
+            "sources": ["outer_list_1_id", "outer_list_2_id"]
+        },
+        "inner_list_id": {
+            "name": "inner_list",
+            "data_type": "List",
+            "parent": "outer_list_id",
+            "sort_order": 0,
+            "sources": ["inner_list_1_id", "inner_list_2_id"]
+        },
+        "name_id": {
+            "name": "name",
+            "data_type": "Text",
+            "parent": "inner_list_id",
+            "sort_order": 0,
+            "sources": ["name_1_id", "name_2_id"]
+        }
+    }
+    return Track.build(target_spec, source_nested_list_track, "Target")
+
+@pytest.fixture
+def source_nested_named_list_track():
+    source_spec: Dict = {
+        "outer_list_1_id": {
+            "name": "outer_list_1",
+            "data_type": "List",
+            "sort_order": 0
+        },
+        "inner_named_list_1_id": {
+            "name": "inner_named_list",
+            "data_type": "NamedList",
+            "parent": "outer_list_1_id",
+            "sort_order": 0
+        },
+        "descended_from_outer_list": {
+            "name": "I am descended from the outer list",
+            "data_type": "Text",
+            "sort_order": 1
+        },
+        "name_1_id": {
+            "name": "name",
+            "data_type": "Text",
+            "parent": "inner_named_list_1_id",
+            "sort_order": 0
+        },
+        "outer_list_2_id": {
+            "name": "outer_list_2",
+            "data_type": "List",
+            "sort_order": 0
+        },
+        "inner_named_list_2_id": {
+            "name": "inner_named_list",
+            "data_type": "NamedList",
+            "parent": "outer_list_2_id",
+            "sort_order": 0
+        },
+        "name_2_id": {
+            "name": "name",
+            "data_type": "Text",
+            "parent": "inner_named_list_2_id",
+            "sort_order": 0
+        }
+    }
+    return Track.build(source_spec, None, "Source")
+
+def target_nested_named_list_track(source_nested_named_list_track):
+    target_spec: Dict = {
+        "outer_list_id": {
+            "name": "outer_list",
+            "data_type": "List",
+            "sort_order": 0,
+            "sources": ["outer_list_1_id", "outer_list_2_id"]
+        },
+        "inner_named_list_id": {
+            "name": "inner_named_list",
+            "data_type": "NamedList",
+            "parent": "outer_list_id",
+            "sort_order": 0,
+            "sources": ["inner_named_list_1_id", "inner_named_list_2_id"]
+        },
+        "name_id": {
+            "name": "name",
+            "data_type": "Text",
+            "parent": "inner_named_list_id",
+            "sort_order": 0,
+            "sources": ["name_1_id", "name_2_id"]
+        }
+    }
+    return Track.build(target_spec, source_nested_named_list_track, "Target")
