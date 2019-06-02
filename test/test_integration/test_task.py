@@ -5,6 +5,7 @@ import os
 from etl4.ontology.task import Task
 from etl4.util.compare import compare
 
+BASEPATH = os.path.dirname(os.path.abspath(__file__))
 
 @pytest.mark.parametrize(
     'scenario,task_name,expected_location',
@@ -16,8 +17,8 @@ from etl4.util.compare import compare
     ]
 )
 def test_task(scenario, task_name, expected_location):
-    conf = os.path.join('fixtures', scenario, 'conf')
-    data = os.path.join('fixtures', scenario, 'data')
+    conf = os.path.join(BASEPATH, '../../fixtures', scenario, 'conf')
+    data = os.path.join(BASEPATH, '../../fixtures', scenario, 'data')
     task = Task.build(conf, data, task_name)
     task.run()
     actual_path = os.path.join(
@@ -51,8 +52,8 @@ def test_task(scenario, task_name, expected_location):
     ]
 )
 def test_task_consume(scenario, task_name, expected_location):
-    conf = os.path.join('fixtures', scenario, 'conf')
-    data = os.path.join('fixtures', scenario, 'data')
+    conf = os.path.join(BASEPATH, '../../fixtures', scenario, 'conf')
+    data = os.path.join(BASEPATH, '../../fixtures', scenario, 'data')
     task = Task.build(conf, data, task_name)
     task.run()
     actual_path = os.path.join(task.path_locator.conf_dir, '../')
