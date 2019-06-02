@@ -36,10 +36,10 @@ class Consume(Step):
     def __call__(self, origin, target):
         """Generate the export file."""
         self.before()
-        for filename in os.listdir(origin):
+        for filename in sorted(os.listdir(origin)):
             with open(os.path.join(origin, filename), 'r') as origin_file:
                 composite = json.load(origin_file)
-                self.consume(filename, composite)
+                self.consume(filename[:-5], composite)
         self.after()
 
 
@@ -47,8 +47,31 @@ class Consume(Step):
 class ExportToJSON(Consume):
     filename: str
 
+    def __post_init__(self):
+        self.fobj = None
+        self.first = True
+
+    def before(self):
+        self.fobj = open(
+            os.path.join(self.path_locator.conf, '../', self.filename), 'w'
+        )
+        self.fobj.write('{\n')
+
     def consume(self, composite_id, composite):
-        pass
+        if not self.first:
+            self.fobj.write(',\n')
+        self.first = False
+        self.fobj.write(f'    "{composite_id}": ')
+        data = json.dumps(composite, indent=4).split('\n')
+        for i, line in enumerate(data):
+            if i:
+                self.fobj.write('\n')
+                self.fobj.write('    ')
+            self.fobj.write(line)
+
+    def after(self):
+        self.fobj.write('\n}')
+        self.fobj.close()
 
 
 @dataclass
