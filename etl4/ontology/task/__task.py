@@ -6,6 +6,7 @@ from etl4.ontology.metamorphosis import Metamorphosis
 from etl4.ontology.scan import Scan
 from etl4.ontology.filter import Filter
 from etl4.ontology.aggregation import Aggregation
+from etl4.ontology.consume import Consume
 
 from etl4.ontology.step import Step
 from etl4.ontology.schema import Schema

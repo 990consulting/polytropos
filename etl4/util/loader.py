@@ -11,11 +11,11 @@ def load(path, klass):
         if isfile(f) and not f.endswith('__init__.py')
     ]
 
+    base = klass.__name__.lower()
     for name, path in modules:
-        spec = importlib.util.spec_from_file_location(name, path)
+        spec = importlib.util.spec_from_file_location(base + '.' + name, path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        # import_module(import_path + '.' + name)
 
     return {
         cls.__name__: cls
