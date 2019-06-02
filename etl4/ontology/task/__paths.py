@@ -5,28 +5,16 @@ import os
 @dataclass
 class TaskPathLocator:
     """Path locator class. It knows the internal structure of a scenario"""
-    scenario: str
-
-    @property
-    def base_dir(self):
-        return os.path.abspath(
-            os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                '../../../',
-            )
-        )
-
-    @property
-    def scenario_dir(self):
-        return os.path.join(self.base_dir, 'fixtures', self.scenario)
+    conf: str
+    data: str
 
     @property
     def conf_dir(self):
-        return os.path.join(self.scenario_dir, 'conf')
+        return self.conf
 
     @property
     def data_dir(self):
-        return os.path.join(self.scenario_dir, 'data')
+        return self.data
 
     @property
     def tasks_dir(self):

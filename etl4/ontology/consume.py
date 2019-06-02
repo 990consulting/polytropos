@@ -19,9 +19,7 @@ class Consume(Step):
     """Export data from a set of composites to a single file."""
     @classmethod
     def build(cls, path_locator, schema, name, **kwargs):
-        consumes = load(
-            path_locator.consumes_dir, path_locator.consumes_import, cls
-        )
+        consumes = load(path_locator.consumes_dir, cls)
         return consumes[name](path_locator, **kwargs)
 
     def before(self):

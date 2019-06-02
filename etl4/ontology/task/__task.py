@@ -34,10 +34,10 @@ class Task:
         self.steps = []
 
     @classmethod
-    def build(cls, scenario, name):
+    def build(cls, conf_dir, data_dir, name):
         """Build task from yaml, read all input data and create corresponding
         objects"""
-        path_locator = TaskPathLocator(scenario)
+        path_locator = TaskPathLocator(conf=conf_dir, data=data_dir)
         with open(
                 os.path.join(path_locator.tasks_dir, name + '.yaml'), 'r'
         ) as f:

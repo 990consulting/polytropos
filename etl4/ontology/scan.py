@@ -15,7 +15,7 @@ class Scan(Step):
     assigning ranks, or computing a property relative to peers sharing some other property."""
     @classmethod
     def build(cls, path_locator, schema, name, subjects):
-        scans = load(path_locator.scans_dir, path_locator.scans_import, cls)
+        scans = load(path_locator.scans_dir, cls)
         variables = {
             var_name: schema.get(var_id)
             for var_name, var_id in subjects.items()
