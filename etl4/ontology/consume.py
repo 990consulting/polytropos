@@ -19,9 +19,7 @@ class Consume(Step):
     """Export data from a set of composites to a single file."""
     @classmethod
     def build(cls, path_locator, schema, name, **kwargs):
-        consumes = load(
-            path_locator.consumes_dir, path_locator.consumes_import, cls
-        )
+        consumes = load(path_locator.consumes_dir, cls)
         return consumes[name](path_locator, **kwargs)
 
     def before(self):
@@ -38,19 +36,43 @@ class Consume(Step):
     def __call__(self, origin, target):
         """Generate the export file."""
         self.before()
-        for filename in os.listdir(origin):
+        for filename in sorted(os.listdir(origin)):
             with open(os.path.join(origin, filename), 'r') as origin_file:
                 composite = json.load(origin_file)
-                self.consume(filename, composite)
+                self.consume(filename[:-5], composite)
         self.after()
 
 
 @dataclass
 class ExportToJSON(Consume):
     filename: str
+    indent: int = 2
+
+    def __post_init__(self):
+        self.fobj = None
+        self.first = True
+
+    def before(self):
+        self.fobj = open(
+            os.path.join(self.path_locator.conf, '../', self.filename), 'w'
+        )
+        self.fobj.write('{\n')
 
     def consume(self, composite_id, composite):
-        pass
+        if not self.first:
+            self.fobj.write(',\n')
+        self.first = False
+        self.fobj.write(' ' * self.indent + f'"{composite_id}": ')
+        data = json.dumps(composite, indent=self.indent).split('\n')
+        for i, line in enumerate(data):
+            if i:
+                self.fobj.write('\n')
+                self.fobj.write(' ' * self.indent)
+            self.fobj.write(line)
+
+    def after(self):
+        self.fobj.write('\n}')
+        self.fobj.close()
 
 
 @dataclass

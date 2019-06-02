@@ -15,6 +15,6 @@ class Count(Consume):
         self.n += 1
 
     def after(self):
-        filename = os.path.join(self.path_locator.scenario_dir, self.filename)
+        filename = os.path.join(self.path_locator.conf_dir, '../', self.filename)
         with open(filename, "w") as fh:
             fh.write("I saw %i composites" % self.n)

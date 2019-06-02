@@ -29,7 +29,6 @@ class Metamorphosis(Step):
         change_instances = []
         all_changes = load(
             path_locator.changes_dir,
-            path_locator.changes_import,
             Change
         )
         for spec in changes:

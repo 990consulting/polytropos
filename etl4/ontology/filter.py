@@ -15,7 +15,7 @@ class Filter(Step):
 
     @classmethod
     def build(cls, path_locator, schema, name, subjects):
-        filters = load(path_locator.filters_dir, path_locator.filters_import, cls)
+        filters = load(path_locator.filters_dir, cls)
         variables = {
             var_name: schema.get(var_id)
             for var_name, var_id in subjects.items()

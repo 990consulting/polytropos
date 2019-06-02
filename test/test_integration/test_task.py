@@ -16,7 +16,9 @@ from etl4.util.compare import compare
     ]
 )
 def test_task(scenario, task_name, expected_location):
-    task = Task.build(scenario, task_name)
+    conf = os.path.join('fixtures', scenario, 'conf')
+    data = os.path.join('fixtures', scenario, 'data')
+    task = Task.build(conf, data, task_name)
     task.run()
     actual_path = os.path.join(
         task.path_locator.entities_dir, task.target_data
@@ -49,11 +51,13 @@ def test_task(scenario, task_name, expected_location):
     ]
 )
 def test_task_consume(scenario, task_name, expected_location):
-    task = Task.build(scenario, task_name)
+    conf = os.path.join('fixtures', scenario, 'conf')
+    data = os.path.join('fixtures', scenario, 'data')
+    task = Task.build(conf, data, task_name)
     task.run()
-    actual_path = task.path_locator.scenario_dir
+    actual_path = os.path.join(task.path_locator.conf_dir, '../')
     expected_path = os.path.join(
-        task.path_locator.scenario_dir, expected_location
+        task.path_locator.conf_dir, '../', expected_location
     )
     filename = task.steps[-1].filename
     with open(os.path.join(actual_path, filename), 'r') as f:
