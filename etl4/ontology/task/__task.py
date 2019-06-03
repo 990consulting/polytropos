@@ -1,3 +1,4 @@
+import logging
 import os
 from shutil import rmtree
 import yaml
@@ -104,6 +105,7 @@ class Task:
             current_path_obj = next_path
         if self.target_data is not None:
             # Move the last temporary folder to destination
+            logging.info("Renaming %s to %s" % (next_path.name, actual_path))
             os.rename(next_path.name, actual_path)
             # Hack to avoid leaving unfinished objects
             os.mkdir(next_path.name)
