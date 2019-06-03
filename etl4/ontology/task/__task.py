@@ -105,14 +105,19 @@ class Task:
         next_path = None
         for step in self.steps:
             next_path = TemporaryDirectory(dir=self.path_locator.data_dir)
+            logging.debug("***Temporary directory for step output: %s" % next_path.name)
+            logging.info("Beginning step")
             step(current_path, next_path.name)
             if current_path_obj:
+                logging.debug("Deleting output from previous step (at %s)" % current_path_obj.name)
                 current_path_obj.cleanup()
             current_path = next_path.name
             current_path_obj = next_path
         if self.target_data is not None:
             # Move the last temporary folder to destination
+            logging.debug("Moving %s to %s" % (next_path.name, actual_path))
             os.rename(next_path.name, actual_path)
             # Hack to avoid leaving unfinished objects
             os.mkdir(next_path.name)
+        logging.debug("Deleting directory %s" % next_path.name)
         next_path.cleanup()
