@@ -1,3 +1,4 @@
+import logging
 import os
 import json
 from etl4.ontology.track import Track
@@ -20,6 +21,7 @@ class Schema:
     def load(cls, path_locator, path, source_schema=None):
         if path is None:
             return None
+        logging.info('  Loading schema %s.' % path)
         source_invariant = source_schema.invariant if source_schema else None
         source_temporal = source_schema.temporal if source_schema else None
         with open(

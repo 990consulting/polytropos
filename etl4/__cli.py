@@ -59,7 +59,7 @@ class CLI:
 
         self.cli.add_argument(
             "--log_level",
-            choices=["critical", "error", "warning", "info", "none"],
+            choices=["critical", "error", "warning", "info", "debug", "none"],
             help='The level of logging detail to be reported while running Polytropos. Defaults to "info".',
             default="info"
         )

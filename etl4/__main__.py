@@ -5,6 +5,8 @@ import sys
 import os
 import logging
 
+from etl4.ontology.task import Task
+
 cli: CLI = CLI()
 args: argparse.Namespace = cli.parse_args()
 
@@ -52,4 +54,6 @@ if not os.path.exists(task_yaml_path) or os.path.isdir(task_yaml_path):
     cli.error('No task "%s" YAML found in task directory (%s/tasks).' % (task_yaml, conf_path))
 
 # All parameters having been verified, load and run the task
-
+logging.info("All parameters valid.")
+task = Task.build(conf_path, data_path, task_yaml)
+task.run()

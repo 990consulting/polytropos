@@ -1,4 +1,5 @@
 from copy import deepcopy
+import logging
 import json
 from typing import Iterator, Dict, TYPE_CHECKING, Any, Iterable, Optional
 from etl4.ontology.variable import (
@@ -9,6 +10,20 @@ from etl4.ontology.variable import (
 
 if TYPE_CHECKING:
     from etl4.ontology.variable import Variable
+
+def _build_variables(specs):
+    variables: Dict[str, "Variable"] = {}
+    for variable_id, variable_data in specs.items():
+        variable = build_variable(variable_data)
+        logging.debug('    Built %s "%s" ("%s")' % (variable_id, variable.name, variable.data_type))
+        variables[variable_id] = variable
+    return variables
+
+def _postprocess_variable(track):
+    for variable_id, variable in track.variables.items():
+        variable.set_track(track)
+        variable.set_id(variable_id)
+        logging.debug('    Post-processed variable "%s"' % variable_id)
 
 class Track:
     """Represents a hierarchy of variables associated with a particular aspect (stage) of a particular entity type, and
@@ -29,6 +44,7 @@ class Track:
 
     @classmethod
     def build(cls, specs: Dict, source: Optional["Track"], name: str):
+        logging.info("   Deserializing %s schema track." % name)
         """Convert specs into a Variable hierarchy, then construct a Track instance.
 
         :param specs: The specifications for the variables in this track.
@@ -37,18 +53,15 @@ class Track:
          (stage) of the analysis process that precedes this one for the particular entity type represented.
 
         :param name: The name of the stage/aspect."""
-        track = Track(
-            {
-                variable_id: build_variable(variable_data)
-                for variable_id, variable_data in specs.items()
-            }, source, name
-        )
-        for variable_id, variable in track.variables.items():
-            variable.set_track(track)
-            variable.set_id(variable_id)
+        variables = _build_variables(specs)
+        track = Track(variables, source, name)
+        logging.info("   Postprocessing variables in %s schema track." % name)
+        _postprocess_variable(track)
         # we only validate after the whole thing is built to be able to
         # accurately compute siblings, parents and children
+        logging.info("   Validating variables in %s schema track." % name)
         for variable in track.variables.values():
+            logging.debug('Validating variable "%s" (%s).' % (variable.var_id, "/" + "/".join(variable.absolute_path)))
             Validator.validate(variable, init=True)
         return track
 
