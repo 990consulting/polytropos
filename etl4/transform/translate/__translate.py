@@ -28,6 +28,8 @@ class Translate(Callable):
         parent parameter is used to limit the depth for the recursive search"""
         if document is None:
             return None
+        if isinstance(document, str):
+            raise ValueError(variable_id)
         variable = self.source.variables[variable_id]
         if variable.parent != parent:
             # recursively find the parent in the document
@@ -42,7 +44,9 @@ class Translate(Callable):
             return parent.get(variable.name)
         # we are at root level so we return the value extracted directly from
         # the document
-        return document.get(variable.name)
+        ret = document.get(variable.name)
+        logging.info("/" + "/".join(variable.absolute_path))
+        return ret
 
     def translate_generic(self, variable_id, variable, document, parent):
         """Translate for primitive (non-container) variables"""

@@ -1,3 +1,4 @@
+import logging
 import os
 from shutil import rmtree
 import yaml
@@ -27,6 +28,7 @@ class Task:
         origin_data, origin_schema,
         target_data=None, target_schema=None
     ):
+        logging.info("Constructing Task object based on configuration file..")
         self.path_locator = path_locator
         self.origin_data = origin_data
         self.origin_schema = origin_schema
@@ -39,8 +41,11 @@ class Task:
         """Build task from yaml, read all input data and create corresponding
         objects"""
         path_locator = TaskPathLocator(conf=conf_dir, data=data_dir)
+        logging.info("Loading task configuration from disk.")
+        task_filename: str = os.path.join(path_locator.tasks_dir, name + '.yaml')
+        logging.info("Task filename: %s" % task_filename)
         with open(
-                os.path.join(path_locator.tasks_dir, name + '.yaml'), 'r'
+                task_filename, 'r'
         ) as f:
             spec = yaml.safe_load(f)
         resulting_in = spec.get('resulting_in', {})
@@ -62,19 +67,21 @@ class Task:
 
     def load_steps(self, step_descriptions):
         """Load steps of the current task"""
+        logging.info("Loading task steps.")
         current_schema = self.origin_schema
         for step in step_descriptions:
             # expect only one key/value pair
             assert len(step) == 1, (
                 'Step description can have only one key, value pair'
             )
-            for cls, kwargs in step.items():
-                step_instance = STEP_TYPES[cls].build(
+            for cls_name, kwargs in step.items():
+                logging.info(" - Loading %s step." % cls_name)
+                step_instance = STEP_TYPES[cls_name].build(
                     path_locator=self.path_locator, schema=current_schema, **kwargs
                 )
                 self.steps.append(step_instance)
                 # Aggregation changes schema
-                if cls in ('Aggregation', 'TranslateStep'):
+                if cls_name in ('Aggregation', 'TranslateStep'):
                     current_schema = step_instance.target_schema
 
     def run(self):
@@ -98,14 +105,19 @@ class Task:
         next_path = None
         for step in self.steps:
             next_path = TemporaryDirectory(dir=self.path_locator.data_dir)
+            logging.debug("***Temporary directory for step output: %s" % next_path.name)
+            logging.info("Beginning step")
             step(current_path, next_path.name)
             if current_path_obj:
+                logging.debug("Deleting output from previous step (at %s)" % current_path_obj.name)
                 current_path_obj.cleanup()
             current_path = next_path.name
             current_path_obj = next_path
         if self.target_data is not None:
             # Move the last temporary folder to destination
+            logging.debug("Moving %s to %s" % (next_path.name, actual_path))
             os.rename(next_path.name, actual_path)
             # Hack to avoid leaving unfinished objects
             os.mkdir(next_path.name)
+        logging.debug("Deleting directory %s" % next_path.name)
         next_path.cleanup()
