@@ -18,18 +18,26 @@
       "outer_list": [
         {
           "inner_list": [
-            {"name": "A_1_1_1"},
-            {"name": "A_1_1_2"}
+            {
+              "name": "B_1_1_1"
+            },
+            {
+              "name": "B_1_1_2"
+            }
           ]
         },
         {
           "inner_list": [
-            {"name": "B_1_2_1"},
-            {"name": "B_1_2_2"}
+            {
+              "name": "A_2_1_1"
+            },
+            {
+              "name": "A_2_1_2"
+            }
           ]
         }
       ],
-      "some_other_field": "X"
+      "target_random_text": "X"
     }
   },
   "record_1": {
@@ -44,18 +52,26 @@
       "outer_list": [
         {
           "inner_list": [
-            {"name": "C_1_1_1"},
-            {"name": "C_1_1_2"}
+            {
+              "name": "D_1_1_1"
+            },
+            {
+              "name": "D_1_1_2"
+            }
           ]
         },
         {
           "inner_list": [
-            {"name": "D_1_2_1"},
-            {"name": "D_1_2_2"}
+            {
+              "name": "C_2_1_1"
+            },
+            {
+              "name": "C_2_1_2"
+            }
           ]
         }
       ],
-      "some_other_field": "Y"
+      "target_random_text": "Y"
     }
   }
 }
