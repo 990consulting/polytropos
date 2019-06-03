@@ -87,10 +87,20 @@ class ExportToCSV(Consume):
 
     @property
     def fields(self):
-        return []
+        fields = ['composite_id']
+        if not self.invariant:
+            fields.append('period')
+        return fields
 
     def get_rows(self, composite_id, composite):
-        pass
+        for key, value in composite.items():
+            if key.isdigit() and not self.invariant:
+                yield {
+                    'composite_id': composite_id,
+                    'period': key
+                }
+            if key == 'invariant' and self.invariant:
+                yield {'composite_id': composite_id}
 
     def before(self):
         self.fobj = open(

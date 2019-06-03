@@ -9,7 +9,7 @@ steps:
       target_schema: record/target
   - Consume:
       name: ExportToCSV
-      invariant: true
+      invariant: false 
       filename: temporal.csv
 
       # Note that columns don't certain "system" columns: composite ID, list item index (as needed), period (as needed).
