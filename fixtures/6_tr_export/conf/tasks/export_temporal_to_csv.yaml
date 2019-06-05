@@ -15,6 +15,6 @@ steps:
       # Note that columns don't certain "system" columns: composite ID, list item index (as needed), period (as needed).
       columns:
         - target_binary_id:
-          alias: alias_for_binary   # Notice (in expected output) that this gives the fully qualified variable path
+            alias: alias_for_binary   # Notice (in expected output) that this gives the fully qualified variable path
         - target_unary_id
-        - target_String_id
+        - target_string_id

@@ -7,7 +7,9 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Tuple, Dict, Iterable
 from etl4.ontology.step import Step
+from etl4.ontology.schema import Schema
 from etl4.util.loader import load
+from etl4.util.composites import get_property, get_observation
 from etl4.ontology.task.__paths import TaskPathLocator
 
 
@@ -17,11 +19,13 @@ from etl4.ontology.task.__paths import TaskPathLocator
 @dataclass
 class Consume(Step):
     path_locator: TaskPathLocator
+    schema: Schema
+
     """Export data from a set of composites to a single file."""
     @classmethod
     def build(cls, path_locator, schema, name, **kwargs):
         consumes = load(path_locator.consumes_dir, cls)
-        return consumes[name](path_locator, **kwargs)
+        return consumes[name](path_locator, schema, **kwargs)
 
     def before(self):
         """Optional actions to be performed after the constructor runs but before starting to consume composites."""
@@ -84,23 +88,55 @@ class ExportToCSV(Consume):
 
     def __post_init__(self):
         self.fobj = None
-
-    @property
-    def fields(self):
-        fields = ['composite_id']
+        self.fields = ['composite_id']
+        self.column_vars = {}
+        print(self.columns)
         if not self.invariant:
-            fields.append('period')
-        return fields
+            self.fields.append('period')
+        for column in self.columns:
+            self.__process_columns(column)
+        for name, var in self.column_vars.items():
+            print(name, var)
+
+
+    def __process_columns(self, column):
+        if isinstance(column, dict):
+            for key, attributes in column.items():
+                self.column_vars[key] = self.schema.get(key)
+                self.fields.append(key)
+                for name, value in attributes.items():
+                    if name == 'children':
+                        for child in value:
+                            self.__process_columns(child)
+                    elif name == 'alias':
+                        pass
+                    else:
+                        raise NotImplementedError
+        elif isinstance(column, str):
+            self.column_vars[column] = self.schema.get(column)
+            self.fields.append(column)
+        else:
+            raise AttributeError
 
     def get_rows(self, composite_id, composite):
-        for key, value in composite.items():
-            if key.isdigit() and not self.invariant:
-                yield {
-                    'composite_id': composite_id,
-                    'period': key
-                }
-            if key == 'invariant' and self.invariant:
-                yield {'composite_id': composite_id}
+        if self.invariant:
+            data = {
+                name: get_property(composite, var)
+                for name, var in self.column_vars.items()
+            }
+            data['composite_id'] = composite_id
+            yield [data]
+        else:
+            for period, value in composite.items():
+                if period.isdigit():
+                    row = {}
+                    row['composite_id'] = composite_id
+                    row['period'] = period
+                    for name, var in self.column_vars.items():
+                        row[name] = get_observation(
+                            composite, period, var, True
+                        )
+                    yield row
 
     def before(self):
         self.fobj = open(

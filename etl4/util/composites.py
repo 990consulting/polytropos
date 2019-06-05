@@ -27,7 +27,7 @@ def get_all_observations(composite: Dict, variable: Variable) -> Iterator[Tuple[
 def get_observation(composite: Dict, period: str, variable: Variable, treat_missing_as_null=False) -> Optional[Any]:
     """Get the value of a temporal variable for a particular observation period."""
     path: List = [period] + list(variable.absolute_path)
-    return nesteddicts.get(composite, path)
+    return nesteddicts.get(composite, path, accept_none=treat_missing_as_null)
 
 # TODO Add validation of value against variable type
 # TODO Check to verify that the variable is indeed invariant
