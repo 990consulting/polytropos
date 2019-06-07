@@ -17,6 +17,4 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-Duplication and distribution of this code is strictly prohibited unless expressly authorized by Applied Nonprofit Research, LLC.
-
 By contributing to this repository, you agree that any and all contributions immediately become the sole property of Applied Nonprofit Research, LLC.
