@@ -2,7 +2,7 @@
 
 **UNDER DEVELOPMENT.** Documentation coming soon.
 
-Copyright (c) 2019 Applied Nonprofit Research, LLC.
+Copyright (c) 2019 [Applied Nonprofit Research, LLC](https://appliednonprofitresearch.com).
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -17,4 +17,4 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-By contributing to this repository, you agree that any and all contributions immediately become the sole property of Applied Nonprofit Research, LLC.
+By contributing to this repository, you agree that any and all contributions immediately become the sole property of [Applied Nonprofit Research, LLC](https://appliednonprofitresearch.com).
