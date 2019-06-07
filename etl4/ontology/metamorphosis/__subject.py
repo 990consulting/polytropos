@@ -3,6 +3,8 @@ from typing import Optional, Set
 
 
 class SubjectValidator:
+    """Subject validator class: this is a descriptor that validates subjects in
+    task steps"""
     def __init__(self, validators=None,  **kwargs):
         self.validators = validators or []
         if 'data_type' in kwargs:

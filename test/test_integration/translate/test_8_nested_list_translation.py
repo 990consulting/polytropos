@@ -1,10 +1,7 @@
-import random
-
 import pytest
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple
 from etl4.ontology.track import Track
 from etl4.transform.translate import Translate
-import itertools
 
 @pytest.fixture
 def source() -> Tuple[Dict, Dict]:
@@ -59,7 +56,7 @@ def source() -> Tuple[Dict, Dict]:
         "outer_list_2_id": {
             "name": "outer_list_2",
             "data_type": "List",
-            "sort_order": 0
+            "sort_order": 1
         },
         "inner_list_2_id": {
             "name": "inner_list",
@@ -79,7 +76,7 @@ def source() -> Tuple[Dict, Dict]:
 
 @pytest.fixture
 def target() -> Tuple[Dict, Dict]:
-    source_doc: Dict = {
+    target_doc: Dict = {
         "outer_list": [
             {
                 "inner_list": [
@@ -108,7 +105,7 @@ def target() -> Tuple[Dict, Dict]:
         ]
     }
 
-    source_spec: Dict = {
+    target_spec: Dict = {
         "outer_list_id": {
             "name": "outer_list",
             "data_type": "List",
@@ -131,7 +128,7 @@ def target() -> Tuple[Dict, Dict]:
         }
     }
 
-    return source_spec, source_doc
+    return target_spec, target_doc
 
 def test_nested_list(source, target):
     """Reversing the order of the sources in the target list spec results in an equivalent change in the order of the
