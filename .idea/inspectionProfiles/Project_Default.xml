@@ -9,8 +9,10 @@
           <option value="W292" />
           <option value="E305" />
           <option value="E252" />
+          <option value="W391" />
         </list>
       </option>
     </inspection_tool>
+    <inspection_tool class="PyShadowingNamesInspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
   </profile>
 </component>

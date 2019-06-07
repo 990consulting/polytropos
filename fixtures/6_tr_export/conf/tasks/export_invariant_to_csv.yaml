@@ -1,0 +1,23 @@
+---
+
+starting_with:
+  data: record/origin
+  schema: record/origin
+
+steps:
+  - TranslateStep:
+      target_schema: record/target
+  - Consume:
+      name: ExportToCSV
+      invariant: true
+      filename: invariant.csv
+
+      # Note that columns don't certain "system" columns: composite ID, list item index (as needed), period (as needed).
+      columns:
+        - outer_list_id:
+            children:
+              - inner_list_id:
+                  alias: alias_for_inner_list
+                  children:
+                    - name_id
+        - random_text_id

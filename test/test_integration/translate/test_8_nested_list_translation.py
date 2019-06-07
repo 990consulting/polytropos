@@ -1,10 +1,7 @@
-import random
-
 import pytest
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple
 from etl4.ontology.track import Track
 from etl4.transform.translate import Translate
-import itertools
 
 @pytest.fixture
 def source() -> Tuple[Dict, Dict]:
@@ -59,7 +56,7 @@ def source() -> Tuple[Dict, Dict]:
         "outer_list_2_id": {
             "name": "outer_list_2",
             "data_type": "List",
-            "sort_order": 0
+            "sort_order": 1
         },
         "inner_list_2_id": {
             "name": "inner_list",

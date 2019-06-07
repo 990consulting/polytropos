@@ -1,0 +1,4 @@
+id,period,alias_for_binary,boolean_like/target_unary,target_string
+0,1,true,null,ABC
+0,2,false,true,DEF
+1,1,true,true,GHI

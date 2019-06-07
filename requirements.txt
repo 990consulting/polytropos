@@ -1,5 +1,8 @@
+scipy
+numpy
 pytest
 glom
 pytest-repeat
 marshmallow
 dacite
+pyyaml

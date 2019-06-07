@@ -66,9 +66,6 @@ instance/
 # Sphinx documentation
 docs/_build/
 
-# PyBuilder
-target/
-
 # Jupyter Notebook
 .ipynb_checkpoints
 
@@ -102,3 +99,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+
+# test results
+fixtures/1_mm_only/data/entities/person/actual
+fixtures/2_mm_scan/data/entities/person/actual
+fixtures/3_mm_aggregate_mm_scan/data/entities/city/origin
+fixtures/4_filter_mm_scan/data/entities/person/actual
+

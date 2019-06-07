@@ -106,6 +106,7 @@ class Variable:
 
     # The track to which this variable belongs
     track = None
+
     # The variable id of the variable in the corresponding track
     var_id = None
 
