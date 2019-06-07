@@ -2,8 +2,8 @@ import pytest
 from difflib import Differ
 import json
 import os
-from etl4.ontology.task import Task
-from etl4.util.compare import compare
+from polytropos.ontology.task import Task
+from polytropos.util.compare import compare
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 

@@ -2,7 +2,7 @@ from typing import Dict
 
 import pytest
 
-from etl4.ontology.track import Track
+from polytropos.ontology.track import Track
 
 @pytest.fixture()
 def simple_ev_track() -> Track:

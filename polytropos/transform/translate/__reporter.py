@@ -1,6 +1,6 @@
 import csv
 from collections import defaultdict
-from etl4.ontology.variable import Primitive, List, NamedList
+from polytropos.ontology.variable import Primitive, List, NamedList
 
 
 class Reporter:

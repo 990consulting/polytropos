@@ -1,7 +1,7 @@
 from typing import Dict, Optional, Any, Iterator, Tuple, List
-from etl4.util import nesteddicts
+from polytropos.util import nesteddicts
 
-from etl4.ontology.variable import Variable
+from polytropos.ontology.variable import Variable
 
 def get_periods(composite: Dict) -> Iterator[str]:
     """Iterate over all of the observation periods contained in this composite."""

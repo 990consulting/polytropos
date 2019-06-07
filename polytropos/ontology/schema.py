@@ -1,6 +1,6 @@
 import os
 import json
-from etl4.ontology.track import Track
+from polytropos.ontology.track import Track
 from dataclasses import dataclass
 
 SCHEMAS_DIR = 'fixtures/conf/schemas/'

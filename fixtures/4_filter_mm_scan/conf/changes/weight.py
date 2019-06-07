@@ -3,11 +3,11 @@ from typing import Dict
 
 import scipy.stats
 
-from etl4.ontology.metamorphosis import Change
-from etl4.ontology.metamorphosis.__subject import SubjectValidator
-from etl4.ontology.schema import Schema
-from etl4.ontology.variable import Variable, Decimal
-from etl4.util import composites
+from polytropos.ontology.metamorphosis import Change
+from polytropos.ontology.metamorphosis.__subject import SubjectValidator
+from polytropos.ontology.schema import Schema
+from polytropos.ontology.variable import Variable, Decimal
+from polytropos.util import composites
 
 @dataclass
 class AssignRegressionStats(Change):

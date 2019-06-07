@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Dict
-from etl4.ontology.metamorphosis.__change import Change
-from etl4.ontology.metamorphosis.__lookup import lookup
-from etl4.ontology.metamorphosis.__subject import SubjectValidator
-from etl4.ontology.variable import Variable, Text
-from etl4.util import nesteddicts
+from polytropos.ontology.metamorphosis.__change import Change
+from polytropos.ontology.metamorphosis.__lookup import lookup
+from polytropos.ontology.metamorphosis.__subject import SubjectValidator
+from polytropos.ontology.variable import Variable, Text
+from polytropos.util import nesteddicts
 
 
 @lookup('color_names')

@@ -3,9 +3,9 @@ from typing import Dict, Iterable, List
 
 import numpy
 
-from etl4.ontology.metamorphosis import Change
-from etl4.ontology.variable import Variable
-from etl4.util import composites
+from polytropos.ontology.metamorphosis import Change
+from polytropos.ontology.variable import Variable
+from polytropos.util import composites
 
 
 @dataclass

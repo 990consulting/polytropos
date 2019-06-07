@@ -1,9 +1,9 @@
 import logging
 from collections.abc import Callable
 from collections import defaultdict
-from etl4.ontology.track import Track
-from etl4.ontology.variable import NamedList, List, Folder
-from etl4.transform.translate.__reporter import Reporter
+from polytropos.ontology.track import Track
+from polytropos.ontology.variable import NamedList, List, Folder
+from polytropos.transform.translate.__reporter import Reporter
 
 
 class Translate(Callable):

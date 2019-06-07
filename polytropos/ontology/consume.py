@@ -6,11 +6,11 @@ from collections.abc import Callable
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Tuple, Dict, Iterable
-from etl4.ontology.step import Step
-from etl4.ontology.schema import Schema
-from etl4.util.loader import load
-from etl4.util.composites import get_property, get_observation
-from etl4.ontology.task.__paths import TaskPathLocator
+from polytropos.ontology.step import Step
+from polytropos.ontology.schema import Schema
+from polytropos.util.loader import load
+from polytropos.util.composites import get_property, get_observation
+from polytropos.ontology.task.__paths import TaskPathLocator
 
 
 # TODO Quimey, unlike the other tasks, consumers may take arguments that are not variables. We may want the ability to

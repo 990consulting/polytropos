@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Iterable, Tuple, Dict, List
-from etl4.ontology.consume import Consume
+from polytropos.ontology.consume import Consume
 
 @dataclass
 class ExportToCSV(Consume):

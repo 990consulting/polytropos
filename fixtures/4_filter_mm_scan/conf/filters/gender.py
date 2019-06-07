@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from etl4.ontology.filter import Filter
-from etl4.ontology.metamorphosis.__subject import SubjectValidator
-from etl4.ontology.variable.__variable import Binary
-from etl4.util import composites
+from polytropos.ontology.filter import Filter
+from polytropos.ontology.metamorphosis.__subject import SubjectValidator
+from polytropos.ontology.variable.__variable import Binary
+from polytropos.util import composites
 
 @dataclass
 class RetainOnlyFemales(Filter):

@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Iterator, Tuple, Dict, Iterable, Any, Optional
 
-from etl4.ontology.aggregation import Aggregation
-from etl4.ontology.variable import Variable
-from etl4.util import composites
+from polytropos.ontology.aggregation import Aggregation
+from polytropos.ontology.variable import Variable
+from polytropos.util import composites
 
 
 @dataclass

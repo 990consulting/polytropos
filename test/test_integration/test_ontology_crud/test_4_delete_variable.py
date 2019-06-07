@@ -2,7 +2,7 @@ from typing import Dict, Set
 
 import pytest
 
-from etl4.ontology.track import Track
+from polytropos.ontology.track import Track
 
 def test_delete_var_with_children_raises(source_nested_dict_track):
     track: Track = source_nested_dict_track

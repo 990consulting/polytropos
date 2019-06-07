@@ -7,7 +7,7 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setuptools.setup(
-    name="etl4",
+    name="polytropos",
     version="0.0.1",
     long_description=long_description,
     long_description_content_type="text/markdown",

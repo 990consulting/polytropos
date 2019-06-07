@@ -2,7 +2,7 @@ from dataclasses import dataclass, Field
 from typing import Dict
 import os
 
-from etl4.ontology.consume import Consume
+from polytropos.ontology.consume import Consume
 
 @dataclass
 class Count(Consume):

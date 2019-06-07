@@ -1,8 +1,8 @@
 from typing import Dict, List
 import pytest
 
-from etl4.ontology.track import Track
-from etl4.ontology.variable import Variable
+from polytropos.ontology.track import Track
+from polytropos.ontology.variable import Variable
 
 def test_alter_source_changes_sources_list(target_nested_dict_track):
     track: Track = target_nested_dict_track

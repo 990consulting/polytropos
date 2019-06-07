@@ -1,14 +1,14 @@
 from copy import deepcopy
 import json
 from typing import Iterator, Dict, TYPE_CHECKING, Any, Iterable, Optional
-from etl4.ontology.variable import (
+from polytropos.ontology.variable import (
     build_variable,
     Primitive, Container, GenericList, Validator,
     List, NamedList
 )
 
 if TYPE_CHECKING:
-    from etl4.ontology.variable import Variable
+    from polytropos.ontology.variable import Variable
 
 class Track:
     """Represents a hierarchy of variables associated with a particular aspect (stage) of a particular entity type, and

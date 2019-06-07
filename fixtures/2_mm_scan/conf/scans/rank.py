@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Dict, Iterable, Any, Tuple
 
-from etl4.ontology.metamorphosis.__subject import SubjectValidator
-from etl4.ontology.scan import Scan
-from etl4.ontology.variable import Variable, Binary, Decimal, Integer
-from etl4.util import composites
+from polytropos.ontology.metamorphosis.__subject import SubjectValidator
+from polytropos.ontology.scan import Scan
+from polytropos.ontology.variable import Variable, Binary, Decimal, Integer
+from polytropos.util import composites
 
 
 @dataclass

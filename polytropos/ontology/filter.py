@@ -5,8 +5,8 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Dict
 
-from etl4.util.loader import load
-from etl4.ontology.step import Step
+from polytropos.util.loader import load
+from polytropos.ontology.step import Step
 
 
 @dataclass

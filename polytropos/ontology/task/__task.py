@@ -3,15 +3,15 @@ import os
 from shutil import rmtree
 import yaml
 from tempfile import TemporaryDirectory
-from etl4.ontology.metamorphosis import Metamorphosis
-from etl4.ontology.scan import Scan
-from etl4.ontology.filter import Filter
-from etl4.ontology.aggregation import Aggregation
-from etl4.ontology.consume import Consume
-from etl4.ontology.step import Step
-from etl4.ontology.schema import Schema
-from etl4.ontology.translate_step import TranslateStep
-from etl4.ontology.task.__paths import TaskPathLocator
+from polytropos.ontology.metamorphosis import Metamorphosis
+from polytropos.ontology.scan import Scan
+from polytropos.ontology.filter import Filter
+from polytropos.ontology.aggregation import Aggregation
+from polytropos.ontology.consume import Consume
+from polytropos.ontology.step import Step
+from polytropos.ontology.schema import Schema
+from polytropos.ontology.translate_step import TranslateStep
+from polytropos.ontology.task.__paths import TaskPathLocator
 
 
 # Step class name deserialization

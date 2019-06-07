@@ -4,7 +4,7 @@ from typing import List, Dict, Callable
 import pytest
 
 # Just test a couple kinds of primitives to get the point across
-from etl4.ontology.track import Track
+from polytropos.ontology.track import Track
 
 types_to_test: List[str] = ["Integer", "Text", "Folder", "List", "NamedList"]
 

@@ -10,7 +10,7 @@ the step itself, and consequently can end anywhere--in some arbitrary file, in a
 whatever.
 
 3. We are introducing the idea that we need to look for step definitions both in the user-supplied `conf` directory and
-inside the `etl4a` codebase itself. In this case, we have scenarios for two built-in `Consume` steps (`to_csv` and 
+inside the `polytroposa` codebase itself. In this case, we have scenarios for two built-in `Consume` steps (`to_csv` and 
 `to_json`) as well as one custom `Consume` step, `count` (which trivially prints the number of composites to `stdout`).
 
 4. The `to_csv` step requires handling nested lists via a cartesian product, and supplies column names and orders right

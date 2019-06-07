@@ -3,7 +3,7 @@ from abc import abstractmethod
 from collections.abc import Callable
 from typing import Dict
 
-from etl4.ontology.schema import Schema
+from polytropos.ontology.schema import Schema
 
 
 @dataclass

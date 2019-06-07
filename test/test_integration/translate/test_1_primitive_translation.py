@@ -1,8 +1,8 @@
 from typing import Any, Dict
 import pytest
 
-from etl4.ontology.track import Track
-from etl4.transform.translate import Translate
+from polytropos.ontology.track import Track
+from polytropos.transform.translate import Translate
 
 @pytest.fixture()
 def source_spec() -> Dict:

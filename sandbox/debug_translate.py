@@ -1,6 +1,6 @@
 import logging
 
-from etl4.ontology.task import Task
+from polytropos.ontology.task import Task
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 conf_path = "/dmz/github/anr-polytropos-config/"

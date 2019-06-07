@@ -2,8 +2,8 @@ import pytest
 from typing import Dict, Tuple, Callable, Iterable
 import itertools
 
-from etl4.ontology.track import Track
-from etl4.transform.translate import Translate
+from polytropos.ontology.track import Track
+from polytropos.transform.translate import Translate
 
 def source_flat() -> Tuple[Dict, Dict]:
     source: Dict = {

@@ -3,8 +3,8 @@ from typing import Dict, List, Set
 
 import pytest
 
-from etl4.ontology.track import Track
-from etl4.ontology.variable import Variable
+from polytropos.ontology.track import Track
+from polytropos.ontology.variable import Variable
 
 @pytest.fixture
 def nested_new_var_spec() -> Dict:

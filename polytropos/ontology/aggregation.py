@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, Any, Iterable, Tuple, Iterator
 
-from etl4.ontology.step import Step
-from etl4.util.loader import load
-from etl4.ontology.schema import Schema
+from polytropos.ontology.step import Step
+from polytropos.util.loader import load
+from polytropos.ontology.schema import Schema
 
 
 # TODO Quimey, if it doesn't make it too difficult to implement with parallelism, supporting lookups here would be

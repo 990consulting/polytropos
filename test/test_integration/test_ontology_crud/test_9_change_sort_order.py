@@ -1,7 +1,7 @@
 import pytest
 
-from etl4.ontology.track import Track
-from etl4.ontology.variable import Variable
+from polytropos.ontology.track import Track
+from polytropos.ontology.variable import Variable
 
 def test_change_sort_order_does_not_affect_path(source_named_list_track):
     """Changing a variable's sort order does not affect its path."""

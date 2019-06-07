@@ -2,8 +2,8 @@ from typing import Dict, Set, List
 
 import pytest
 
-from etl4.ontology.track import Track
-from etl4.ontology.variable import Variable
+from polytropos.ontology.track import Track
+from polytropos.ontology.variable import Variable
 
 def test_targets_for_var_in(target_nested_dict_track):
     target_track: Track = target_nested_dict_track

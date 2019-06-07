@@ -4,9 +4,9 @@ import numpy
 import scipy.stats
 import json
 
-from etl4.util import nesteddicts
+from polytropos.util import nesteddicts
 
-basepath = "/dmz/github/etl4a/fixtures/2_mm_scan/data/entities"
+basepath = "/dmz/github/polytroposa/fixtures/2_mm_scan/data/entities"
 
 people: Dict[str, Dict] = {}
 

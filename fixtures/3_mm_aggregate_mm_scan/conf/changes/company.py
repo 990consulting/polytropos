@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from etl4.ontology.metamorphosis import Change
-from etl4.ontology.schema import Schema
-from etl4.ontology.variable import Variable
-from etl4.util import composites
+from polytropos.ontology.metamorphosis import Change
+from polytropos.ontology.schema import Schema
+from polytropos.ontology.variable import Variable
+from polytropos.util import composites
 
 @dataclass
 class AssignCityState(Change):

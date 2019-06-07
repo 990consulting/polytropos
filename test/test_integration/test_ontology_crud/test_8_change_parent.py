@@ -2,8 +2,8 @@ from typing import Dict, List
 
 import pytest
 
-from etl4.ontology.track import Track
-from etl4.ontology.variable import Variable
+from polytropos.ontology.track import Track
+from polytropos.ontology.variable import Variable
 
 
 def children_to_set(children):

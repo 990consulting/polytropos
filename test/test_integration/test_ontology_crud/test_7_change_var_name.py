@@ -3,7 +3,7 @@ from typing import Dict, List
 
 import pytest
 
-from etl4.ontology.variable import Variable
+from polytropos.ontology.variable import Variable
 
 def test_change_name_alters_variable_dict(simple_track, simple_spec):
     var: Variable = simple_track.variables["target_var_id"]

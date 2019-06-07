@@ -1,9 +1,9 @@
 import os
 import json
 from typing import Dict, List
-from etl4.util.loader import load
-from etl4.ontology.metamorphosis.__change import Change
-from etl4.ontology.step import Step
+from polytropos.util.loader import load
+from polytropos.ontology.metamorphosis.__change import Change
+from polytropos.ontology.step import Step
 
 
 class Metamorphosis(Step):
