@@ -107,8 +107,15 @@ class Variable:
     # The track to which this variable belongs
     track = None
 
-    # The variable id of the variable in the corresponding track
+    # The variable id of the variable in the corresponding track.
+    # WARNING! The variable ID _MUST_ be unique within the schema, or terrible things will happen!
     var_id = None
+
+    def __hash__(self) -> str:
+        return self.var_id
+
+    def __eq__(self, other) -> bool:
+        return isinstance(other, self.__class__) and other.var_id == self.var_id
 
     def set_track(self, track: "Track"):
         self.track = track

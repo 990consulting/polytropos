@@ -38,10 +38,12 @@ class Task:
     def build(cls, conf_dir, data_dir, name):
         """Build task from yaml, read all input data and create corresponding
         objects"""
+        logging.info("Constructing task execution plan.")
         path_locator = TaskPathLocator(conf=conf_dir, data=data_dir)
-        with open(
-                os.path.join(path_locator.tasks_dir, name + '.yaml'), 'r'
-        ) as f:
+        logging.info("Configuration base directory is %s; data base directory is %s." % (conf_dir, data_dir))
+        task_path: str = os.path.join(path_locator.tasks_dir, name + '.yaml')
+        with open(task_path, 'r') as f:
+            logging.info("Task configuration loaded from %s." % task_path)
             spec = yaml.safe_load(f)
         resulting_in = spec.get('resulting_in', {})
         task = cls(
@@ -62,19 +64,21 @@ class Task:
 
     def load_steps(self, step_descriptions):
         """Load steps of the current task"""
+        logging.info("Initializing task pipeline steps.")
         current_schema = self.origin_schema
         for step in step_descriptions:
             # expect only one key/value pair
             assert len(step) == 1, (
                 'Step description can have only one key, value pair'
             )
-            for cls, kwargs in step.items():
-                step_instance = STEP_TYPES[cls].build(
+            for class_name, kwargs in step.items():
+                step_instance = STEP_TYPES[class_name].build(
                     path_locator=self.path_locator, schema=current_schema, **kwargs
                 )
                 self.steps.append(step_instance)
+
                 # Aggregation changes schema
-                if cls in ('Aggregation', 'TranslateStep'):
+                if class_name in ('Aggregation', 'TranslateStep'):
                     current_schema = step_instance.target_schema
 
     def run(self):

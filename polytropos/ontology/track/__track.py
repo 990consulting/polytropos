@@ -16,7 +16,6 @@ class Track:
     which are structured identically. The two tracks interact during the Analysis step in the generation of this entity
     type's data."""
 
-    # TODO Remove default for invariant
     def __init__(self, variables: Dict[str, "Variable"], source: Optional["Track"], name: str):
         """Do not call directly; use Track.build()."""
         self.variables: Dict[str, "Variable"] = variables
@@ -100,7 +99,6 @@ class Track:
         if any(variable.children) or variable.has_targets:
             raise ValueError
         del self.variables[var_id]
-
 
     def move(self, var_id: str, parent_id: Optional[str], sort_order: int):
         """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""

@@ -44,3 +44,14 @@ def put_observation(composite: Dict, period: str, variable: Variable, value: Opt
     """Assign (or overwrite) the value of a variable into a particular observation."""
     path: List = [period] + list(variable.absolute_path)
     nesteddicts.put(composite, path, value)
+
+def encode_list(mappings: Dict[str, Variable], content: List) -> Iterator[Dict]:
+    """Create a schema-compliant version of a list of dicts based on data structured in some other format.
+    :param mappings: A mapping between the internal list item names and the list-item variables they correspond to.
+    :param content: The content in the internal format."""
+    pass
+
+def decode_list(mappings: Dict[Variable, str], content: List) -> Iterator[Dict]:
+    """Convert a schema-compliant version of a list of dicts into some other format.
+    :param mappings: A mapping between the variables and their string values.
+    """
