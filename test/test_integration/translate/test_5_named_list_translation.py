@@ -1,7 +1,7 @@
 import pytest
 from typing import Dict
 from polytropos.ontology.track import Track
-from polytropos.actions.translate import Translate
+from polytropos.actions.translate import Translator
 
 @pytest.fixture()
 def source_doc() -> Dict:
@@ -127,7 +127,7 @@ def target_spec() -> Dict:
 def do_test(s_doc, s_spec, t_doc, t_spec):
     source_track: Track = Track.build(s_spec, None, "Source")
     target_track: Track = Track.build(t_spec, source_track, "Target")
-    translate: Translate = Translate(target_track)
+    translate: Translator = Translator(target_track)
     actual: Dict = translate(s_doc)
     assert actual == t_doc
 
@@ -257,6 +257,6 @@ def test_duplicate_name_raises(source_doc, source_spec, target_spec):
     with pytest.raises(ValueError):
         source_track: Track = Track.build(source_spec, None, "Source")
         target_track: Track = Track.build(target_spec, source_track, "Target")
-        translate: Translate = Translate(target_track)
+        translate: Translator = Translator(target_track)
         translate(source_doc)
 

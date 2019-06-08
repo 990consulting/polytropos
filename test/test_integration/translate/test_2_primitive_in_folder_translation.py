@@ -3,7 +3,7 @@ from typing import Dict, Tuple, Callable, Iterable
 import itertools
 
 from polytropos.ontology.track import Track
-from polytropos.actions.translate import Translate
+from polytropos.actions.translate import Translator
 
 def source_flat() -> Tuple[Dict, Dict]:
     source: Dict = {
@@ -274,6 +274,6 @@ def test_translate_with_folders(source: Callable, target: Callable):
     expected, target_spec = target()
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translate = Translate(target_track)
+    translate: Translator = Translator(target_track)
     actual: Dict = translate(source_doc)
     assert actual == expected

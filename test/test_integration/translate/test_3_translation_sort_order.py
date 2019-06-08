@@ -3,7 +3,7 @@ from typing import Dict, List
 import random
 
 from polytropos.ontology.track import Track
-from polytropos.actions.translate import Translate
+from polytropos.actions.translate import Translator
 
 @pytest.fixture()
 def source_doc() -> Dict:
@@ -177,6 +177,6 @@ def test_rearrange(source_doc: Dict, source_spec: Dict, target_doc: Dict, target
     shuffled_target_spec = shuffle(target_spec)
     source_track: Track = Track.build(shuffled_source_spec, None, "Source")
     target_track: Track = Track.build(shuffled_target_spec, source_track, "Target")
-    translate: Translate = Translate(target_track)
+    translate: Translator = Translator(target_track)
     actual: Dict = translate(source_doc)
     assert actual == target_doc

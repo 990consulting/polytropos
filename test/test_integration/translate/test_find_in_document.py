@@ -1,7 +1,7 @@
 import pytest
 from typing import Dict
 from polytropos.ontology.track import Track
-from polytropos.actions.translate import Translate
+from polytropos.actions.translate import Translator
 
 @pytest.fixture()
 def source_doc() -> Dict:
@@ -75,10 +75,10 @@ def target_spec() -> Dict:
 
 
 @pytest.fixture()
-def translate(source_spec: Dict, target_spec: Dict) -> Translate:
+def translate(source_spec: Dict, target_spec: Dict) -> Translator:
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translate = Translate(target_track)
+    translate: Translator = Translator(target_track)
     return translate
 
 

@@ -1,7 +1,7 @@
 import pytest
 from typing import Dict, Tuple
 from polytropos.ontology.track import Track
-from polytropos.actions.translate import Translate
+from polytropos.actions.translate import Translator
 
 @pytest.fixture
 def source() -> Tuple[Dict, Dict]:
@@ -137,6 +137,6 @@ def test_named_list_in_list(source, target):
     target_spec, target_doc = target
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translate = Translate(target_track)
+    translate: Translator = Translator(target_track)
     actual: Dict = translate(source_doc)
     assert actual == target_doc

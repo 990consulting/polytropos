@@ -5,7 +5,7 @@ starting_with:
   schema: record/origin
 
 steps:
-  - TranslateStep:
+  - Translate:
       target_schema: record/target
   - Consume:
       name: ExportToJSON

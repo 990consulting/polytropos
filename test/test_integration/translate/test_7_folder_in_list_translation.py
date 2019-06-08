@@ -3,7 +3,7 @@ import random
 import pytest
 from typing import Dict, Tuple, List
 from polytropos.ontology.track import Track
-from polytropos.actions.translate import Translate
+from polytropos.actions.translate import Translator
 import itertools
 
 def source_nested() -> Tuple[Dict, Dict]:
@@ -238,7 +238,7 @@ targets = [target_nested, target_flat]
 def _do_test(source_spec, source_doc, target_spec, expected):
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translate = Translate(target_track)
+    translate: Translator = Translator(target_track)
     actual: Dict = translate(source_doc)
     assert actual == expected
 

@@ -2,7 +2,7 @@ from typing import Any, Dict
 import pytest
 
 from polytropos.ontology.track import Track
-from polytropos.actions.translate import Translate
+from polytropos.actions.translate import Translator
 
 @pytest.fixture()
 def source_spec() -> Dict:
@@ -31,10 +31,10 @@ def target_spec() -> Dict:
     }
 
 @pytest.fixture()
-def translate(source_spec: Dict, target_spec: Dict) -> Translate:
+def translate(source_spec: Dict, target_spec: Dict) -> Translator:
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translate = Translate(target_track)
+    translate: Translator = Translator(target_track)
     return translate
 
 @pytest.fixture()
@@ -51,7 +51,7 @@ def test_translate_no_sources_listed(target_spec: Dict, source_spec: Dict, sourc
     target_spec["target_var_id"]["sources"] = []
     target_track: Track = Track.build(target_spec, source_track, "Target")
 
-    translate: Translate = Translate(target_track)
+    translate: Translator = Translator(target_track)
 
     actual: Dict[str, Any] = translate(source_doc)
     expected: Dict[str, Any] = {
@@ -60,7 +60,7 @@ def test_translate_no_sources_listed(target_spec: Dict, source_spec: Dict, sourc
 
     assert actual == expected
 
-def test_translate_neither_source_has_values(translate: Translate):
+def test_translate_neither_source_has_values(translate: Translator):
     """If a primitive has sources but none have a value, it is null."""
     empty_doc: Dict = {}
     actual: Dict[str, Any] = translate(empty_doc)
@@ -69,7 +69,7 @@ def test_translate_neither_source_has_values(translate: Translate):
     }
     assert actual == expected
 
-def test_translate_first_source_has_value(translate: Translate, source_doc: Dict):
+def test_translate_first_source_has_value(translate: Translator, source_doc: Dict):
     """If a primitive has two sources and the first one has a value, that value is captured."""
     del source_doc["second_source"]
     actual: Dict[str, Any] = translate(source_doc)
@@ -78,7 +78,7 @@ def test_translate_first_source_has_value(translate: Translate, source_doc: Dict
     }
     assert actual == expected
 
-def test_translate_second_source_has_value(translate: Translate, source_doc: Dict):
+def test_translate_second_source_has_value(translate: Translator, source_doc: Dict):
     """If a primitive has two sources and the second one has a value, that value is captured."""
     del source_doc["first_source"]
     actual: Dict[str, Any] = translate(source_doc)
@@ -87,7 +87,7 @@ def test_translate_second_source_has_value(translate: Translate, source_doc: Dic
     }
     assert actual == expected
 
-def test_translate_none_means_skip(translate: Translate, source_doc: Dict):
+def test_translate_none_means_skip(translate: Translator, source_doc: Dict):
     """If a source exists and has a null value, treat that as if it weren't there."""
     source_doc["first_source"] = None
     actual: Dict[str, Any] = translate(source_doc)
@@ -96,7 +96,7 @@ def test_translate_none_means_skip(translate: Translate, source_doc: Dict):
     }
     assert actual == expected
 
-def test_translate_both_sources_have_values(translate: Translate, source_doc: Dict):
+def test_translate_both_sources_have_values(translate: Translator, source_doc: Dict):
     """If a primitive has multiple sources and more than one has a value, the first source with a value is used. (This
     implies that source order matters.)"""
     actual: Dict[str, Any] = translate(source_doc)
@@ -123,7 +123,7 @@ def test_use_same_source_twice(source_spec: Dict, source_doc: Dict):
     }
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translate = Translate(target_track)
+    translate: Translator = Translator(target_track)
 
     actual: Dict[str, Any] = translate(source_doc)
     expected: Dict[str, Any] = {
