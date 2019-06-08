@@ -16,5 +16,8 @@ class Count(Consume):
 
     def after(self):
         filename = os.path.join(self.path_locator.conf_dir, '../', self.filename)
+        filepath = os.path.dirname(filename)
+        if not os.path.exists(filepath):
+            os.makedirs(filepath)
         with open(filename, "w") as fh:
             fh.write("I saw %i composites" % self.n)
