@@ -15,7 +15,7 @@
     "weight": 134.8,
     "bmi": 22.42944378698225
   },
-  "invariant": {
+  "immutable": {
     "name": {
       "first": "Julia",
       "last": "Liebowitz"

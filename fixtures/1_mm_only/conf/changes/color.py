@@ -18,11 +18,11 @@ class ColorNameToRGB(Change):
 
     def __call__(self, composite: Dict):
         # IRL, you'd have to handle nulls, decide how to deal with temporal variables, etc.
-        color_name_path = ["invariant"] + list(self.color_name_var.absolute_path)
+        color_name_path = ["immutable"] + list(self.color_name_var.absolute_path)
         color_name = nesteddicts.get(composite, color_name_path)
 
         # At some point, I'll write a fancy retrieval/validation/assignment system, but that's not for the MVP
         rgb_value = self.lookups["color_names"][color_name]
-        rgb_path = ["invariant"] + list(self.rgb_var.absolute_path)
+        rgb_path = ["immutable"] + list(self.rgb_var.absolute_path)
         nesteddicts.put(composite, rgb_path, rgb_value)
 

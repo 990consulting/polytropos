@@ -13,9 +13,9 @@ import pytest
 def empty_composite():
     return {}
 
-def invariant_only_composite() -> Dict:
+def immutable_only_composite() -> Dict:
     return {
-        "invariant": {
+        "immutable": {
             "the_text": "foo",
             "the_nested_list": [
                 {
@@ -39,9 +39,9 @@ def temporal_only_composite():
     }
 
 def all_composite():
-    invariant = invariant_only_composite()
+    immutable = immutable_only_composite()
     temporal = temporal_only_composite()
-    return {**invariant, **temporal}
+    return {**immutable, **temporal}
 
 @pytest.fixture
 def temporal_track() -> Track:
@@ -59,7 +59,7 @@ def temporal_track() -> Track:
     }
     return Track.build(spec, None, "temporal")
 
-def invariant_track() -> Track:
+def immutable_track() -> Track:
     spec: Dict = {
         "the_text_id": {
             "name": "the_text",
@@ -73,14 +73,14 @@ def invariant_track() -> Track:
     pass
 
 @pytest.fixture
-def schema(temporal_track, invariant_track) -> Schema:
-    return Schema(temporal_track, invariant_track)
+def schema(temporal_track, immutable_track) -> Schema:
+    return Schema(temporal_track, immutable_track)
 
 @pytest.fixture
 
 @pytest.mark.parametrize("get_composite, expected", [
     (empty_composite, set()),
-    (invariant_only_composite, set()),
+    (immutable_only_composite, set()),
     (temporal_only_composite, {"2011", "2012"}),
     (all_composite, {"2011", "2012"})
 ])
@@ -101,7 +101,7 @@ def test_get_all_observations_empty():
 def test_get_all_observations():
     pytest.fail()
 
-def test_get_all_observations_for_invariant_raises():
+def test_get_all_observations_for_immutable_raises():
     pytest.fail()
 
 def test_get_observation_missing_safe():
@@ -131,7 +131,7 @@ def test_put_observation():
 def test_put_observation_null():
     pytest.fail()
 
-def test_put_observation_for_invariant_raises():
+def test_put_observation_for_immutable_raises():
     pytest.fail()
 
 def test_encode_list_trivial_case():

@@ -19,7 +19,7 @@
     "employee_productivity": 0.17333333333333334,
     "mean_employees": 3
   },
-  "invariant": {
+  "immutable": {
     "zip_code": "07040",
     "city": "Maplewood",
     "state": "New Jersey",

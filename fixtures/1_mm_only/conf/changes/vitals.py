@@ -14,7 +14,7 @@ class CalculateWeightGain(Change):
     weight_gain_var: Decimal = SubjectValidator(data_type=Decimal)
 
     def __call__(self, composite: Dict):
-        periods = set(composite.keys()) - {"invariant"}
+        periods = set(composite.keys()) - {"immutable"}
         earliest = min(periods)
         latest = max(periods)
 
@@ -29,7 +29,7 @@ class CalculateWeightGain(Change):
         # I know, should have called it "weight change."
         weight_gain = round(latest_weight - earliest_weight, 2)
 
-        weight_gain_path = ["invariant"] + list(self.weight_gain_var.absolute_path)
+        weight_gain_path = ["immutable"] + list(self.weight_gain_var.absolute_path)
         nesteddicts.put(composite, weight_gain_path, weight_gain)
 
 @lookup('genders')
@@ -42,10 +42,10 @@ class DetermineGender(Change):
     # @lookup("genders")
 
     def __call__(self, composite: Dict):
-        person_name_path = ["invariant"] + list(self.person_name_var.absolute_path)
+        person_name_path = ["immutable"] + list(self.person_name_var.absolute_path)
         person_name: str = nesteddicts.get(composite, person_name_path)
         lc_name = person_name.lower()
 
         gender = self.lookups["genders"][lc_name]
-        gender_path = ["invariant"] + list(self.gender_var.absolute_path)
+        gender_path = ["immutable"] + list(self.gender_var.absolute_path)
         nesteddicts.put(composite, gender_path, gender)

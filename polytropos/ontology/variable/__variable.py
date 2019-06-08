@@ -44,9 +44,7 @@ class Validator:
                     isinstance(variable, GenericList) and
                     variable.descends_from_list
             ):
-                # nested lists
-                logging.warning('Nested list: %s', variable)
-                # raise ValueError
+                logging.debug('Nested list: %s', variable)
 
     @staticmethod
     def validate_name(variable, name):
@@ -79,7 +77,7 @@ class Validator:
 
 @dataclass
 class Variable:
-    # The name of the node, as used in paths. Not to be confused with its ID, which is path-invariant.
+    # The name of the node, as used in paths. Not to be confused with its ID, which is path-immutable.
     name: str
 
     # The order that this variable appears in instance hierarchies.

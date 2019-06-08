@@ -15,7 +15,7 @@
     "weight": 185.2,
     "bmi": 28.156487889273354
   },
-  "invariant": {
+  "immutable": {
     "name": {
       "first": "Robert",
       "last": "Jones"

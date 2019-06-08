@@ -15,7 +15,7 @@
     "weight": 125.6,
     "bmi": 20.898650887573964
   },
-  "invariant": {
+  "immutable": {
     "name": {
       "first": "Stacy",
       "last": "van Dreesen"

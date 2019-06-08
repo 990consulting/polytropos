@@ -15,7 +15,7 @@
     "weight": 183.2,
     "bmi": 28.690042325685006
   },
-  "invariant": {
+  "immutable": {
     "name": {
       "first": "David",
       "last": "Moskowitz"

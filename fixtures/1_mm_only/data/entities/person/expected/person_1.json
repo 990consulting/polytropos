@@ -1,5 +1,5 @@
 {
-  "invariant": {
+  "immutable": {
     "first_name": "Steve",
     "gender": "male",
     "total_weight_gain": 3.9,

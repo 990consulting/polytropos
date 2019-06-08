@@ -11,7 +11,7 @@
   "2013": {
     "weight": 235.1
   },
-  "invariant": {
+  "immutable": {
     "name": {
       "first": "Vince",
       "last": "Amran"

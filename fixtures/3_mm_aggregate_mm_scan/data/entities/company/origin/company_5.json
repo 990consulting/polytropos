@@ -3,7 +3,7 @@
     "n_employees": 1,
     "revenue_millions": 0.50
   },
-  "invariant": {
+  "immutable": {
     "zip": "07040"
   }
 }

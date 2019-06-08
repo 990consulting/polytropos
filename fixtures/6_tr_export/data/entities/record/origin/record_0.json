@@ -10,7 +10,7 @@
         "source_unary": true
 
     },
-    "invariant": {
+    "immutable": {
         "some_folder":  {
             "random_field": "X"
         },

@@ -13,7 +13,7 @@
     },
     "target_string": "DEF"
   },
-  "invariant": {
+  "immutable": {
     "outer_list": [
       {
         "inner_list": [

@@ -39,7 +39,7 @@ class EconomicOverview(Aggregate):
 
             # Create a transient composite for the city. It will be processed into its final form in emit().
             if zip_code not in self.city_data:
-                self.city_data[zip_code] = {'invariant': {
+                self.city_data[zip_code] = {'immutable': {
                     "zip": zip_code,
                     "city": city,
                     "state": state
@@ -73,8 +73,8 @@ class EconomicOverview(Aggregate):
                 composites.put_observation(city, period, self.annual_prod_var, productivity)
                 composites.put_observation(city, period, self.mean_employee_var, mean_employees)
 
-            composites.put_property(city, self.target_zip_var, transient["invariant"]["zip"])
-            composites.put_property(city, self.target_city_var, transient["invariant"]["city"])
-            composites.put_property(city, self.target_state_var, transient["invariant"]["state"])
+            composites.put_property(city, self.target_zip_var, transient["immutable"]["zip"])
+            composites.put_property(city, self.target_city_var, transient["immutable"]["city"])
+            composites.put_property(city, self.target_state_var, transient["immutable"]["state"])
             
             yield zip_code, city

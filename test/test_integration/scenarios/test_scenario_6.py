@@ -16,7 +16,7 @@ def cleanup():
 
     # Teardown -- runs after tests finish
     delete_if_exists("count_output.txt")
-    delete_if_exists("invariant.csv")
+    delete_if_exists("immutable.csv")
     delete_if_exists("temporal.csv")
     delete_if_exists("records.json")
 
@@ -24,7 +24,7 @@ def cleanup():
     'scenario,task_name,expected_location',
     [
         ('6_tr_export', 'custom_consumer', 'expected'),
-        ('6_tr_export', 'export_invariant_to_csv', 'expected'),
+        ('6_tr_export', 'export_immutable_to_csv', 'expected'),
         ('6_tr_export', 'export_temporal_to_csv', 'expected'),
         ('6_tr_export', 'export_to_json', 'expected'),
     ]

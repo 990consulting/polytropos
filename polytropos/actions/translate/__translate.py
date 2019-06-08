@@ -12,16 +12,16 @@ from polytropos.actions.translate import Translator
 class Translate(Step):
     target_schema: Schema
     # TODO: Better typing, Callable??
-    translate_invariant: Any
+    translate_immutable: Any
     translate_temporal: Any
 
     """Wrapper around the tranlation functions to be used in the tasks"""
     @classmethod
     def build(cls, path_locator, schema, target_schema):
         target_schema = Schema.load(path_locator, target_schema, schema)
-        translate_invariant = Translator(target_schema.invariant)
+        translate_immutable = Translator(target_schema.immutable)
         translate_temporal = Translator(target_schema.temporal)
-        return cls(target_schema, translate_invariant, translate_temporal)
+        return cls(target_schema, translate_immutable, translate_temporal)
 
     def __call__(self, origin, target):
         for filename in os.listdir(origin):
@@ -31,8 +31,8 @@ class Translate(Step):
                 for key, value in composite.items():
                     if key.isdigit():
                         translated[key] = self.translate_temporal(value)
-                    elif key == 'invariant':
-                        translated[key] = self.translate_invariant(value)
+                    elif key == 'immutable':
+                        translated[key] = self.translate_immutable(value)
                     else:
                         pass
             with open(os.path.join(target, filename), 'w') as target_file:

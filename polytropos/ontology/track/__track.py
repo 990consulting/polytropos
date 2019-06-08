@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class Track:
     """Represents a hierarchy of variables associated with a particular aspect (stage) of a particular entity type, and
-    that have the same temporality. That is, for every entity type, there is a temporal track and an invariant track,
+    that have the same temporality. That is, for every entity type, there is a temporal track and an immutable track,
     which are structured identically. The two tracks interact during the Analysis step in the generation of this entity
     type's data."""
 
@@ -62,7 +62,7 @@ class Track:
     def new_var_id(self):
         """If no ID is supplied, use <stage name>_<temporal|invarant>_<n+1>,
         where n is the number of variables."""
-        # Missing the temporal/invariant part for now
+        # Missing the temporal/immutable part for now
         return '{}_{}'.format(self.name, len(self.variables) + 1)
 
     def add(self, spec: Dict, var_id: str=None) -> None:

@@ -6,8 +6,8 @@ from polytropos.ontology.variable import Text, Decimal, Variable
 from polytropos.actions.evolve import SubjectValidator
 from polytropos.util import nesteddicts
 
-def get_value(composite: Dict, invariant_variable: Variable) -> Optional[Any]:
-    path = ["invariant"] + list(invariant_variable.absolute_path)
+def get_value(composite: Dict, immutable_variable: Variable) -> Optional[Any]:
+    path = ["immutable"] + list(immutable_variable.absolute_path)
     value = nesteddicts.get(composite, path)
     return value
 
@@ -42,5 +42,5 @@ class GeneratePersonDescription(Change):
 
         sentence = template % (name, color, rgb, pronoun, weight_gain)
         print(self.sentence_var)
-        sentence_path = ["invariant"] + list(self.sentence_var.absolute_path)
+        sentence_path = ["immutable"] + list(self.sentence_var.absolute_path)
         nesteddicts.put(composite, sentence_path, sentence)

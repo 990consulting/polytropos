@@ -15,7 +15,7 @@
     "weight": 232.0,
     "bmi": 43.831228164471916
   },
-  "invariant": {
+  "immutable": {
     "name": {
       "first": "Amelia",
       "last": "Dombrowski"

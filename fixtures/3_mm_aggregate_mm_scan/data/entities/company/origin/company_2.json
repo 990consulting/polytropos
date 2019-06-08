@@ -15,7 +15,7 @@
     "n_employees": 105,
     "revenue_millions": 18.60
   },
-  "invariant": {
+  "immutable": {
     "zip": "10025"
   }
 }

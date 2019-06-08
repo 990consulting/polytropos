@@ -5,13 +5,13 @@ from polytropos.ontology.variable import Variable
 
 def get_periods(composite: Dict) -> Iterator[str]:
     """Iterate over all of the observation periods contained in this composite."""
-    yield from set(composite.keys()) - {"invariant"}
+    yield from set(composite.keys()) - {"immutable"}
 
-# TODO Check to verify that the variable is indeed invariant
+# TODO Check to verify that the variable is indeed immutable
 # TODO Check that this isn't trying to grab a list descendant
 def get_property(composite: Dict, prop: Variable) -> Optional[Any]:
-    """Get an invariant "variable" (property) from this composite."""
-    path = ["invariant"] + list(prop.absolute_path)
+    """Get an immutable "variable" (property) from this composite."""
+    path = ["immutable"] + list(prop.absolute_path)
     return nesteddicts.get(composite, path)
 
 # TODO Check to verify that the variable is indeed temporal
@@ -30,11 +30,11 @@ def get_observation(composite: Dict, period: str, variable: Variable, treat_miss
     return nesteddicts.get(composite, path, accept_none=treat_missing_as_null)
 
 # TODO Add validation of value against variable type
-# TODO Check to verify that the variable is indeed invariant
+# TODO Check to verify that the variable is indeed immutable
 # TODO Check that this isn't trying to populate a list descendant
 def put_property(composite: Dict, prop: Variable, value: Optional[Any]) -> None:
-    """Assign (or overwrite) a value to an invariant "variable" (property) in this composite."""
-    path: List = ["invariant"] + list(prop.absolute_path)
+    """Assign (or overwrite) a value to an immutable "variable" (property) in this composite."""
+    path: List = ["immutable"] + list(prop.absolute_path)
     nesteddicts.put(composite, path, value)
 
 # TODO Add validation of value against variable type

@@ -82,14 +82,14 @@ class ExportToJSON(Consume):
 class ExportToCSV(Consume):
     filename: str
     columns: Dict
-    invariant: bool
+    immutable: bool
 
     def __post_init__(self):
         self.fobj = None
         self.fields = ['composite_id']
         self.column_vars = {}
         print(self.columns)
-        if not self.invariant:
+        if not self.immutable:
             self.fields.append('period')
         for column in self.columns:
             self.__process_columns(column)
@@ -117,7 +117,7 @@ class ExportToCSV(Consume):
             raise AttributeError
 
     def get_rows(self, composite_id, composite):
-        if self.invariant:
+        if self.immutable:
             data = {
                 name: get_property(composite, var)
                 for name, var in self.column_vars.items()

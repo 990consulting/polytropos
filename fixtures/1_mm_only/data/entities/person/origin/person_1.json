@@ -1,5 +1,5 @@
 {
-  "invariant": {
+  "immutable": {
     "first_name": "Steve",
     "color_info": {
       "favorite_color": "orange"

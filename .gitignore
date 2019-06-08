@@ -107,6 +107,6 @@ fixtures/2_mm_scan/data/entities/person/actual
 fixtures/3_mm_aggregate_mm_scan/data/entities/city/origin
 fixtures/4_filter_mm_scan/data/entities/person/actual
 fixtures/6_tr_export/count_output.txt
-fixtures/6_tr_export/invariant.csv
+fixtures/6_tr_export/immutable.csv
 fixtures/6_tr_export/records.json
 fixtures/6_tr_export/temporal.csv
