@@ -9,7 +9,7 @@ resulting_in:
   data: city/origin
   schema: city/origin
 
-# In this task, we do a Evolve before and after an Aggregation. The first Evolve uses the original schema,
+# In this task, we do an Evolve before and after an Aggregate. The first Evolve uses the original schema,
 # and the second Evolve uses the final schema. I realize this could have been done with just one metamorphosis,
 # but I want to test out the ability to keep track of the current schema as the task progresses.
 
@@ -25,7 +25,7 @@ steps:
             zip_var: company_zip_var
             city_var: company_city_var
             state_var: company_state_var
-  - Aggregation:
+  - Aggregate:
       name: EconomicOverview
       target_schema: city/origin
       id_var: city_zip_var

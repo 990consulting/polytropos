@@ -9,10 +9,8 @@ from polytropos.util.loader import load
 from polytropos.ontology.schema import Schema
 
 
-# TODO Quimey, if it doesn't make it too difficult to implement with parallelism, supporting lookups here would be
-#  great.
 @dataclass
-class Aggregation(Step):
+class Aggregate(Step):
     """Iterates over all composites following one schema, and produces a new set of composites, representing a different
     kind of entity, and following a different schema."""
     target_schema: Schema

@@ -1,0 +1,1 @@
+from polytropos.actions.translate.__translate import Translate

@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from typing import Iterator, Tuple, Dict, Iterable, Any, Optional
 
-from polytropos.actions.aggregation import Aggregation
+from polytropos.actions.aggregate import Aggregate
 from polytropos.ontology.variable import Variable
 from polytropos.util import composites
 
 
 @dataclass
-class EconomicOverview(Aggregation):
+class EconomicOverview(Aggregate):
     n_employee_var: Variable
     revenue_var: Variable
     source_zip_var: Variable

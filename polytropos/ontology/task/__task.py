@@ -12,7 +12,7 @@ from polytropos.ontology.task.__paths import TaskPathLocator
 from polytropos.actions.evolve import Evolve
 from polytropos.actions.scan import Scan
 from polytropos.actions.filter import Filter
-from polytropos.actions.aggregation import Aggregation
+from polytropos.actions.aggregate import Aggregate
 from polytropos.actions.translate_step import TranslateStep
 
 # Step class name deserialization
@@ -79,7 +79,7 @@ class Task:
                 self.steps.append(step_instance)
 
                 # Aggregation changes schema
-                if class_name in ('Aggregation', 'TranslateStep'):
+                if class_name in ('Aggregate', 'TranslateStep'):
                     current_schema = step_instance.target_schema
 
     def run(self):
