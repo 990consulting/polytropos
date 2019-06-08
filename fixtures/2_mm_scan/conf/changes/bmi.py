@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from polytropos.ontology.metamorphosis import Change
-from polytropos.ontology.metamorphosis.__subject import SubjectValidator
-from polytropos.ontology.schema import Schema
-from polytropos.ontology.variable import Variable, Decimal, Integer, Primitive
+from polytropos.actions.evolve import Change
+from polytropos.actions.evolve import SubjectValidator
+from polytropos.ontology.variable import Decimal, Integer, Primitive
 from polytropos.util import composites
 import numpy
 

@@ -1,12 +1,10 @@
-from dataclasses import dataclass
 import os
 import json
 import csv
-from collections.abc import Callable
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Tuple, Dict, Iterable
-from polytropos.ontology.step import Step
+from typing import Dict
+from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.util.loader import load
 from polytropos.util.composites import get_property, get_observation

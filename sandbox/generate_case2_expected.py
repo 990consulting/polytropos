@@ -33,7 +33,7 @@ def assign_mean_bmi(person: Dict) -> None:
     mean_bmi = numpy.average(bmis)
     nesteddicts.put(person, ["invariant", "mean_bmi"], mean_bmi)
 
-# Equivalent of Metamorphosis step
+# Equivalent of Evolve step
 for i in range(1, 10):
     fn = "person_%i.json" % i
     input_fn = "%s/origin/%s" % (basepath, fn)

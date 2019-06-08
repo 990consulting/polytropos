@@ -1,8 +1,8 @@
-from dataclasses import dataclass, Field
+from dataclasses import dataclass
 from typing import Dict
 import os
 
-from polytropos.ontology.consume import Consume
+from polytropos.actions.consume import Consume
 
 @dataclass
 class Count(Consume):

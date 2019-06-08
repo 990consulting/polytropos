@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from polytropos.ontology.metamorphosis import Change
-from polytropos.ontology.schema import Schema
+from polytropos.actions.evolve import Change
 from polytropos.ontology.variable import Variable
 from polytropos.util import composites
 

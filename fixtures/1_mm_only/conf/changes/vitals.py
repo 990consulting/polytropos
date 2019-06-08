@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from polytropos.ontology.metamorphosis.__change import Change
-from polytropos.ontology.metamorphosis.__lookup import lookup
-from polytropos.ontology.metamorphosis.__subject import SubjectValidator
-from polytropos.ontology.schema import Schema
+from polytropos.actions.evolve import Change
+from polytropos.actions.evolve import lookup
+from polytropos.actions.evolve import SubjectValidator
 from polytropos.ontology.variable import Variable, Decimal
 from polytropos.util import nesteddicts
 

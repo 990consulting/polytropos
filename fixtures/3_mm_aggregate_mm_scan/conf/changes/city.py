@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from typing import Dict, Iterable, List
+from typing import Dict, List
 
 import numpy
 
-from polytropos.ontology.metamorphosis import Change
+from polytropos.actions.evolve import Change
 from polytropos.ontology.variable import Variable
 from polytropos.util import composites
 

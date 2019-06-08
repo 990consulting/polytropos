@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Dict, Optional, Any
 
-from polytropos.ontology.metamorphosis.__change import Change
+from polytropos.actions.evolve import Change
 from polytropos.ontology.variable import Text, Decimal, Variable
-from polytropos.ontology.metamorphosis.__subject import SubjectValidator
+from polytropos.actions.evolve import SubjectValidator
 from polytropos.util import nesteddicts
 
 def get_value(composite: Dict, invariant_variable: Variable) -> Optional[Any]:

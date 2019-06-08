@@ -18,7 +18,7 @@ steps:
       name: RetainOnlyFemales
       subjects:
         male_flag: the_maleness_var
-  - Metamorphosis:
+  - Evolve:
       changes:
         - AssignAnnualBMI:
             annual_weight_var: the_weight_var

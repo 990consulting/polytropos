@@ -12,7 +12,7 @@ resulting_in:
 # Define the steps involved in this task. In this test, there are two steps:
 # a metamorphosis followed by a scan.
 steps:
-  - Metamorphosis:
+  - Evolve:
       changes:
         - AssignAnnualBMI:
             annual_weight_var: the_weight_var

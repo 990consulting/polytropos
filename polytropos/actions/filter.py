@@ -1,12 +1,11 @@
 import os
 import json
 from abc import abstractmethod
-from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Dict
 
 from polytropos.util.loader import load
-from polytropos.ontology.step import Step
+from polytropos.actions.step import Step
 
 
 @dataclass

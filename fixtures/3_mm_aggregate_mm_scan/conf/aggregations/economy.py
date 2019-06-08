@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Iterator, Tuple, Dict, Iterable, Any, Optional
 
-from polytropos.ontology.aggregation import Aggregation
+from polytropos.actions.aggregation import Aggregation
 from polytropos.ontology.variable import Variable
 from polytropos.util import composites
 

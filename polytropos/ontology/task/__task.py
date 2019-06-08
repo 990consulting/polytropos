@@ -3,16 +3,17 @@ import os
 from shutil import rmtree
 import yaml
 from tempfile import TemporaryDirectory
-from polytropos.ontology.metamorphosis import Metamorphosis
-from polytropos.ontology.scan import Scan
-from polytropos.ontology.filter import Filter
-from polytropos.ontology.aggregation import Aggregation
-from polytropos.ontology.consume import Consume
-from polytropos.ontology.step import Step
+from polytropos.actions.consume import Consume
+from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
-from polytropos.ontology.translate_step import TranslateStep
 from polytropos.ontology.task.__paths import TaskPathLocator
 
+# Import all action types so that they can be registered as subclasses
+from polytropos.actions.evolve import Evolve
+from polytropos.actions.scan import Scan
+from polytropos.actions.filter import Filter
+from polytropos.actions.aggregation import Aggregation
+from polytropos.actions.translate_step import TranslateStep
 
 # Step class name deserialization
 STEP_TYPES = {

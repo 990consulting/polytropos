@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from polytropos.ontology.consume import Consume
+from polytropos.actions.consume import Consume
 
 # TODO: Quimey, Since this file might be huge, this needs to be done in a streaming fashion, so I recommend opening a
 #  filehandle for writing and writing an opening curly brace in the "before" step, and a closing curly brace in the

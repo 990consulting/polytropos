@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import Iterable, Tuple, Dict, List
-from polytropos.ontology.consume import Consume
+from typing import Dict, List
+from polytropos.actions.consume import Consume
 
 @dataclass
 class ExportToCSV(Consume):

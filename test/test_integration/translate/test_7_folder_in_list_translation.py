@@ -3,7 +3,7 @@ import random
 import pytest
 from typing import Dict, Tuple, List
 from polytropos.ontology.track import Track
-from polytropos.transform.translate import Translate
+from polytropos.actions.translate import Translate
 import itertools
 
 def source_nested() -> Tuple[Dict, Dict]:

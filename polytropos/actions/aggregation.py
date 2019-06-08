@@ -1,10 +1,10 @@
 import os
 import json
 from dataclasses import dataclass
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Dict, Optional, Any, Iterable, Tuple, Iterator
 
-from polytropos.ontology.step import Step
+from polytropos.actions.step import Step
 from polytropos.util.loader import load
 from polytropos.ontology.schema import Schema
 

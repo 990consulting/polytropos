@@ -1,10 +1,7 @@
-import random
-
 import pytest
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple
 from polytropos.ontology.track import Track
-from polytropos.transform.translate import Translate
-import itertools
+from polytropos.actions.translate import Translate
 
 @pytest.fixture
 def source() -> Tuple[Dict, Dict]:

@@ -1,13 +1,11 @@
 from dataclasses import dataclass
 import os
 import json
-from abc import abstractmethod
-from collections.abc import Callable
-from typing import Dict, Optional, Any, Iterable, Tuple
+from typing import Any
 
-from polytropos.ontology.step import Step
+from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
-from polytropos.transform.translate import Translate
+from polytropos.actions.translate import Translate
 
 
 @dataclass

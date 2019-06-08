@@ -1,12 +1,12 @@
 import os
 import json
-from typing import Dict, List
 from polytropos.util.loader import load
-from polytropos.ontology.metamorphosis.__change import Change
-from polytropos.ontology.step import Step
+# TODO Find out how to avoid needing to do this kind of thing
+from polytropos.actions.evolve.__change import Change
+from polytropos.actions.step import Step
 
 
-class Metamorphosis(Step):
+class Evolve(Step):
     """A metamorphosis represents a series of changes that are made to a single composite, in order, and without
     reference to any other composite. Each change is defined in terms of one or more subject variables, which may be
     inputs, outputs, or both (in a case where a change alters a value in place)."""
@@ -18,7 +18,7 @@ class Metamorphosis(Step):
         self.schema = schema
 
     @classmethod
-    def build(cls, path_locator, changes, schema, lookups=None) -> "Metamorphosis":
+    def build(cls, path_locator, changes, schema, lookups=None) -> "Evolve":
         """Loads in the specified lookup tables, constructs the specified Changes, and passes these Changes to the
         constructor."""
         loaded_lookups = {}

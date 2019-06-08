@@ -2,7 +2,7 @@ import pytest
 from typing import Dict, Tuple
 
 from polytropos.ontology.track import Track
-from polytropos.transform.translate import Translate
+from polytropos.actions.translate import Translate
 
 @pytest.fixture()
 def source() -> Tuple[Dict, Dict]:

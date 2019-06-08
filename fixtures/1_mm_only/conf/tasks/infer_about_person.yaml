@@ -14,7 +14,7 @@ resulting_in:
 
 # TODO Quimey, I envision serializing the data in the destination directory after each step. Overwriting is fine.
 steps:
-  - Metamorphosis:
+  - Evolve:
       lookups:
         - color_names
         - genders

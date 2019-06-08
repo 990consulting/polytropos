@@ -3,7 +3,7 @@ from typing import Dict, Tuple, Callable, Iterable
 import itertools
 
 from polytropos.ontology.track import Track
-from polytropos.transform.translate import Translate
+from polytropos.actions.translate import Translate
 
 def source_flat() -> Tuple[Dict, Dict]:
     source: Dict = {
