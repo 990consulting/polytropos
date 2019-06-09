@@ -52,13 +52,11 @@ class Evolve(Step):
         return cls(path_locator, change_instances, lookups, schema)
 
     def process_composite(self, origin, target, filename):
-        print(origin, target, filename)
         with open(os.path.join(origin, filename), 'r') as origin_file:
             composite = json.load(origin_file)
             for change in self.changes:
                 change(composite)
         with open(os.path.join(target, filename), 'w') as target_file:
-            print(composite, filename)
             json.dump(composite, target_file)
 
     def __call__(self, origin, target):
