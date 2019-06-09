@@ -1,9 +1,19 @@
 import os
 import json
+from enum import Enum
+from typing import Optional
+
 from polytropos.ontology.track import Track
 from dataclasses import dataclass
 
+from polytropos.ontology.variable import Variable
+
 SCHEMAS_DIR = 'fixtures/conf/schemas/'
+
+class TrackType(Enum):
+    IMMUTABLE = -1
+    ANY = 0
+    TEMPORAL = 1
 
 @dataclass
 class Schema:
@@ -11,10 +21,25 @@ class Schema:
     temporal: Track
     immutable: Track
 
-    def get(self, var_id):
-        if var_id in self.immutable.variables:
-            return self.immutable.variables[var_id]
-        return self.temporal.variables[var_id]
+    # TODO Add caching and validation that both update on load and mutate
+    def get(self, var_id: str, track_type: TrackType=TrackType.ANY) -> Optional[Variable]:
+        """Retrieve a particular variable from the Schema. Optionally verify the track it came from"""
+        immutable_match: Variable = self.immutable.variables.get(var_id)
+        temporal_match: Variable = self.temporal.variables.get(var_id)
+
+        if immutable_match is not None and temporal_match is not None:
+            raise ValueError('Variable ID "%s" occurs in both immutable and temporal tracks' % var_id)
+
+        if track_type == TrackType.IMMUTABLE and temporal_match is not None:
+            raise ValueError('Variable id "%s" was expected to be immutable, but it is temporal' % var_id)
+
+        if track_type == TrackType.TEMPORAL and immutable_match is not None:
+            raise ValueError('Variable id "%s" was expected to be temporal, but it is immutable' % var_id)
+
+        if temporal_match is not None:
+            return temporal_match
+
+        return immutable_match
 
     @classmethod
     def load(cls, path_locator, path, source_schema=None):
