@@ -34,6 +34,7 @@ class Evolve(Step):
         change_instances = []
         all_changes = load(
             path_locator.changes_dir,
+            path_locator.conf_dir,
             Change
         )
         for spec in changes:

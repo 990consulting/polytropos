@@ -1,21 +1,22 @@
-from os.path import basename, isfile, join
-import glob
+import os
+import sys
 import importlib
+import glob
 
 
-def load(path, klass):
+def load(path, conf, klass):
     # stackoverflow magic https://stackoverflow.com/a/1057765/225617
+    path = os.path.relpath(path)
     modules = [
-        (basename(f)[:-3], f)
-        for f in glob.glob(join(path, "*.py"))
-        if isfile(f) and not f.endswith('__init__.py')
+        os.path.basename(f)[:-3]
+        for f in glob.glob(os.path.join(path, "*.py"))
+        if os.path.isfile(f) and not f.endswith('__init__.py')
     ]
-
-    for name, path in modules:
-        spec = importlib.util.spec_from_file_location(name, path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        # import_module(import_path + '.' + name)
+    base = os.path.dirname(os.path.dirname(conf))
+    sys.path.append(base)
+    name = os.path.relpath(path, base).replace('/', '.')
+    for module in modules:
+        importlib.import_module(name + '.' + module)
 
     return {
         cls.__name__: cls
