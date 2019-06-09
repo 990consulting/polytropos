@@ -1,9 +1,14 @@
 import os
 import json
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
+from typing import Dict, List
+
 from polytropos.util.loader import load
 # TODO Find out how to avoid needing to do this kind of thing
 from polytropos.actions.evolve.__change import Change
 from polytropos.actions.step import Step
+from polytropos.util.config import MAX_WORKERS
 
 
 class Evolve(Step):
@@ -45,11 +50,19 @@ class Evolve(Step):
                 change_instances.append(change)
         return cls(path_locator, change_instances, lookups, schema)
 
+    def process_composite(self, origin, target, filename):
+        print(origin, target, filename)
+        with open(os.path.join(origin, filename), 'r') as origin_file:
+            composite = json.load(origin_file)
+            for change in self.changes:
+                change(composite)
+        with open(os.path.join(target, filename), 'w') as target_file:
+            print(composite, filename)
+            json.dump(composite, target_file)
+
     def __call__(self, origin, target):
-        for filename in os.listdir(origin):
-            with open(os.path.join(origin, filename), 'r') as origin_file:
-                composite = json.load(origin_file)
-                for change in self.changes:
-                    change(composite)
-            with open(os.path.join(target, filename), 'w') as target_file:
-                json.dump(composite, target_file)
+        with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            executor.map(
+                partial(self.process_composite, origin, target),
+                os.listdir(origin)
+            )
