@@ -3,8 +3,8 @@ from typing import Dict
 
 import scipy.stats
 
-from polytropos.actions.evolve import Change
-from polytropos.actions.evolve import SubjectValidator
+from polytropos.actions.evolve.__change import Change
+from polytropos.actions.evolve.__subject import SubjectValidator
 from polytropos.ontology.variable import Decimal
 from polytropos.util import composites
 

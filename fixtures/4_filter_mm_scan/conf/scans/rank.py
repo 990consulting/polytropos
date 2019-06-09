@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict, Iterable, Any, Tuple
 
-from polytropos.actions.evolve import SubjectValidator
+from polytropos.actions.evolve.__subject import SubjectValidator
 from polytropos.actions.scan import Scan
 from polytropos.ontology.variable import Decimal, Integer
 from polytropos.util import composites

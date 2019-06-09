@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Dict
 
 from polytropos.actions.filter import Filter
-from polytropos.actions.evolve import SubjectValidator
+from polytropos.actions.evolve.__subject import SubjectValidator
 from polytropos.ontology.variable.__variable import Binary
 from polytropos.util import composites
 

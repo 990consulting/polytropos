@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import Dict
 
 # TODO See if these can be imported directly from metamorphosis
-from polytropos.actions.evolve import Change
-from polytropos.actions.evolve import lookup
-from polytropos.actions.evolve import SubjectValidator
+from polytropos.actions.evolve.__change import Change
+from polytropos.actions.evolve.__lookup import lookup
+from polytropos.actions.evolve.__subject import SubjectValidator
 from polytropos.ontology.variable import Text
 from polytropos.util import nesteddicts
 
