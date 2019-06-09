@@ -1,6 +1,8 @@
 import pytest
 import os
 from polytropos.ontology.task import Task
+import polytropos.actions.consume
+import fixtures.s_6_tr_export.conf.consumers.count
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,10 +25,10 @@ def cleanup():
 @pytest.mark.parametrize(
     'scenario,task_name,expected_location',
     [
-        ('6_tr_export', 'custom_consumer', 'expected'),
-        ('6_tr_export', 'export_immutable_to_csv', 'expected'),
-        ('6_tr_export', 'export_temporal_to_csv', 'expected'),
-        ('6_tr_export', 'export_to_json', 'expected'),
+        ('s_6_tr_export', 'custom_consumer', 'expected'),
+        ('s_6_tr_export', 'export_immutable_to_csv', 'expected'),
+        ('s_6_tr_export', 'export_temporal_to_csv', 'expected'),
+        ('s_6_tr_export', 'export_to_json', 'expected'),
     ]
 )
 def test_task_consume(scenario, task_name, expected_location):

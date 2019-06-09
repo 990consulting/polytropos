@@ -1,0 +1,77 @@
+{
+  "record_0": {
+    "1": {
+      "boolean_like": {
+        "target_binary": true,
+        "target_unary": null
+      },
+      "target_string": "ABC"
+    },
+    "2": {
+      "boolean_like": {
+        "target_binary": false,
+        "target_unary": true
+      },
+      "target_string": "DEF"
+    },
+    "immutable": {
+      "outer_list": [
+        {
+          "inner_list": [
+            {
+              "name": "B_1_1_1"
+            },
+            {
+              "name": "B_1_1_2"
+            }
+          ]
+        },
+        {
+          "inner_list": [
+            {
+              "name": "A_2_1_1"
+            },
+            {
+              "name": "A_2_1_2"
+            }
+          ]
+        }
+      ],
+      "target_random_text": "X"
+    }
+  },
+  "record_1": {
+    "1": {
+      "boolean_like": {
+        "target_binary": true,
+        "target_unary": true
+      },
+      "target_string": "GHI"
+    },
+    "immutable": {
+      "outer_list": [
+        {
+          "inner_list": [
+            {
+              "name": "D_1_1_1"
+            },
+            {
+              "name": "D_1_1_2"
+            }
+          ]
+        },
+        {
+          "inner_list": [
+            {
+              "name": "C_2_1_1"
+            },
+            {
+              "name": "C_2_1_2"
+            }
+          ]
+        }
+      ],
+      "target_random_text": "Y"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+composite_id,period,target_binary_id,target_unary_id,target_string_id
+record_0,1,True,,ABC
+record_0,2,False,True,DEF
+record_1,1,True,True,GHI
