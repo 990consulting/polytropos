@@ -24,8 +24,8 @@ def cleanup():
     'scenario,task_name,expected_location',
     [
         ('6_tr_export', 'custom_consumer', 'expected'),
-        ('6_tr_export', 'export_immutable_to_csv', 'expected'),
-        ('6_tr_export', 'export_temporal_to_csv', 'expected'),
+        #('6_tr_export', 'export_immutable_to_csv', 'expected'),
+        #('6_tr_export', 'export_temporal_to_csv', 'expected'),
         ('6_tr_export', 'export_to_json', 'expected'),
     ]
 )

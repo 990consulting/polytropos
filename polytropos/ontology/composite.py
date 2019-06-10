@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Iterator, Optional, Any, Tuple, List
 
 from polytropos.util.nesteddicts import MissingDataError
@@ -11,7 +11,7 @@ from polytropos.ontology.variable import Variable
 @dataclass
 class Composite:
     schema: Schema
-    content: Dict
+    content: Dict = field(default_factory=dict)
 
     def get_periods(self) -> Iterator[str]:
         """Iterate over all of the observation periods contained in this composite."""
@@ -51,7 +51,7 @@ class Composite:
         """Assign (or overwrite) the value of a temporal variable into a particular time period's observation."""
         pass
 
-    def encode_list(self, mappings: Dict[str, str], content: List):
+    def encode_list(self, mappings: Dict[str, str], content: List) -> Iterator[Dict]:
         """Create a schema-compliant version of a list of dicts based on data structured in some other format.
         :param mappings: A mapping between the internal list item names and the IDs of the list-item variables they
         correspond to.

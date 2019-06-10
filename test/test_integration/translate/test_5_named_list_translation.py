@@ -1,3 +1,7 @@
+"""Test methods that encode and decode lists. These methods do not actually care about the content of the composite
+itself, but only its schema; they take content as an argument and return the same content in a different
+representation."""
+
 import pytest
 from typing import Dict
 from polytropos.ontology.track import Track
