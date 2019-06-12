@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="polytropos",
-    version="0.0.1",
+    version="0.0.2",
     license='agpl-3.0',
     url='https://github.com/borenstein/polytropos',
     long_description=long_description,
@@ -20,7 +20,7 @@ setuptools.setup(
         'dacite',
         'pyyaml',
     ],
-    download_url='https://github.com/borenstein/polytropos/archive/0.0.1.tar.gz',
+    download_url='https://github.com/borenstein/polytropos/archive/0.0.2.tar.gz',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
