@@ -90,16 +90,45 @@ class Composite:
                 ret[internal_key] = value
             yield ret
 
-    def encode_named_list(self, mappings: Dict[str, str], content: Dict[str, Dict]):
+    def encode_named_list(self, mappings: Dict[str, str], content: Dict[str, Dict]) -> Dict:
         """Create a schema-compliant version of a named list of dicts based on data structured in some other format.
         :param mappings: A mapping between the internal list item names and the IDs of the list-item variables they
         correspond to.
         :param content: The content in the internal format."""
-        pass
+        ret = {}
+        for key, list_item in content.items():
+            encoded: Dict = {}
+            for internal_key in list_item.keys():
+                if internal_key not in mappings:
+                    raise ValueError('No mapping specified from internal key "%s" to schema' % internal_key)
+                var_id: str = mappings[internal_key]
+                var: Variable = self.schema.get(var_id)
+                path: List[str] = list(var.relative_path)
+                nesteddicts.put(encoded, path, list_item[internal_key])
+            ret[key] = encoded
+        return ret
 
-    def decode_named_list(self, mappings: Dict[Variable, str], content: List) -> Iterator[Dict]:
+    def decode_named_list(self, mappings: Dict[str, str], content: Dict) -> Dict:
         """Convert a schema-compliant version of a named list of dicts into some other format.
         :param mappings: A mapping between the variables and their string values.
         :param content: The content in the schema format.
         """
-        pass
+        path_mappings: Dict[str, List[str]] = {}
+        for var_id in mappings.keys():
+            var: Variable = self.schema.get(var_id)
+            if var is None:
+                raise ValueError('Unrecognized variable ID "%s"' % var_id)
+            path_mappings[var_id] = list(var.relative_path)
+
+        ret: Dict = {}
+        for key, list_item in content.items():
+            decoded = {}
+            for var_id, path in path_mappings.items():
+                try:
+                    value = nesteddicts.get(list_item, path)
+                except MissingDataError:
+                    continue
+                internal_key = mappings[var_id]
+                decoded[internal_key] = value
+            ret[key] = decoded
+        return ret

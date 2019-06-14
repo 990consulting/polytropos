@@ -50,3 +50,42 @@ def immutable_list_schema() -> Schema:
 
     immutable_track: Track = Track.build(immutable_spec, None, "")
     return Schema(temporal_track, immutable_track)
+
+@pytest.fixture
+def immutable_named_list_schema() -> Schema:
+    temporal_track: Track = Track.build({}, None, "")
+
+    immutable_spec: Dict = {
+        "source_root_2": {
+            "name": "named_list_source_2",
+            "data_type": "NamedList",
+            "sort_order": 0,
+        },
+        "the_folder": {
+            "name": "inner_folder",
+            "data_type": "Folder",
+            "parent": "source_root_2",
+            "sort_order": 0
+        },
+        "source_root_2_nombre": {
+            "name": "nombre",
+            "data_type": "Text",
+            "parent": "the_folder",
+            "sort_order": 0
+        },
+        "source_root_2_edad": {
+            "name": "edad",
+            "data_type": "Integer",
+            "parent": "the_folder",
+            "sort_order": 1
+        },
+        "source_root_2_helado": {
+            "name": "helado",
+            "data_type": "Text",
+            "parent": "source_root_2",
+            "sort_order": 1
+        }
+    }
+
+    immutable_track: Track = Track.build(immutable_spec, None, "")
+    return Schema(temporal_track, immutable_track)
