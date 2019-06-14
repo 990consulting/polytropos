@@ -3,10 +3,13 @@ import json
 from dataclasses import dataclass
 from abc import abstractmethod
 from typing import Dict, Optional, Any, Iterable, Tuple, Iterator
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
 
 from polytropos.actions.step import Step
 from polytropos.util.loader import load
 from polytropos.ontology.schema import Schema
+from polytropos.util.config import MAX_WORKERS
 
 
 @dataclass
@@ -21,7 +24,7 @@ class Aggregate(Step):
             input_schema_vars, output_schema_vars
     ): 
         target_schema = Schema.load(path_locator, target_schema)
-        aggregations = load(path_locator.aggregations_dir, cls)
+        aggregations = load(cls)
         input_variables = {
             var_name: schema.get(var_id)
             for var_name, var_id in input_schema_vars.items()
@@ -48,13 +51,26 @@ class Aggregate(Step):
         """Lazily produce instances of the target entity. Yields tuples of (new entity ID, new entity content)."""
         pass
 
+    def process_composite(self, origin, filename):
+        with open(os.path.join(origin, filename), 'r') as origin_file:
+            composite = json.load(origin_file)
+            return filename, self.extract(composite)
+
+    def write_composite(self, target, emission):
+        filename, composite = emission
+        with open(os.path.join(target, filename + '.json'), 'w') as target_file:
+            json.dump(composite, target_file)
+
     def __call__(self, origin, target):
-        extracts = []
-        for filename in os.listdir(origin):
-            with open(os.path.join(origin, filename), 'r') as origin_file:
-                composite = json.load(origin_file)
-                extracts.append((filename, self.extract(composite)))
-        self.analyze(extracts)
-        for filename, composite in self.emit():
-            with open(os.path.join(target, filename + '.json'), 'w') as target_file:
-                json.dump(composite, target_file)
+        with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            self.analyze(
+                executor.map(
+                    partial(self.process_composite, origin),
+                    os.listdir(origin)
+                )
+            )
+        with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            executor.map(
+                partial(self.write_composite, target),
+                self.emit()
+            )

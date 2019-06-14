@@ -9,7 +9,7 @@ from polytropos.ontology.schema import Schema
 from polytropos.ontology.task.__paths import TaskPathLocator
 
 # Import all action types so that they can be registered as subclasses
-from polytropos.actions.evolve import Evolve
+from polytropos.actions.evolve.__evolve import Evolve
 from polytropos.actions.scan import Scan
 from polytropos.actions.filter import Filter
 from polytropos.actions.aggregate import Aggregate
