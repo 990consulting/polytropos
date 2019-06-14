@@ -24,9 +24,7 @@ class Aggregate(Step):
             input_schema_vars, output_schema_vars
     ): 
         target_schema = Schema.load(path_locator, target_schema)
-        aggregations = load(
-            path_locator.aggregations_dir, path_locator.conf_dir, cls
-        )
+        aggregations = load(cls)
         input_variables = {
             var_name: schema.get(var_id)
             for var_name, var_id in input_schema_vars.items()
