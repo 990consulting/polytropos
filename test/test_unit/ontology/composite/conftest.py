@@ -25,6 +25,7 @@ def immutable_list_schema() -> Schema:
         "the_folder": {
             "name": "inner_folder",
             "data_type": "Folder",
+            "parent": "source_root_2",
             "sort_order": 0
         },
         "source_root_2_nombre": {

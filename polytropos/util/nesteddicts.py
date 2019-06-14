@@ -3,6 +3,8 @@ from typing import Optional, Any, Iterable, Dict, List
 # TODO Quimey, I ported over some logic from Harpo990 that does this. If you know a C-based library does that does it
 #  faster, please use that instead.
 
+NO_DEFAULT = Ellipsis
+
 class MissingDataError(ValueError):
     pass
 
@@ -17,28 +19,33 @@ def _do_get(target: Any, nodes: List[str]) -> Optional[Any]:
         raise IncompleteNestingError
 
     key: str = nodes[0]
-    cur: Any = target.get(key)
+    if key not in target:
+        raise MissingDataError
 
-    if cur is None:
-        return None
+    cur: Any = target.get(key)
 
     return _do_get(cur, nodes[1:])
 
-def _apply_default(default: Any, accept_none: bool):
-    if default is None and not accept_none:
-        raise MissingDataError
-
-    return default
-
-def get(target: Dict, spec: List[str], default: Any=None, accept_none=False):
+def get(target: Dict, spec: List[str], default: Any=NO_DEFAULT, accept_none=True):
     """Given a nested dict, traverse the specified path and return the value."""
     if spec == "":
         return target
 
-    result: Any = _do_get(target, spec)
+    try:
+        result: Any = _do_get(target, spec)
+    except MissingDataError as e:
+        if default is not NO_DEFAULT:
+            return default
+        raise e
 
-    if result is None:
-        return _apply_default(default, accept_none)
+    if result is None and accept_none:
+        return None
+
+    if result is None and not accept_none and default == NO_DEFAULT:
+        raise MissingDataError
+
+    if result is None and not accept_none:
+        return default
 
     return result
 

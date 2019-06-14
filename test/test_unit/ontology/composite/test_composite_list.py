@@ -82,7 +82,8 @@ def test_encode_unmapped_content_raises(immutable_list_schema, encode_mapping):
     composite = Composite(immutable_list_schema)
     content: List[Dict] = [{"unknown_field": "foo"}]
     with pytest.raises(ValueError):
-        composite.encode_list(encode_mapping, content)
+        # Wrap in list to force lazy execution
+        list(composite.encode_list(encode_mapping, content))
 
 def test_encode_missing_content_skips(immutable_list_schema, encode_mapping):
     """If something isn't present in a content list item that is defined in the mappings, skip it."""
@@ -173,13 +174,6 @@ def test_decode_list(immutable_list_schema, decode_mapping):
     ]
     actual: List = list(composite.decode_list(decode_mapping, content))
     assert actual == expected
-
-def test_decode_unmapped_content_raises(immutable_list_schema, decode_mapping):
-    """If a content list item contains a field without a mapping, raise."""
-    composite = Composite(immutable_list_schema)
-    content: List[Dict] = [{"unknown_field": "foo"}]
-    with pytest.raises(ValueError):
-        composite.decode_list(decode_mapping, content)
 
 def test_decode_missing_content_skips(immutable_list_schema, decode_mapping):
     """If something isn't present in a content list item that is defined in the mappings, skip it."""
