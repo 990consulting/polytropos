@@ -7,6 +7,10 @@ from polytropos.ontology.variable import (
     Primitive, Container, GenericList, Validator,
     List, NamedList, Variable
 )
+from cachetools import cachedmethod
+from cachetools.keys import hashkey
+from functools import partial
+
 
 if TYPE_CHECKING:
     from polytropos.ontology.variable import Variable
@@ -23,6 +27,7 @@ class Track(MutableMapping):
         self.name = name
         self.source = source
         self.target = None
+        self._cache = {}
         if source:
             source.target = self
 
@@ -67,21 +72,27 @@ class Track(MutableMapping):
             variable.set_id(variable_id)
         # we only validate after the whole thing is built to be able to
         # accurately compute siblings, parents and children
+        track.invalidate_variables_cache()
         for variable in track.values():
             Validator.validate(variable, init=True)
         return track
 
     @property
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'root'))
     def roots(self) -> Iterator["Variable"]:
         """All the roots of this track's variable tree."""
-        return filter(
+        return list(filter(
             lambda variable: variable.parent == '',
             self._variables.values()
-        )
+        ))
 
     def invalidate_variables_cache(self):
         for variable in self._variables.values():
             variable.invalidate_cache()
+        self.invalidate_cache()
+
+    def invalidate_cache(self):
+        self._cache.clear()
 
     def new_var_id(self):
         """If no ID is supplied, use <stage name>_<temporal|invarant>_<n+1>,
@@ -105,6 +116,7 @@ class Track(MutableMapping):
         Validator.validate(variable, init=True, adding=True)
         variable.update_sort_order(None, variable.sort_order)
         self._variables[var_id] = variable
+        self.invalidate_variables_cache()
 
     def duplicate(self, source_var_id: str, new_var_id: str=None):
         """Creates a duplicate of a node, including its sources, but not including its targets."""
@@ -113,6 +125,7 @@ class Track(MutableMapping):
         if new_var_id in self._variables:
             raise ValueError
         self._variables[new_var_id] = deepcopy(self._variables[source_var_id])
+        self.invalidate_variables_cache()
 
     def delete(self, var_id: str) -> None:
         """Attempts to delete a node. Fails if the node has children or targets"""
@@ -123,6 +136,7 @@ class Track(MutableMapping):
         if any(variable.children) or variable.has_targets:
             raise ValueError
         del self._variables[var_id]
+        self.invalidate_variables_cache()
 
     def move(self, var_id: str, parent_id: Optional[str], sort_order: int):
         """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
@@ -141,6 +155,7 @@ class Track(MutableMapping):
             raise ValueError
         variable.update_sort_order(None, sort_order)
         variable.sort_order = sort_order
+        self.invalidate_variables_cache()
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
             -> Iterator[str]:
