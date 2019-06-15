@@ -79,6 +79,10 @@ class Track(MutableMapping):
             self._variables.values()
         )
 
+    def invalidate_variables_cache(self):
+        for variable in self._variables.values():
+            variable.invalidate_cache()
+
     def new_var_id(self):
         """If no ID is supplied, use <stage name>_<temporal|invarant>_<n+1>,
         where n is the number of variables."""

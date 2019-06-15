@@ -5,6 +5,9 @@ from collections import defaultdict
 from typing import(
     List as ListType, Dict, Iterator, Any, Iterable, TYPE_CHECKING
 )
+from functools import partial
+from cachetools import cachedmethod
+from cachetools.keys import hashkey
 
 
 if TYPE_CHECKING:
@@ -109,6 +112,8 @@ class Variable:
     # WARNING! The variable ID _MUST_ be unique within the schema, or terrible things will happen!
     var_id = None
 
+    _cache: Dict = field(init=False, default_factory=dict)
+
     def __hash__(self) -> str:
         return self.var_id
 
@@ -151,7 +156,12 @@ class Variable:
                 return
         if attribute == 'data_type':
             raise AttributeError
+        if self.track:
+            self.track.invalidate_variables_cache()
         self.__dict__[attribute] = value
+
+    def invalidate_cache(self):
+        self._cache.clear()
 
     def update_sort_order(self, old_order=None, new_order=None):
         if old_order is None:
@@ -191,6 +201,7 @@ class Variable:
         return isinstance(parent, GenericList) or parent.descends_from_list
 
     @property
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'relative_path'))
     def relative_path(self) -> Iterator[str]:
         """The path from this node to the nearest list or or root."""
         if not self.parent:
@@ -202,6 +213,7 @@ class Variable:
         return parent_path + [self.name]
 
     @property
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'absolute_path'))
     def absolute_path(self) -> Iterator[str]:
         """The path from this node to the root."""
         if not self.parent:
@@ -210,6 +222,7 @@ class Variable:
         return parent_path + [self.name]
 
     @property
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'tree'))
     def tree(self) -> Dict:
         """A tree representing the descendants of this node. (For UI)"""
         children = [
@@ -253,6 +266,7 @@ class Variable:
             return True
         return self.check_ancestor(variable.parent)
 
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'descendants_that'))
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
             -> Iterator[str]:
         """Provides a list of variable IDs descending from this variable that meet certain criteria.
