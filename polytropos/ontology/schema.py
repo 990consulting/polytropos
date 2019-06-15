@@ -1,27 +1,33 @@
 import os
 import json
 from enum import Enum
-from typing import Optional
+from typing import Optional, Dict
+from dataclasses import dataclass, field
+from cachetools import cachedmethod
+from cachetools.keys import hashkey
+from functools import partial
 
 from polytropos.ontology.track import Track
-from dataclasses import dataclass
 
 from polytropos.ontology.variable import Variable
 
 SCHEMAS_DIR = 'fixtures/conf/schemas/'
+
 
 class TrackType(Enum):
     IMMUTABLE = -1
     ANY = 0
     TEMPORAL = 1
 
+
 @dataclass
 class Schema:
     """A schema identifies all of the temporal and immutable properties that a particular entity can have."""
     temporal: Track
     immutable: Track
+    _cache: Dict = field(init=False, default_factory=dict)
 
-    # TODO Add caching and validation that both update on load and mutate
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'root'))
     def get(self, var_id: str, track_type: TrackType=TrackType.ANY) -> Optional[Variable]:
         """Retrieve a particular variable from the Schema. Optionally verify the track it came from"""
         immutable_match: Variable = self.immutable.get(var_id)
@@ -40,6 +46,13 @@ class Schema:
             return temporal_match
 
         return immutable_match
+
+    def __post_init__(self):
+        self.temporal.schema = self
+        self.immutable.schema = self
+
+    def invalidate_cache(self):
+        self._cache.clear()
 
     @classmethod
     def load(cls, path_locator, path, source_schema=None):

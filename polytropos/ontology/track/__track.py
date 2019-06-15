@@ -27,6 +27,7 @@ class Track(MutableMapping):
         self.name = name
         self.source = source
         self.target = None
+        self.schema = None
         self._cache = {}
         if source:
             source.target = self
@@ -93,6 +94,8 @@ class Track(MutableMapping):
 
     def invalidate_cache(self):
         self._cache.clear()
+        if self.schema:
+            self.schema.invalidate_cache()
 
     def new_var_id(self):
         """If no ID is supplied, use <stage name>_<temporal|invarant>_<n+1>,
