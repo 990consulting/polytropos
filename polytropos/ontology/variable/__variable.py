@@ -279,7 +279,7 @@ class Variable:
     def children(self) -> Iterator["Variable"]:
         return filter(
             lambda variable: variable.parent == self.var_id,
-            self.track.variables.values()
+            self.track.values()
         )
 
     @property

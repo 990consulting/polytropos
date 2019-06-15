@@ -42,7 +42,7 @@ class Track(MutableMapping):
         return len(self.variables)
 
     def __iter__(self):
-        yield from self.variables.items()
+        return self.variables.__iter__()
 
     ###########################################
 
@@ -62,12 +62,12 @@ class Track(MutableMapping):
                 for variable_id, variable_data in specs.items()
             }, source, name
         )
-        for variable_id, variable in track.variables.items():
+        for variable_id, variable in track.items():
             variable.set_track(track)
             variable.set_id(variable_id)
         # we only validate after the whole thing is built to be able to
         # accurately compute siblings, parents and children
-        for variable in track.variables.values():
+        for variable in track.values():
             Validator.validate(variable, init=True)
         return track
 
