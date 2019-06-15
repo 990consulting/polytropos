@@ -1,16 +1,17 @@
 from copy import deepcopy
 import json
 from typing import Iterator, Dict, TYPE_CHECKING, Any, Iterable, Optional
+from collections.abc import MutableMapping
 from polytropos.ontology.variable import (
     build_variable,
     Primitive, Container, GenericList, Validator,
-    List, NamedList
+    List, NamedList, Variable
 )
 
 if TYPE_CHECKING:
     from polytropos.ontology.variable import Variable
 
-class Track:
+class Track(MutableMapping):
     """Represents a hierarchy of variables associated with a particular aspect (stage) of a particular entity type, and
     that have the same temporality. That is, for every entity type, there is a temporal track and an immutable track,
     which are structured identically. The two tracks interact during the Analysis step in the generation of this entity
@@ -25,6 +26,25 @@ class Track:
         if source:
             source.target = self
 
+    ###########################################
+    # Mapping methods
+
+    def __getitem__(self, key: str) -> Variable:
+        return self.variables[key]
+
+    def __setitem__(self, key: str, value: Variable) -> None:
+        self.variables[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.variables[key]
+
+    def __len__(self):
+        return len(self.variables)
+
+    def __iter__(self):
+        yield from self.variables.items()
+
+    ###########################################
 
     @classmethod
     def build(cls, specs: Dict, source: Optional["Track"], name: str):
