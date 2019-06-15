@@ -90,7 +90,7 @@ def list_ev_track() -> Track:
 
 def test_remove_checked_descendent(list_ev_track):
     list_ev_track.set_children_to_test("first_list_with_evs", ["first_list_with_evs_field_1"])
-    assert list_ev_track.variables["first_list_with_evs"].dump() == {
+    assert list_ev_track["first_list_with_evs"].dump() == {
         "name": "First of two lists that have EVs",
         "data_type": "List",
         "sort_order": 1,
@@ -107,7 +107,7 @@ def test_remove_checked_descendent(list_ev_track):
 def test_remove_all_checked_descendents(list_ev_track):
     """List expected value tests still check list cardinality, so even an empty check is meaningful."""
     list_ev_track.set_children_to_test("first_list_with_evs", [])
-    assert list_ev_track.variables["first_list_with_evs"].dump() == {
+    assert list_ev_track["first_list_with_evs"].dump() == {
         "name": "First of two lists that have EVs",
         "data_type": "List",
         "sort_order": 1,
@@ -126,7 +126,7 @@ def test_add_checked_descendent(list_ev_track):
                 "first_list_with_evs_field_2",
                 "first_list_with_evs_field_3"
             ])
-    assert list_ev_track.variables["first_list_with_evs"].dump() == {
+    assert list_ev_track["first_list_with_evs"].dump() == {
         "name": "First of two lists that have EVs",
         "data_type": "List",
         "sort_order": 1,
@@ -158,7 +158,7 @@ def test_designate_nonexistent_descendent_raises(list_ev_track):
 
 def test_add_list_expected_value_affects_var_dict(list_ev_track):
     list_ev_track.set_list_expected_values("list_without_evs", "case_1", [{}, {}, {}])
-    assert list_ev_track.variables["list_without_evs"].dump() == {
+    assert list_ev_track["list_without_evs"].dump() == {
         "name": "A list that has no EVs",
         "data_type": "List",
         "sort_order": 0,
@@ -175,7 +175,7 @@ def test_add_list_expected_value_with_unexpected_descendent_raises(list_ev_track
 
 def test_remove_list_expected_value_affects_var_dict(list_ev_track):
     list_ev_track.remove_primitive_expected_value("first_list_with_evs", "case_0")
-    assert list_ev_track.variables["first_list_with_evs"].dump() == {
+    assert list_ev_track["first_list_with_evs"].dump() == {
         "name": "First of two lists that have EVs",
         "data_type": "List",
         "sort_order": 1,
@@ -190,7 +190,7 @@ def test_remove_list_expected_value_affects_var_dict(list_ev_track):
 
 def test_replace_list_expected_value_affects_var_dict(list_ev_track):
     list_ev_track.set_list_expected_values("first_list_with_evs", "case_0", [])
-    assert list_ev_track.variables["first_list_with_evs"].dump() == {
+    assert list_ev_track["first_list_with_evs"].dump() == {
         "name": "First of two lists that have EVs",
         "data_type": "List",
         "sort_order": 1,

@@ -19,13 +19,13 @@ class Validator:
                 if isinstance(variable, Folder):
                     raise ValueError
                 if (variable.parent and isinstance(
-                        variable.track.variables[variable.parent], GenericList
+                        variable.track[variable.parent], GenericList
                 )):
                     raise ValueError
             for source in sources:
-                if source not in variable.track.source.variables:
+                if source not in variable.track.source:
                     raise ValueError
-                source_var = variable.track.source.variables[source]
+                source_var = variable.track.source[source]
                 if source_var.__class__ != variable.__class__:
                     raise ValueError
 
@@ -34,10 +34,10 @@ class Validator:
         if variable.track is not None:
             if parent == '':
                 return
-            if parent not in variable.track.variables:
+            if parent not in variable.track:
                 # invalid parent
                 raise ValueError
-            if not isinstance(variable.track.variables[parent], Container):
+            if not isinstance(variable.track[parent], Container):
                 # parent not container
                 raise ValueError
             if (
@@ -52,7 +52,7 @@ class Validator:
             raise ValueError
         if variable.track is not None:
             sibling_names = set(
-                variable.track.variables[sibling].name
+                variable.track[sibling].name
                 for sibling in variable.siblings
                 if sibling != variable.var_id
             )
@@ -133,7 +133,7 @@ class Variable:
                         child_sources[source].append(child)
                 safe = set()
                 for source in value:
-                    source_var = self.track.source.variables[source]
+                    source_var = self.track.source[source]
                     for child_source in child_sources:
                         if source_var.check_ancestor(child_source):
                             safe.add(child_source)
@@ -162,11 +162,11 @@ class Variable:
             if sibling == self.var_id:
                 continue
             diff = 0
-            if self.track.variables[sibling].sort_order >= new_order:
+            if self.track[sibling].sort_order >= new_order:
                 diff += 1
-            if self.track.variables[sibling].sort_order >= old_order:
+            if self.track[sibling].sort_order >= old_order:
                 diff -= 1
-            self.track.variables[sibling].__dict__['sort_order'] += diff
+            self.track[sibling].__dict__['sort_order'] += diff
 
     @property
     def siblings(self) -> Iterator[str]:
@@ -174,7 +174,7 @@ class Variable:
             return map(lambda root: root.var_id, self.track.roots)
         return map(
             lambda child: child.var_id,
-            self.track.variables[self.parent].children
+            self.track[self.parent].children
         )
 
     @property
@@ -187,7 +187,7 @@ class Variable:
         """True iff this or any upstream variable is a list or named list."""
         if not self.parent:
             return False
-        parent = self.track.variables[self.parent]
+        parent = self.track[self.parent]
         return isinstance(parent, GenericList) or parent.descends_from_list
 
     @property
@@ -195,7 +195,7 @@ class Variable:
         """The path from this node to the nearest list or or root."""
         if not self.parent:
             return [self.name]
-        parent = self.track.variables[self.parent]
+        parent = self.track[self.parent]
         if isinstance(parent, GenericList):
             return [self.name]
         parent_path = parent.relative_path
@@ -206,7 +206,7 @@ class Variable:
         """The path from this node to the root."""
         if not self.parent:
             return [self.name]
-        parent_path = self.track.variables[self.parent].absolute_path
+        parent_path = self.track[self.parent].absolute_path
         return parent_path + [self.name]
 
     @property
@@ -246,7 +246,7 @@ class Variable:
         return json.dumps(self.dump(), indent=4)
 
     def check_ancestor(self, child):
-        variable = self.track.variables[child]
+        variable = self.track[child]
         if variable.parent == '':
             return False
         if variable.parent == self.var_id:
@@ -271,7 +271,7 @@ class Variable:
         """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
         stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
         if self.track.target:
-            for variable_id, variable in self.track.target.variables.items():
+            for variable_id, variable in self.track.target.items():
                 if self.var_id in variable.sources:
                     yield variable_id
 
@@ -279,7 +279,7 @@ class Variable:
     def children(self) -> Iterator["Variable"]:
         return filter(
             lambda variable: variable.parent == self.var_id,
-            self.track.variables.values()
+            self.track.values()
         )
 
     @property

@@ -33,12 +33,12 @@ def schema(temporal_track, immutable_track) -> Schema:
     return Schema(temporal_track, immutable_track)
 
 def test_get_immutable(immutable_track, schema):
-    expected = immutable_track.variables["the_immutable_var"]
+    expected = immutable_track["the_immutable_var"]
     actual = schema.get("the_immutable_var")
     assert actual == expected
 
 def test_get_immutable_specified_type(immutable_track, schema):
-    expected = immutable_track.variables["the_immutable_var"]
+    expected = immutable_track["the_immutable_var"]
     actual = schema.get("the_immutable_var", track_type=TrackType.IMMUTABLE)
     assert actual == expected
 
@@ -47,12 +47,12 @@ def test_get_immutable_none(schema):
     assert actual is None
 
 def test_get_temporal(temporal_track, schema):
-    expected = temporal_track.variables["the_temporal_var"]
+    expected = temporal_track["the_temporal_var"]
     actual = schema.get("the_temporal_var")
     assert actual == expected
 
 def test_get_temporal_specified_type(temporal_track, schema):
-    expected = temporal_track.variables["the_temporal_var"]
+    expected = temporal_track["the_temporal_var"]
     actual = schema.get("the_temporal_var", track_type=TrackType.TEMPORAL)
     assert actual == expected
 

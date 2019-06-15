@@ -2,7 +2,7 @@
 The tests check if a cache will be cleaned after updating the "parent" property of the variables.
 
 The `variable.parent` can be changed using `duplicate`, `add`, `delete`, `move` methods of a track
-instance as well as using direct modification of variables using `track.variables[var_id].parent`.
+instance as well as using direct modification of variables using `track[var_id].parent`.
 """
 from typing import Iterator
 
@@ -85,5 +85,5 @@ def test_direct_manipulation():
         "duplicate",
     )
     _validate_roots(track.roots, 1, "a")
-    track.variables["b"].parent = ""
+    track["b"].parent = ""
     _validate_roots(track.roots, 2, "a", "b")

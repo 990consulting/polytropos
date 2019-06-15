@@ -24,8 +24,8 @@ class Schema:
     # TODO Add caching and validation that both update on load and mutate
     def get(self, var_id: str, track_type: TrackType=TrackType.ANY) -> Optional[Variable]:
         """Retrieve a particular variable from the Schema. Optionally verify the track it came from"""
-        immutable_match: Variable = self.immutable.variables.get(var_id)
-        temporal_match: Variable = self.temporal.variables.get(var_id)
+        immutable_match: Variable = self.immutable.get(var_id)
+        temporal_match: Variable = self.temporal.get(var_id)
 
         if immutable_match is not None and temporal_match is not None:
             raise ValueError('Variable ID "%s" occurs in both immutable and temporal tracks' % var_id)

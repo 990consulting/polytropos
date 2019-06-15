@@ -18,7 +18,7 @@ def nested_new_var_spec() -> Dict:
 def test_add_adds_to_track_variable_table(target_nested_dict_track, nested_new_var_spec):
     track: Track = target_nested_dict_track
     track.add(nested_new_var_spec, "A")
-    new_var: Variable = track.variables["A"]
+    new_var: Variable = track["A"]
     new_var_dict: Dict = new_var.dump()
     assert new_var_dict == nested_new_var_spec
 
@@ -78,7 +78,7 @@ def test_add_with_sources_alters_source_of_for_source(target_nested_dict_track, 
     nested_new_var_spec["sources"] = ["source_var_1"]
     target_nested_dict_track.add(nested_new_var_spec, "A")
 
-    source_var: Variable = source_track.variables["source_var_1"]
+    source_var: Variable = source_track["source_var_1"]
     actual: Set = set(source_var.targets())
     expected: Set = {"A", "target_var_1"}
     assert actual == expected
@@ -89,12 +89,12 @@ def test_add_with_sources_alters_has_targets_for_source_after(target_nested_dict
     nested_new_var_spec["sources"] = ["source_var_3"]
     target_nested_dict_track.add(nested_new_var_spec, "A")
 
-    source_var: Variable = source_track.variables["source_var_3"]
+    source_var: Variable = source_track["source_var_3"]
     assert source_var.has_targets
 
 def test_add_with_parent_alters_children_for_parent_after(target_nested_dict_track, nested_new_var_spec):
     target_nested_dict_track.add(nested_new_var_spec, "A")
-    target_folder_2: Variable = target_nested_dict_track.variables["target_folder_2"]
+    target_folder_2: Variable = target_nested_dict_track["target_folder_2"]
 
     expected: Set = {"target_var_2", "A"}
     actual: Set = set(
@@ -115,7 +115,7 @@ def test_add_non_existent_parent_raises(target_nested_dict_track, nested_new_var
 def test_add_no_sort_order_change(target_nested_dict_track, nested_new_var_spec):
     target_nested_dict_track.add(nested_new_var_spec, "A")
 
-    target_var_2: Variable = target_nested_dict_track.variables["target_var_2"]
+    target_var_2: Variable = target_nested_dict_track["target_var_2"]
     assert target_var_2.sort_order == 0
 
 def test_add_pushes_sort_order_down(target_nested_dict_track, nested_new_var_spec):
@@ -124,7 +124,7 @@ def test_add_pushes_sort_order_down(target_nested_dict_track, nested_new_var_spe
     nested_new_var_spec["sort_order"] = 0
     target_nested_dict_track.add(nested_new_var_spec, "A")
 
-    target_var_2: Variable = target_nested_dict_track.variables["target_var_2"]
+    target_var_2: Variable = target_nested_dict_track["target_var_2"]
     assert target_var_2.sort_order == 1
 
 def test_invalid_sort_order_raises(target_nested_dict_track, nested_new_var_spec):
