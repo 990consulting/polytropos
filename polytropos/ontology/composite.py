@@ -21,8 +21,16 @@ class Composite:
     def get_immutable(self, var_id: str, treat_missing_as_null=False) -> Optional[Any]:
         """Get an immutable variable from this composite."""
         var: Variable = self.schema.get(var_id, track_type=TrackType.IMMUTABLE)
+        if var is None:
+            raise ValueError('Unrecognized variable ID "%s"' % var_id)
+
         path = ["immutable"] + list(var.absolute_path)
-        return nesteddicts.get(self.content, path)
+        try:
+            return nesteddicts.get(self.content, path)
+        except MissingDataError as e:
+            if treat_missing_as_null:
+                return None
+            raise e
 
     # TODO Check that this isn't trying to grab a list descendant
     def get_all_observations(self, var_id: str) -> Iterator[Tuple[str, Any]]:
@@ -44,6 +52,8 @@ class Composite:
 
     def put_immutable(self, var_id: str, value: Optional[Any]) -> None:
         var: Variable = self.schema.get(var_id, track_type=TrackType.IMMUTABLE)
+        if var is None:
+            raise ValueError('Unrecognized variable ID "%s"' % var_id)
         path: List = ["immutable"] + list(var.absolute_path)
         nesteddicts.put(self.content, path, value)
 
