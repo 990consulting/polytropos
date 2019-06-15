@@ -19,9 +19,9 @@ def test_delete_var_with_targets_raises(target_nested_dict_track):
 
 def test_delete_updates_track_index(source_nested_dict_track):
     track: Track = source_nested_dict_track
-    assert "source_var_3" in track.variables
+    assert "source_var_3" in track
     track.delete("source_var_3")
-    assert "source_var_3" not in track.variables
+    assert "source_var_3" not in track
 
 def test_delete_updates_parent_tree(source_nested_dict_track):
     track: Track = source_nested_dict_track

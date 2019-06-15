@@ -16,7 +16,7 @@ class Translator(Callable):
         # a recursion in the translate function
         self.target_variables_by_parent = defaultdict(dict)
         self.reporter = Reporter()
-        for variable_id, variable in self.target.variables.items():
+        for variable_id, variable in self.target.items():
             self.target_variables_by_parent[
                 variable.parent
             ][variable_id] = variable
@@ -28,7 +28,7 @@ class Translator(Callable):
         parent parameter is used to limit the depth for the recursive search"""
         if document is None:
             return None
-        variable = self.source.variables[variable_id]
+        variable = self.source[variable_id]
         if variable.parent != parent:
             # recursively find the parent in the document
             parent = self.find_in_document(
@@ -49,11 +49,11 @@ class Translator(Callable):
         # We have to restric the sources to the descendants of parent
         parent_source = None
         if parent:
-            parent_source = variable.track.source.variables[parent]
+            parent_source = variable.track.source[parent]
         # Just look for the value in the sources, sorted using `sort_order`
         for source in sorted(
             variable.sources,
-            key=lambda source: self.source.variables[source].sort_order
+            key=lambda source: self.source[source].sort_order
         ):
             if parent_source and not parent_source.check_ancestor(source):
                 continue
@@ -74,7 +74,7 @@ class Translator(Callable):
         parent_source = None
         parent_source = None
         if parent:
-            parent_source = variable.track.source.variables[parent]
+            parent_source = variable.track.source[parent]
         # The resulting list is the concatenation of all the translations,
         # source by source
         for source in variable.sources:
@@ -108,7 +108,7 @@ class Translator(Callable):
         parent_source = None
         parent_source = None
         if parent:
-            parent_source = variable.track.source.variables[parent]
+            parent_source = variable.track.source[parent]
         for source in variable.sources:
             if parent_source and not parent_source.check_ancestor(source):
                 continue

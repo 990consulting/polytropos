@@ -23,9 +23,9 @@ class Validator:
                 )):
                     raise ValueError
             for source in sources:
-                if source not in variable.track.source.variables:
+                if source not in variable.track.source:
                     raise ValueError
-                source_var = variable.track.source.variables[source]
+                source_var = variable.track.source[source]
                 if source_var.__class__ != variable.__class__:
                     raise ValueError
 
@@ -34,7 +34,7 @@ class Validator:
         if variable.track is not None:
             if parent == '':
                 return
-            if parent not in variable.track.variables:
+            if parent not in variable.track:
                 # invalid parent
                 raise ValueError
             if not isinstance(variable.track[parent], Container):
@@ -133,7 +133,7 @@ class Variable:
                         child_sources[source].append(child)
                 safe = set()
                 for source in value:
-                    source_var = self.track.source.variables[source]
+                    source_var = self.track.source[source]
                     for child_source in child_sources:
                         if source_var.check_ancestor(child_source):
                             safe.add(child_source)
@@ -271,7 +271,7 @@ class Variable:
         """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
         stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
         if self.track.target:
-            for variable_id, variable in self.track.target.variables.items():
+            for variable_id, variable in self.track.target.items():
                 if self.var_id in variable.sources:
                     yield variable_id
 
