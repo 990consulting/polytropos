@@ -19,7 +19,7 @@ class Track(MutableMapping):
 
     def __init__(self, variables: Dict[str, "Variable"], source: Optional["Track"], name: str):
         """Do not call directly; use Track.build()."""
-        self.variables: Dict[str, "Variable"] = variables
+        self._variables: Dict[str, "Variable"] = variables
         self.name = name
         self.source = source
         self.target = None
@@ -30,19 +30,19 @@ class Track(MutableMapping):
     # Mapping methods
 
     def __getitem__(self, key: str) -> Variable:
-        return self.variables[key]
+        return self._variables[key]
 
     def __setitem__(self, key: str, value: Variable) -> None:
-        self.variables[key] = value
+        self._variables[key] = value
 
     def __delitem__(self, key: str) -> None:
-        del self.variables[key]
+        del self._variables[key]
 
     def __len__(self):
-        return len(self.variables)
+        return len(self._variables)
 
     def __iter__(self):
-        return self.variables.__iter__()
+        return self._variables.__iter__()
 
     ###########################################
 
@@ -76,20 +76,20 @@ class Track(MutableMapping):
         """All the roots of this track's variable tree."""
         return filter(
             lambda variable: variable.parent == '',
-            self.variables.values()
+            self._variables.values()
         )
 
     def new_var_id(self):
         """If no ID is supplied, use <stage name>_<temporal|invarant>_<n+1>,
         where n is the number of variables."""
         # Missing the temporal/immutable part for now
-        return '{}_{}'.format(self.name, len(self.variables) + 1)
+        return '{}_{}'.format(self.name, len(self._variables) + 1)
 
     def add(self, spec: Dict, var_id: str=None) -> None:
         """Validate, create, and then insert a new variable into the track."""
         if var_id is None:
             var_id = self.new_var_id()
-        if var_id in self.variables:
+        if var_id in self._variables:
             # Duplicated var id
             raise ValueError
         if var_id == '':
@@ -100,31 +100,31 @@ class Track(MutableMapping):
         variable.set_id(var_id)
         Validator.validate(variable, init=True, adding=True)
         variable.update_sort_order(None, variable.sort_order)
-        self.variables[var_id] = variable
+        self._variables[var_id] = variable
 
     def duplicate(self, source_var_id: str, new_var_id: str=None):
         """Creates a duplicate of a node, including its sources, but not including its targets."""
         if new_var_id is None:
             new_var_id = self.new_var_id()
-        if new_var_id in self.variables:
+        if new_var_id in self._variables:
             raise ValueError
-        self.variables[new_var_id] = deepcopy(self.variables[source_var_id])
+        self._variables[new_var_id] = deepcopy(self._variables[source_var_id])
 
     def delete(self, var_id: str) -> None:
         """Attempts to delete a node. Fails if the node has children or targets"""
-        if var_id not in self.variables:
+        if var_id not in self._variables:
             raise ValueError
-        variable = self.variables[var_id]
+        variable = self._variables[var_id]
         variable.update_sort_order(variable.sort_order, None)
         if any(variable.children) or variable.has_targets:
             raise ValueError
-        del self.variables[var_id]
+        del self._variables[var_id]
 
     def move(self, var_id: str, parent_id: Optional[str], sort_order: int):
         """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
-        variable = self.variables[var_id]
+        variable = self._variables[var_id]
         parent_id = parent_id or ''
-        if parent_id and parent_id not in self.variables:
+        if parent_id and parent_id not in self._variables:
             raise ValueError
         if parent_id and variable.check_ancestor(parent_id):
             raise ValueError
@@ -146,7 +146,7 @@ class Track(MutableMapping):
         :param container: If -1, include only primitives; if 1, only containers.
         :param inside_list: If -1, include only elements outside lists; if 1, only inside lists.
         """
-        for variable_id, variable in self.variables.items():
+        for variable_id, variable in self._variables.items():
             if data_type is None or variable.data_type == data_type:
                 if targets:
                     if targets == -1 and variable.has_targets:
@@ -168,11 +168,11 @@ class Track(MutableMapping):
     def set_primitive_expected_value(self, var_id: str, instance_id: str, value: Any):
         """Declare that a particular value is expected for a particular variable in a particular instance hierarchy.
         This is initiated in Track, rather than in Variable, in order to maintain an index of instances to be checked."""
-        self.variables[var_id].simple_expected_values[instance_id] = value
+        self._variables[var_id].simple_expected_values[instance_id] = value
 
     def remove_primitive_expected_value(self, var_id: str, instance_id: str):
         """Declare that we no longer expect any particular value for a particular variable in a particular instance."""
-        variable = self.variables[var_id]
+        variable = self._variables[var_id]
         if isinstance(variable, Primitive):
             del variable.simple_expected_values[instance_id]
         if isinstance(variable, List):
@@ -182,7 +182,7 @@ class Track(MutableMapping):
 
     def set_children_to_test(self, var_id: str, child_ids: Iterable[str]):
         """Identify the child fields whose values should be checked when verifying expected values for lists."""
-        variable = self.variables[var_id]
+        variable = self._variables[var_id]
         variable.list_expected_values_fields = []
         evs = (
             variable.list_expected_values
@@ -190,7 +190,7 @@ class Track(MutableMapping):
             else variable.named_list_expected_values
         )
         for child_id in child_ids:
-            if child_id not in self.variables:
+            if child_id not in self._variables:
                 raise ValueError
             variable.list_expected_values_fields.append(child_id)
             for _lst in evs.values():
@@ -209,7 +209,7 @@ class Track(MutableMapping):
     def set_list_expected_values(self, var_id: str, instance_id: str, values: Iterable[Dict[str, Any]]):
         """Indicate the (unordered) list of observations expected for selected descendents of a particular list container
         in a particular instance hierarchy"""
-        variable = self.variables[var_id]
+        variable = self._variables[var_id]
         variable.list_expected_values[instance_id] = []
         for value in values:
             if list(value.keys()) != variable.list_expected_values_fields:
@@ -221,7 +221,7 @@ class Track(MutableMapping):
     def set_named_list_expected_values(self, var_id: str, instance_id: str, values: Dict[str, Dict[str, Any]]):
         """Indicate the dictionary of observations expected for selected descendents of a particular named list in a
         particular instance hierarchy"""
-        variable = self.variables[var_id]
+        variable = self._variables[var_id]
         variable.named_list_expected_values[instance_id] = {}
         for key, value in values.items():
             if list(value.keys()) != variable.list_expected_values_fields:
@@ -232,14 +232,14 @@ class Track(MutableMapping):
     @property
     def test_cases(self) -> Iterator[str]:
         """The set of all instance hierarchy IDs for which expected values have been set for any variable."""
-        for variable in self.variables.values():
+        for variable in self._variables.values():
             for test_case in variable.test_cases:
                 yield test_case
 
     def dump(self) -> Dict:
         """A Dict representation of this track."""
         representation = {}
-        for variable_id, variable in sorted(self.variables.items()):
+        for variable_id, variable in sorted(self._variables.items()):
             representation[variable_id] = variable.dump()
         return representation
 
