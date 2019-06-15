@@ -29,10 +29,10 @@ def test_data_type_is_immutable(original, target, simple_track):
     track: Track = simple_track(original)
     with pytest.raises(AttributeError):
         # noinspection PyPropertyAccess
-        track.variables["the_var_id"].data_type = target
+        track["the_var_id"].data_type = target
 
 @pytest.mark.parametrize("original", types_to_test)
 def test_data_type_can_be_read(original, simple_track):
     """Data type can be retrieved as a text property."""
     track: Track = simple_track(original)
-    assert track.variables["the_var_id"].data_type == original
+    assert track["the_var_id"].data_type == original

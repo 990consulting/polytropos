@@ -82,7 +82,7 @@ def named_list_ev_track() -> Track:
 
 def test_remove_checked_descendent(named_list_ev_track):
     named_list_ev_track.set_children_to_test("first_named_list_with_evs", ["first_named_list_with_evs_field_1"])
-    assert named_list_ev_track.variables["first_named_list_with_evs"].dump() == {
+    assert named_list_ev_track["first_named_list_with_evs"].dump() == {
         "name": "First of two named lists that have EVs",
         "data_type": "NamedList",
         "sort_order": 1,
@@ -98,7 +98,7 @@ def test_remove_checked_descendent(named_list_ev_track):
 
 def test_remove_all_checked_descendents(named_list_ev_track):
     named_list_ev_track.set_children_to_test("first_named_list_with_evs", {})
-    assert named_list_ev_track.variables["first_named_list_with_evs"].dump() == {
+    assert named_list_ev_track["first_named_list_with_evs"].dump() == {
         "name": "First of two named lists that have EVs",
         "data_type": "NamedList",
         "sort_order": 1,
@@ -117,7 +117,7 @@ def test_add_checked_descendent(named_list_ev_track):
         "first_named_list_with_evs_field_2",
         "first_named_list_with_evs_field_3"
     ])
-    assert named_list_ev_track.variables["first_named_list_with_evs"].dump() == {
+    assert named_list_ev_track["first_named_list_with_evs"].dump() == {
         "name": "First of two named lists that have EVs",
         "data_type": "NamedList",
         "sort_order": 1,
@@ -153,7 +153,7 @@ def test_add_list_expected_value_affects_var_dict(named_list_ev_track):
         "mary": {},
         "conor": {}
     })
-    assert named_list_ev_track.variables["named_list_without_evs"].dump() == {
+    assert named_list_ev_track["named_list_without_evs"].dump() == {
         "name": "A named list that has no EVs",
         "data_type": "NamedList",
         "sort_order": 0,
@@ -175,7 +175,7 @@ def test_add_list_expected_value_with_unexpected_descendent_raises(named_list_ev
 
 def test_remove_list_expected_value_affects_var_dict(named_list_ev_track):
     named_list_ev_track.remove_primitive_expected_value("first_named_list_with_evs", "case_0")
-    assert named_list_ev_track.variables["first_named_list_with_evs"].dump() == {
+    assert named_list_ev_track["first_named_list_with_evs"].dump() == {
         "name": "First of two named lists that have EVs",
         "data_type": "NamedList",
         "sort_order": 1,
@@ -190,7 +190,7 @@ def test_remove_list_expected_value_affects_var_dict(named_list_ev_track):
 
 def test_replace_list_expected_value_affects_var_dict(named_list_ev_track):
     named_list_ev_track.set_named_list_expected_values("first_named_list_with_evs", "case_0", {})
-    assert named_list_ev_track.variables["first_named_list_with_evs"].dump() == {
+    assert named_list_ev_track["first_named_list_with_evs"].dump() == {
         "name": "First of two named lists that have EVs",
         "data_type": "NamedList",
         "sort_order": 1,

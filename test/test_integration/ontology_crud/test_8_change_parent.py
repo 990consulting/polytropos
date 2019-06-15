@@ -14,7 +14,7 @@ def children_to_set(children):
 #  update its internal state.
 def test_change_parent_alters_relative_path(target_list_track):
     """moving a variable to a new parent changes its relative path."""
-    var: Variable = target_list_track.variables["target_named_list_color"]
+    var: Variable = target_list_track["target_named_list_color"]
     new_folder_spec: Dict = {
         "name": "a_new_folder",
         "parent": "target_named_list",
@@ -30,7 +30,7 @@ def test_change_parent_alters_relative_path(target_list_track):
 
 def test_change_parent_alters_absolute_path(target_list_track):
     """moving a variable to a new parent changes its absolute path."""
-    var: Variable = target_list_track.variables["target_named_list_color"]
+    var: Variable = target_list_track["target_named_list_color"]
     new_folder_spec: Dict = {
         "name": "a_new_folder",
         "parent": "target_named_list",
@@ -45,25 +45,25 @@ def test_change_parent_alters_absolute_path(target_list_track):
     assert actual == expected
 
 def test_change_parent_alters_original_parent_children(source_nested_dict_track):
-    assert children_to_set(source_nested_dict_track.variables["source_folder_1"].children) == {"source_var_1", "source_folder_2"}
+    assert children_to_set(source_nested_dict_track["source_folder_1"].children) == {"source_var_1", "source_folder_2"}
     source_nested_dict_track.move("source_var_1", "source_folder_3", 0)
-    assert children_to_set(source_nested_dict_track.variables["source_folder_1"].children) == {"source_folder_2"}
+    assert children_to_set(source_nested_dict_track["source_folder_1"].children) == {"source_folder_2"}
 
 def test_change_parent_alters_new_parent_children(source_nested_dict_track):
-    assert children_to_set(source_nested_dict_track.variables["source_folder_3"].children) == set()
+    assert children_to_set(source_nested_dict_track["source_folder_3"].children) == set()
     source_nested_dict_track.move("source_var_1", "source_folder_3", 0)
-    assert children_to_set(source_nested_dict_track.variables["source_folder_3"].children) == {"source_var_1"}
+    assert children_to_set(source_nested_dict_track["source_folder_3"].children) == {"source_var_1"}
 
 def test_change_parent_alters_original_descendants_that(source_nested_dict_track):
     """after changing the parent, the original parent no longer includes the node in descendents_that()."""
-    original_root: Variable = source_nested_dict_track.variables["source_folder_1"]
+    original_root: Variable = source_nested_dict_track["source_folder_1"]
     assert set(original_root.descendants_that()) == {"source_var_1", "source_folder_2", "source_var_2", "source_var_3"}
     source_nested_dict_track.move("source_var_3", "source_folder_3", 0)
     assert set(original_root.descendants_that()) == {"source_var_1", "source_folder_2", "source_var_2"}
 
 def test_change_parent_alters_new_descendants_that(source_nested_dict_track):
     """after changing the parent, the new parent includes the node in descendents_that()."""
-    new_root: Variable = source_nested_dict_track.variables["source_folder_3"]
+    new_root: Variable = source_nested_dict_track["source_folder_3"]
     assert set(new_root.descendants_that()) == set()
     source_nested_dict_track.move("source_var_3", "source_folder_3", 0)
     assert set(new_root.descendants_that()) == {"source_var_3"}
@@ -153,18 +153,18 @@ def test_change_parent_does_not_affect_source_status(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
 
-    assert set(target_track.variables["target_var_1"].sources) == {"source_var_1"}
+    assert set(target_track["target_var_1"].sources) == {"source_var_1"}
     source_track.move("source_var_1", None, 0)
-    assert set(target_track.variables["target_var_1"].sources) == {"source_var_1"}
+    assert set(target_track["target_var_1"].sources) == {"source_var_1"}
 
 def test_change_parent_does_not_affect_target_status(target_nested_dict_track):
     """moving a variable does not alter its status as a target."""
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
 
-    assert set(source_track.variables["source_var_1"].targets()) == {"target_var_1"}
+    assert set(source_track["source_var_1"].targets()) == {"target_var_1"}
     target_track.move("target_var_1", None, 0)
-    assert set(source_track.variables["source_var_1"].targets()) == {"target_var_1"}
+    assert set(source_track["source_var_1"].targets()) == {"target_var_1"}
 
 def test_change_parent_alters_dict(simple_track):
     """changing a variable's parent alters its dictionary representation."""
@@ -175,7 +175,7 @@ def test_change_parent_alters_dict(simple_track):
         "parent": "target_folder",
         "sort_order": 0
     }
-    actual: Dict = simple_track.variables["target_var_id"].dump()
+    actual: Dict = simple_track["target_var_id"].dump()
     assert actual == expected
 
 def test_change_parent_alters_tree(simple_track):
@@ -193,7 +193,7 @@ def test_change_parent_alters_tree(simple_track):
             }
         ]
     }
-    actual: Dict = simple_track.variables["target_folder"].tree
+    actual: Dict = simple_track["target_folder"].tree
     assert actual == expected
 
 def test_move_to_non_container_raises(simple_track):

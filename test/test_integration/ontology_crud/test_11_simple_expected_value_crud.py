@@ -34,7 +34,7 @@ def simple_ev_track() -> Track:
 
 def test_add_simple_expected_value_affects_var_dict(simple_ev_track):
     simple_ev_track.set_primitive_expected_value("without_ev", "the_instance", "the_value")
-    assert simple_ev_track.variables["without_ev"].dump() == {
+    assert simple_ev_track["without_ev"].dump() == {
         "name": "var_without_ev",
         "data_type": "Text",
         "sort_order": 1,
@@ -45,7 +45,7 @@ def test_add_simple_expected_value_affects_var_dict(simple_ev_track):
 
 def test_remove_simple_expected_value_affects_var_dict(simple_ev_track):
     simple_ev_track.remove_primitive_expected_value("with_ev", "case_0")
-    assert simple_ev_track.variables["with_ev"].dump() == {
+    assert simple_ev_track["with_ev"].dump() == {
         "name": "var_with_ev",
         "data_type": "Text",
         "sort_order": 0,
@@ -56,7 +56,7 @@ def test_remove_simple_expected_value_affects_var_dict(simple_ev_track):
 
 def test_replace_simple_expected_value_affects_var_dict(simple_ev_track):
     simple_ev_track.set_primitive_expected_value("with_ev", "case_0", "XYZ")
-    assert simple_ev_track.variables["with_ev"].dump() == {
+    assert simple_ev_track["with_ev"].dump() == {
         "name": "var_with_ev",
         "data_type": "Text",
         "sort_order": 0,

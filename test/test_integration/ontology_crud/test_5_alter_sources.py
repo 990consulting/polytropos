@@ -6,12 +6,12 @@ from polytropos.ontology.variable import Variable
 
 def test_alter_source_changes_sources_list(target_nested_dict_track):
     track: Track = target_nested_dict_track
-    var: Variable = track.variables["target_var_2"]
+    var: Variable = track["target_var_2"]
     var.sources = ["source_var_2", "source_var_3"]
     assert var.sources == ["source_var_2", "source_var_3"]
 
 def do_source_swap(track: Track) -> Variable:
-    var: Variable = track.variables["target_var_2"]
+    var: Variable = track["target_var_2"]
     var.sources = ["source_var_3"]
     return var
 
@@ -30,34 +30,34 @@ def test_alter_source_changes_dict(target_nested_dict_track):
 def test_add_source_alters_source_for_vars_in(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
-    assert set(source_track.variables["source_var_3"].targets()) == set()
+    assert set(source_track["source_var_3"].targets()) == set()
     do_source_swap(target_track)
-    assert set(source_track.variables["source_var_3"].targets()) == {"target_var_2"}
+    assert set(source_track["source_var_3"].targets()) == {"target_var_2"}
 
 def test_remove_source_alters_targets(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
-    assert set(source_track.variables["source_var_2"].targets()) == {"target_var_2"}
+    assert set(source_track["source_var_2"].targets()) == {"target_var_2"}
     do_source_swap(target_track)
-    assert set(source_track.variables["source_var_2"].targets()) == set()
+    assert set(source_track["source_var_2"].targets()) == set()
 
 def test_add_source_changes_has_targets(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
-    assert not source_track.variables["source_var_3"].has_targets
+    assert not source_track["source_var_3"].has_targets
     do_source_swap(target_track)
-    assert source_track.variables["source_var_3"].has_targets
+    assert source_track["source_var_3"].has_targets
 
 def test_remove_source_changes_has_targets(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
-    assert source_track.variables["source_var_2"].has_targets
+    assert source_track["source_var_2"].has_targets
     do_source_swap(target_track)
-    assert not source_track.variables["source_var_2"].has_targets
+    assert not source_track["source_var_2"].has_targets
 
 def test_nonexistent_source_raises(target_nested_dict_track):
     with pytest.raises(ValueError):
-        target_nested_dict_track.variables["target_var_2"].sources = ["Not a thing"]
+        target_nested_dict_track["target_var_2"].sources = ["Not a thing"]
 
 def test_incompatible_source_raises(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
@@ -70,7 +70,7 @@ def test_incompatible_source_raises(target_nested_dict_track):
     source_track.add(text_var_spec, "source_text_var")
 
     with pytest.raises(ValueError):
-        target_track.variables["target_var_2"].sources = ["source_text_var"]
+        target_track["target_var_2"].sources = ["source_text_var"]
 
 @pytest.mark.parametrize("sources", [
     [],
@@ -79,7 +79,7 @@ def test_incompatible_source_raises(target_nested_dict_track):
 ])
 def test_add_source_to_folder_raises(sources, target_nested_dict_track):
     track: Track = target_nested_dict_track
-    folder: Variable = track.variables["target_folder_1"]
+    folder: Variable = track["target_folder_1"]
     with pytest.raises(ValueError):
         folder.sources = sources
 
@@ -90,7 +90,7 @@ def test_add_source_to_folder_raises(sources, target_nested_dict_track):
 ])
 def test_directly_assign_source_to_list_descendent_raises(sources, target_list_track):
     track: Track = target_list_track
-    var: Variable = track.variables["target_list_name"]
+    var: Variable = track["target_list_name"]
     with pytest.raises(ValueError):
         var.sources = sources
 
@@ -102,6 +102,6 @@ def test_directly_assign_source_to_list_descendent_raises(sources, target_list_t
 ])
 def test_directly_assign_source_to_named_list_descendent_raises(sources, target_named_list_track):
     track: Track = target_named_list_track
-    var: Variable = track.variables["target_root_age"]
+    var: Variable = track["target_root_age"]
     with pytest.raises(ValueError):
         var.sources = sources

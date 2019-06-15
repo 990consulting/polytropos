@@ -38,13 +38,13 @@ def test_delete_updates_parent_tree(source_nested_dict_track):
             }
         ]
     }
-    actual: Dict = track.variables["source_folder_2"].tree
+    actual: Dict = track["source_folder_2"].tree
     assert expected == actual
 
 def test_delete_updates_local_sort_order(source_nested_dict_track):
     track: Track = source_nested_dict_track
     track.delete("source_var_2")
-    assert track.variables["source_var_3"].sort_order == 0
+    assert track["source_var_3"].sort_order == 0
 
 def test_delete_root_updates_track_roots(source_nested_dict_track):
     track: Track = source_nested_dict_track
@@ -57,16 +57,16 @@ def test_delete_updates_source_for_vars_in(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
     target_track.delete("target_var_2")
-    actual: Set[str] = set(source_track.variables["source_var_2"].targets())
+    actual: Set[str] = set(source_track["source_var_2"].targets())
     expected: Set[str] = set()
     assert actual == expected
 
 def test_delete_updates_has_targets_for_source(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
     source_track: Track = target_track.source
-    assert source_track.variables["source_var_2"].has_targets
+    assert source_track["source_var_2"].has_targets
     target_track.delete("target_var_2")
-    assert not source_track.variables["source_var_2"].has_targets
+    assert not source_track["source_var_2"].has_targets
 
 def test_delete_updates_descendants_that(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
