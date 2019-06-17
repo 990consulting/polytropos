@@ -11,11 +11,10 @@ from polytropos.ontology.variable import Variable
 
 
 def _validate_roots(
-    actual_roots: Iterator[Variable], number_of_roots: int, *expected_variables: str
+    actual_roots: Iterator[Variable], number_of_roots: int
 ):
     result = list(actual_roots)
     assert len(result) == number_of_roots
-    assert set(expected_variables) == {root.name for root in result}
 
 
 def test_duplicate():
@@ -27,9 +26,9 @@ def test_duplicate():
         None,
         "duplicate",
     )
-    _validate_roots(track.roots, 1, "a")
+    _validate_roots(track.roots, 1)
     track.duplicate("a", "c")
-    _validate_roots(track.roots, 2, "a")
+    _validate_roots(track.roots, 2)
 
 
 def test_add():
@@ -41,9 +40,9 @@ def test_add():
         None,
         "duplicate",
     )
-    _validate_roots(track.roots, 1, "a")
+    _validate_roots(track.roots, 1)
     track.add({"name": "c", "data_type": "List", "parent": "", "sort_order": 0}, "c")
-    _validate_roots(track.roots, 2, "a", "c")
+    _validate_roots(track.roots, 2)
 
 
 def test_delete():
@@ -56,9 +55,9 @@ def test_delete():
         None,
         "duplicate",
     )
-    _validate_roots(track.roots, 2, "a", "c")
+    _validate_roots(track.roots, 2)
     track.delete("c")
-    _validate_roots(track.roots, 1, "a")
+    _validate_roots(track.roots, 1)
 
 
 def test_move():
@@ -70,9 +69,9 @@ def test_move():
         None,
         "duplicate",
     )
-    _validate_roots(track.roots, 1, "a")
+    _validate_roots(track.roots, 1)
     track.move("b", None, 0)
-    _validate_roots(track.roots, 2, "a", "b")
+    _validate_roots(track.roots, 2)
 
 
 def test_direct_manipulation():
@@ -84,6 +83,6 @@ def test_direct_manipulation():
         None,
         "duplicate",
     )
-    _validate_roots(track.roots, 1, "a")
+    _validate_roots(track.roots, 1)
     track["b"].parent = ""
-    _validate_roots(track.roots, 2, "a", "b")
+    _validate_roots(track.roots, 2)

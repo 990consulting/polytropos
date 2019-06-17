@@ -101,28 +101,3 @@ def test_delete_changes_track_dump(target_nested_dict_track):
     }
     actual: Dict = track.dump()
     assert expected == actual
-
-def test_delete_variable_with_expected_values_updates_test_cases():
-    spec: Dict = {
-        "var_1": {
-            "name": "the_first_var",
-            "data_type": "Integer",
-            "sort_order": 0,
-            "simple_expected_values": {
-                "entity 1": 5,
-                "entity 2": 7
-            }
-        },
-        "var_2": {
-            "name": "the_second_var",
-            "data_type": "Text",
-            "sort_order": 1,
-            "simple_expected_values": {
-                "entity 2": "foo",
-                "entity 3": "bar"
-            }
-        }
-    }
-    track: Track = Track.build(spec, None, "Test")
-    track.delete("var_2")
-    assert {"entity 1", "entity 2"} == set(track.test_cases)

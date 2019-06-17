@@ -311,15 +311,7 @@ class Container(Variable):
 
 @dataclass
 class Primitive(Variable):
-    # For primitives only, the value expected for this variable in a specified instance hierarchy
-    simple_expected_values: Dict[str, Any] = field(
-        default_factory=dict
-    )
-
-    @property
-    def test_cases(self) -> Iterator[str]:
-        return self.simple_expected_values.keys()
-
+    pass
 
 @dataclass
 class Integer(Primitive):
@@ -385,39 +377,16 @@ class Folder(Container):
 
 @dataclass
 class GenericList(Container):
-    # For lists and named lists, sources for any list descendents relative to a particular root source.
-    # For lists and named lists, the set of fields for which expected values are to be supplied. (We do not necessarily
-    # have expected values for every descendant.) Descendants are identified by their IDs, not their paths.
-    list_expected_values_fields: ListType[str] = field(
-        default_factory=list
-    )
+    pass
 
 
 @dataclass
 class List(GenericList):
-    # For lists, a mapping of instance hierarchy ID to set of per-subfield expected values. Note that
-    # the set of expected values for a given instance hierarchy may be zero-length (we explicitly expect that the list
-    # is empty).
-    list_expected_values: Dict[str, Iterable[Dict[str, Any]]] = field(
-        default_factory=dict
-    )
-
-    @property
-    def test_cases(self) -> Iterator[str]:
-        return self.list_expected_values.keys()
+    pass
 
 @dataclass
 class NamedList(GenericList):
-    # For named lists, a mapping of instance hierarchy ID to a mapping of name to per-subfield expected values. Note
-    # that the set of expected values for a given instance hierarchy may be zero-length (we explicitly expect that
-    # the named list is empty).
-    named_list_expected_values: Dict[str, Dict[str, Dict[str, Any]]] = field(
-        default_factory=dict
-    )
-
-    @property
-    def test_cases(self) -> Iterator[str]:
-        return self.named_list_expected_values.keys()
+    pass
 
 def _incompatible_type(source_var: Variable, variable: Variable):
     if variable.__class__ == List:

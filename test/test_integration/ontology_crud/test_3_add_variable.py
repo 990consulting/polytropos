@@ -140,10 +140,3 @@ def test_add_alters_descendants_that(target_nested_dict_track, nested_new_var_sp
     expected: Set[str] = set(track.descendants_that(container=-1))
     assert actual == expected
 
-def test_add_variable_with_expected_values_updates_test_cases(target_nested_dict_track, nested_new_var_spec):
-    nested_new_var_spec["simple_expected_values"] = {
-        "the entity instance": "the expected value"
-    }
-    track: Track = target_nested_dict_track
-    track.add(nested_new_var_spec)
-    assert set(track.test_cases) == {"the entity instance"}

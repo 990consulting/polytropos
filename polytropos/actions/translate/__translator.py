@@ -3,7 +3,6 @@ from collections.abc import Callable
 from collections import defaultdict
 from polytropos.ontology.track import Track
 from polytropos.ontology.variable import NamedList, List, Folder
-from polytropos.actions.translate.__reporter import Reporter
 
 
 class Translator(Callable):
