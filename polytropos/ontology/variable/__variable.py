@@ -9,14 +9,12 @@ from functools import partial
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
 
-
 if TYPE_CHECKING:
     from polytropos.ontology.track import Track
 
-
 class Validator:
     @staticmethod
-    def validate_sources(variable, sources, init=False):
+    def validate_sources(variable: "Variable", sources: ListType["Variable"], init: bool=False):
         if variable.track is not None:
             if not init:
                 if isinstance(variable, Folder):
@@ -29,7 +27,7 @@ class Validator:
                 if source not in variable.track.source:
                     raise ValueError
                 source_var = variable.track.source[source]
-                if source_var.__class__ != variable.__class__:
+                if _incompatible_type(source_var, variable):
                     raise ValueError
 
     @staticmethod
@@ -420,3 +418,11 @@ class NamedList(GenericList):
     @property
     def test_cases(self) -> Iterator[str]:
         return self.named_list_expected_values.keys()
+
+def _incompatible_type(source_var: Variable, variable: Variable):
+    if variable.__class__ == List:
+        if source_var.__class__ not in {List, Folder}:
+            return True
+    elif source_var.__class__ != variable.__class__:
+        return True
+    return False
