@@ -235,7 +235,6 @@ class Track(MutableMapping):
         variable.list_expected_values[instance_id] = []
         for value in values:
             if list(value.keys()) != variable.list_expected_values_fields:
-                print(value.keys(), variable.list_expected_values_fields)
                 raise ValueError
             variable.list_expected_values[instance_id].append(value)
 
@@ -247,7 +246,6 @@ class Track(MutableMapping):
         variable.named_list_expected_values[instance_id] = {}
         for key, value in values.items():
             if list(value.keys()) != variable.list_expected_values_fields:
-                print(value.keys(), variable.list_expected_values_fields)
                 raise ValueError
             variable.named_list_expected_values[instance_id][key] = value
 

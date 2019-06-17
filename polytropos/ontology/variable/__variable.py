@@ -65,7 +65,7 @@ class Validator:
         if sort_order < 0:
             raise ValueError
         if variable.track is not None:
-            print(variable.track._cache)
+            #print(variable.track._cache)
             if sort_order >= len(list(variable.siblings)) + (1 if adding else 0):
                 raise ValueError
 

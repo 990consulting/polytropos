@@ -15,7 +15,6 @@ class Translator(Callable):
         # We need to group by variables by parent to be able to efficiently do
         # a recursion in the translate function
         self.target_variables_by_parent = defaultdict(dict)
-        self.reporter = Reporter()
         for variable_id, variable in self.target.items():
             self.target_variables_by_parent[
                 variable.parent
@@ -137,9 +136,6 @@ class Translator(Callable):
         else:
             return self.translate_generic
 
-    def set_document_name(self, name):
-        self.reporter.set_document_name(name)
-
     def __call__(self, document, parent='', source_parent=''):
         output_document = {}
         # Translate all variables with the same parent
@@ -150,9 +146,6 @@ class Translator(Callable):
                 translate = self.get_translate_function(variable)
                 output_document[variable.name] = translate(
                     variable_id, variable, document, source_parent
-                )
-                self.reporter.report(
-                    variable_id, variable, output_document[variable.name]
                 )
             except:
                 if self.failsafe:
