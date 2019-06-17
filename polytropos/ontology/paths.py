@@ -3,8 +3,8 @@ import os
 
 
 @dataclass
-class TaskPathLocator:
-    """Path locator class. It knows the internal structure of a scenario"""
+class PathLocator:
+    """Path locator class. It knows the internal structure of a Polytropos environment."""
     conf: str
     data: str
 

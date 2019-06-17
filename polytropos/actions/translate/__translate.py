@@ -8,21 +8,20 @@ from polytropos.ontology.schema import Schema
 from polytropos.actions.translate import Translator
 
 if TYPE_CHECKING:
-    from polytropos.ontology.task.paths import TaskPathLocator
+    from polytropos.ontology.paths import PathLocator
 
 @dataclass
 class Translate(Step):
     target_schema: Schema
-    # TODO: Better typing, Callable??
-    translate_immutable: Any
-    translate_temporal: Any
+    translate_immutable: Translator
+    translate_temporal: Translator
 
     """Wrapper around the tranlation functions to be used in the tasks"""
     @classmethod
-    def build(cls, path_locator: "TaskPathLocator", schema, target_schema):
-        target_schema = Schema.load(path_locator, target_schema, schema)
-        translate_immutable = Translator(target_schema.immutable)
-        translate_temporal = Translator(target_schema.temporal)
+    def build(cls, path_locator: "PathLocator", source_schema: Schema, target_schema_path: str):
+        target_schema: Schema = Schema.load(path_locator, target_schema_path, source_schema=source_schema)
+        translate_immutable: Translator = Translator(target_schema.immutable)
+        translate_temporal: Translator = Translator(target_schema.temporal)
         return cls(target_schema, translate_immutable, translate_temporal)
 
     def __call__(self, origin_dir: str, target_dir: str):

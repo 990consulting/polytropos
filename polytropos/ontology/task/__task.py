@@ -6,21 +6,15 @@ from tempfile import TemporaryDirectory
 from polytropos.actions.consume import Consume
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
-from polytropos.ontology.task.paths import TaskPathLocator
+from polytropos.ontology.paths import PathLocator
 
 # Import all action types so that they can be registered as subclasses
-from polytropos.actions.evolve.__evolve import Evolve
-from polytropos.actions.scan import Scan
-from polytropos.actions.filter import Filter
-from polytropos.actions.aggregate import Aggregate
-from polytropos.actions.translate import Translate
 
 # Step class name deserialization
 STEP_TYPES = {
     cls.__name__: cls
     for cls in Step.__subclasses__()
 }
-
 
 class Task:
     def __init__(
@@ -40,7 +34,7 @@ class Task:
         """Build task from yaml, read all input data and create corresponding
         objects"""
         logging.info("Constructing task execution plan.")
-        path_locator = TaskPathLocator(conf=conf_dir, data=data_dir)
+        path_locator = PathLocator(conf=conf_dir, data=data_dir)
         logging.info("Configuration base directory is %s; data base directory is %s." % (conf_dir, data_dir))
         task_path: str = os.path.join(path_locator.tasks_dir, name + '.yaml')
         with open(task_path, 'r') as f:

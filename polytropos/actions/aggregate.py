@@ -9,7 +9,7 @@ from functools import partial
 from polytropos.ontology.composite import Composite
 
 from polytropos.actions.step import Step
-from polytropos.ontology.task.paths import TaskPathLocator
+from polytropos.ontology.paths import PathLocator
 from polytropos.util.loader import load
 from polytropos.ontology.schema import Schema
 from polytropos.util.config import MAX_WORKERS
@@ -25,7 +25,7 @@ class Aggregate(Step):
 
     @classmethod
     def build(
-            cls, path_locator: TaskPathLocator, origin_schema: Schema, name: str, target_schema: Schema, id_var: str,
+            cls, path_locator: PathLocator, origin_schema: Schema, name: str, target_schema: Schema, id_var: str,
             input_schema_vars: Dict, output_schema_vars: Dict
     ): 
         target_schema = Schema.load(path_locator, target_schema)

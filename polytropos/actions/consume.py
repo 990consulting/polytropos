@@ -11,7 +11,7 @@ from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.util.loader import load
 from polytropos.util.composites import get_property, get_observation
-from polytropos.ontology.task.paths import TaskPathLocator
+from polytropos.ontology.paths import PathLocator
 
 
 # TODO Quimey, unlike the other tasks, consumers may take arguments that are not variables. We may want the ability to
@@ -19,12 +19,12 @@ from polytropos.ontology.task.paths import TaskPathLocator
 #  I'm not sure if this actually creates a problem or not.
 @dataclass
 class Consume(Step):
-    path_locator: TaskPathLocator
+    path_locator: PathLocator
     schema: Schema
 
     """Export data from a set of composites to a single file."""
     @classmethod
-    def build(cls, path_locator: TaskPathLocator, schema: Schema, name: str, **kwargs):
+    def build(cls, path_locator: PathLocator, schema: Schema, name: str, **kwargs):
         consumes = load(cls)
         return consumes[name](path_locator, schema, **kwargs)
 
