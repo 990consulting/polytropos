@@ -55,9 +55,9 @@ class Evolve(Step):
         with open(os.path.join(target, filename), 'w') as target_file:
             json.dump(composite, target_file)
 
-    def __call__(self, origin, target):
+    def __call__(self, origin_dir, target_dir):
         with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
             executor.map(
-                partial(self.process_composite, origin, target),
-                os.listdir(origin)
+                partial(self.process_composite, origin_dir, target_dir),
+                os.listdir(origin_dir)
             )

@@ -1,17 +1,12 @@
 from abc import abstractmethod
 from collections.abc import Callable
 
-
 class Step(Callable):
-    """ABC for all tasks steps"""
-    @classmethod
-    @abstractmethod
-    def build(cls, path_locator, schema, **kwargs):
-        """Build takes always a path locator and a schema, there are other
-        keyword arguments that depend on the implementation"""
-        pass
 
     @abstractmethod
-    def __call__(self, origin, target):
-        """Call takes the origin folder and the target folder"""
+    def __call__(self, origin_dir: str, target_dir: str):
+        """Call takes the origin folder and the target folder
+        :param origin_dir: The directory path in which to find origin composites
+        :param target_dir: The directory path in which to find target composites
+        """
         pass

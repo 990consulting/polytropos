@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 from polytropos.actions.consume import Consume
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
-from polytropos.ontology.task.__paths import TaskPathLocator
+from polytropos.ontology.task.paths import TaskPathLocator
 
 # Import all action types so that they can be registered as subclasses
 from polytropos.actions.evolve.__evolve import Evolve
@@ -74,7 +74,7 @@ class Task:
             )
             for class_name, kwargs in step.items():
                 step_instance = STEP_TYPES[class_name].build(
-                    path_locator=self.path_locator, schema=current_schema, **kwargs
+                    path_locator=self.path_locator, origin_schema=current_schema, **kwargs
                 )
                 self.steps.append(step_instance)
 

@@ -4,11 +4,14 @@ import csv
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict
+
+from polytropos.ontology.composite import Composite
+
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.util.loader import load
 from polytropos.util.composites import get_property, get_observation
-from polytropos.ontology.task.__paths import TaskPathLocator
+from polytropos.ontology.task.paths import TaskPathLocator
 
 
 # TODO Quimey, unlike the other tasks, consumers may take arguments that are not variables. We may want the ability to
@@ -21,7 +24,7 @@ class Consume(Step):
 
     """Export data from a set of composites to a single file."""
     @classmethod
-    def build(cls, path_locator, schema, name, **kwargs):
+    def build(cls, path_locator: TaskPathLocator, schema: Schema, name: str, **kwargs):
         consumes = load(cls)
         return consumes[name](path_locator, schema, **kwargs)
 
@@ -33,15 +36,16 @@ class Consume(Step):
         """Optional actions to be performed after the composites are all consumed."""
 
     @abstractmethod
-    def consume(self, composite_id: str, composite: Dict):
+    def consume(self, composite_id: str, composite: Composite):
         pass
 
-    def __call__(self, origin, target):
+    def __call__(self, origin_dir, target_dir):
         """Generate the export file."""
         self.before()
-        for filename in sorted(os.listdir(origin)):
-            with open(os.path.join(origin, filename), 'r') as origin_file:
-                composite = json.load(origin_file)
+        for filename in sorted(os.listdir(origin_dir)):
+            with open(os.path.join(origin_dir, filename), 'r') as origin_file:
+                content = json.load(origin_file)
+                composite: Composite = Composite(self.schema, content)
                 self.consume(filename[:-5], composite)
         self.after()
 

@@ -6,7 +6,10 @@ from typing import Dict, Optional, Any, Iterable, Tuple, Iterator
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 
+from polytropos.ontology.composite import Composite
+
 from polytropos.actions.step import Step
+from polytropos.ontology.task.paths import TaskPathLocator
 from polytropos.util.loader import load
 from polytropos.ontology.schema import Schema
 from polytropos.util.config import MAX_WORKERS
@@ -16,27 +19,30 @@ from polytropos.util.config import MAX_WORKERS
 class Aggregate(Step):
     """Iterates over all composites following one schema, and produces a new set of composites, representing a different
     kind of entity, and following a different schema."""
+    origin_schema: Schema
     target_schema: Schema
+    id_var: str
 
     @classmethod
     def build(
-            cls, path_locator, schema, name, target_schema, id_var,
-            input_schema_vars, output_schema_vars
+            cls, path_locator: TaskPathLocator, origin_schema: Schema, name: str, target_schema: Schema, id_var: str,
+            input_schema_vars: Dict, output_schema_vars: Dict
     ): 
         target_schema = Schema.load(path_locator, target_schema)
         aggregations = load(cls)
         input_variables = {
-            var_name: schema.get(var_id)
+            var_name: origin_schema.get(var_id)
             for var_name, var_id in input_schema_vars.items()
         }
         output_variables = {
             var_name: target_schema.get(var_id)
             for var_name, var_id in output_schema_vars.items()
         }
-        return aggregations[name](target_schema=target_schema, **input_variables, **output_variables)
+        return aggregations[name](origin_schema=origin_schema, target_schema=target_schema, id_var=id_var,
+                                  **input_variables, **output_variables)
 
     @abstractmethod
-    def extract(self, composite: Dict) -> Optional[Any]:
+    def extract(self, composite: Composite) -> Optional[Any]:
         """Gather the information to be used in the analysis."""
         pass
 
@@ -47,30 +53,31 @@ class Aggregate(Step):
         pass
 
     @abstractmethod
-    def emit(self) -> Iterator[Tuple[str, Dict]]:
-        """Lazily produce instances of the target entity. Yields tuples of (new entity ID, new entity content)."""
+    def emit(self) -> Iterator[Tuple[str, Composite]]:
+        """Lazily produce instances of the target entity. Yields tuples of (new entity ID, new entity composite)."""
         pass
 
-    def process_composite(self, origin, filename):
-        with open(os.path.join(origin, filename), 'r') as origin_file:
-            composite = json.load(origin_file)
+    def process_composite(self, origin_dir: str, filename: str):
+        with open(os.path.join(origin_dir, filename), 'r') as origin_file:
+            content: Dict = json.load(origin_file)
+            composite: Composite = Composite(self.origin_schema, content)
             return filename, self.extract(composite)
 
-    def write_composite(self, target, emission):
+    def write_composite(self, target_dir: str, emission: Composite):
         filename, composite = emission
-        with open(os.path.join(target, filename + '.json'), 'w') as target_file:
-            json.dump(composite, target_file)
+        with open(os.path.join(target_dir, filename + '.json'), 'w') as target_file:
+            json.dump(composite.content, target_file)
 
-    def __call__(self, origin, target):
+    def __call__(self, origin_dir: str, target_dir: str):
         with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
             self.analyze(
                 executor.map(
-                    partial(self.process_composite, origin),
-                    os.listdir(origin)
+                    partial(self.process_composite, origin_dir),
+                    os.listdir(origin_dir)
                 )
             )
         with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
             executor.map(
-                partial(self.write_composite, target),
+                partial(self.write_composite, target_dir),
                 self.emit()
             )
