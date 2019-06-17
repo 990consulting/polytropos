@@ -1,10 +1,9 @@
-from etl4.util import nesteddicts
+from polytropos.util import nesteddicts
 from pytest import raises, mark
 from typing import *
 
-def _do_get_test(data: Dict, spec: List[str], default: Any=None, expected: Optional[str]="expected",
-                 accept_none: bool=False) -> None:
-    actual: Any = nesteddicts.get(data, spec, default=default, accept_none=accept_none)
+def _do_get_test(data: Dict, spec: List[str], expected: Optional[str] = "expected", **kwargs):
+    actual: Any = nesteddicts.get(data, spec, **kwargs)
     assert actual == expected
 
 def test_empty_spec_returns_self():
@@ -71,6 +70,17 @@ def test_get_missing_nodefault_raises():
     }
     with raises(nesteddicts.MissingDataError):
         _do_get_test(data, spec)
+
+def test_get_actually_none():
+    spec: List[str] = ["a", "b", "c"]
+    data: Dict = {
+        "a": {
+            "b": {
+                "c": None
+            }
+        }
+    }
+    _do_get_test(data, spec, expected=None)
 
 def test_get_empty():
     spec: List[str] = ["a", "b", "c"]

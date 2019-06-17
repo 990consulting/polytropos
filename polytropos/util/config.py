@@ -1,0 +1,1 @@
+MAX_WORKERS = 2

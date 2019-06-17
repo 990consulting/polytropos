@@ -1,4 +1,4 @@
-from etl4.util.compare import compare
+from polytropos.util.compare import compare
 
 
 def test_equality():

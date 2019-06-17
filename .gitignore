@@ -102,8 +102,11 @@ venv.bak/
 
 
 # test results
-fixtures/1_mm_only/data/entities/person/actual
-fixtures/2_mm_scan/data/entities/person/actual
-fixtures/3_mm_aggregate_mm_scan/data/entities/city/origin
-fixtures/4_filter_mm_scan/data/entities/person/actual
-
+fixtures/s_1_mm_only/data/entities/person/actual
+fixtures/s_2_mm_scan/data/entities/person/actual
+fixtures/s_3_mm_aggregate_mm_scan/data/entities/city/origin
+fixtures/s_4_filter_mm_scan/data/entities/person/actual
+fixtures/s_6_tr_export/count_output.txt
+fixtures/s_6_tr_export/immutable.csv
+fixtures/s_6_tr_export/records.json
+fixtures/s_6_tr_export/temporal.csv

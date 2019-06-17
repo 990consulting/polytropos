@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/etl4a.iml" filepath="$PROJECT_DIR$/.idea/etl4a.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/polytropos.iml" filepath="$PROJECT_DIR$/.idea/polytropos.iml" />
     </modules>
   </component>
 </project>
