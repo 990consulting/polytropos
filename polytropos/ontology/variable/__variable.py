@@ -5,6 +5,9 @@ from collections import defaultdict
 from typing import(
     List as ListType, Dict, Iterator, Any, Iterable, TYPE_CHECKING
 )
+from functools import partial
+from cachetools import cachedmethod
+from cachetools.keys import hashkey
 
 if TYPE_CHECKING:
     from polytropos.ontology.track import Track
@@ -62,6 +65,7 @@ class Validator:
         if sort_order < 0:
             raise ValueError
         if variable.track is not None:
+            #print(variable.track._cache)
             if sort_order >= len(list(variable.siblings)) + (1 if adding else 0):
                 raise ValueError
 
@@ -107,6 +111,8 @@ class Variable:
     # WARNING! The variable ID _MUST_ be unique within the schema, or terrible things will happen!
     var_id = None
 
+    _cache: Dict = field(init=False, default_factory=dict)
+
     def __hash__(self) -> str:
         return self.var_id
 
@@ -149,7 +155,12 @@ class Variable:
                 return
         if attribute == 'data_type':
             raise AttributeError
+        if self.track:
+            self.track.invalidate_variables_cache()
         self.__dict__[attribute] = value
+
+    def invalidate_cache(self):
+        self._cache.clear()
 
     def update_sort_order(self, old_order=None, new_order=None):
         if old_order is None:
@@ -189,6 +200,7 @@ class Variable:
         return isinstance(parent, GenericList) or parent.descends_from_list
 
     @property
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'relative_path'))
     def relative_path(self) -> Iterator[str]:
         """The path from this node to the nearest list or or root."""
         if not self.parent:
@@ -200,6 +212,7 @@ class Variable:
         return parent_path + [self.name]
 
     @property
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'absolute_path'))
     def absolute_path(self) -> Iterator[str]:
         """The path from this node to the root."""
         if not self.parent:
@@ -208,6 +221,7 @@ class Variable:
         return parent_path + [self.name]
 
     @property
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'tree'))
     def tree(self) -> Dict:
         """A tree representing the descendants of this node. (For UI)"""
         children = [
@@ -251,6 +265,7 @@ class Variable:
             return True
         return self.check_ancestor(variable.parent)
 
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'descendants_that'))
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
             -> Iterator[str]:
         """Provides a list of variable IDs descending from this variable that meet certain criteria.
@@ -296,15 +311,7 @@ class Container(Variable):
 
 @dataclass
 class Primitive(Variable):
-    # For primitives only, the value expected for this variable in a specified instance hierarchy
-    simple_expected_values: Dict[str, Any] = field(
-        default_factory=dict
-    )
-
-    @property
-    def test_cases(self) -> Iterator[str]:
-        return self.simple_expected_values.keys()
-
+    pass
 
 @dataclass
 class Integer(Primitive):
@@ -370,39 +377,16 @@ class Folder(Container):
 
 @dataclass
 class GenericList(Container):
-    # For lists and named lists, sources for any list descendents relative to a particular root source.
-    # For lists and named lists, the set of fields for which expected values are to be supplied. (We do not necessarily
-    # have expected values for every descendant.) Descendants are identified by their IDs, not their paths.
-    list_expected_values_fields: ListType[str] = field(
-        default_factory=list
-    )
+    pass
 
 
 @dataclass
 class List(GenericList):
-    # For lists, a mapping of instance hierarchy ID to set of per-subfield expected values. Note that
-    # the set of expected values for a given instance hierarchy may be zero-length (we explicitly expect that the list
-    # is empty).
-    list_expected_values: Dict[str, Iterable[Dict[str, Any]]] = field(
-        default_factory=dict
-    )
-
-    @property
-    def test_cases(self) -> Iterator[str]:
-        return self.list_expected_values.keys()
+    pass
 
 @dataclass
 class NamedList(GenericList):
-    # For named lists, a mapping of instance hierarchy ID to a mapping of name to per-subfield expected values. Note
-    # that the set of expected values for a given instance hierarchy may be zero-length (we explicitly expect that
-    # the named list is empty).
-    named_list_expected_values: Dict[str, Dict[str, Dict[str, Any]]] = field(
-        default_factory=dict
-    )
-
-    @property
-    def test_cases(self) -> Iterator[str]:
-        return self.named_list_expected_values.keys()
+    pass
 
 def _incompatible_type(source_var: Variable, variable: Variable):
     if variable.__class__ == List:
