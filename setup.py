@@ -19,6 +19,7 @@ setuptools.setup(
         'pytest-repeat',
         'dacite',
         'pyyaml',
+        'cachetools'
     ],
     download_url='https://github.com/borenstein/polytropos/archive/0.0.2.tar.gz',
     classifiers=[

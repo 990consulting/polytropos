@@ -1,7 +1,0 @@
-scipy
-numpy
-pytest
-glom
-pytest-repeat
-dacite
-pyyaml
