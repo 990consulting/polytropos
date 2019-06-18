@@ -21,7 +21,7 @@ class Filter(Step):
     schema: Schema
 
     @classmethod
-    def build(cls, schema: Schema, name: str, subjects: Dict):
+    def build(cls, path_locator, schema: Schema, name: str, subjects: Dict):
         filters = load(cls)
         variables = {
             var_name: schema.get(var_id)

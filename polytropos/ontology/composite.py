@@ -19,7 +19,8 @@ class Composite:
             raise ValueError('Unrecognized variable ID "%s"' % var_id)
         return var
 
-    def get_periods(self) -> Iterator[str]:
+    @property
+    def periods(self) -> Iterator[str]:
         """Iterate over all of the observation periods contained in this composite."""
         yield from set(self.content.keys()) - {"immutable"}
 

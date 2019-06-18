@@ -1,0 +1,7 @@
+{
+  "the_weight_var": {
+    "name": "weight_in_pounds",
+    "data_type": "Decimal",
+    "sort_order": 0
+  }
+}

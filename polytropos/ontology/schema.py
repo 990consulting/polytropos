@@ -39,6 +39,10 @@ class Schema:
         :param source_schema: An already-loaded schema from which this schema can be translated, if applicable.
         :return:
         """
+        # TODO Figure out why these two lines are necessary. They definitely are, for now.
+        if path is None:
+            return None
+
         source_immutable: Optional[Track] = source_schema.immutable if source_schema else None
         source_temporal: Optional[Track] = source_schema.temporal if source_schema else None
 

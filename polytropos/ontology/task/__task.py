@@ -9,6 +9,11 @@ from polytropos.ontology.schema import Schema
 from polytropos.ontology.paths import PathLocator
 
 # Import all action types so that they can be registered as subclasses
+from polytropos.actions.evolve.__evolve import Evolve
+from polytropos.actions.scan import Scan
+from polytropos.actions.filter import Filter
+from polytropos.actions.aggregate import Aggregate
+from polytropos.actions.translate import Translate
 
 # Step class name deserialization
 STEP_TYPES = {
