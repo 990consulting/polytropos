@@ -1,8 +1,11 @@
+import logging
 import os
 import json
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from typing import Dict, List
+
+from polytropos.ontology.composite import Composite
 
 from polytropos.util.loader import load
 # TODO Find out how to avoid needing to do this kind of thing
@@ -48,16 +51,25 @@ class Evolve(Step):
         return cls(path_locator, change_instances, lookups, schema)
 
     def process_composite(self, origin, target, filename):
-        with open(os.path.join(origin, filename), 'r') as origin_file:
-            composite = json.load(origin_file)
+        origin_filename: str = os.path.join(origin, filename)
+        logging.debug("Evolving %s." % origin_filename)
+        with open(origin_filename, 'r') as origin_file:
+            content: Dict = json.load(origin_file)
+            composite: Composite = Composite(self.schema, content)
             for change in self.changes:
-                change(composite)
+                logging.debug('Applying change "%s" to %s.' % (change.__class__.__name__, origin_filename))
+                try:
+                    change(composite)
+                except Exception as e:
+                    raise RuntimeError('Failure to execute change "%s" to origin file "%s"' % (change.__class__.__name__, origin_filename)) from e
         with open(os.path.join(target, filename), 'w') as target_file:
             json.dump(composite, target_file)
 
     def __call__(self, origin_dir, target_dir):
+        targets = os.listdir(origin_dir)
+        logging.debug("I have the following targets:\n   - %s" % "\n   - ".join(targets))
         with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
             executor.map(
                 partial(self.process_composite, origin_dir, target_dir),
-                os.listdir(origin_dir)
+                targets
             )

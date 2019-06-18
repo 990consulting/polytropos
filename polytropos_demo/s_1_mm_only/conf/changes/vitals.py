@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from typing import Dict
 
@@ -14,17 +15,24 @@ class CalculateWeightGain(Change):
     weight_gain_var: Decimal = SubjectValidator(data_type=Decimal)
 
     def __call__(self, composite: Composite):
-        periods = composite.periods
+        logging.debug("Beginning CalculateWeightGain")
+        periods = list(composite.periods)
+        logging.debug("Observed the following periods: %s" % ", ".join(periods))
         earliest = min(periods)
         latest = max(periods)
 
         earliest_weight = composite.get_observation(self.weight_var.var_id, earliest)
+        logging.debug("Earliest weight: %0.2f" % earliest_weight)
+
         latest_weight = composite.get_observation(self.weight_var.var_id, latest)
+        logging.debug("Latest weight: %0.2f" % latest_weight)
 
         # I know, should have called it "weight change."
         weight_gain = round(latest_weight - earliest_weight, 2)
+        logging.debug("Weight gain: %0.2f" % weight_gain)
 
         composite.put_immutable(self.weight_gain_var.var_id, weight_gain)
+        logging.debug("Finished CalculateWeightGain.")
 
 @lookup('genders')
 @dataclass

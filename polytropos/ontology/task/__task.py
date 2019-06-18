@@ -73,7 +73,7 @@ class Task:
             )
             for class_name, kwargs in step.items():
                 step_instance = STEP_TYPES[class_name].build(
-                    path_locator=self.path_locator, origin_schema=current_schema, **kwargs
+                    path_locator=self.path_locator, schema=current_schema, **kwargs
                 )
                 self.steps.append(step_instance)
 
@@ -85,15 +85,20 @@ class Task:
         """Run the task: run steps one by one handling intermediate outputs in
         temporary folders"""
         origin_path = os.path.join(self.path_locator.entities_dir, self.origin_data)
+        logging.info("Running task with origin data in %s." % origin_path)
         if self.target_data is not None:
-            actual_path = os.path.join(
+            task_output_path = os.path.join(
                 self.path_locator.entities_dir, self.target_data
             )
             try:
-                rmtree(actual_path)
+                logging.debug("Attempting to remove old task output directory, if it exists.")
+                rmtree(task_output_path)
+                logging.debug("Old output directory removed.")
             except FileNotFoundError:
+                logging.debug("No old task output directory.")
                 pass
-            os.mkdir(actual_path)
+            logging.debug("Creating task output directory.")
+            os.mkdir(task_output_path)
         # There are always two paths in play, current and next, each step
         # will read from current and write to next, after the step is done we
         # can delete the current_path folder because it's not used anymore
@@ -101,7 +106,9 @@ class Task:
         current_path_obj = None
         next_path = None
         for step in self.steps:
+            logging.info("Beginning a %s step." % step.__class__.__name__)
             next_path = TemporaryDirectory(dir=self.path_locator.data_dir)
+            logging.debug("Output for this step will be recorded in %s." % next_path)
             step(current_path, next_path.name)
             if current_path_obj:
                 current_path_obj.cleanup()
@@ -109,8 +116,8 @@ class Task:
             current_path_obj = next_path
         if self.target_data is not None:
             # Move the last temporary folder to destination
-            logging.info("Renaming %s to %s" % (next_path.name, actual_path))
-            os.rename(next_path.name, actual_path)
+            logging.info("Renaming %s to %s" % (next_path.name, task_output_path))
+            os.rename(next_path.name, task_output_path)
             # Hack to avoid leaving unfinished objects
             os.mkdir(next_path.name)
         next_path.cleanup()
