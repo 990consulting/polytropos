@@ -42,7 +42,7 @@ class Composite:
         """Iterate over all observations of a temporal variable from this composite."""
         var = self.as_var(var_id, track_type=TrackType.TEMPORAL)
         var_path: List = list(var.absolute_path)
-        for period in self.get_periods():
+        for period in self.periods:
             try:
                 yield period, nesteddicts.get(self.content, [period] + var_path)
             except MissingDataError:

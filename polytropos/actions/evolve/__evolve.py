@@ -3,9 +3,11 @@ import os
 import json
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
-from typing import Dict, List
+from typing import Dict, List, Optional, TYPE_CHECKING, Type
 
 from polytropos.ontology.composite import Composite
+from polytropos.ontology.variable import Variable
+from polytropos.util.exceptions import ExceptionWrapper
 
 from polytropos.util.loader import load
 # TODO Find out how to avoid needing to do this kind of thing
@@ -13,63 +15,79 @@ from polytropos.actions.evolve.__change import Change
 from polytropos.actions.step import Step
 from polytropos.util.config import MAX_WORKERS
 
+if TYPE_CHECKING:
+    from polytropos.ontology.paths import PathLocator
+    from polytropos.ontology.schema import Schema
+
+def load_lookups(path_locator: "PathLocator", lookups: List[str]) -> Dict[str, Dict]:
+    loaded_lookups: Dict = {}
+    lookups = lookups or []
+    for lookup in lookups:
+        with open(os.path.join(path_locator.lookups_dir, lookup + '.json'), 'r') as l:
+            loaded_lookups[lookup] = json.load(l)
+    return loaded_lookups
 
 class Evolve(Step):
     """A metamorphosis represents a series of changes that are made to a single composite, in order, and without
     reference to any other composite. Each change is defined in terms of one or more subject variables, which may be
     inputs, outputs, or both (in a case where a change alters a value in place)."""
 
-    def __init__(self, path_locator, changes, schema, lookups):
+    def __init__(self, path_locator: "PathLocator", changes: List[Change], schema: "Schema"):
         self.path_locator = path_locator
         self.changes = changes
-        self.lookups = lookups
         self.schema = schema
 
     @classmethod
-    def build(cls, path_locator, changes, schema, lookups=None) -> "Evolve":
+    def build(cls, path_locator: "PathLocator", changes: List[Dict], schema: "Schema", lookups: List[str]=None) -> "Evolve":
         """Loads in the specified lookup tables, constructs the specified Changes, and passes these Changes to the
-        constructor."""
-        loaded_lookups = {}
-        lookups = lookups or []
-        for lookup in lookups:
-            with open(os.path.join(path_locator.lookups_dir, lookup + '.json'), 'r') as l:
-                loaded_lookups[lookup] = json.load(l)
-        change_instances = []
-        all_changes = load(Change)
-        for spec in changes:
-            # assume that spec only has one key
-            assert len(spec) == 1
+        constructor.
+        :param path_locator: Helper class that finds requested files in a configuration path.
+        :param changes: List of change definitions (from the task YAML file)
+        :param schema: The schema on which the composites are expected to be based.
+        :param lookups: A list of key-value lookups expected to be available during each Change.
+        """
+        loaded_lookups: Dict[str, Dict] = load_lookups(path_locator, lookups)
+        all_changes: Dict[str, Type] = load(Change)
+        change_instances: List[Change] = []
+        for spec in changes:  # type: Dict
+            assert len(spec) == 1, "Malformed change specification"
             for name, var_specs in spec.items():
-                variables = {
+                variables: Dict[str, Variable] = {
                     var_name: schema.get(var_id)
                     for var_name, var_id in var_specs.items()
                 }
-                change = all_changes[name](
-                    **variables, lookups=loaded_lookups, schema=schema
+                change_class: Type = all_changes[name]
+                change: Change = change_class(
+                    **variables, schema=schema, lookups=loaded_lookups
                 )
                 change_instances.append(change)
-        return cls(path_locator, change_instances, lookups, schema)
+        return cls(path_locator, change_instances, schema)
 
-    def process_composite(self, origin, target, filename):
-        origin_filename: str = os.path.join(origin, filename)
-        logging.debug("Evolving %s." % origin_filename)
-        with open(origin_filename, 'r') as origin_file:
-            content: Dict = json.load(origin_file)
-            composite: Composite = Composite(self.schema, content)
-            for change in self.changes:
-                logging.debug('Applying change "%s" to %s.' % (change.__class__.__name__, origin_filename))
-                try:
+    def process_composite(self, origin, target, filename) -> Optional[ExceptionWrapper]:
+        try:
+            origin_filename: str = os.path.join(origin, filename)
+            logging.debug("Evolving %s." % origin_filename)
+            with open(origin_filename, 'r') as origin_file:
+                content: Dict = json.load(origin_file)
+                composite: Composite = Composite(self.schema, content)
+                for change in self.changes:
+                    logging.debug('Applying change "%s" to %s.' % (change.__class__.__name__, origin_filename))
                     change(composite)
-                except Exception as e:
-                    raise RuntimeError('Failure to execute change "%s" to origin file "%s"' % (change.__class__.__name__, origin_filename)) from e
-        with open(os.path.join(target, filename), 'w') as target_file:
-            json.dump(composite, target_file)
+            with open(os.path.join(target, filename), 'w') as target_file:
+                json.dump(composite.content, target_file)
+        except Exception as e:
+            return ExceptionWrapper(e)
+        return None
 
     def __call__(self, origin_dir, target_dir):
         targets = os.listdir(origin_dir)
         logging.debug("I have the following targets:\n   - %s" % "\n   - ".join(targets))
         with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            executor.map(
+            results = executor.map(
                 partial(self.process_composite, origin_dir, target_dir),
                 targets
             )
+            # TODO: Exceptions are supposed to propagate from a ProcessPoolExecutor. Why aren't mine?
+            for result in results:  # type: ExceptionWrapper
+                if result is not None:
+                    result.re_raise()
