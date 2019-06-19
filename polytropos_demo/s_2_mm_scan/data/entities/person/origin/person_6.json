@@ -1,0 +1,22 @@
+{
+  "2010": {
+    "weight": 315.0
+  },
+  "2011": {
+    "weight": 278.2
+  },
+  "2012": {
+    "weight": 254.1
+  },
+  "2013": {
+    "weight": 232.0
+  },
+  "immutable": {
+    "name": {
+      "first": "Amelia",
+      "last": "Dombrowski"
+    },
+    "male": false,
+    "height": 61
+  }
+}

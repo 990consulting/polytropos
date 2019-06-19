@@ -1,0 +1,33 @@
+{
+  "2010": {
+    "weight": 190.7,
+    "bmi": 28.992668685121107
+  },
+  "2011": {
+    "weight": 188.3,
+    "bmi": 28.627789792387542
+  },
+  "2012": {
+    "weight": 192.4,
+    "bmi": 29.251124567474047
+  },
+  "2013": {
+    "weight": 185.2,
+    "bmi": 28.156487889273354
+  },
+  "immutable": {
+    "name": {
+      "first": "Robert",
+      "last": "Jones"
+    },
+    "male": true,
+    "height": 68,
+    "weight_change": {
+      "slope": -1.2400000000000007,
+      "p_value": 0.48767328621350514
+    },
+    "mean_bmi": 28.757017733564012,
+    "bmi_rank_within_gender": 2,
+    "bmi_rank_overall": 3
+  }
+}
