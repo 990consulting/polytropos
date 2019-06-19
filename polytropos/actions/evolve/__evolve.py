@@ -1,9 +1,8 @@
 import logging
 import os
 import json
-from collections import Callable
+from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
-from dataclasses import dataclass
 from functools import partial
 from typing import Dict, List, Optional, TYPE_CHECKING, Type, Iterator
 
@@ -19,7 +18,6 @@ from polytropos.util.config import MAX_WORKERS
 if TYPE_CHECKING:
     from polytropos.ontology.paths import PathLocator
     from polytropos.ontology.schema import Schema
-
 
 class _EvolveFactory(Callable):
     def __init__(self, path_locator: "PathLocator",
@@ -41,7 +39,7 @@ class _EvolveFactory(Callable):
                 loaded_lookups[lookup] = json.load(l)
         return loaded_lookups
 
-    def construct_change(self, class_name: str, var_specs: Dict[str, str], loaded_lookups: Dict[str, Dict]) -> Change:
+    def _construct_change(self, class_name: str, var_specs: Dict[str, str], loaded_lookups: Dict[str, Dict]) -> Change:
         variables: Dict[str, Variable] = {
             var_name: self.schema.get(var_id)
             for var_name, var_id in var_specs.items()
@@ -52,16 +50,16 @@ class _EvolveFactory(Callable):
         )
         return change
 
-    def construct_changes(self, loaded_lookups: Dict[str, Dict]) -> Iterator[Change]:
+    def _construct_changes(self, loaded_lookups: Dict[str, Dict]) -> Iterator[Change]:
         for spec in self.change_specs:
             assert len(spec) == 1, "Malformed change specification"
             for class_name, var_specs in spec.items():
-                change: Change = self.construct_change(class_name, var_specs, loaded_lookups)
+                change: Change = self._construct_change(class_name, var_specs, loaded_lookups)
                 yield change
 
     def __call__(self, cls: Type) -> "Evolve":
         loaded_lookups: Dict[str, Dict] = self._load_lookups()
-        change_instances: List[Change] = list(self.construct_changes(loaded_lookups))
+        change_instances: List[Change] = list(self._construct_changes(loaded_lookups))
         return cls(self.path_locator, change_instances, self.schema)
 
 class Evolve(Step):
@@ -74,8 +72,9 @@ class Evolve(Step):
         self.changes = changes
         self.schema = schema
 
+    # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, path_locator: "PathLocator", changes: List[Dict], schema: "Schema", lookups: List[str]=None) -> "Evolve":
+    def build(cls, *, path_locator: "PathLocator", schema: "Schema", changes: List[Dict], lookups: List[str]=None) -> "Evolve":
         """Loads in the specified lookup tables, constructs the specified Changes, and passes these Changes to the
         constructor.
         :param path_locator: Helper class that finds requested files in a configuration path.
@@ -97,7 +96,7 @@ class Evolve(Step):
                     logging.debug('Applying change "%s" to %s.' % (change.__class__.__name__, origin_filename))
                     change(composite)
             with open(os.path.join(target, filename), 'w') as target_file:
-                json.dump(composite.content, target_file)
+                json.dump(composite.content, target_file, indent=2)
         except Exception as e:
             return ExceptionWrapper(e)
         return None

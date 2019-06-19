@@ -7,8 +7,9 @@ if TYPE_CHECKING:
     from polytropos.ontology.schema import Schema
 class Step(Callable):
 
+    @classmethod
     @abstractmethod
-    def build(cls, path_locator: "PathLocator", schema: "Schema", **kwargs):
+    def build(cls, *, path_locator: "PathLocator", schema: "Schema", **kwargs):
         """Build takes always a path locator and a schema, there are other
         keyword arguments that depend on the implementation"""
         pass
