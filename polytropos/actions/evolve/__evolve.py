@@ -3,7 +3,7 @@ import os
 import json
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
-from typing import Dict, List, Optional, TYPE_CHECKING, Type
+from typing import Dict, List, Optional, TYPE_CHECKING, Type, Iterator
 
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import Variable
@@ -26,6 +26,26 @@ def load_lookups(path_locator: "PathLocator", lookups: List[str]) -> Dict[str, D
             loaded_lookups[lookup] = json.load(l)
     return loaded_lookups
 
+def construct_change(schema: "Schema", class_name: str, var_specs: Dict[str, str], all_changes: Dict[str, Type],
+                     loaded_lookups: Dict[str, Dict]) -> Change:
+    variables: Dict[str, Variable] = {
+        var_name: schema.get(var_id)
+        for var_name, var_id in var_specs.items()
+    }
+    change_class: Type = all_changes[class_name]
+    change: Change = change_class(
+        **variables, schema=schema, lookups=loaded_lookups
+    )
+    return change
+
+def construct_changes(changes: List[Dict], schema: "Schema", loaded_lookups: Dict[str, Dict]) -> Iterator[Change]:
+    all_changes: Dict[str, Type] = load(Change)
+    for spec in changes:  # type: Dict
+        assert len(spec) == 1, "Malformed change specification"
+        for name, var_specs in spec.items():
+            change: Change = construct_change(schema, name, var_specs, all_changes, loaded_lookups)
+            yield change
+
 class Evolve(Step):
     """A metamorphosis represents a series of changes that are made to a single composite, in order, and without
     reference to any other composite. Each change is defined in terms of one or more subject variables, which may be
@@ -46,20 +66,7 @@ class Evolve(Step):
         :param lookups: A list of key-value lookups expected to be available during each Change.
         """
         loaded_lookups: Dict[str, Dict] = load_lookups(path_locator, lookups)
-        all_changes: Dict[str, Type] = load(Change)
-        change_instances: List[Change] = []
-        for spec in changes:  # type: Dict
-            assert len(spec) == 1, "Malformed change specification"
-            for name, var_specs in spec.items():
-                variables: Dict[str, Variable] = {
-                    var_name: schema.get(var_id)
-                    for var_name, var_id in var_specs.items()
-                }
-                change_class: Type = all_changes[name]
-                change: Change = change_class(
-                    **variables, schema=schema, lookups=loaded_lookups
-                )
-                change_instances.append(change)
+        change_instances: List[Change] = list(construct_changes(changes, schema, loaded_lookups))
         return cls(path_locator, change_instances, schema)
 
     def process_composite(self, origin, target, filename) -> Optional[ExceptionWrapper]:
