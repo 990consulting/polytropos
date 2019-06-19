@@ -10,8 +10,7 @@ from polytropos.ontology.variable import Variable
 from polytropos.util.exceptions import ExceptionWrapper
 
 from polytropos.util.loader import load
-# TODO Find out how to avoid needing to do this kind of thing
-from polytropos.actions.evolve.__change import Change
+from polytropos.actions.evolve import Change
 from polytropos.actions.step import Step
 from polytropos.util.config import MAX_WORKERS
 

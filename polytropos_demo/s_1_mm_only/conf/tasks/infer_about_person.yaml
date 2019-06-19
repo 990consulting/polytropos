@@ -12,7 +12,6 @@ resulting_in:
 # Define the steps involved in this task. In this test, there is only one task
 # (a metamorphosis).
 
-# TODO Quimey, I envision serializing the data in the destination directory after each step. Overwriting is fine.
 steps:
   - Evolve:
       lookups:

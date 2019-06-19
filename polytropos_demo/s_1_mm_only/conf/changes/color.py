@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 
-# TODO See if these can be imported directly from Evolve
-from polytropos.actions.evolve.__change import Change
-from polytropos.actions.evolve.__lookup import lookup
-from polytropos.actions.evolve.__subject import SubjectValidator
+from polytropos.actions.evolve import Change
+from polytropos.actions.evolve import lookup
+from polytropos.actions.evolve import SubjectValidator
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import Text
 
