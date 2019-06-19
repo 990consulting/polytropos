@@ -1,25 +1,28 @@
 from dataclasses import dataclass
-from typing import Dict, Iterable, Any, Tuple
+from typing import Dict, Iterable, Any, Tuple, TYPE_CHECKING
+
+from polytropos.ontology.composite import Composite
 
 from polytropos.actions.validator import VariableValidator
 from polytropos.actions.scan import Scan
 from polytropos.ontology.variable import Binary, Decimal, Integer
-from polytropos.util import composites
 
+if TYPE_CHECKING:
+    from polytropos.ontology.schema import Schema
 
 @dataclass
 class AssignAverageBMIRank(Scan):
-    male_flag: Binary = VariableValidator(data_type=Binary, temporal=-1)
-    mean_bmi_var: Decimal = VariableValidator(data_type=Decimal, temporal=-1)
-    bmi_rank_gender_var: Integer = VariableValidator(data_type=Integer, temporal=-1)
-    bmi_rank_overall_var: Integer = VariableValidator(data_type=Integer, temporal=-1)
+    male_flag: str = VariableValidator(data_type=Binary, temporal=-1)
+    mean_bmi_var: str = VariableValidator(data_type=Decimal, temporal=-1)
+    bmi_rank_gender_var: str = VariableValidator(data_type=Integer, temporal=-1)
+    bmi_rank_overall_var: str = VariableValidator(data_type=Integer, temporal=-1)
 
     def __post_init__(self):
         self.ranked: Dict[str, Dict[str, int]] = {}
 
-    def extract(self, composite: Dict) -> Tuple[bool, float]:
-        mean_bmi = composites.get_property(composite, self.mean_bmi_var)
-        is_male = composites.get_property(composite, self.male_flag)
+    def extract(self, composite: Composite) -> Tuple[bool, float]:
+        mean_bmi = composite.get_immutable(self.mean_bmi_var)
+        is_male = composite.get_immutable(self.male_flag)
         return is_male, mean_bmi
 
     def analyze(self, extracts: Iterable[Tuple[str, Any]]) -> None:
@@ -48,10 +51,10 @@ class AssignAverageBMIRank(Scan):
             return "male"
         return "female"
 
-    def alter(self, composite_id: str, composite: Dict) -> None:
+    def alter(self, composite_id: str, composite: Composite) -> None:
         overall_rank = self.ranked["overall"][composite_id]
-        composites.put_property(composite, self.bmi_rank_overall_var, overall_rank)
+        composite.put_immutable(self.bmi_rank_overall_var, overall_rank)
 
         gender: str = self._get_gender(composite_id)
         gender_rank = self.ranked[gender][composite_id]
-        composites.put_property(composite, self.bmi_rank_gender_var, gender_rank)
+        composite.put_immutable(self.bmi_rank_gender_var, gender_rank)
