@@ -1,7 +1,9 @@
 import logging
 import os
 import json
+from collections import Callable
 from concurrent.futures import ProcessPoolExecutor
+from dataclasses import dataclass
 from functools import partial
 from typing import Dict, List, Optional, TYPE_CHECKING, Type, Iterator
 
@@ -18,33 +20,49 @@ if TYPE_CHECKING:
     from polytropos.ontology.paths import PathLocator
     from polytropos.ontology.schema import Schema
 
-def load_lookups(path_locator: "PathLocator", lookups: List[str]) -> Dict[str, Dict]:
-    loaded_lookups: Dict = {}
-    lookups = lookups or []
-    for lookup in lookups:
-        with open(os.path.join(path_locator.lookups_dir, lookup + '.json'), 'r') as l:
-            loaded_lookups[lookup] = json.load(l)
-    return loaded_lookups
 
-def construct_change(schema: "Schema", class_name: str, var_specs: Dict[str, str], all_changes: Dict[str, Type],
-                     loaded_lookups: Dict[str, Dict]) -> Change:
-    variables: Dict[str, Variable] = {
-        var_name: schema.get(var_id)
-        for var_name, var_id in var_specs.items()
-    }
-    change_class: Type = all_changes[class_name]
-    change: Change = change_class(
-        **variables, schema=schema, lookups=loaded_lookups
-    )
-    return change
+class _EvolveFactory(Callable):
+    def __init__(self, path_locator: "PathLocator",
+                 change_specs: List[Dict],
+                 schema: "Schema",
+                 requested_lookups: Optional[List[str]]):
 
-def construct_changes(changes: List[Dict], schema: "Schema", loaded_lookups: Dict[str, Dict]) -> Iterator[Change]:
-    all_changes: Dict[str, Type] = load(Change)
-    for spec in changes:  # type: Dict
-        assert len(spec) == 1, "Malformed change specification"
-        for name, var_specs in spec.items():
-            change: Change = construct_change(schema, name, var_specs, all_changes, loaded_lookups)
-            yield change
+        self.change_classes: Dict[str, Type] = load(Change)
+        self.requested_lookups: List[str] = requested_lookups or []
+        self.change_specs: List[Dict] = change_specs
+        self.schema: "Schema" = schema
+        self.path_locator: "PathLocator" = path_locator
+
+    def _load_lookups(self) -> Dict[str, Dict]:
+        loaded_lookups: Dict = {}
+        lookups = self.requested_lookups
+        for lookup in lookups:
+            with open(os.path.join(self.path_locator.lookups_dir, lookup + '.json'), 'r') as l:
+                loaded_lookups[lookup] = json.load(l)
+        return loaded_lookups
+
+    def construct_change(self, class_name: str, var_specs: Dict[str, str], loaded_lookups: Dict[str, Dict]) -> Change:
+        variables: Dict[str, Variable] = {
+            var_name: self.schema.get(var_id)
+            for var_name, var_id in var_specs.items()
+        }
+        change_class: Type = self.change_classes[class_name]
+        change: Change = change_class(
+            **variables, schema=self.schema, lookups=loaded_lookups
+        )
+        return change
+
+    def construct_changes(self, loaded_lookups: Dict[str, Dict]) -> Iterator[Change]:
+        for spec in self.change_specs:
+            assert len(spec) == 1, "Malformed change specification"
+            for class_name, var_specs in spec.items():
+                change: Change = self.construct_change(class_name, var_specs, loaded_lookups)
+                yield change
+
+    def __call__(self, cls: Type) -> "Evolve":
+        loaded_lookups: Dict[str, Dict] = self._load_lookups()
+        change_instances: List[Change] = list(self.construct_changes(loaded_lookups))
+        return cls(self.path_locator, change_instances, self.schema)
 
 class Evolve(Step):
     """A metamorphosis represents a series of changes that are made to a single composite, in order, and without
@@ -65,9 +83,8 @@ class Evolve(Step):
         :param schema: The schema on which the composites are expected to be based.
         :param lookups: A list of key-value lookups expected to be available during each Change.
         """
-        loaded_lookups: Dict[str, Dict] = load_lookups(path_locator, lookups)
-        change_instances: List[Change] = list(construct_changes(changes, schema, loaded_lookups))
-        return cls(path_locator, change_instances, schema)
+        do_build: Callable = _EvolveFactory(path_locator, changes, schema, lookups)
+        return do_build(cls)
 
     def process_composite(self, origin, target, filename) -> Optional[ExceptionWrapper]:
         try:
