@@ -1,18 +1,17 @@
 import logging
 from dataclasses import dataclass
-from typing import Dict
 
 from polytropos.actions.evolve.__change import Change
 from polytropos.actions.evolve.__lookup import lookup
-from polytropos.actions.evolve.__subject import SubjectValidator
+from polytropos.actions.validator import VariableValidator
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import Variable, Decimal
 
 @dataclass
 class CalculateWeightGain(Change):
     """Determine the total weight gain over the observation period."""
-    weight_var: Decimal = SubjectValidator(data_type=Decimal)
-    weight_gain_var: Decimal = SubjectValidator(data_type=Decimal)
+    weight_var: str = VariableValidator(data_type=Decimal)
+    weight_gain_var: str = VariableValidator(data_type=Decimal)
 
     def __call__(self, composite: Composite):
         logging.debug("Beginning CalculateWeightGain")
@@ -21,17 +20,17 @@ class CalculateWeightGain(Change):
         earliest = min(periods)
         latest = max(periods)
 
-        earliest_weight = composite.get_observation(self.weight_var.var_id, earliest)
+        earliest_weight = composite.get_observation(self.weight_var, earliest)
         logging.debug("Earliest weight: %0.2f" % earliest_weight)
 
-        latest_weight = composite.get_observation(self.weight_var.var_id, latest)
+        latest_weight = composite.get_observation(self.weight_var, latest)
         logging.debug("Latest weight: %0.2f" % latest_weight)
 
         # I know, should have called it "weight change."
         weight_gain = round(latest_weight - earliest_weight, 2)
         logging.debug("Weight gain: %0.2f" % weight_gain)
 
-        composite.put_immutable(self.weight_gain_var.var_id, weight_gain)
+        composite.put_immutable(self.weight_gain_var, weight_gain)
         logging.debug("Finished CalculateWeightGain.")
 
 @lookup('genders')
