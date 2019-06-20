@@ -1,0 +1,22 @@
+{
+  "2010": {
+    "weight": 168.2
+  },
+  "2011": {
+    "weight": 180.0
+  },
+  "2012": {
+    "weight": 191.1
+  },
+  "2013": {
+    "weight": 183.2
+  },
+  "immutable": {
+    "name": {
+      "first": "David",
+      "last": "Moskowitz"
+    },
+    "male": true,
+    "height": 67
+  }
+}

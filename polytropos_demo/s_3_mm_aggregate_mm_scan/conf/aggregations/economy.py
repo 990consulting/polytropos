@@ -8,7 +8,6 @@ from polytropos.ontology.variable.__variable import Decimal, Text
 from polytropos.actions.aggregate import Aggregate
 from polytropos.actions.validator import VariableValidator
 from polytropos.ontology.variable import Integer
-from polytropos.util import composites
 
 
 @dataclass
@@ -67,7 +66,8 @@ class EconomicOverview(Aggregate):
         for zip_code, transient in self.city_data.items():
             city: Composite = Composite(self.target_schema, {})
 
-            for period in sorted(composites.get_periods(transient)):
+            transient_periods = set(transient.keys()) - {"immutable"}
+            for period in sorted(transient_periods):
                 n_companies = transient[period]["n_companies"]
                 tot_employees = transient[period]["tot_employees"]
                 tot_revenue = transient[period]["tot_revenue"]

@@ -1,0 +1,17 @@
+{
+  "source_string_id": {
+    "name": "source_string",
+    "data_type": "Text",
+    "sort_order": 0
+  },
+  "source_binary_id": {
+    "name": "source_binary",
+    "data_type": "Binary",
+    "sort_order": 1
+  },
+  "source_unary_id": {
+    "name": "source_unary",
+    "data_type": "Unary",
+    "sort_order": 2
+  }
+}

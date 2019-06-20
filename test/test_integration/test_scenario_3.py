@@ -1,7 +1,8 @@
 import logging
 
-# noinspection PyUnresolvedReference
+# noinspection PyUnresolvedReferences
 def test(run_task):
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.DEBUG)
     import polytropos_demo.s_3_mm_aggregate_mm_scan.conf.changes.city
     import polytropos_demo.s_3_mm_aggregate_mm_scan.conf.changes.company
     import polytropos_demo.s_3_mm_aggregate_mm_scan.conf.scans.rank
