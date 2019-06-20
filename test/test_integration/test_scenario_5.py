@@ -10,7 +10,7 @@ BASEPATH = os.path.dirname(os.path.abspath(__file__))
 def cleanup():
     # Setup -- runs before tests begin
     def delete_if_exists(filename):
-        path = (BASEPATH + "../polytropos_demo/6_tr_export/" + filename)
+        path = (BASEPATH + "../../polytropos_demo/5_tr_export/" + filename)
         if os.path.exists(path):
             os.remove(path)
 
@@ -25,13 +25,13 @@ def cleanup():
 @pytest.mark.parametrize(
     'scenario,task_name,expected_location',
     [
-        ('s_6_tr_export', 'custom_consumer', 'expected'),
-        ('s_6_tr_export', 'export_to_json', 'expected'),
+        ('s_5_tr_export', 'custom_consumer', 'expected'),
+        ('s_5_tr_export', 'export_to_json', 'expected'),
     ]
 )
 def test_task_consume(scenario, task_name, expected_location):
-    conf = os.path.join(BASEPATH, '../polytropos_demo', scenario, 'conf')
-    data = os.path.join(BASEPATH, '../polytropos_demo', scenario, 'data')
+    conf = os.path.join(BASEPATH, '../../polytropos_demo', scenario, 'conf')
+    data = os.path.join(BASEPATH, '../../polytropos_demo', scenario, 'data')
     task = Task.build(conf, data, task_name)
     task.run()
     actual_path = os.path.join(task.path_locator.conf_dir, '../')

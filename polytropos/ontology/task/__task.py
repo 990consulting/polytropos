@@ -75,9 +75,13 @@ class Task:
             )
             for class_name, kwargs in step.items():
                 step_type: Type = STEP_TYPES[class_name]
-                step_instance: Step = step_type.build(
-                    path_locator=self.path_locator, schema=current_schema, **kwargs
-                )
+                try:
+                    step_instance: Step = step_type.build(
+                        path_locator=self.path_locator, schema=current_schema, **kwargs
+                    )
+                except Exception as e:
+                    print("breakpoint")
+                    raise e
                 self.steps.append(step_instance)
 
                 # Aggregation changes schema

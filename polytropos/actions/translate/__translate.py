@@ -18,11 +18,16 @@ class Translate(Step):
 
     """Wrapper around the tranlation functions to be used in the tasks"""
     @classmethod
-    def build(cls, path_locator: "PathLocator", source_schema: Schema, target_schema_path: str):
-        target_schema: Schema = Schema.load(path_locator, target_schema_path, source_schema=source_schema)
-        translate_immutable: Translator = Translator(target_schema.immutable)
-        translate_temporal: Translator = Translator(target_schema.temporal)
-        return cls(target_schema, translate_immutable, translate_temporal)
+    def build(cls, path_locator: "PathLocator", schema: Schema, target_schema: str):
+        """
+        :param schema: The source schema, already instantiated.
+        :param target_schema: The path to the definition of the target schema.
+        :return:
+        """
+        target_schema_instance: Schema = Schema.load(path_locator, target_schema, source_schema=schema)
+        translate_immutable: Translator = Translator(target_schema_instance.immutable)
+        translate_temporal: Translator = Translator(target_schema_instance.temporal)
+        return cls(target_schema_instance, translate_immutable, translate_temporal)
 
     def __call__(self, origin_dir: str, target_dir: str):
         for filename in os.listdir(origin_dir):
