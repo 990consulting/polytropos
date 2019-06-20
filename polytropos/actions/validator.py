@@ -24,7 +24,8 @@ class VariableValidator:
     #  class. Now that Composite has access to the schema, it makes sense to perform the validation some other way.
     def __set__(self, instance, value):
         for validator in self.validators:
-            if not validator(value):
+            valid: bool = validator(value)
+            if not valid:
                 raise ValueError(
                     f'Validation error for {self.name} with value {value}'
                 )

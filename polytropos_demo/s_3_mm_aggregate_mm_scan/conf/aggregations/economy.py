@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from typing import Iterator, Tuple, Dict, Iterable, Any, Optional, Text
+from typing import Iterator, Tuple, Dict, Iterable, Any, Optional
 
 from polytropos.ontology.composite import Composite
 
-from polytropos.ontology.variable.__variable import Decimal
+from polytropos.ontology.variable.__variable import Decimal, Text
 
 from polytropos.actions.aggregate import Aggregate
 from polytropos.actions.validator import VariableValidator
@@ -60,8 +60,8 @@ class EconomicOverview(Aggregate):
 
                 p_dict = self.city_data[zip_code][period]
                 p_dict["n_companies"] += 1
-                p_dict["tot_employees"] += company.get_observation(period, self.n_employee_var)
-                p_dict["tot_revenue"] += company.get_observation(period, self.revenue_var)
+                p_dict["tot_employees"] += company.get_observation(self.n_employee_var, period)
+                p_dict["tot_revenue"] += company.get_observation(self.revenue_var, period)
 
     def emit(self) -> Iterator[Tuple[str, Composite]]:
         for zip_code, transient in self.city_data.items():
