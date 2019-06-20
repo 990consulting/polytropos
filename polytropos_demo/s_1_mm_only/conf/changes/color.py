@@ -18,6 +18,5 @@ class ColorNameToRGB(Change):
         # IRL, you'd have to handle nulls, decide how to deal with temporal variables, etc.
         color_name = composite.get_immutable(self.color_name_var)
 
-        # At some point, I'll write a fancy retrieval/validation/assignment system, but that's not for the MVP
         rgb_value = self.lookups["color_names"][color_name]
         composite.put_immutable(self.rgb_var, rgb_value)
