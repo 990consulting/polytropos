@@ -1,0 +1,54 @@
+---
+# Define the dataset and schema that the task is working with
+starting_with:
+  data: company/origin
+  schema: company/origin
+
+# Define the dataset and schema that the task should produce
+resulting_in:
+  data: city/origin
+  schema: city/origin
+
+# In this task, we do an Evolve before and after an Aggregate. The first Evolve uses the original schema,
+# and the second Evolve uses the final schema. I realize this could have been done with just one metamorphosis,
+# but I want to test out the ability to keep track of the current schema as the task progresses.
+
+# Note that, even though a metamorphosis occurs on the original data, only the files of the final data should be
+# changed as a result of this process. This implies that the output of the first metamorphosis must not overwrite the
+# origin schema. IN GENERAL, ONLY THE "resulting_in" DATA SHOULD BE ALTERED BY A TASK.
+steps:
+  - Evolve:
+      lookups:
+        - zipcodes
+      changes:
+        - AssignCityState:
+            zip_var: company_zip_var
+            city_var: company_city_var
+            state_var: company_state_var
+  - Aggregate:
+      name: EconomicOverview
+      target_schema: city/origin
+      id_var: city_zip_var
+      input_schema_vars:
+        n_employee_var: company_empl_var
+        revenue_var: company_rev_var
+        source_zip_var: company_zip_var
+        source_city_var: company_city_var
+        source_state_var: company_state_var
+      output_schema_vars:
+        n_company_var: city_n_var
+        mean_employee_var: city_empl_var
+        annual_prod_var: city_annual_prod_var
+        target_zip_var: city_zip_var
+        target_city_var: city_city_var
+        target_state_var: city_state_var
+  - Evolve:
+      changes:
+        - CalculateMeanProductivity:
+            annual_prod_var: city_annual_prod_var
+            mean_prod_var: city_mean_prod_var
+  - Scan:
+      name: AssignProductivityRank
+      subjects:
+        mean_prod_var: city_mean_prod_var
+        prod_rank_var: city_prod_rank_var

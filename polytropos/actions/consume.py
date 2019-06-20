@@ -1,27 +1,24 @@
 import os
 import json
-import csv
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Dict
+
+from polytropos.ontology.composite import Composite
+
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.util.loader import load
-from polytropos.util.composites import get_property, get_observation
-from polytropos.ontology.task.__paths import TaskPathLocator
+from polytropos.ontology.paths import PathLocator
 
 
-# TODO Quimey, unlike the other tasks, consumers may take arguments that are not variables. We may want the ability to
-#  do this in general--for example, if a task does a statistical analysis and we want to provide some tuning parameter.
-#  I'm not sure if this actually creates a problem or not.
 @dataclass
 class Consume(Step):
-    path_locator: TaskPathLocator
+    path_locator: PathLocator
     schema: Schema
 
     """Export data from a set of composites to a single file."""
     @classmethod
-    def build(cls, path_locator, schema, name, **kwargs):
+    def build(cls, path_locator: PathLocator, schema: Schema, name: str, **kwargs):
         consumes = load(cls)
         return consumes[name](path_locator, schema, **kwargs)
 
@@ -33,15 +30,16 @@ class Consume(Step):
         """Optional actions to be performed after the composites are all consumed."""
 
     @abstractmethod
-    def consume(self, composite_id: str, composite: Dict):
+    def consume(self, composite_id: str, composite: Composite):
         pass
 
-    def __call__(self, origin, target):
+    def __call__(self, origin_dir: str, target_dir: str):
         """Generate the export file."""
         self.before()
-        for filename in sorted(os.listdir(origin)):
-            with open(os.path.join(origin, filename), 'r') as origin_file:
-                composite = json.load(origin_file)
+        for filename in sorted(os.listdir(origin_dir)):
+            with open(os.path.join(origin_dir, filename), 'r') as origin_file:
+                content = json.load(origin_file)
+                composite: Composite = Composite(self.schema, content)
                 self.consume(filename[:-5], composite)
         self.after()
 
@@ -56,17 +54,19 @@ class ExportToJSON(Consume):
         self.first = True
 
     def before(self):
+        # noinspection PyAttributeOutsideInit
         self.fobj = open(
             os.path.join(self.path_locator.conf, '../', self.filename), 'w'
         )
         self.fobj.write('{\n')
 
-    def consume(self, composite_id, composite):
+    def consume(self, composite_id: str, composite: Composite):
         if not self.first:
             self.fobj.write(',\n')
+        # noinspection PyAttributeOutsideInit
         self.first = False
         self.fobj.write(' ' * self.indent + f'"{composite_id}": ')
-        data = json.dumps(composite, indent=self.indent).split('\n')
+        data = json.dumps(composite.content, indent=self.indent).split('\n')
         for i, line in enumerate(data):
             if i:
                 self.fobj.write('\n')
@@ -75,77 +75,4 @@ class ExportToJSON(Consume):
 
     def after(self):
         self.fobj.write('\n}')
-        self.fobj.close()
-
-
-@dataclass
-class ExportToCSV(Consume):
-    filename: str
-    columns: Dict
-    immutable: bool
-
-    def __post_init__(self):
-        self.fobj = None
-        self.fields = ['composite_id']
-        self.column_vars = {}
-        print(self.columns)
-        if not self.immutable:
-            self.fields.append('period')
-        for column in self.columns:
-            self.__process_columns(column)
-        for name, var in self.column_vars.items():
-            print(name, var)
-
-
-    def __process_columns(self, column):
-        if isinstance(column, dict):
-            for key, attributes in column.items():
-                self.column_vars[key] = self.schema.get(key)
-                self.fields.append(key)
-                for name, value in attributes.items():
-                    if name == 'children':
-                        for child in value:
-                            self.__process_columns(child)
-                    elif name == 'alias':
-                        pass
-                    else:
-                        raise NotImplementedError
-        elif isinstance(column, str):
-            self.column_vars[column] = self.schema.get(column)
-            self.fields.append(column)
-        else:
-            raise AttributeError
-
-    def get_rows(self, composite_id, composite):
-        if self.immutable:
-            data = {
-                name: get_property(composite, var)
-                for name, var in self.column_vars.items()
-            }
-            data['composite_id'] = composite_id
-            yield [data]
-        else:
-            for period, value in composite.items():
-                if period.isdigit():
-                    row = {}
-                    row['composite_id'] = composite_id
-                    row['period'] = period
-                    for name, var in self.column_vars.items():
-                        row[name] = get_observation(
-                            composite, period, var, True
-                        )
-                    yield row
-
-    def before(self):
-        self.fobj = open(
-            os.path.join(self.path_locator.conf, '../', self.filename), 'w'
-        )
-        self.writer = csv.DictWriter(self.fobj, self.fields)
-        self.writer.writeheader()
-
-    def consume(self, composite_id, composite):
-        for row in self.get_rows(composite_id, composite):
-            self.writer.writerow(row)
-
-    def after(self):
         self.fobj.close()

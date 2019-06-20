@@ -1,7 +1,7 @@
 import os
 import json
 from enum import Enum
-from typing import Optional, Dict
+from typing import Optional, Dict, TYPE_CHECKING
 from dataclasses import dataclass, field
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -11,8 +11,10 @@ from polytropos.ontology.track import Track
 
 from polytropos.ontology.variable import Variable
 
-SCHEMAS_DIR = 'fixtures/conf/schemas/'
+if TYPE_CHECKING:
+    from polytropos.ontology.paths import PathLocator
 
+SCHEMAS_DIR = 'fixtures/conf/schemas/'
 
 class TrackType(Enum):
     IMMUTABLE = -1
@@ -26,6 +28,36 @@ class Schema:
     temporal: Track
     immutable: Track
     _cache: Dict = field(init=False, default_factory=dict)
+
+    @classmethod
+    def load(cls, path_locator: "PathLocator", path: str, source_schema: "Schema"=None):
+        """
+        Constructs a schema.
+
+        :param path_locator: Utility class that resolves file paths based on Polytropos' configuration base path.
+        :param path: The path to the schema that is to be loaded, relative to schemas base path.
+        :param source_schema: An already-loaded schema from which this schema can be translated, if applicable.
+        :return:
+        """
+        # TODO Figure out why these two lines are necessary. They definitely are, for now.
+        if path is None:
+            return None
+
+        source_immutable: Optional[Track] = source_schema.immutable if source_schema else None
+        source_temporal: Optional[Track] = source_schema.temporal if source_schema else None
+
+        temporal_path: str = os.path.join(path_locator.schemas_dir, path, 'temporal.json')
+        immutable_path: str = os.path.join(path_locator.schemas_dir, path, 'immutable.json')
+
+        with open(temporal_path, 'r') as temporal, open(immutable_path, 'r') as immutable:
+            return cls(
+                temporal=Track.build(
+                    specs=json.load(temporal), source=source_temporal, name='temporal'
+                ),
+                immutable=Track.build(
+                    specs=json.load(immutable), source=source_immutable, name='immutable'
+                )
+            )
 
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'root'))
     def get(self, var_id: str, track_type: TrackType=TrackType.ANY) -> Optional[Variable]:
@@ -54,23 +86,3 @@ class Schema:
     def invalidate_cache(self):
         self._cache.clear()
 
-    @classmethod
-    def load(cls, path_locator, path, source_schema=None):
-        if path is None:
-            return None
-        source_immutable = source_schema.immutable if source_schema else None
-        source_temporal = source_schema.temporal if source_schema else None
-        with open(
-                os.path.join(path_locator.schemas_dir, path, 'temporal.json'), 'r'
-        ) as temporal:
-            with open(
-                    os.path.join(path_locator.schemas_dir, path, 'immutable.json'), 'r'
-            ) as immutable:
-                return cls(
-                    temporal=Track.build(
-                        specs=json.load(temporal), source=source_temporal, name='temporal'
-                    ),
-                    immutable=Track.build(
-                        specs=json.load(immutable), source=source_immutable, name='immutable'
-                    )
-                )

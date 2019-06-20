@@ -16,17 +16,17 @@ def imperfect_composite(simple_schema: Schema) -> Composite:
         "2012": {}
     })
 
-def test_get_periods(simple_composite: Composite):
-    assert set(simple_composite.get_periods()) == {"2013", "2010", "2011", "2012"}
+def test_periods(simple_composite: Composite):
+    assert set(simple_composite.periods) == {"2013", "2010", "2011", "2012"}
 
-def test_get_periods_invariant_only(simple_schema: Schema, simple_doc: Dict):
+def test_periods_invariant_only(simple_schema: Schema, simple_doc: Dict):
     doc: Dict = {"immutable": simple_doc["immutable"]}
     composite: Composite = Composite(simple_schema, doc)
-    assert set(composite.get_periods()) == set()
+    assert set(composite.periods) == set()
 
-def test_get_periods_none(simple_schema: Schema):
+def test_periods_none(simple_schema: Schema):
     composite: Composite = Composite(simple_schema, {})
-    assert set(composite.get_periods()) == set()
+    assert set(composite.periods) == set()
 
 def test_get_all_observations(simple_composite):
     expected: Dict = {

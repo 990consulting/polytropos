@@ -100,13 +100,16 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# MacOS
+.DS_Store
+*.DS_Store
 
 # test results
-fixtures/s_1_mm_only/data/entities/person/actual
-fixtures/s_2_mm_scan/data/entities/person/actual
-fixtures/s_3_mm_aggregate_mm_scan/data/entities/city/origin
-fixtures/s_4_filter_mm_scan/data/entities/person/actual
-fixtures/s_6_tr_export/count_output.txt
-fixtures/s_6_tr_export/immutable.csv
-fixtures/s_6_tr_export/records.json
-fixtures/s_6_tr_export/temporal.csv
+polytropos_demo/s_1_mm_only/data/entities/person/actual
+polytropos_demo/s_2_mm_scan/data/entities/person/actual
+polytropos_demo/s_3_mm_aggregate_mm_scan/data/entities/city/origin
+polytropos_demo/s_4_filter_mm_scan/data/entities/person/actual
+polytropos_demo/s_5_tr_export/count_output.txt
+polytropos_demo/s_5_tr_export/immutable.csv
+polytropos_demo/s_5_tr_export/records.json
+polytropos_demo/s_5_tr_export/temporal.csv
