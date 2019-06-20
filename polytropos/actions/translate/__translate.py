@@ -1,11 +1,15 @@
 from dataclasses import dataclass
 import os
 import json
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
 
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.actions.translate import Translator
+from polytropos.util.config import MAX_WORKERS
+from polytropos.util.exceptions import ExceptionWrapper
 
 if TYPE_CHECKING:
     from polytropos.ontology.paths import PathLocator
@@ -17,9 +21,12 @@ class Translate(Step):
     translate_temporal: Translator
 
     """Wrapper around the tranlation functions to be used in the tasks"""
+
+    # noinspection PyMethodOverriding
     @classmethod
     def build(cls, path_locator: "PathLocator", schema: Schema, target_schema: str):
         """
+        :param path_locator:
         :param schema: The source schema, already instantiated.
         :param target_schema: The path to the definition of the target schema.
         :return:
@@ -29,10 +36,10 @@ class Translate(Step):
         translate_temporal: Translator = Translator(target_schema_instance.temporal)
         return cls(target_schema_instance, translate_immutable, translate_temporal)
 
-    def __call__(self, origin_dir: str, target_dir: str):
-        for filename in os.listdir(origin_dir):
+    def process_composite(self, origin, target, filename) -> Optional[ExceptionWrapper]:
+        try:
             translated = {}
-            with open(os.path.join(origin_dir, filename), 'r') as origin_file:
+            with open(os.path.join(origin, filename), 'r') as origin_file:
                 composite = json.load(origin_file)
                 for key, value in composite.items():
                     if key.isdigit():
@@ -41,6 +48,19 @@ class Translate(Step):
                         translated[key] = self.translate_immutable(value)
                     else:
                         pass
-            with open(os.path.join(target_dir, filename), 'w') as target_file:
-                json.dump(translated, target_file)
+            with open(os.path.join(target, filename), 'w') as target_file:
+                json.dump(translated, target_file, indent=2)
+        except Exception as e:
+            return ExceptionWrapper(e)
+        return None
 
+    def __call__(self, origin_dir: str, target_dir: str):
+        with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            results = executor.map(
+                partial(self.process_composite, origin_dir, target_dir),
+                os.listdir(origin_dir)
+            )
+            # TODO: Exceptions are supposed to propagate from a ProcessPoolExecutor. Why aren't mine?
+            for result in results:  # type: ExceptionWrapper
+                if result is not None:
+                    result.re_raise()
