@@ -2,7 +2,7 @@ import pytest
 import os
 from polytropos.ontology.task import Task
 import polytropos.actions.consume
-import polytropos_demo.s_5_tr_export.conf.consumers.count
+import examples.s_5_tr_export.conf.consumers.count
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -10,7 +10,7 @@ BASEPATH = os.path.dirname(os.path.abspath(__file__))
 def cleanup():
     # Setup -- runs before tests begin
     def delete_if_exists(filename):
-        path = (BASEPATH + "../../polytropos_demo/5_tr_export/" + filename)
+        path = (BASEPATH + "../../examples/5_tr_export/" + filename)
         if os.path.exists(path):
             os.remove(path)
 
@@ -30,8 +30,8 @@ def cleanup():
     ]
 )
 def test_task_consume(scenario, task_name, expected_location):
-    conf = os.path.join(BASEPATH, '../../polytropos_demo', scenario, 'conf')
-    data = os.path.join(BASEPATH, '../../polytropos_demo', scenario, 'data')
+    conf = os.path.join(BASEPATH, '../../examples', scenario, 'conf')
+    data = os.path.join(BASEPATH, '../../examples', scenario, 'data')
     task = Task.build(conf, data, task_name)
     task.run()
     actual_path = os.path.join(task.path_locator.conf_dir, '../')

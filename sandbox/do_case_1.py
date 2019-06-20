@@ -10,8 +10,8 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 def run_task(scenario, task_name, expected_location):
-    conf = os.path.join(BASEPATH, '../polytropos_demo', scenario, 'conf')
-    data = os.path.join(BASEPATH, '../polytropos_demo', scenario, 'data')
+    conf = os.path.join(BASEPATH, '../examples', scenario, 'conf')
+    data = os.path.join(BASEPATH, '../examples', scenario, 'data')
     task = Task.build(conf, data, task_name)
     task.run()
     actual_path = os.path.join(
@@ -34,7 +34,7 @@ def run_task(scenario, task_name, expected_location):
                         'Diff: ' + '\n'.join(line for line in diff)
                 )
 
-import polytropos_demo.s_1_mm_only.conf.changes.vitals
-import polytropos_demo.s_1_mm_only.conf.changes.description
-import polytropos_demo.s_1_mm_only.conf.changes.color
+import examples.s_1_mm_only.conf.changes.vitals
+import examples.s_1_mm_only.conf.changes.description
+import examples.s_1_mm_only.conf.changes.color
 run_task('s_1_mm_only', 'infer_about_person', 'person/expected')
