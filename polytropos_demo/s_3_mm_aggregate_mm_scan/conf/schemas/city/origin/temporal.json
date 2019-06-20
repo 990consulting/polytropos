@@ -1,0 +1,17 @@
+{
+  "city_n_var": {
+    "name": "n_companies",
+    "data_type": "Integer",
+    "sort_order": 0
+  },
+  "city_empl_var": {
+    "name": "mean_employees",
+    "data_type": "Decimal",
+    "sort_order": 1
+  },
+  "city_annual_prod_var": {
+    "name": "employee_productivity",
+    "data_type": "Decimal",
+    "sort_order": 2
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "company_empl_var": {
+    "name": "n_employees",
+    "data_type": "Integer",
+    "sort_order": 0
+  },
+  "company_rev_var": {
+    "name": "revenue_millions",
+    "data_type": "Decimal",
+    "sort_order": 1
+  }
+}

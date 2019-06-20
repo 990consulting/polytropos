@@ -7,9 +7,6 @@ from polytropos.actions.validator import VariableValidator
 from polytropos.actions.scan import Scan
 from polytropos.ontology.variable import Binary, Decimal, Integer
 
-if TYPE_CHECKING:
-    from polytropos.ontology.schema import Schema
-
 @dataclass
 class AssignAverageBMIRank(Scan):
     male_flag: str = VariableValidator(data_type=Binary, temporal=-1)

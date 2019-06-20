@@ -1,0 +1,17 @@
+{
+  "2011": {
+    "n_employees": 7,
+    "revenue_millions": 1.23
+  },
+  "2012": {
+    "n_employees": 5,
+    "revenue_millions": 1.53
+  },
+  "2013": {
+    "n_employees": 6,
+    "revenue_millions": 1.10
+  },
+  "immutable": {
+    "zip": "07040"
+  }
+}

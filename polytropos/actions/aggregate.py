@@ -2,7 +2,7 @@ import os
 import json
 from dataclasses import dataclass
 from abc import abstractmethod
-from typing import Dict, Optional, Any, Iterable, Tuple, Iterator
+from typing import Dict, Optional, Any, Iterable, Tuple, Iterator, Type
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 
@@ -10,6 +10,7 @@ from polytropos.ontology.composite import Composite
 
 from polytropos.actions.step import Step
 from polytropos.ontology.paths import PathLocator
+from polytropos.ontology.variable import Variable
 from polytropos.util.loader import load
 from polytropos.ontology.schema import Schema
 from polytropos.util.config import MAX_WORKERS
@@ -23,22 +24,23 @@ class Aggregate(Step):
     target_schema: Schema
     id_var: str
 
+    # noinspection PyMethodOverriding
     @classmethod
     def build(
-            cls, path_locator: PathLocator, origin_schema: Schema, name: str, target_schema: Schema, id_var: str,
+            cls, path_locator: PathLocator, schema: Schema, name: str, target_schema: str, id_var: str,
             input_schema_vars: Dict, output_schema_vars: Dict
     ): 
-        target_schema = Schema.load(path_locator, target_schema)
-        aggregations = load(cls)
-        input_variables = {
-            var_name: origin_schema.get(var_id)
+        target_schema_instance: Schema = Schema.load(path_locator, target_schema)
+        aggregations: Dict[str, Type] = load(cls)
+        input_variables: Dict[str, Variable] = {
+            var_name: schema.get(var_id)
             for var_name, var_id in input_schema_vars.items()
         }
-        output_variables = {
-            var_name: target_schema.get(var_id)
+        output_variables: Dict[str, Variable] = {
+            var_name: target_schema_instance.get(var_id)
             for var_name, var_id in output_schema_vars.items()
         }
-        return aggregations[name](origin_schema=origin_schema, target_schema=target_schema, id_var=id_var,
+        return aggregations[name](origin_schema=schema, target_schema=target_schema_instance, id_var=id_var,
                                   **input_variables, **output_variables)
 
     @abstractmethod
@@ -66,7 +68,7 @@ class Aggregate(Step):
     def write_composite(self, target_dir: str, emission: Composite):
         filename, composite = emission
         with open(os.path.join(target_dir, filename + '.json'), 'w') as target_file:
-            json.dump(composite.content, target_file)
+            json.dump(composite.content, target_file, indent=2)
 
     def __call__(self, origin_dir: str, target_dir: str):
         with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:

@@ -1,6 +1,8 @@
 import logging
 import os
 from shutil import rmtree
+from typing import Type
+
 import yaml
 from tempfile import TemporaryDirectory
 from polytropos.actions.consume import Consume
@@ -72,13 +74,15 @@ class Task:
                 'Step description can have only one key, value pair'
             )
             for class_name, kwargs in step.items():
-                step_instance = STEP_TYPES[class_name].build(
+                step_type: Type = STEP_TYPES[class_name]
+                step_instance: Step = step_type.build(
                     path_locator=self.path_locator, schema=current_schema, **kwargs
                 )
                 self.steps.append(step_instance)
 
                 # Aggregation changes schema
                 if class_name in ('Aggregate', 'Translate'):
+                    # noinspection PyUnresolvedReferences
                     current_schema = step_instance.target_schema
 
     def run(self):
