@@ -9,16 +9,21 @@ class Translator(Callable):
     """Class in charge of translating documents given a source track and a
     target track"""
     def __init__(self, target: Track, failsafe=False):
+        logging.info('Initializing translator for track "%s".' % target.name)
+        if failsafe:
+            logging.warning("Translation errors will be ignored! Use at your own risk!")
         self.source = target.source
         self.target = target
+
         # We need to group by variables by parent to be able to efficiently do
         # a recursion in the translate function
         self.target_variables_by_parent = defaultdict(dict)
+        logging.debug("Grouping variables by parents.")
         for variable_id, variable in self.target.items():
             self.target_variables_by_parent[
                 variable.parent
             ][variable_id] = variable
-        # when failsafe is true exceptions are catched and ignored
+        # when failsafe is true exceptions are caught and ignored
         self.failsafe = failsafe
 
     def find_in_document(self, variable_id, document, parent=''):

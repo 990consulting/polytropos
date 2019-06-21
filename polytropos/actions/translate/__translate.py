@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 import os
 import json
@@ -31,12 +32,14 @@ class Translate(Step):
         :param target_schema: The path to the definition of the target schema.
         :return:
         """
+        logging.info("Initializing Translate step.")
         target_schema_instance: Schema = Schema.load(path_locator, target_schema, source_schema=schema)
         translate_immutable: Translator = Translator(target_schema_instance.immutable)
         translate_temporal: Translator = Translator(target_schema_instance.temporal)
         return cls(target_schema_instance, translate_immutable, translate_temporal)
 
     def process_composite(self, origin, target, filename) -> Optional[ExceptionWrapper]:
+        logging.debug('Translating composite "%s".' % filename)
         try:
             translated = {}
             with open(os.path.join(origin, filename), 'r') as origin_file:
@@ -51,6 +54,7 @@ class Translate(Step):
             with open(os.path.join(target, filename), 'w') as target_file:
                 json.dump(translated, target_file, indent=2)
         except Exception as e:
+            logging.error("Error translating composite %s." % filename)
             return ExceptionWrapper(e)
         return None
 

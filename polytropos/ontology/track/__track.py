@@ -1,3 +1,4 @@
+import logging
 from copy import deepcopy
 import json
 from typing import Iterator, Dict, TYPE_CHECKING, Any, Iterable, Optional
@@ -10,7 +11,7 @@ from polytropos.ontology.variable import (
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
 from functools import partial
-
+import time
 
 if TYPE_CHECKING:
     from polytropos.ontology.variable import Variable
@@ -62,20 +63,40 @@ class Track(MutableMapping):
          (stage) of the analysis process that precedes this one for the particular entity type represented.
 
         :param name: The name of the stage/aspect."""
-        track = Track(
-            {
-                variable_id: build_variable(variable_data)
-                for variable_id, variable_data in specs.items()
-            }, source, name
-        )
+        logging.info("Building variables for track '%s'." % name)
+        built_vars: Dict[str, "Variable"] = {}
+        n: int = 0
+        for variable_id, variable_data in specs.items():
+            logging.debug('Building variable "%s".' % variable_id)
+            variable: "Variable" = build_variable(variable_data)
+            built_vars[variable_id] = variable
+            n += 1
+            if n % 100 == 0:
+                logging.info("Built %i variables." % n)
+        logging.info('Finished building all %i variables for track "%s".' % (n, name))
+
+        track: "Track" = cls(built_vars, source, name)
+
+        # TODO This block currently has an O(n^2) time complexity due to unnecessary cache invalidations.
+        logging.info("Assigning track callbacks to variables.")
+        n = 0
         for variable_id, variable in track.items():
             variable.set_track(track)
             variable.set_id(variable_id)
+            n += 1
+            if n % 100 == 0:
+                logging.info("Assigned callbacks to %i variables." % n)
+        logging.info("Assigned callbacks to all %i variables." % n)
+
         # we only validate after the whole thing is built to be able to
         # accurately compute siblings, parents and children
         track.invalidate_variables_cache()
+
+        logging.info('Performing post-load validation on variables for track "%s".' % name)
         for variable in track.values():
             Validator.validate(variable, init=True)
+        logging.info('All variables valid "%s".' % name)
+
         return track
 
     @property
@@ -88,11 +109,13 @@ class Track(MutableMapping):
         ))
 
     def invalidate_variables_cache(self):
+        logging.debug("Invalidating cache for all variables.")
         for variable in self._variables.values():
             variable.invalidate_cache()
         self.invalidate_cache()
 
     def invalidate_cache(self):
+        logging.debug("Invalidating track cache.")
         self._cache.clear()
         if self.schema:
             self.schema.invalidate_cache()

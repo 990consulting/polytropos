@@ -160,6 +160,7 @@ class Variable:
         self.__dict__[attribute] = value
 
     def invalidate_cache(self):
+        logging.debug("Invaliding cache for variable %s." % self.var_id)
         self._cache.clear()
 
     def update_sort_order(self, old_order=None, new_order=None):

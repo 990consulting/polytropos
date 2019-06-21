@@ -1,3 +1,4 @@
+import logging
 import os
 import json
 from enum import Enum
@@ -27,6 +28,8 @@ class Schema:
     """A schema identifies all of the temporal and immutable properties that a particular entity can have."""
     temporal: Track
     immutable: Track
+    name: str = "UNSPECIFIED"
+
     _cache: Dict = field(init=False, default_factory=dict)
 
     @classmethod
@@ -39,9 +42,19 @@ class Schema:
         :param source_schema: An already-loaded schema from which this schema can be translated, if applicable.
         :return:
         """
+        schema_name = "UNSPECIFIED"
+        if path is not None:
+            schema_name: str = path.replace("/", "_")
+
+        logging.info('Loading schema "%s".' % schema_name)
         # TODO Figure out why these two lines are necessary. They definitely are, for now.
         if path is None:
             return None
+
+        if source_schema:
+            logging.debug('Schema "%s" has source schema "%s".' % (schema_name, source_schema.name))
+        else:
+            logging.debug('Schema "%s" has no source schema.' % schema_name)
 
         source_immutable: Optional[Track] = source_schema.immutable if source_schema else None
         source_temporal: Optional[Track] = source_schema.temporal if source_schema else None
@@ -49,14 +62,18 @@ class Schema:
         temporal_path: str = os.path.join(path_locator.schemas_dir, path, 'temporal.json')
         immutable_path: str = os.path.join(path_locator.schemas_dir, path, 'immutable.json')
 
+        logging.debug('Temporal path for schema "%s": %s' % (schema_name, temporal_path))
+        logging.debug('Immutable path for schema "%s": %s' % (schema_name, temporal_path))
+
         with open(temporal_path, 'r') as temporal, open(immutable_path, 'r') as immutable:
             return cls(
                 temporal=Track.build(
-                    specs=json.load(temporal), source=source_temporal, name='temporal'
+                    specs=json.load(temporal), source=source_temporal, name='%s_temporal' % schema_name
                 ),
                 immutable=Track.build(
-                    specs=json.load(immutable), source=source_immutable, name='immutable'
-                )
+                    specs=json.load(immutable), source=source_immutable, name='%s_immutable' % schema_name
+                ),
+                name=schema_name
             )
 
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'root'))
@@ -84,5 +101,6 @@ class Schema:
         self.immutable.schema = self
 
     def invalidate_cache(self):
+        logging.info("Invalidating schema cache.")
         self._cache.clear()
 
