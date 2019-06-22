@@ -93,8 +93,12 @@ class Track(MutableMapping):
         track.invalidate_variables_cache()
 
         logging.info('Performing post-load validation on variables for track "%s".' % name)
+        n = 0
         for variable in track.values():
             Validator.validate(variable, init=True)
+            n += 1
+            if n % 100 == 0:
+                logging.info("Validated %i variables." % n)
         logging.info('All variables valid "%s".' % name)
 
         return track

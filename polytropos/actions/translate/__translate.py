@@ -38,11 +38,18 @@ class Translate(Step):
         translate_temporal: Translator = Translator(target_schema_instance.temporal)
         return cls(target_schema_instance, translate_immutable, translate_temporal)
 
-    def process_composite(self, origin, target, filename) -> Optional[ExceptionWrapper]:
+    def process_composite(self, origin_dir: str, target_dir: str, filename: str) -> Optional[ExceptionWrapper]:
         logging.debug('Translating composite "%s".' % filename)
         try:
+            if filename.startswith("."):
+                logging.info('Skipping hidden file "%s"' % filename)
+                return None
+            if not filename.endswith(".json"):
+                logging.info('Skipping non-JSON file "%s"' % filename)
+                return None
+
             translated = {}
-            with open(os.path.join(origin, filename), 'r') as origin_file:
+            with open(os.path.join(origin_dir, filename), 'r') as origin_file:
                 composite = json.load(origin_file)
                 for key, value in composite.items():
                     if key.isdigit():
@@ -51,7 +58,7 @@ class Translate(Step):
                         translated[key] = self.translate_immutable(value)
                     else:
                         pass
-            with open(os.path.join(target, filename), 'w') as target_file:
+            with open(os.path.join(target_dir, filename), 'w') as target_file:
                 json.dump(translated, target_file, indent=2)
         except Exception as e:
             logging.error("Error translating composite %s." % filename)
