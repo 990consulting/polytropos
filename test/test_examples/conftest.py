@@ -12,10 +12,10 @@ def basepath() -> str:
     return os.path.dirname(os.path.abspath(__file__))
 
 @pytest.fixture
-def run_task(basepath) -> Callable:
+def run_task(tmpdir) -> Callable:
     def _run_task(scenario, task_name, expected_location):
-        conf = os.path.join(basepath, '../../examples', scenario, 'conf')
-        data = os.path.join(basepath, '../../examples', scenario, 'data')
+        conf = os.path.join(tmpdir, '../../examples', scenario, 'conf')
+        data = os.path.join(tmpdir, '../../examples', scenario, 'data')
         task = Task.build(conf, data, task_name)
         task.run()
         actual_path = os.path.join(
