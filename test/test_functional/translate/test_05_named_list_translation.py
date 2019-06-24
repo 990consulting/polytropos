@@ -150,9 +150,7 @@ def test_no_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):
 def test_two_sources_both_missing(source_spec: Dict, target_spec: Dict):
     """Two sources defined, but both are missing from the source document; empty dict is returned."""
     source_doc = {}
-    expected: Dict = {
-        "People": {}
-    }
+    expected: Dict = {}
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_two_sources_both_empty(source_spec: Dict, target_spec: Dict):
@@ -178,8 +176,7 @@ def test_one_source(source_doc: Dict, source_spec: Dict, target_spec: Dict):
             "Stacy": {
                 "Name": "Stacy",
                 "Age": 26,
-                "Ice cream": "chocolate",
-                "Sport": None
+                "Ice cream": "chocolate"
             }
         }
     }
@@ -193,8 +190,7 @@ def test_two_sources_one_empty(source_doc: Dict, source_spec: Dict, target_spec:
             "Stacy": {
                 "Name": "Stacy",
                 "Age": 26,
-                "Ice cream": "chocolate",
-                "Sport": None
+                "Ice cream": "chocolate"
             }
         }
     }
@@ -212,15 +208,12 @@ def test_combine_lists(source_doc, source_spec, target_spec):
             },
             "Hannah": {
                 "Name": "Hannah",
-                "Age": None,
-                "Ice cream": "rocky road",
-                "Sport": None
+                "Ice cream": "rocky road"
             },
             "Stacy": {
                 "Name": "Stacy",
                 "Age": 26,
-                "Ice cream": "chocolate",
-                "Sport": None
+                "Ice cream": "chocolate"
             }
         }
     }
@@ -235,8 +228,7 @@ def test_source_order_matters(source_doc, source_spec, target_spec):
             "Stacy": {
                 "Name": "Stacy",
                 "Age": 26,
-                "Ice cream": "chocolate",
-                "Sport": None
+                "Ice cream": "chocolate"
             },
             "Steve": {
                 "Name": "Steve",
@@ -246,9 +238,7 @@ def test_source_order_matters(source_doc, source_spec, target_spec):
             },
             "Hannah": {
                 "Name": "Hannah",
-                "Age": None,
-                "Ice cream": "rocky road",
-                "Sport": None
+                "Ice cream": "rocky road"
             }
         }
     }

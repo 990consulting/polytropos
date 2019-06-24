@@ -3,34 +3,41 @@ from collections.abc import Callable
 from collections import defaultdict
 from polytropos.ontology.track import Track
 from polytropos.ontology.variable import NamedList, List, Folder
+from typing import TYPE_CHECKING, Dict, Optional, Any
 
+if TYPE_CHECKING:
+    from polytropos.ontology.variable import Variable
+
+class SourceNotFoundException(RuntimeError):
+    pass
 
 class Translator(Callable):
     """Class in charge of translating documents given a source track and a
     target track"""
-    def __init__(self, target: Track, failsafe=False):
+    def __init__(self, target: Track, failsafe: bool=False):
         logging.info('Initializing translator for track "%s".' % target.name)
         if failsafe:
             logging.warning("Translation errors will be ignored! Use at your own risk!")
-        self.source = target.source
-        self.target = target
+        self.source: Track = target.source
+        self.target: Track = target
 
         # We need to group by variables by parent to be able to efficiently do
         # a recursion in the translate function
-        self.target_variables_by_parent = defaultdict(dict)
+        # NB: `defaultdict(dict)` means "Create a dictionary that automatically supplies missing values"--very nice
+        self.target_variables_by_parent: Dict = defaultdict(dict)
         logging.debug("Grouping variables by parents.")
-        for variable_id, variable in self.target.items():
-            self.target_variables_by_parent[
-                variable.parent
-            ][variable_id] = variable
+        for variable_id, variable in self.target.items():  # type: str, "Variable"
+            self.target_variables_by_parent[variable.parent][variable_id] = variable
         # when failsafe is true exceptions are caught and ignored
         self.failsafe = failsafe
 
-    def find_in_document(self, variable_id, document, parent=''):
+    def find_in_document(self, variable_id: str, document: Dict, parent='') -> Optional[Any]:
         """Function that finds a variable (given its id) in a document. The
         parent parameter is used to limit the depth for the recursive search"""
-        if document is None:
-            return None
+        assert document is not None, "Unexpected situation occurred -- study"
+        # TODO What type is parent supposed to be here? Play around to find out.
+        if len(document) == 0:
+            raise SourceNotFoundException
         variable = self.source[variable_id]
         if variable.parent != parent:
             # recursively find the parent in the document
@@ -39,31 +46,34 @@ class Translator(Callable):
                 document,
                 parent
             )
-            if parent is None:
-                return None
-            # now our variable is a direct child of the parent
-            return parent.get(variable.name)
+            if parent is None or variable.name not in parent:
+                raise SourceNotFoundException
+            # now our variable is a direct child of the parent and we know it's present
+            return parent[variable.name]
         # we are at root level so we return the value extracted directly from
         # the document
-        return document.get(variable.name)
+        if variable.name not in document:
+            raise SourceNotFoundException
+        return document[variable.name]
 
-    def translate_generic(self, variable_id, variable, document, parent):
+    def translate_generic(self, variable_id: str, variable, document, parent):
         """Translate for primitive (non-container) variables"""
-        # We have to restric the sources to the descendants of parent
+        # We have to restrict the sources to the descendants of parent
         parent_source = None
         if parent:
             parent_source = variable.track.source[parent]
-        # Just look for the value in the sources, sorted using `sort_order`
-        for source in sorted(
-            variable.sources,
-            key=lambda source: self.source[source].sort_order
-        ):
+        for source in variable.sources:
             if parent_source and not parent_source.check_ancestor(source):
                 continue
-            result = self.find_in_document(source, document, parent)
-            if result is not None:
-                return result
-        return None
+            try:
+                result = self.find_in_document(source, document, parent)
+            # If we get a SourceNotFoundError, the source variable simply did not exist
+            except SourceNotFoundException:
+                continue
+            # The search goes in order of source priority. So if a source variable exists, whether or not it's null,
+            # that's the translation.
+            return result
+        raise SourceNotFoundException
 
     def translate_folder(self, variable_id, variable, document, parent):
         """Translate for folders"""
@@ -73,8 +83,7 @@ class Translator(Callable):
     def translate_list(self, variable_id, variable, document, parent):
         """Translate for lists"""
         results = []
-        # We have to restric the sources to the descendants of parent
-        parent_source = None
+        # We have to restrict the sources to the descendants of parent
         parent_source = None
         if parent:
             parent_source = variable.track.source[parent]
@@ -107,8 +116,7 @@ class Translator(Callable):
         logic is almost the same as for lists but taking care of the keys.
         Raises ValueError on duplicate keys"""
         results = {}
-        # We have to restric the sources to the descendants of parent
-        parent_source = None
+        # We have to restrict the sources to the descendants of parent
         parent_source = None
         if parent:
             parent_source = variable.track.source[parent]
@@ -143,18 +151,18 @@ class Translator(Callable):
     def __call__(self, document, parent='', source_parent=''):
         output_document = {}
         # Translate all variables with the same parent
-        for variable_id, variable in self.target_variables_by_parent[
-            parent
-        ].items():
+        for variable_id, variable in self.target_variables_by_parent[parent].items():  # type: str, "Variable"
             try:
                 translate = self.get_translate_function(variable)
                 output_document[variable.name] = translate(
                     variable_id, variable, document, source_parent
                 )
-            except:
+            except SourceNotFoundException:
+                continue
+            except Exception as e:
                 if self.failsafe:
-                    logging.warning('Error translating variable %s', variable_id)
-                    output_document[variable.name] = None
+                    logging.error('Error translating variable %s', variable_id)
+                    continue
                 else:
-                    raise
+                    raise e
         return output_document
