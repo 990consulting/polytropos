@@ -47,7 +47,8 @@ class Schema:
             schema_name: str = path.replace("/", "_")
 
         logging.info('Loading schema "%s".' % schema_name)
-        # TODO Figure out why these two lines are necessary. They definitely are, for now.
+        # We return None if path is None to adapt to the case of a task not
+        # having a target schema.
         if path is None:
             return None
 
