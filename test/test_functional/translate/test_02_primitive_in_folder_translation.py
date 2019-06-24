@@ -1,3 +1,5 @@
+import copy
+
 import pytest
 from typing import Dict, Tuple, Callable, Iterable
 import itertools
@@ -261,6 +263,39 @@ def target_nested() -> Tuple[Dict, Dict]:
 
 sources: Iterable = [source_flat, source_one_folder, source_two_folders, source_nested]
 targets: Iterable = [target_flat, target_one_folder, target_two_folders, target_nested]
+
+@pytest.mark.parametrize("source, target", itertools.product(sources, targets))
+def test_translate_all_children_missing(source: Callable, target: Callable):
+    __, source_spec = source()
+    __, target_spec = target()
+    source_doc: Dict = {}
+    expected: Dict = {}
+    source_track: Track = Track.build(source_spec, None, "Source")
+    target_track: Track = Track.build(target_spec, source_track, "Target")
+    translate: Translator = Translator(target_track)
+    actual: Dict = translate(source_doc)
+    assert actual == expected
+
+def test_translate_all_children_none():
+    __, source_spec = source_one_folder()
+    __, target_spec = target_one_folder()
+    source_doc: Dict = {
+        "the_folder": {
+            "first_source": None,
+            "second_source": None
+        }
+    }
+    expected = {
+        "the_folder": {
+            "first_target": None,
+            "second_target": None
+        }
+    }
+    source_track: Track = Track.build(source_spec, None, "Source")
+    target_track: Track = Track.build(target_spec, source_track, "Target")
+    translate: Translator = Translator(target_track)
+    actual: Dict = translate(source_doc)
+    assert actual == expected
 
 @pytest.mark.parametrize("source, target", itertools.product(sources, targets))
 def test_translate_with_folders(source: Callable, target: Callable):

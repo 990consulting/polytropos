@@ -65,7 +65,7 @@ class Validator:
         if sort_order < 0:
             raise ValueError
         if variable.track is not None:
-            #print(variable.track._cache)
+            # This line is very slow. Consider adding a cache for variable.siblings.
             if sort_order >= len(list(variable.siblings)) + (1 if adding else 0):
                 raise ValueError
 
@@ -74,6 +74,8 @@ class Validator:
         cls.validate_parent(variable, variable.parent)
         cls.validate_name(variable, variable.name)
         cls.validate_sources(variable, variable.sources, init)
+
+        # TODO This line is extremely slow. I suspect that putting a cache on 'Variable.children
         cls.validate_sort_order(variable, variable.sort_order, adding)
 
 
@@ -291,6 +293,7 @@ class Variable:
 
     @property
     def children(self) -> Iterator["Variable"]:
+        # TODO Consider caching the list of children for each variable in Track.
         return filter(
             lambda variable: variable.parent == self.var_id,
             self.track.values()

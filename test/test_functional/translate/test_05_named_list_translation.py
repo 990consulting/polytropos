@@ -142,9 +142,7 @@ def test_no_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     target_spec["target_root_age"]["sources"] = []
     target_spec["target_root_ice_cream"]["sources"] = []
     target_spec["target_root_sport"]["sources"] = []
-    expected: Dict = {
-        "People": {}
-    }
+    expected: Dict = {}
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_two_sources_both_missing(source_spec: Dict, target_spec: Dict):

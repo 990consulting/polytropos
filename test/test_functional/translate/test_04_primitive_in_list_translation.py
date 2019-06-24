@@ -138,21 +138,19 @@ def do_test(s_doc, s_spec, t_doc, t_spec):
     assert actual == t_doc
 
 def test_no_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):
-    """No sources defined; empty list is returned."""
+    """No sources defined; no list is created."""
     target_spec["target_root"]["sources"] = []
-    expected: Dict = {
-        "People": []
-    }
+    expected: Dict = {}
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_two_sources_both_missing(source_spec: Dict, target_spec: Dict):
-    """Two sources defined, but both are missing from the source document; empty list is returned."""
+    """Two sources defined, but both are missing from the source document; no list is created."""
     source_doc = {}
     expected: Dict = {}
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_two_sources_both_empty(source_spec: Dict, target_spec: Dict):
-    """Two sources defined, and both are present but empty; empty list is returned."""
+    """Two sources defined, and both are present but empty; an empty list is created."""
     source_doc = {
         "list_source_1": [],
         "list_source_2": []

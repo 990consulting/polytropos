@@ -2,11 +2,11 @@ import logging
 from collections.abc import Callable
 from collections import defaultdict
 from polytropos.ontology.track import Track
-from polytropos.ontology.variable import NamedList, List, Folder
+from polytropos.ontology.variable import NamedList, List, Folder, Variable
 from typing import TYPE_CHECKING, Dict, Optional, Any
 
-if TYPE_CHECKING:
-    from polytropos.ontology.variable import Variable
+#if TYPE_CHECKING:
+#    from polytropos.ontology.variable import Variable
 
 class SourceNotFoundException(RuntimeError):
     pass
@@ -75,13 +75,23 @@ class Translator(Callable):
             return result
         raise SourceNotFoundException
 
-    def translate_folder(self, variable_id, variable, document, parent):
+    # TODO: Find some strategy, maybe involving named keyword arguments, to not include unused parameters
+    # TODO: Find out what types "parent" is allowed to be
+    def translate_folder(self, variable_id: str, variable: Variable, document: Dict, parent):
         """Translate for folders"""
         # Just translate all variables in the folder
-        return self(document, variable_id, parent)
+        candidate: Dict = self(document, variable_id, parent)
 
+        # If the resulting dictionary is empty, none of the children were found, so don't include the folder at all.
+        if len(candidate) == 0:
+            raise SourceNotFoundException
+        return candidate
+
+    # TODO This should be done with iterators to save concatenation time on long lists
     def translate_list(self, variable_id, variable, document, parent):
         """Translate for lists"""
+        if variable.sources is None or len(variable.sources) == 0:
+            raise SourceNotFoundException
         results = []
         # We have to restrict the sources to the descendants of parent
         parent_source = None
@@ -115,6 +125,8 @@ class Translator(Callable):
         """Translate function for named lists (similar to python dicts), the
         logic is almost the same as for lists but taking care of the keys.
         Raises ValueError on duplicate keys"""
+        if variable.sources is None or len(variable.sources) == 0:
+            raise SourceNotFoundException
         results = {}
         # We have to restrict the sources to the descendants of parent
         parent_source = None
@@ -137,8 +149,8 @@ class Translator(Callable):
                 )
         return results
 
-    def get_translate_function(self, variable):
-        """Python polymorfism"""
+    def get_translate_function(self, variable: "Variable"):
+        """Python polymorphism"""
         if isinstance(variable, NamedList):
             return self.translate_named_list
         elif isinstance(variable, List):
@@ -148,15 +160,15 @@ class Translator(Callable):
         else:
             return self.translate_generic
 
-    def __call__(self, document, parent='', source_parent=''):
-        output_document = {}
+    # TODO Figure out what classes parent and source_parent are ever allowed to be.
+    def __call__(self, document: Dict, parent='', source_parent=''):
+        output_document: Dict = {}
         # Translate all variables with the same parent
         for variable_id, variable in self.target_variables_by_parent[parent].items():  # type: str, "Variable"
             try:
                 translate = self.get_translate_function(variable)
-                output_document[variable.name] = translate(
-                    variable_id, variable, document, source_parent
-                )
+                result: Optional[Any] = translate(variable_id, variable, document, source_parent)
+                output_document[variable.name] = result
             except SourceNotFoundException:
                 continue
             except Exception as e:
