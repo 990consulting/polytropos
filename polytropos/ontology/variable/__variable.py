@@ -18,17 +18,17 @@ class Validator:
         if variable.track is not None:
             if not init:
                 if isinstance(variable, Folder):
-                    raise ValueError
+                    raise ValueError('Folders can\'t have sources')
                 if (variable.parent and isinstance(
                         variable.track[variable.parent], GenericList
                 )):
-                    raise ValueError
+                    raise ValueError('List children can\'t have sources')
             for source in sources:
                 if source not in variable.track.source:
-                    raise ValueError
+                    raise ValueError('Trying to add an inexistent source')
                 source_var = variable.track.source[source]
                 if _incompatible_type(source_var, variable):
-                    raise ValueError
+                    raise ValueError('Source has an incompatible type')
 
     @staticmethod
     def validate_parent(variable, parent):
@@ -37,10 +37,10 @@ class Validator:
                 return
             if parent not in variable.track:
                 # invalid parent
-                raise ValueError
+                raise ValueError('Inexistent parent')
             if not isinstance(variable.track[parent], Container):
                 # parent not container
-                raise ValueError
+                raise ValueError('Parent is not a container')
             if (
                     isinstance(variable, GenericList) and
                     variable.descends_from_list
@@ -58,7 +58,7 @@ class Validator:
                 if sibling != variable.var_id
             )
             if name in sibling_names:
-                raise ValueError
+                raise ValueError('Duplicate name with siblings')
 
     @staticmethod
     def validate_sort_order(variable, sort_order, adding=False):
@@ -67,7 +67,7 @@ class Validator:
         if variable.track is not None:
             # This line is very slow. Consider adding a cache for variable.siblings.
             if sort_order >= len(list(variable.siblings)) + (1 if adding else 0):
-                raise ValueError
+                raise ValueError('Invalid sort order')
 
     @classmethod
     def validate(cls, variable, init=False, adding=False):
