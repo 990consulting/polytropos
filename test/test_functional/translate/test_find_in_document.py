@@ -1,7 +1,7 @@
 import pytest
 from typing import Dict
 from polytropos.ontology.track import Track
-from polytropos.actions.translate import Translator
+from polytropos.actions.translate.__translator import Translator, SourceNotFoundException
 
 @pytest.fixture()
 def source_doc() -> Dict:
@@ -106,10 +106,8 @@ def test_parent(source_doc, translate):
 
 
 def test_parent_no_parent(source_doc, translate):
-    actual = translate.find_in_document(
-        'source_folder_color', source_doc['my_folder']
-    )
-    assert actual is None
+    with pytest.raises(SourceNotFoundException):
+        translate.find_in_document('source_folder_color', source_doc['my_folder'])
 
 
 def test_parent_immediate(source_doc, translate):
@@ -121,7 +119,5 @@ def test_parent_immediate(source_doc, translate):
 
 
 def test_parent_immediate_no_parent(source_doc, translate):
-    actual = translate.find_in_document(
-        'source_folder_color', source_doc['my_folder']['the_folder']
-    )
-    assert actual is None
+    with pytest.raises(SourceNotFoundException):
+        actual = translate.find_in_document('source_folder_color', source_doc['my_folder']['the_folder'])

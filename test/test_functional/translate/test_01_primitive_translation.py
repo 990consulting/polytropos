@@ -10,12 +10,12 @@ def source_spec() -> Dict:
         "source_var_1": {
             "name": "first_source",
             "data_type": "Integer",
-            "sort_order": 0
+            "sort_order": 1
         },
         "source_var_2": {
             "name": "second_source",
             "data_type": "Integer",
-            "sort_order": 1
+            "sort_order": 0
         }
     }
 
@@ -54,19 +54,15 @@ def test_translate_no_sources_listed(target_spec: Dict, source_spec: Dict, sourc
     translate: Translator = Translator(target_track)
 
     actual: Dict[str, Any] = translate(source_doc)
-    expected: Dict[str, Any] = {
-        "the_target": None
-    }
+    expected: Dict[str, Any] = {}
 
     assert actual == expected
 
 def test_translate_neither_source_has_values(translate: Translator):
-    """If a primitive has sources but none have a value, it is null."""
+    """If a primitive has sources but none have a value, it is not translated."""
     empty_doc: Dict = {}
     actual: Dict[str, Any] = translate(empty_doc)
-    expected: Dict[str, Any] = {
-        "the_target": None
-    }
+    expected: Dict[str, Any] = {}
     assert actual == expected
 
 def test_translate_first_source_has_value(translate: Translator, source_doc: Dict):
@@ -78,18 +74,32 @@ def test_translate_first_source_has_value(translate: Translator, source_doc: Dic
     }
     assert actual == expected
 
-def test_translate_second_source_has_value(translate: Translator, source_doc: Dict):
-    """If a primitive has two sources and the second one has a value, that value is captured."""
-    del source_doc["first_source"]
-    actual: Dict[str, Any] = translate(source_doc)
+def test_source_has_null_value(translate: Translator):
+    """If a variable's source has an explicit null value, the target is explicitly null."""
+    doc: Dict = {
+        "first_source": None
+    }
+    actual: Dict[str, Any] = translate(doc)
     expected: Dict[str, Any] = {
-        "the_target": 102
+        "the_target": None
     }
     assert actual == expected
 
-def test_translate_none_means_skip(translate: Translator, source_doc: Dict):
-    """If a source exists and has a null value, treat that as if it weren't there."""
-    source_doc["first_source"] = None
+def test_first_null_second_non_null(translate: Translator):
+    """If a variable has 2+ sources and the first extant one is explicitly null, the target is explicitly null."""
+    doc: Dict = {
+        "first_source": None,
+        "second_source": 5
+    }
+    actual: Dict[str, Any] = translate(doc)
+    expected: Dict[str, Any] = {
+        "the_target": None
+    }
+    assert actual == expected
+
+def test_translate_second_source_has_value(translate: Translator, source_doc: Dict):
+    """If a primitive has two sources and the second one has a value, that value is captured."""
+    del source_doc["first_source"]
     actual: Dict[str, Any] = translate(source_doc)
     expected: Dict[str, Any] = {
         "the_target": 102
