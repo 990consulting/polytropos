@@ -71,6 +71,13 @@ class Validator:
 
     @classmethod
     def validate(cls, variable, init=False, adding=False):
+        """Run validation on the variable, init=True disables some of the
+        validation that shouldn't run during schema initialization. For
+        example, we might create a child before a parent.
+        The parameter adding is only used for validating the sort order. We
+        need it because when we are adding a new variable the sort order logic
+        is slightly different (because we will end up having one more
+        sibling"""
         cls.validate_parent(variable, variable.parent)
         cls.validate_name(variable, variable.name)
         cls.validate_sources(variable, variable.sources, init)
