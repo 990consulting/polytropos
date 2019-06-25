@@ -16,7 +16,7 @@ resulting_in:
 steps:
   - Filter:
       name: RetainOnlyFemales
-      subjects:
+      mappings:
         male_flag: the_maleness_var
   - Evolve:
       changes:
@@ -33,6 +33,6 @@ steps:
             mean_bmi_var: the_mean_bmi_var
   - Scan:
       name: AssignAverageBMIRank
-      subjects:
+      mappings:
         mean_bmi_var: the_mean_bmi_var
         bmi_rank_var: the_gender_rank_var

@@ -39,14 +39,10 @@ class _EvolveFactory(Callable):
                 loaded_lookups[lookup] = json.load(l)
         return loaded_lookups
 
-    def _construct_change(self, class_name: str, var_specs: Dict[str, str], loaded_lookups: Dict[str, Dict]) -> Change:
-        variables: Dict[str, Variable] = {
-            var_name: self.schema.get(var_id)
-            for var_name, var_id in var_specs.items()
-        }
+    def _construct_change(self, class_name: str, mappings: Dict[str, str], loaded_lookups: Dict[str, Dict]) -> Change:
         change_class: Type = self.change_classes[class_name]
         change: Change = change_class(
-            **variables, schema=self.schema, lookups=loaded_lookups
+            **mappings, schema=self.schema, lookups=loaded_lookups
         )
         return change
 

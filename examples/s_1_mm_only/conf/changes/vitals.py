@@ -37,14 +37,14 @@ class CalculateWeightGain(Change):
 @dataclass
 class DetermineGender(Change):
     """Use a lookup table to determine the person's gender."""
-    person_name_var: Variable
-    gender_var: Variable
+    person_name_var: str
+    gender_var: str
 
     # @lookup("genders")
 
     def __call__(self, composite: Composite):
-        person_name: str = composite.get_immutable(self.person_name_var.var_id)
+        person_name: str = composite.get_immutable(self.person_name_var)
         lc_name = person_name.lower()
 
         gender = self.lookups["genders"][lc_name]
-        composite.put_immutable(self.gender_var.var_id, gender)
+        composite.put_immutable(self.gender_var, gender)

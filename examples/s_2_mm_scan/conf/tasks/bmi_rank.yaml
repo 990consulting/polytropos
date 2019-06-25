@@ -27,7 +27,7 @@ steps:
             mean_bmi_var: the_mean_bmi_var
   - Scan:
       name: AssignAverageBMIRank
-      subjects:
+      mappings:
         male_flag: the_maleness_var
         mean_bmi_var: the_mean_bmi_var
         bmi_rank_gender_var: the_gender_rank_var
