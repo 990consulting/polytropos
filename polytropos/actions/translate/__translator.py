@@ -41,15 +41,15 @@ class Translator(Callable):
         variable = self.source[variable_id]
         if variable.parent != parent:
             # recursively find the parent in the document
-            parent = self.find_in_document(
+            parent_doc = self.find_in_document(
                 variable.parent,
                 document,
                 parent
             )
-            if parent is None or variable.name not in parent:
+            if parent_doc is None or variable.name not in parent_doc:
                 raise SourceNotFoundException
             # now our variable is a direct child of the parent and we know it's present
-            return parent[variable.name]
+            return parent_doc[variable.name]
         # we are at root level so we return the value extracted directly from
         # the document
         if variable.name not in document:
