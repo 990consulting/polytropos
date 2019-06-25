@@ -28,20 +28,12 @@ class Aggregate(Step):
     @classmethod
     def build(
             cls, path_locator: PathLocator, schema: Schema, name: str, target_schema: str, id_var: str,
-            input_schema_vars: Dict, output_schema_vars: Dict
+            input_mappings: Dict, output_mappings: Dict
     ): 
         target_schema_instance: Schema = Schema.load(path_locator, target_schema)
         aggregations: Dict[str, Type] = load(cls)
-        input_variables: Dict[str, Variable] = {
-            var_name: schema.get(var_id)
-            for var_name, var_id in input_schema_vars.items()
-        }
-        output_variables: Dict[str, Variable] = {
-            var_name: target_schema_instance.get(var_id)
-            for var_name, var_id in output_schema_vars.items()
-        }
         return aggregations[name](origin_schema=schema, target_schema=target_schema_instance, id_var=id_var,
-                                  **input_variables, **output_variables)
+                                  **input_mappings, **output_mappings)
 
     @abstractmethod
     def extract(self, composite: Composite) -> Optional[Any]:

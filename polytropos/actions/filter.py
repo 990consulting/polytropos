@@ -23,14 +23,10 @@ class Filter(Step):
     schema: Schema
 
     @classmethod
-    def build(cls, path_locator, schema: Schema, name: str, subjects: Dict):
+    def build(cls, path_locator, schema: Schema, name: str, mappings: Dict):
         logging.info('Building instance of filter class "%s"' % name)
         filters = load(cls)
-        variables = {
-            var_name: schema.get(var_id)
-            for var_name, var_id in subjects.items()
-        }
-        return filters[name](schema=schema, **variables)
+        return filters[name](schema=schema, **mappings)
 
     @abstractmethod
     def passes(self, composite: Composite) -> bool:

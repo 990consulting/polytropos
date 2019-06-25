@@ -28,14 +28,10 @@ class Scan(Step):
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, path_locator: "PathLocator", schema: "Schema", name: str, subjects: Dict):
+    def build(cls, path_locator: "PathLocator", schema: "Schema", name: str, mappings: Dict):
         scan_subclasses: Dict[str, Type] = load(cls)
-        variables: Dict[str, Variable] = {
-            var_name: schema.get(var_id)
-            for var_name, var_id in subjects.items()
-        }
         instance_subclass: Type = scan_subclasses[name]
-        return instance_subclass(**variables, schema=schema)
+        return instance_subclass(**mappings, schema=schema)
 
     @abstractmethod
     def extract(self, composite: Composite) -> Optional[Any]:
