@@ -94,17 +94,17 @@ def test_get_observation_unknown_var_raises(imperfect_composite):
         imperfect_composite.get_observation("not_a_thing", "2012")
 
 def test_put_observation(imperfect_composite):
-    imperfect_composite.put_observation("2012", "the_weight_var", 190.1)
+    imperfect_composite.put_observation("the_weight_var", "2012", 190.1)
     assert imperfect_composite.content["2012"]["weight_in_pounds"] == 190.1
 
 def test_put_observation_overwrites(imperfect_composite):
-    imperfect_composite.put_observation("2011", "the_weight_var", 190.1)
+    imperfect_composite.put_observation("the_weight_var", "2011", 190.1)
     assert imperfect_composite.content["2011"]["weight_in_pounds"] == 190.1
 
 def test_put_observation_creates_period(imperfect_composite):
-    imperfect_composite.put_observation("2013", "the_weight_var", 190.1)
+    imperfect_composite.put_observation("the_weight_var", "2013", 190.1)
     assert imperfect_composite.content["2013"]["weight_in_pounds"] == 190.1
 
 def test_put_observation_unknown_var_raises(imperfect_composite):
     with pytest.raises(ValueError):
-        imperfect_composite.put_observation("2012", "not_a_thing", 190.1)
+        imperfect_composite.put_observation("not_a_thing", "2012", 190.1)

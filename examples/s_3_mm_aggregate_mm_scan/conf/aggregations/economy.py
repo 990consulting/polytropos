@@ -75,9 +75,9 @@ class EconomicOverview(Aggregate):
                 mean_employees = tot_employees / n_companies
                 productivity = tot_revenue / tot_employees
 
-                city.put_observation(period, self.n_company_var, n_companies)
-                city.put_observation(period, self.annual_prod_var, productivity)
-                city.put_observation(period, self.mean_employee_var, mean_employees)
+                city.put_observation(self.n_company_var, period, n_companies)
+                city.put_observation(self.annual_prod_var, period, productivity)
+                city.put_observation(self.mean_employee_var, period, mean_employees)
 
             city.put_immutable(self.target_zip_var, transient["immutable"]["zip"])
             city.put_immutable(self.target_city_var, transient["immutable"]["city"])

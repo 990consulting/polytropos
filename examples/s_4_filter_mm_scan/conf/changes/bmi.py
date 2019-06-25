@@ -18,7 +18,7 @@ class AssignAnnualBMI(Change):
         h_squared = composite.get_immutable(self.height_var) ** 2
         for period, weight in composite.get_all_observations(self.annual_weight_var):
             bmi = weight / h_squared * 703
-            composite.put_observation(period, self.annual_bmi_var, bmi)
+            composite.put_observation(self.annual_bmi_var, period, bmi)
 
 
 @dataclass

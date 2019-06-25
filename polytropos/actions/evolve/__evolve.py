@@ -91,7 +91,8 @@ class Evolve(Step):
             logging.debug("Evolving %s." % origin_filename)
             with open(origin_filename, 'r') as origin_file:
                 content: Dict = json.load(origin_file)
-                composite: Composite = Composite(self.schema, content)
+                composite_id: str = filename[:-5]
+                composite: Composite = Composite(self.schema, content, composite_id=composite_id)
                 for change in self.changes:
                     logging.debug('Applying change "%s" to %s.' % (change.__class__.__name__, origin_filename))
                     change(composite)

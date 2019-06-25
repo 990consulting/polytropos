@@ -2,9 +2,7 @@ import logging
 import json
 from dataclasses import dataclass, field, fields
 from collections import defaultdict
-from typing import(
-    List as ListType, Dict, Iterator, Any, Iterable, TYPE_CHECKING
-)
+from typing import List as ListType, Dict, Iterator, TYPE_CHECKING
 from functools import partial
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -28,7 +26,7 @@ class Validator:
                     raise ValueError
                 source_var = variable.track.source[source]
                 if _incompatible_type(source_var, variable):
-                    raise ValueError
+                    raise ValueError(variable.name)
 
     @staticmethod
     def validate_parent(variable, parent):
@@ -73,9 +71,11 @@ class Validator:
     def validate(cls, variable, init=False, adding=False):
         cls.validate_parent(variable, variable.parent)
         cls.validate_name(variable, variable.name)
-        cls.validate_sources(variable, variable.sources, init)
 
-        # TODO This line is extremely slow. I suspect that putting a cache on 'Variable.children
+        if variable.track.source is not None:
+            cls.validate_sources(variable, variable.sources, init)
+
+        # TODO This line is extremely slow. I suspect that putting a cache on 'Variable.children' would solve it
         cls.validate_sort_order(variable, variable.sort_order, adding)
 
 
@@ -244,10 +244,11 @@ class Variable:
 
     def dump(self) -> Dict:
         """A dictionary representation of this variable."""
-        representation = {}
-        representation['name'] = self.name
-        representation['data_type'] = self.data_type
-        representation['sort_order'] = self.sort_order
+        representation = {
+            'name': self.name,
+            'data_type': self.data_type,
+            'sort_order': self.sort_order
+        }
         for var_field in fields(self):
             if var_field.name == 'name' or var_field.name == 'sort_order':
                 continue
@@ -260,7 +261,7 @@ class Variable:
         """A JSON-compatible representation of this variable. (For serialization.)"""
         return json.dumps(self.dump(), indent=4)
 
-    def check_ancestor(self, child):
+    def check_ancestor(self, child) -> bool:
         variable = self.track[child]
         if variable.parent == '':
             return False
@@ -298,10 +299,6 @@ class Variable:
             lambda variable: variable.parent == self.var_id,
             self.track.values()
         )
-
-    @property
-    def test_cases(self) -> Iterator[str]:
-        return []
 
     @property
     def data_type(self) -> str:

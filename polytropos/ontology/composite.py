@@ -12,6 +12,7 @@ from polytropos.ontology.variable import Variable
 class Composite:
     schema: Schema
     content: Dict = field(default_factory=dict)
+    composite_id: str = None
 
     def as_var(self, var_id: str, **kwargs) -> Variable:
         var: Variable = self.schema.get(var_id, **kwargs)
@@ -65,7 +66,7 @@ class Composite:
         path: List = ["immutable"] + list(var.absolute_path)
         nesteddicts.put(self.content, path, value)
 
-    def put_observation(self, period: str, var_id: str, value: Optional[Any]) -> None:
+    def put_observation(self, var_id: str, period: str, value: Optional[Any]) -> None:
         """Assign (or overwrite) the value of a temporal variable into a particular time period's observation."""
         var = self.as_var(var_id, track_type=TrackType.TEMPORAL)
         path: List = [period] + list(var.absolute_path)
