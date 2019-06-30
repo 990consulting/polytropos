@@ -12,21 +12,18 @@ if TYPE_CHECKING:
 
 class Validator:
     @staticmethod
-    def validate_sources(variable: "Variable", sources: ListType["Variable"], init: bool=False):
+    def validate_sources(variable: "Variable", sources: ListType[str], init: bool=False):
         if variable.track is not None:
             if not init:
-                if isinstance(variable, Folder):
-                    raise ValueError('Folders can\'t have sources')
+                _check_folder_has_sources(variable, sources)
+                # TODO This isn't actually checking what we want to check, since list children CAN have sources
                 if (variable.parent and isinstance(
                         variable.track[variable.parent], GenericList
                 )):
                     raise ValueError('List children can\'t have sources')
             for source in sources:
-                if source not in variable.track.source:
-                    raise ValueError('Trying to add an inexistent source')
-                source_var = variable.track.source[source]
-                if _incompatible_type(source_var, variable):
-                    raise ValueError('Source has an incompatible type')
+                _verify_source_exists(variable, source)
+                _verify_source_compatible(variable, source)
 
     @staticmethod
     def validate_parent(variable, parent):
@@ -403,3 +400,28 @@ def _incompatible_type(source_var: Variable, variable: Variable):
     elif source_var.__class__ != variable.__class__:
         return True
     return False
+
+def _check_folder_has_sources(variable: "Variable", sources: ListType[str]):
+    if sources is not None and isinstance(variable, Folder):
+        var_id: str = variable.var_id
+        source_str = ", ".join(sources)
+        msg_template: str = 'Folders can\'t have sources, but variable "%s" is a Folder and lists the following ' \
+                            'sources: %s'
+        raise ValueError(msg_template % (var_id, source_str))
+
+def _verify_source_exists(variable: "Variable", source_var_id: str):
+    if source_var_id not in variable.track.source:
+        var_id: str = variable.var_id
+        source_track_name: str = variable.track.source.name
+        msg_template: str = 'Variable "%s" is attempting to add source variable "%s", which does not exist in the ' \
+                            'source track "%s"'
+        raise ValueError(msg_template % (var_id, source_var_id, source_track_name))
+
+def _verify_source_compatible(variable: "Variable", source_var_id: str):
+    source_var = variable.track.source[source_var_id]
+    if _incompatible_type(source_var, variable):
+        var_id: str = variable.var_id
+        var_type: str = variable.__class__.__name__
+        source_var_type: str = source_var.__class__.__name__
+        msg_template: str = 'Variable "%s" (%s) is attempting to add incompatible source variable %s (%s)'
+        raise ValueError(msg_template % (var_id, var_type, source_var_id, source_var_type))

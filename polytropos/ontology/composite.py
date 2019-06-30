@@ -72,6 +72,16 @@ class Composite:
         path: List = [period] + list(var.absolute_path)
         nesteddicts.put(self.content, path, value)
 
+    def pop_observation(self, var_id: str, period: str, treat_missing_as_null=False) -> Optional[Any]:
+        value: Optional[Any] = self.get_observation(var_id, period, treat_missing_as_null=treat_missing_as_null)
+        self.del_observation(var_id, period)
+        return value
+
+    def del_observation(self, var_id: str, period: str) -> None:
+        var = self.as_var(var_id, track_type=TrackType.TEMPORAL)
+        path: List = [period] + list(var.absolute_path)
+        nesteddicts.delete(self.content, path)
+
     def encode_list(self, mappings: Dict[str, str], content: List[Dict]) -> Iterator[Dict]:
         """Create a schema-compliant version of a list of dicts based on data structured in some other format.
         :param mappings: A mapping between the internal list item names and the IDs of the list-item variables they

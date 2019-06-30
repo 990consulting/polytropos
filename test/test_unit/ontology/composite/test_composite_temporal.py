@@ -1,6 +1,9 @@
+import copy
 from typing import Dict, Optional, Any
 
 import pytest
+from polytropos.util.nesteddicts import MissingDataError
+
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.schema import Schema
 
@@ -15,6 +18,50 @@ def imperfect_composite(simple_schema: Schema) -> Composite:
         },
         "2012": {}
     })
+
+def test_del_observation(imperfect_composite: Composite):
+    expected: Dict = {
+        "2010": {
+            "weight_in_pounds": None
+        },
+        "2011": {},
+        "2012": {}
+
+    }
+    imperfect_composite.del_observation("the_weight_var", "2011")
+    assert imperfect_composite.content == expected
+
+def test_del_observation_missing(imperfect_composite: Composite):
+    expected: Dict = copy.deepcopy(imperfect_composite.content)
+    imperfect_composite.del_observation("the_weight_var", "2012")
+    assert imperfect_composite.content == expected
+
+def test_pop_observation_gets_value(imperfect_composite: Composite):
+    assert imperfect_composite.pop_observation("the_weight_var", "2011") == 170.1
+
+def test_pop_observation_deletes_value(imperfect_composite: Composite):
+    expected: Dict = {
+        "2010": {
+            "weight_in_pounds": None
+        },
+        "2011": {},
+        "2012": {}
+
+    }
+    imperfect_composite.pop_observation("the_weight_var", "2011")
+    assert imperfect_composite.content == expected
+
+def test_pop_missing_observation_no_default_raises(imperfect_composite: Composite):
+    with pytest.raises(MissingDataError):
+        imperfect_composite.pop_observation("the_weight_var", "2012")
+
+def test_pop_missing_observation_with_default_returns_none(imperfect_composite: Composite):
+    assert imperfect_composite.pop_observation("the_weight_var", "2012", treat_missing_as_null=True) is None
+
+def test_pop_missing_observation_with_default_no_side_effect(imperfect_composite: Composite):
+    expected: Dict = copy.deepcopy(imperfect_composite.content)
+    imperfect_composite.pop_observation("the_weight_var", "2012", treat_missing_as_null=True)
+    assert imperfect_composite.content == expected
 
 def test_periods(simple_composite: Composite):
     assert set(simple_composite.periods) == {"2013", "2010", "2011", "2012"}
