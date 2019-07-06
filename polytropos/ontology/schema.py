@@ -2,7 +2,7 @@ import logging
 import os
 import json
 from enum import Enum
-from typing import Optional, Dict, TYPE_CHECKING
+from typing import Optional, Dict, TYPE_CHECKING, Iterable, Tuple
 from dataclasses import dataclass, field
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -22,6 +22,14 @@ class TrackType(Enum):
     ANY = 0
     TEMPORAL = 1
 
+class DuplicatePathError(ValueError):
+    def __init__(self, var1: "Variable", var2: "Variable"):
+        self.var1 = var1
+        self.var2 = var2
+
+    def __str__(self):
+        template: str = 'Variables %s and %s have the same absolute path (%s)'
+        return template % (self.var1.var_id, self.var2.var_id, self.var1.absolute_path)
 
 @dataclass
 class Schema:
@@ -30,14 +38,26 @@ class Schema:
     immutable: Track
     name: str = "UNSPECIFIED"
 
-    _cache: Dict = field(init=False, default_factory=dict)
+    _var_id_cache: Dict = field(init=False, default_factory=dict)
+    _var_path_cache: Dict = field(init=False, default_factory=dict)
 
     def __post_init__(self):
+        self.temporal.schema = self
+        self.immutable.schema = self
         repeated = self.temporal.keys() & self.immutable.keys()
         if repeated:
             raise ValueError(
                 'The variable ids intersect in {}'.format(repeated)
             )
+        self._preload_var_path_cache()
+
+    def _preload_var_path_cache(self):
+        for track in [self.temporal, self.immutable]:  # type: Track
+            for var in track.values():  # type: str, "Variable"
+                abs_path: Tuple[str] = tuple(var.absolute_path)
+                if abs_path in self._var_path_cache:
+                    raise DuplicatePathError(var, self._var_path_cache[abs_path])
+                self._var_path_cache[abs_path] = var
 
     @classmethod
     def load(cls, path_locator: "PathLocator", path: str, source_schema: "Schema"=None):
@@ -84,7 +104,7 @@ class Schema:
                 name=schema_name
             )
 
-    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'root'))
+    @cachedmethod(lambda self: self._var_id_cache, key=partial(hashkey, 'root'))
     def get(self, var_id: str, track_type: TrackType=TrackType.ANY) -> Optional[Variable]:
         """Retrieve a particular variable from the Schema. Optionally verify the track it came from"""
         immutable_match: Variable = self.immutable.get(var_id)
@@ -104,11 +124,29 @@ class Schema:
 
         return immutable_match
 
-    def __post_init__(self):
-        self.temporal.schema = self
-        self.immutable.schema = self
+    def _lookup(self, frozen_abs_path: Tuple[str]) -> Optional[Variable]:
+        if frozen_abs_path in self._var_path_cache:
+            return self._var_path_cache[frozen_abs_path]
+
+        for var in self.immutable.values():  # type: str, "Variable"
+            abs_path: Tuple[str] = tuple(var.absolute_path)
+            if abs_path not in self._var_path_cache:
+                self._var_path_cache[abs_path] = var
+            if abs_path == frozen_abs_path:
+                return var
+
+        for var in self.temporal.values():  # type: str, "Variable"
+            abs_path: Tuple[str] = tuple(var.absolute_path)
+            if abs_path not in self._var_path_cache:
+                self._var_path_cache[abs_path] = var
+            if abs_path == frozen_abs_path:
+                return var
+
+    def lookup(self, abs_path: Iterable[str]) -> Optional[Variable]:
+        frozen_abs_path = tuple(abs_path)
+        return self._lookup(frozen_abs_path)
 
     def invalidate_cache(self):
-        logging.info("Invalidating schema cache.")
-        self._cache.clear()
-
+        logging.info("Invalidating schema caches.")
+        self._var_id_cache.clear()
+        self._var_path_cache.clear()

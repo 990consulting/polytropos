@@ -161,7 +161,7 @@ class Variable:
                 return
         if attribute == 'data_type':
             raise AttributeError
-        if self.track and attribute in {'sort_order', 'parent'}:
+        if self.track and attribute in {'sort_order', 'parent', 'name'}:
             self.track.invalidate_variables_cache()
         self.__dict__[attribute] = value
 

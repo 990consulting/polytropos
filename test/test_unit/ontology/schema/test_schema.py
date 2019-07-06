@@ -3,7 +3,7 @@ from typing import Dict
 
 import pytest
 
-from polytropos.ontology.schema import Schema, TrackType
+from polytropos.ontology.schema import Schema, TrackType, DuplicatePathError
 from polytropos.ontology.track import Track
 
 @pytest.fixture()
@@ -68,8 +68,7 @@ def test_get_temporal_wrong_type_raises(schema):
     with pytest.raises(ValueError):
         schema.get("the_immutable_var", track_type=TrackType.TEMPORAL)
 
-@pytest.mark.parametrize("track_type", list(TrackType))
-def test_get_conflict_raises(track_type):
+def test_var_id_conflict_raises():
     t_spec: Dict = {
         "A": {
             "name": "temporal variable",
@@ -77,9 +76,34 @@ def test_get_conflict_raises(track_type):
             "sort_order": 0
         }
     }
+    i_spec: Dict = {
+        "A": {
+            "name": "immutable variable",
+            "data_type": "Text",
+            "sort_order": 0
+        }
+    }
     t_track = Track.build(t_spec, None, "temporal")
-    i_spec = copy.deepcopy(t_spec)
     i_track = Track.build(i_spec, None, "immutable")
-    schema = Schema(t_track, i_track)
     with pytest.raises(ValueError):
-        schema.get("A", track_type=track_type)
+        Schema(t_track, i_track)
+
+def test_var_path_conflict_raises():
+    t_spec: Dict = {
+        "A": {
+            "name": "variable",
+            "data_type": "Text",
+            "sort_order": 0
+        }
+    }
+    i_spec: Dict = {
+        "B": {
+            "name": "variable",
+            "data_type": "Text",
+            "sort_order": 0
+        }
+    }
+    t_track = Track.build(t_spec, None, "temporal")
+    i_track = Track.build(i_spec, None, "immutable")
+    with pytest.raises(DuplicatePathError):
+        Schema(t_track, i_track)
