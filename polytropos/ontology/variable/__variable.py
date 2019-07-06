@@ -265,9 +265,14 @@ class Variable:
         """A JSON-compatible representation of this variable. (For serialization.)"""
         return json.dumps(self.dump(), indent=4)
 
-    def check_ancestor(self, child) -> bool:
+    def check_ancestor(self, child, stop_at_list: bool = False) -> bool:
         variable = self.track[child]
         if variable.parent == '':
+            return False
+        if (
+                stop_at_list and
+                isinstance(self.track[variable.parent], GenericList)
+        ):
             return False
         if variable.parent == self.var_id:
             return True
@@ -285,7 +290,7 @@ class Variable:
         for variable_id in self.track.descendants_that(
             data_type, targets, container, inside_list
         ):
-            if self.check_ancestor(variable_id):
+            if self.check_ancestor(variable_id, stop_at_list=True):
                 yield variable_id
 
     def targets(self) -> Iterator[str]:
