@@ -32,6 +32,13 @@ class Schema:
 
     _cache: Dict = field(init=False, default_factory=dict)
 
+    def __post_init__(self):
+        repeated = self.temporal.keys() & self.immutable.keys()
+        if repeated:
+            raise ValueError(
+                'The variable ids intersect in {}'.format(repeated)
+            )
+
     @classmethod
     def load(cls, path_locator: "PathLocator", path: str, source_schema: "Schema"=None):
         """
