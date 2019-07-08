@@ -18,6 +18,7 @@ class Validator:
                 _check_folder_has_sources(variable, sources)
             if sources:
                 for source in sources:
+                    _verify_source_parent(variable, source)
                     _verify_source_exists(variable, source)
                     _verify_source_compatible(variable, source)
 
@@ -274,6 +275,15 @@ class Variable:
             return True
         return self.check_ancestor(variable.parent)
 
+    def get_first_list_ancestor(self):
+        parent_id = self.parent
+        if parent_id == '':
+            return None
+        parent = self.track[parent_id]
+        if isinstance(parent, GenericList):
+            return parent
+        return parent.get_first_list_ancestor()
+
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'descendants_that'))
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
             -> Iterator[str]:
@@ -409,6 +419,22 @@ def _check_folder_has_sources(variable: "Variable", sources: ListType[str]):
         msg_template: str = 'Folders can\'t have sources, but variable "%s" is a Folder and lists the following ' \
                             'sources: %s'
         raise ValueError(msg_template % (var_id, source_str))
+
+def _verify_source_parent(variable: "Variable", source_var_id: str):
+    print(variable)
+    list_ancestor = variable.get_first_list_ancestor()
+    if list_ancestor is None:
+        return
+    parent_sources = set(list_ancestor.sources)
+    print(parent_sources)
+    for source_id in variable.sources:
+        # print(source_id)
+        source = variable.track.source[source_id]
+        while source.parent != '' and source.var_id not in parent_sources:
+            source = variable.track.source[source.parent]
+        # print(source)
+        if source.var_id not in parent_sources:
+            raise ValueError('Wrong source descendant')
 
 def _verify_source_exists(variable: "Variable", source_var_id: str):
     if source_var_id not in variable.track.source:
