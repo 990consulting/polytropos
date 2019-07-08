@@ -421,20 +421,15 @@ def _check_folder_has_sources(variable: "Variable", sources: ListType[str]):
         raise ValueError(msg_template % (var_id, source_str))
 
 def _verify_source_parent(variable: "Variable", source_var_id: str):
-    print(variable)
     list_ancestor = variable.get_first_list_ancestor()
     if list_ancestor is None:
         return
     parent_sources = set(list_ancestor.sources)
-    print(parent_sources)
-    for source_id in variable.sources:
-        # print(source_id)
-        source = variable.track.source[source_id]
-        while source.parent != '' and source.var_id not in parent_sources:
-            source = variable.track.source[source.parent]
-        # print(source)
-        if source.var_id not in parent_sources:
-            raise ValueError('Wrong source descendant')
+    source = variable.track.source[source_var_id]
+    while source.parent != '' and source.var_id not in parent_sources:
+        source = variable.track.source[source.parent]
+    if source.var_id not in parent_sources:
+        raise ValueError('Wrong source descendant')
 
 def _verify_source_exists(variable: "Variable", source_var_id: str):
     if source_var_id not in variable.track.source:

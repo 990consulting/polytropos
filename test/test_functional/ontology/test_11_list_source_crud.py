@@ -52,7 +52,7 @@ def test_add_child_source_not_descended_from_root_source_raises(target_list_trac
         target_list_track["target_list_name"].sources = ["source_list_name", "random_text_field"]
 
 def test_add_nonexistent_child_source_raises(target_list_track):
-    with pytest.raises(ValueError):
+    with pytest.raises(KeyError):
         target_list_track["target_list_name"].sources = ["source_list_name", "not_a_thing"]
 
 def test_add_out_of_scope_child_raises(target_nested_list_track):
