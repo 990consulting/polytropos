@@ -16,14 +16,10 @@ class Validator:
         if variable.track is not None:
             if not init:
                 _check_folder_has_sources(variable, sources)
-                # TODO This isn't actually checking what we want to check, since list children CAN have sources
-                if (variable.parent and isinstance(
-                        variable.track[variable.parent], GenericList
-                )):
-                    raise ValueError('List children can\'t have sources')
-            for source in sources:
-                _verify_source_exists(variable, source)
-                _verify_source_compatible(variable, source)
+            if sources:
+                for source in sources:
+                    _verify_source_exists(variable, source)
+                    _verify_source_compatible(variable, source)
 
     @staticmethod
     def validate_parent(variable, parent):
@@ -32,7 +28,7 @@ class Validator:
                 return
             if parent not in variable.track:
                 # invalid parent
-                raise ValueError('Inexistent parent')
+                raise ValueError('Nonexistent parent')
             if not isinstance(variable.track[parent], Container):
                 # parent not container
                 raise ValueError('Parent is not a container')

@@ -1,0 +1,2 @@
+my_var_1,/foo,/source_1
+my_var_2,/bar,/source_2,/source_1/child

@@ -7,15 +7,12 @@ import pytest
 from polytropos.ontology.task import Task
 from polytropos.util.compare import compare
 
-@pytest.fixture
-def basepath() -> str:
-    return os.path.dirname(os.path.abspath(__file__))
 
 @pytest.fixture
 def run_task(basepath) -> Callable:
     def _run_task(scenario, task_name, expected_location):
-        conf = os.path.join(basepath, '../../examples', scenario, 'conf')
-        data = os.path.join(basepath, '../../examples', scenario, 'data')
+        conf = os.path.join(basepath, '../examples', scenario, 'conf')
+        data = os.path.join(basepath, '../examples', scenario, 'data')
         task = Task.build(conf, data, task_name)
         task.run()
         actual_path = os.path.join(
