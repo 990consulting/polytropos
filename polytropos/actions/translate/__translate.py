@@ -33,7 +33,7 @@ class Translate(Step):
         :return:
         """
         logging.info("Initializing Translate step.")
-        target_schema_instance: Schema = Schema.load(path_locator, target_schema, source_schema=schema)
+        target_schema_instance: Schema = Schema.load(target_schema, source_schema=schema, path_locator=path_locator)
         translate_immutable: Translator = Translator(target_schema_instance.immutable)
         translate_temporal: Translator = Translator(target_schema_instance.temporal)
         return cls(target_schema_instance, translate_immutable, translate_temporal)

@@ -11,7 +11,11 @@ from polytropos.ontology.variable import Variable
 
 def _source_path(var: Variable, source_id: str) -> str:
     source_track: Track = var.track.source
-    source_var: Variable = source_track[source_id]
+    try:
+        source_var: Variable = source_track[source_id]
+    except Exception as e:
+        print("breakpoint")
+        raise e
     return path_to_str(source_var.absolute_path)
 
 class ExportLinkages(Callable):
@@ -46,17 +50,6 @@ class ImportLinkages(Callable):
     def __init__(self, schema: Schema, fh: TextIO):
         self.schema: Schema = schema
         self.fh: TextIO = fh
-
-    """
-    @classmethod
-    def revise_schema(cls, schema_path: str, revision_path: str, suffix: str="_revised"):
-        schema: Schema = Schema.load()
-        with open(revision_path) as fh:
-            do_import: "ImportLinkages" = cls(schema, fh)
-            do_import()
-        if not os.
-        pass
-    """
 
     def _as_source_ids(self, source_paths: List[str]) -> Iterator[str]:
         for source_path_str in source_paths:

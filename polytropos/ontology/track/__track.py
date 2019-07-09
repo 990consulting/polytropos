@@ -225,4 +225,4 @@ class Track(MutableMapping):
 
     def dumps(self) -> str:
         """A pretty JSON string representation of this track."""
-        return json.dumps(self.dump(), indent=4)
+        return json.dumps(self.dump(), indent=2)
