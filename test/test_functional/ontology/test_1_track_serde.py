@@ -29,17 +29,16 @@ def test_dumps_pretty(simple_spec):
     actual: str = track.dumps()
     expected: str = inspect.cleandoc("""
     {
-        "target_folder": {
-            "name": "the_folder",
-            "data_type": "Folder",
-            "sort_order": 0
-        },
-        "target_var_id": {
-            "name": "the_target",
-            "data_type": "Integer",
-            "sort_order": 0,
-            "parent": "target_folder"
-        }
-    }
-    """)
+      "target_folder": {
+        "name": "the_folder",
+        "data_type": "Folder",
+        "sort_order": 0
+      },
+      "target_var_id": {
+        "name": "the_target",
+        "data_type": "Integer",
+        "sort_order": 0,
+        "parent": "target_folder"
+      }
+    }""")
     assert actual == expected

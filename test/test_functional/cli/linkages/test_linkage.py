@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 
-from polytropos.cli.linkage import ExportLinkages, ImportLinkages
+from polytropos.tools.schema.linkage import ExportLinkages, ImportLinkages
 import csv
 
 from polytropos.ontology.variable import Variable

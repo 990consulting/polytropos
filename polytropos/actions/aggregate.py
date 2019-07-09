@@ -30,7 +30,7 @@ class Aggregate(Step):
             cls, path_locator: PathLocator, schema: Schema, name: str, target_schema: str, id_var: str,
             input_mappings: Dict, output_mappings: Dict
     ): 
-        target_schema_instance: Schema = Schema.load(path_locator, target_schema)
+        target_schema_instance: Schema = Schema.load(target_schema, path_locator=path_locator)
         aggregations: Dict[str, Type] = load(cls)
         return aggregations[name](origin_schema=schema, target_schema=target_schema_instance, id_var=id_var,
                                   **input_mappings, **output_mappings)

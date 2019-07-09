@@ -1,5 +1,5 @@
+import os
 from collections.abc import Callable
-from io import StringIO
 from typing import Optional, List as ListType, TextIO, List, Iterable, Iterator
 
 from polytropos.ontology.track import Track
@@ -11,7 +11,11 @@ from polytropos.ontology.variable import Variable
 
 def _source_path(var: Variable, source_id: str) -> str:
     source_track: Track = var.track.source
-    source_var: Variable = source_track[source_id]
+    try:
+        source_var: Variable = source_track[source_id]
+    except Exception as e:
+        print("breakpoint")
+        raise e
     return path_to_str(source_var.absolute_path)
 
 class ExportLinkages(Callable):
@@ -23,10 +27,13 @@ class ExportLinkages(Callable):
         self.fh: TextIO = fh
 
     @classmethod
-    def as_file(cls, schema: Schema, file_path: str):
-        with open(file_path, "w") as fh:
-            export: "ExportLinkages" = cls(schema, fh)
-            export()
+    def from_files(cls, schema_basepath: str, source_schema: str, target_schema: str, output_file: TextIO):
+        source_schema_instance: Schema = Schema.load(source_schema, base_path=schema_basepath)
+        target_schema_instance: Schema = Schema.load(target_schema, source_schema=source_schema_instance,
+                                                     base_path=schema_basepath)
+        export: "ExportLinkages" = cls(target_schema_instance, output_file)
+        export()
+        output_file.close()
 
     def __call__(self):
         writer = csv.writer(self.fh)
@@ -47,16 +54,19 @@ class ImportLinkages(Callable):
         self.schema: Schema = schema
         self.fh: TextIO = fh
 
-    """
     @classmethod
-    def revise_schema(cls, schema_path: str, revision_path: str, suffix: str="_revised"):
-        schema: Schema = Schema.load()
-        with open(revision_path) as fh:
-            do_import: "ImportLinkages" = cls(schema, fh)
-            do_import()
-        if not os.
-        pass
-    """
+    def from_files(cls, schema_basepath: str, source_schema: str, target_schema: str, input_file: TextIO, suffix: str):
+        source_schema_instance: Schema = Schema.load(source_schema, base_path=schema_basepath)
+        target_schema_instance: Schema = Schema.load(target_schema, source_schema=source_schema_instance,
+                                                     base_path=schema_basepath)
+        do_import: "ImportLinkages" = cls(target_schema_instance, input_file)
+        do_import()
+        input_file.close()
+        output_schema_relpath: str = "%s_%s" % (target_schema, suffix)
+        output_path: str = os.path.join(schema_basepath, output_schema_relpath)
+        if not os.path.exists(output_path):
+            os.mkdir(output_path)
+        target_schema_instance.serialize(output_path)
 
     def _as_source_ids(self, source_paths: List[str]) -> Iterator[str]:
         for source_path_str in source_paths:

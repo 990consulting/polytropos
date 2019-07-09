@@ -51,13 +51,9 @@ class Task:
         task = cls(
             path_locator=path_locator,
             origin_data=spec['starting_with']['data'],
-            origin_schema=Schema.load(
-                path_locator, spec['starting_with']['schema']
-            ),
+            origin_schema=Schema.load(spec['starting_with']['schema'], path_locator=path_locator),
             target_data=resulting_in.get('data'),
-            target_schema=Schema.load(
-                path_locator, resulting_in.get('schema')
-            )
+            target_schema=Schema.load(resulting_in.get('schema'), path_locator=path_locator)
         )
         task.load_steps(spec['steps'])
         # If the last step is a Consume step we don't need target data

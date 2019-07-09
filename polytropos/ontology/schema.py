@@ -31,6 +31,12 @@ class DuplicatePathError(ValueError):
         template: str = 'Variables %s and %s have the same absolute path (%s)'
         return template % (self.var1.var_id, self.var2.var_id, self.var1.absolute_path)
 
+def _resolve_path(path_locator: Optional["PathLocator"], schemas_dir: Optional[str], path: str, filename: str) -> str:
+    if path_locator:
+        assert schemas_dir is None, "Cannot provide both a PathLocator object and an explicit base path"
+        schemas_dir = path_locator.schemas_dir
+    return os.path.join(schemas_dir, path, filename)
+
 @dataclass
 class Schema:
     """A schema identifies all of the temporal and immutable properties that a particular entity can have."""
@@ -65,16 +71,34 @@ class Schema:
                     raise DuplicatePathError(var, self._var_path_cache[abs_path])
                 self._var_path_cache[abs_path] = var
 
+    def serialize(self, path: str):
+        """
+        Write this schema to JSON files at the specified path.
+
+        :param path: The directory path to which to write the schema.
+        :return:
+        """
+        immutable_fn: str = os.path.join(path, "immutable.json")
+        temporal_fn: str = os.path.join(path, "temporal.json")
+        with open(immutable_fn, "w") as i_fn, open(temporal_fn, "w") as t_fn:
+            temporal_json: Dict = self.temporal.dump()
+            json.dump(temporal_json, t_fn)
+
+            immutable_json: Dict = self.immutable.dump()
+            json.dump(immutable_json, i_fn)
+
     @classmethod
-    def load(cls, path_locator: "PathLocator", path: str, source_schema: "Schema"=None):
+    def load(cls, path: str, source_schema: "Schema"=None, path_locator: "PathLocator"=None, base_path: str = None):
         """
         Constructs a schema.
 
-        :param path_locator: Utility class that resolves file paths based on Polytropos' configuration base path.
         :param path: The path to the schema that is to be loaded, relative to schemas base path.
         :param source_schema: An already-loaded schema from which this schema can be translated, if applicable.
+        :param path_locator: Utility class that resolves file paths based on Polytropos' configuration base path.
+        :param base_path: Directly supply the base path. Cannot be used with `path_locator`.
         :return:
         """
+        assert (path_locator or base_path) and not (path_locator and base_path)
         schema_name = "UNSPECIFIED"
         if path is not None:
             schema_name: str = path.replace("/", "_")
@@ -93,8 +117,8 @@ class Schema:
         source_immutable: Optional[Track] = source_schema.immutable if source_schema else None
         source_temporal: Optional[Track] = source_schema.temporal if source_schema else None
 
-        temporal_path: str = os.path.join(path_locator.schemas_dir, path, 'temporal.json')
-        immutable_path: str = os.path.join(path_locator.schemas_dir, path, 'immutable.json')
+        temporal_path = _resolve_path(path_locator, base_path, path, 'temporal.json')
+        immutable_path = _resolve_path(path_locator, base_path, path, 'immutable.json')
 
         logging.debug('Temporal path for schema "%s": %s' % (schema_name, temporal_path))
         logging.debug('Immutable path for schema "%s": %s' % (schema_name, temporal_path))

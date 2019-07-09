@@ -20,7 +20,8 @@ setuptools.setup(
         'dacite',
         'pyyaml',
         'cachetools',
-        'tblib'
+        'tblib',
+        'click'
     ],
     download_url='https://github.com/borenstein/polytropos/archive/0.0.4.tar.gz',
     classifiers=[
@@ -28,5 +29,9 @@ setuptools.setup(
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
         'Programming Language :: Python :: 3.7',
-    ]
+    ],
+    entry_points='''
+    [console_scripts]
+    polytropos=polytropos.cli:cli
+    '''
 )
