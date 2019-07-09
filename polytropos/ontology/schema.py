@@ -2,7 +2,7 @@ import logging
 import os
 import json
 from enum import Enum
-from typing import Optional, Dict, TYPE_CHECKING, Iterable, Tuple
+from typing import Optional, Dict, TYPE_CHECKING, Iterable, Tuple, Iterator
 from dataclasses import dataclass, field
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -37,11 +37,17 @@ class Schema:
     temporal: Track
     immutable: Track
     name: str = "UNSPECIFIED"
+    source: "Schema" = None
 
     _var_id_cache: Dict = field(init=False, default_factory=dict)
     _var_path_cache: Dict = field(init=False, default_factory=dict)
 
     def __post_init__(self):
+        if self.temporal.source or self.immutable.source:
+            if self.temporal.source.schema is not self.immutable.source.schema:
+                raise RuntimeError("Temporal and immutable tracks have different source schemas.")
+            self.source = self.temporal.source.schema
+
         self.temporal.schema = self
         self.immutable.schema = self
         repeated = self.temporal.keys() & self.immutable.keys()
@@ -128,14 +134,7 @@ class Schema:
         if frozen_abs_path in self._var_path_cache:
             return self._var_path_cache[frozen_abs_path]
 
-        for var in self.immutable.values():  # type: str, "Variable"
-            abs_path: Tuple[str] = tuple(var.absolute_path)
-            if abs_path not in self._var_path_cache:
-                self._var_path_cache[abs_path] = var
-            if abs_path == frozen_abs_path:
-                return var
-
-        for var in self.temporal.values():  # type: str, "Variable"
+        for var in self:  # type: "Variable"
             abs_path: Tuple[str] = tuple(var.absolute_path)
             if abs_path not in self._var_path_cache:
                 self._var_path_cache[abs_path] = var
@@ -150,3 +149,7 @@ class Schema:
         logging.info("Invalidating schema caches.")
         self._var_id_cache.clear()
         self._var_path_cache.clear()
+
+    def __iter__(self) -> Iterator["Variable"]:
+        for track in [self.temporal, self.immutable]:
+            yield from track.values()

@@ -1,0 +1,12 @@
+target_t_folder,/temporal_folder
+target_t_folder_text,/temporal_folder/some_text,/first_temporal_folder/some_text,/second_temporal_folder/some_text
+target_t_list,/temporal_folder/a_list,/first_temporal_folder/a_list,/second_temporal_folder/a_list
+target_t_list_text,/temporal_folder/a_list/some_text,/first_temporal_folder/a_list/some_text,/second_temporal_folder/a_list/some_text
+target_t_named_list,/temporal_folder/a_list/a_named_list,/first_temporal_folder/a_list/a_named_list,/second_temporal_folder/a_list/a_named_list
+target_t_named_list_text,/temporal_folder/a_list/a_named_list/some_text,/first_temporal_folder/a_list/a_named_list/some_text,/second_temporal_folder/a_list/a_named_list/some_text
+target_i_folder,/immutable_folder
+target_i_folder_text,/immutable_folder/some_text
+target_i_list,/immutable_folder/a_list,/second_immutable_folder/a_list
+target_i_list_text,/immutable_folder/a_list/some_text,/second_immutable_folder/a_list/some_text
+target_i_named_list,/immutable_folder/a_list/a_named_list,/second_immutable_folder/a_list/a_named_list
+target_i_named_list_text,/immutable_folder/a_list/a_named_list/some_text,/second_immutable_folder/a_list/a_named_list/some_text

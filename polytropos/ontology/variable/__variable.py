@@ -16,14 +16,11 @@ class Validator:
         if variable.track is not None:
             if not init:
                 _check_folder_has_sources(variable, sources)
-                # TODO This isn't actually checking what we want to check, since list children CAN have sources
-                if (variable.parent and isinstance(
-                        variable.track[variable.parent], GenericList
-                )):
-                    raise ValueError('List children can\'t have sources')
-            for source in sources:
-                _verify_source_exists(variable, source)
-                _verify_source_compatible(variable, source)
+            if sources:
+                for source in sources:
+                    _verify_source_parent(variable, source)
+                    _verify_source_exists(variable, source)
+                    _verify_source_compatible(variable, source)
 
     @staticmethod
     def validate_parent(variable, parent):
@@ -32,7 +29,7 @@ class Validator:
                 return
             if parent not in variable.track:
                 # invalid parent
-                raise ValueError('Inexistent parent')
+                raise ValueError('Nonexistent parent')
             if not isinstance(variable.track[parent], Container):
                 # parent not container
                 raise ValueError('Parent is not a container')
@@ -278,6 +275,15 @@ class Variable:
             return True
         return self.check_ancestor(variable.parent)
 
+    def get_first_list_ancestor(self):
+        parent_id = self.parent
+        if parent_id == '':
+            return None
+        parent = self.track[parent_id]
+        if isinstance(parent, GenericList):
+            return parent
+        return parent.get_first_list_ancestor()
+
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'descendants_that'))
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
             -> Iterator[str]:
@@ -413,6 +419,17 @@ def _check_folder_has_sources(variable: "Variable", sources: ListType[str]):
         msg_template: str = 'Folders can\'t have sources, but variable "%s" is a Folder and lists the following ' \
                             'sources: %s'
         raise ValueError(msg_template % (var_id, source_str))
+
+def _verify_source_parent(variable: "Variable", source_var_id: str):
+    list_ancestor = variable.get_first_list_ancestor()
+    if list_ancestor is None:
+        return
+    parent_sources = set(list_ancestor.sources)
+    source = variable.track.source[source_var_id]
+    while source.parent != '' and source.var_id not in parent_sources:
+        source = variable.track.source[source.parent]
+    if source.var_id not in parent_sources:
+        raise ValueError('Wrong source descendant')
 
 def _verify_source_exists(variable: "Variable", source_var_id: str):
     if source_var_id not in variable.track.source:

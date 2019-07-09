@@ -82,26 +82,3 @@ def test_add_source_to_folder_raises(sources, target_nested_dict_track):
     folder: Variable = track["target_folder_1"]
     with pytest.raises(ValueError):
         folder.sources = sources
-
-@pytest.mark.parametrize("sources", [
-    [],
-    ["source_list_name"],
-    ["not_a_thing"]
-])
-def test_directly_assign_source_to_list_descendent_raises(sources, target_list_track):
-    track: Track = target_list_track
-    var: Variable = track["target_list_name"]
-    with pytest.raises(ValueError):
-        var.sources = sources
-
-@pytest.mark.parametrize("sources", [
-    [],  # No source
-    ["source_list_day"],  # Source nested inside a list
-    ["source_meaning_of_life"],  # Source not nested inside a list
-    ["not_a_thing"]  # Source doesn't exist
-])
-def test_directly_assign_source_to_named_list_descendent_raises(sources, target_named_list_track):
-    track: Track = target_named_list_track
-    var: Variable = track["target_root_age"]
-    with pytest.raises(ValueError):
-        var.sources = sources

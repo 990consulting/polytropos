@@ -1,7 +1,4 @@
-from typing import Optional, Any, Iterable, Dict, List
-
-# TODO Quimey, I ported over some logic from Harpo990 that does this. If you know a C-based library does that does it
-#  faster, please use that instead.
+from typing import Optional, Any, Iterable, Dict, List, Iterator
 
 NO_DEFAULT = Ellipsis
 
@@ -91,3 +88,10 @@ def pop(*args, **kwargs) -> Optional[Any]:
     val: Any = get(*args, **kwargs)
     delete(*args)
     return val
+
+def path_to_str(path: Iterable[str]) -> str:
+    return "/" + "/".join(path)
+
+def str_to_path(path_str: str) -> Iterator[str]:
+    assert path_str.startswith("/")
+    yield from path_str[1:].split("/")
