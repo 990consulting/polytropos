@@ -1,6 +1,6 @@
 from typing import TextIO
 
-from polytropos.cli.linkage import ExportLinkages, ImportLinkages
+from polytropos.tools.schema.linkage import ExportLinkages
 from polytropos.ontology.schema import Schema
 
 schema_basepath: str = "/dmz/github/analysis/etl5/schemas"
