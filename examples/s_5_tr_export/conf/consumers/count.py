@@ -15,7 +15,7 @@ class Count(Consume):
         self.n += 1
 
     def after(self):
-        filename = os.path.join(self.path_locator.conf_dir, '../', self.filename)
+        filename = os.path.join(self.output_dir, self.filename)
         filepath = os.path.dirname(filename)
         if not os.path.exists(filepath):
             os.makedirs(filepath)

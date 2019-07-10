@@ -3,14 +3,13 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from polytropos.ontology.paths import PathLocator
     from polytropos.ontology.schema import Schema
 class Step(Callable):
 
     @classmethod
     @abstractmethod
-    def build(cls, *, path_locator: "PathLocator", schema: "Schema", **kwargs):
-        """Build takes always a path locator and a schema, there are other
+    def build(cls, *, lookups_dir: str, schema: "Schema", **kwargs) -> "Step":
+        """Build takes always a lookups directory and a schema, there are other
         keyword arguments that depend on the implementation"""
         pass
 

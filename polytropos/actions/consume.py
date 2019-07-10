@@ -8,19 +8,20 @@ from polytropos.ontology.composite import Composite
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.util.loader import load
-from polytropos.ontology.paths import PathLocator
 
 
 @dataclass
 class Consume(Step):
-    path_locator: PathLocator
     schema: Schema
+    output_dir: str
+    lookups_dir: str
+    schemas_dir: str
 
     """Export data from a set of composites to a single file."""
     @classmethod
-    def build(cls, path_locator: PathLocator, schema: Schema, name: str, **kwargs):
+    def build(cls, *, schema: Schema, output_dir: str, name: str, **kwargs):
         consumes = load(cls)
-        return consumes[name](path_locator, schema, **kwargs)
+        return consumes[name](schema=schema, output_dir=output_dir, **kwargs)
 
     def before(self):
         """Optional actions to be performed after the constructor runs but before starting to consume composites."""
@@ -56,7 +57,7 @@ class ExportToJSON(Consume):
     def before(self):
         # noinspection PyAttributeOutsideInit
         self.fobj = open(
-            os.path.join(self.path_locator.conf, '../', self.filename), 'w'
+            os.path.join(self.output_dir, self.filename), 'w'
         )
         self.fobj.write('{\n')
 

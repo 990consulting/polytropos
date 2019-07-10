@@ -23,7 +23,7 @@ class Filter(Step):
     schema: Schema
 
     @classmethod
-    def build(cls, path_locator, schema: Schema, name: str, mappings: Dict):
+    def build(cls, *, schema: Schema, name: str, mappings: Dict, **kwargs_ignore) -> "Filter":
         logging.info('Building instance of filter class "%s"' % name)
         filters = load(cls)
         return filters[name](schema=schema, **mappings)

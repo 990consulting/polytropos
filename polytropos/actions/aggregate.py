@@ -9,7 +9,6 @@ from functools import partial
 from polytropos.ontology.composite import Composite
 
 from polytropos.actions.step import Step
-from polytropos.ontology.paths import PathLocator
 from polytropos.ontology.variable import Variable
 from polytropos.util.loader import load
 from polytropos.ontology.schema import Schema
@@ -27,10 +26,10 @@ class Aggregate(Step):
     # noinspection PyMethodOverriding
     @classmethod
     def build(
-            cls, path_locator: PathLocator, schema: Schema, name: str, target_schema: str, id_var: str,
-            input_mappings: Dict, output_mappings: Dict
-    ): 
-        target_schema_instance: Schema = Schema.load(target_schema, path_locator=path_locator)
+            cls, *, schema: Schema, schemas_dir: str, name: str, target_schema: str, id_var: str,
+            input_mappings: Dict, output_mappings: Dict, **kwargs_ignore
+    ) -> "Aggregate": 
+        target_schema_instance: Schema = Schema.load(target_schema, base_path=schemas_dir)
         aggregations: Dict[str, Type] = load(cls)
         return aggregations[name](origin_schema=schema, target_schema=target_schema_instance, id_var=id_var,
                                   **input_mappings, **output_mappings)

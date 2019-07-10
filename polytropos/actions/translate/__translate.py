@@ -12,9 +12,6 @@ from polytropos.actions.translate import Translator
 from polytropos.util.config import MAX_WORKERS
 from polytropos.util.exceptions import ExceptionWrapper
 
-if TYPE_CHECKING:
-    from polytropos.ontology.paths import PathLocator
-
 @dataclass
 class Translate(Step):
     target_schema: Schema
@@ -25,15 +22,15 @@ class Translate(Step):
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, path_locator: "PathLocator", schema: Schema, target_schema: str):
+    def build(cls, *, schema: Schema, schemas_dir: str, target_schema: str, **kwargs_ignore) -> "Translate":
         """
-        :param path_locator:
         :param schema: The source schema, already instantiated.
+        :param schemas_dir: Directory base containing schemas.
         :param target_schema: The path to the definition of the target schema.
         :return:
         """
         logging.info("Initializing Translate step.")
-        target_schema_instance: Schema = Schema.load(target_schema, source_schema=schema, path_locator=path_locator)
+        target_schema_instance: Schema = Schema.load(target_schema, source_schema=schema, base_path=schemas_dir)
         translate_immutable: Translator = Translator(target_schema_instance.immutable)
         translate_temporal: Translator = Translator(target_schema_instance.temporal)
         return cls(target_schema_instance, translate_immutable, translate_temporal)

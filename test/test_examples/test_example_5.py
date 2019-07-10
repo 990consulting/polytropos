@@ -4,6 +4,8 @@ from polytropos.ontology.task import Task
 import polytropos.actions.consume
 import examples.s_5_tr_export.conf.consumers.count
 
+from conf import OUTPUT_BASE
+
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 
 @pytest.fixture(scope='module', autouse=True)
@@ -32,9 +34,10 @@ def cleanup():
 def test_task_consume(scenario, task_name, expected_location):
     conf = os.path.join(BASEPATH, '../../examples', scenario, 'conf')
     data = os.path.join(BASEPATH, '../../examples', scenario, 'data')
-    task = Task.build(conf, data, task_name)
+    output = os.path.join(OUTPUT_BASE, scenario)
+    task = Task.build(conf, data, output, task_name)
     task.run()
-    actual_path = os.path.join(task.path_locator.conf_dir, '../')
+    actual_path = output
     expected_path = os.path.join(
         task.path_locator.conf_dir, '../', expected_location
     )

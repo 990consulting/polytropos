@@ -27,17 +27,18 @@ class Task:
     def __init__(
         self, path_locator,
         origin_data, origin_schema,
-        target_data=None, target_schema=None
+        target_data=None, target_schema=None, output_dir=''
     ):
         self.path_locator = path_locator
         self.origin_data = origin_data
         self.origin_schema = origin_schema
         self.target_data = target_data
         self.target_schema = target_schema
+        self.output_dir = output_dir
         self.steps = []
 
     @classmethod
-    def build(cls, conf_dir, data_dir, name):
+    def build(cls, conf_dir, data_dir, output_dir, name):
         """Build task from yaml, read all input data and create corresponding
         objects"""
         logging.info("Constructing task execution plan.")
@@ -53,7 +54,8 @@ class Task:
             origin_data=spec['starting_with']['data'],
             origin_schema=Schema.load(spec['starting_with']['schema'], path_locator=path_locator),
             target_data=resulting_in.get('data'),
-            target_schema=Schema.load(resulting_in.get('schema'), path_locator=path_locator)
+            target_schema=Schema.load(resulting_in.get('schema'), path_locator=path_locator),
+            output_dir=output_dir,
         )
         task.load_steps(spec['steps'])
         # If the last step is a Consume step we don't need target data
@@ -64,17 +66,21 @@ class Task:
         """Load steps of the current task"""
         logging.info("Initializing task pipeline steps.")
         current_schema = self.origin_schema
+        dirs = dict(
+            lookups_dir=self.path_locator.lookups_dir,
+            schemas_dir=self.path_locator.schemas_dir,
+            output_dir=self.output_dir,
+        )
         for step in step_descriptions:
             # expect only one key/value pair
             assert len(step) == 1, (
                 'Step description can have only one key, value pair'
             )
             for class_name, kwargs in step.items():
+                logging.debug("Initializing step " + class_name)
                 step_type: Type = STEP_TYPES[class_name]
                 try:
-                    step_instance: Step = step_type.build(
-                        path_locator=self.path_locator, schema=current_schema, **kwargs
-                    )
+                    step_instance: Step = step_type.build(schema=current_schema, **dirs, **kwargs)
                 except Exception as e:
                     print("breakpoint")
                     raise e
@@ -92,7 +98,7 @@ class Task:
         logging.info("Running task with origin data in %s." % origin_path)
         if self.target_data is not None:
             task_output_path = os.path.join(
-                self.path_locator.entities_dir, self.target_data
+                self.output_dir, self.target_data
             )
             try:
                 logging.debug("Attempting to remove old task output directory, if it exists.")
@@ -102,7 +108,7 @@ class Task:
                 logging.debug("No old task output directory.")
                 pass
             logging.debug("Creating task output directory.")
-            os.mkdir(task_output_path)
+            os.makedirs(task_output_path)
         # There are always two paths in play, current and next, each step
         # will read from current and write to next, after the step is done we
         # can delete the current_path folder because it's not used anymore

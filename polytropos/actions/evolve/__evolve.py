@@ -16,11 +16,10 @@ from polytropos.actions.step import Step
 from polytropos.util.config import MAX_WORKERS
 
 if TYPE_CHECKING:
-    from polytropos.ontology.paths import PathLocator
     from polytropos.ontology.schema import Schema
 
 class _EvolveFactory(Callable):
-    def __init__(self, path_locator: "PathLocator",
+    def __init__(self, lookups_dir: str,
                  change_specs: List[Dict],
                  schema: "Schema",
                  requested_lookups: Optional[List[str]]):
@@ -29,13 +28,13 @@ class _EvolveFactory(Callable):
         self.requested_lookups: List[str] = requested_lookups or []
         self.change_specs: List[Dict] = change_specs
         self.schema: "Schema" = schema
-        self.path_locator: "PathLocator" = path_locator
+        self.lookups_dir: str = lookups_dir
 
     def _load_lookups(self) -> Dict[str, Dict]:
         loaded_lookups: Dict = {}
         lookups = self.requested_lookups
         for lookup in lookups:
-            with open(os.path.join(self.path_locator.lookups_dir, lookup + '.json'), 'r') as l:
+            with open(os.path.join(self.lookups_dir, lookup + '.json'), 'r') as l:
                 loaded_lookups[lookup] = json.load(l)
         return loaded_lookups
 
@@ -56,29 +55,30 @@ class _EvolveFactory(Callable):
     def __call__(self, cls: Type) -> "Evolve":
         loaded_lookups: Dict[str, Dict] = self._load_lookups()
         change_instances: List[Change] = list(self._construct_changes(loaded_lookups))
-        return cls(self.path_locator, change_instances, self.schema)
+        return cls(self.lookups_dir, change_instances, self.schema)
 
 class Evolve(Step):
     """A metamorphosis represents a series of changes that are made to a single composite, in order, and without
     reference to any other composite. Each change is defined in terms of one or more subject variables, which may be
     inputs, outputs, or both (in a case where a change alters a value in place)."""
 
-    def __init__(self, path_locator: "PathLocator", changes: List[Change], schema: "Schema"):
-        self.path_locator = path_locator
+    def __init__(self, lookups_dir: str, changes: List[Change], schema: "Schema"):
+        self.lookups_dir = lookups_dir
         self.changes = changes
         self.schema = schema
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, *, path_locator: "PathLocator", schema: "Schema", changes: List[Dict], lookups: List[str]=None) -> "Evolve":
+    def build(cls, *, schema: "Schema", lookups_dir: str, changes: List[Dict], lookups: List[str]=None, **kwargs_ignore
+                    ) -> "Evolve":
         """Loads in the specified lookup tables, constructs the specified Changes, and passes these Changes to the
         constructor.
-        :param path_locator: Helper class that finds requested files in a configuration path.
         :param changes: List of change definitions (from the task YAML file)
+        :param lookups_dir: Directory containing the json lookup tables.
         :param schema: The schema on which the composites are expected to be based.
         :param lookups: A list of key-value lookups expected to be available during each Change.
         """
-        do_build: Callable = _EvolveFactory(path_locator, changes, schema, lookups)
+        do_build: Callable = _EvolveFactory(lookups_dir, changes, schema, lookups)
         return do_build(cls)
 
     def process_composite(self, origin, target, filename) -> Optional[ExceptionWrapper]:

@@ -105,11 +105,12 @@ venv.bak/
 *.DS_Store
 
 # test results
-examples/s_1_mm_only/data/entities/person/actual
-examples/s_2_mm_scan/data/entities/person/actual
+test_output
+#examples/s_1_mm_only/data/entities/person/actual
+#examples/s_2_mm_scan/data/entities/person/actual
 examples/s_3_mm_aggregate_mm_scan/data/entities/city/origin
-examples/s_4_filter_mm_scan/data/entities/person/actual
-examples/s_5_tr_export/count_output.txt
-examples/s_5_tr_export/immutable.csv
-examples/s_5_tr_export/records.json
-examples/s_5_tr_export/temporal.csv
+#examples/s_4_filter_mm_scan/data/entities/person/actual
+#examples/s_5_tr_export/count_output.txt
+#examples/s_5_tr_export/immutable.csv
+#examples/s_5_tr_export/records.json
+#examples/s_5_tr_export/temporal.csv

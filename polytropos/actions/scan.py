@@ -14,7 +14,6 @@ from polytropos.util.loader import load
 from polytropos.util.config import MAX_WORKERS
 
 if TYPE_CHECKING:
-    from polytropos.ontology.paths import PathLocator
     from polytropos.ontology.schema import Schema
 
 @dataclass
@@ -28,7 +27,7 @@ class Scan(Step):
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, path_locator: "PathLocator", schema: "Schema", name: str, mappings: Dict):
+    def build(cls, schema: "Schema", lookups_dir: str, name: str, mappings: Dict, **kwargs_ignore) -> "Scan":
         scan_subclasses: Dict[str, Type] = load(cls)
         instance_subclass: Type = scan_subclasses[name]
         return instance_subclass(**mappings, schema=schema)
