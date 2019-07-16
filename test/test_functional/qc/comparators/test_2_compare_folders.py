@@ -6,9 +6,6 @@ from polytropos.ontology.schema import Schema
 from polytropos.ontology.track import Track
 from polytropos.tools.qc.comparators import CompareVariables
 
-@pytest.fixture
-def empty_track() -> Track:
-    return Track.build({}, None, "")
 
 @pytest.fixture
 def simple_schema(empty_track) -> Schema:
@@ -171,10 +168,21 @@ def test_actual_none(simple_schema):
     compare: CompareVariables = CompareVariables(simple_schema)
     assert compare({}, None) is False
 
-def test_empty_folders(simple_schema):
-    """Empty folders are identical and therefore match."""
+def test_empty_roots(simple_schema):
+    """Empty roots are identical and therefore match."""
     fixture: Dict = {}
     actual: Dict = {}
+    compare: CompareVariables = CompareVariables(simple_schema)
+    assert compare(fixture, actual) is True
+
+def test_empty_folders(simple_schema):
+    """Empty folders are identical and therefore match."""
+    fixture: Dict = {
+        "the_folder": {}
+    }
+    actual: Dict = {
+        "the_folder": {}
+    }
     compare: CompareVariables = CompareVariables(simple_schema)
     assert compare(fixture, actual) is True
 

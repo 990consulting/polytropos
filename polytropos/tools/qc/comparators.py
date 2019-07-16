@@ -95,13 +95,11 @@ class CompareVariables(Callable):
             return False
 
         # (3) Each key in the fixture NamedList exists in the actual NamedList.
-        fixture_keys: Set = set(fixture.keys())
-        actual_keys: Set = set(actual.keys())
-        if len(fixture_keys.difference(actual_keys)) > 0:
+        if fixture.keys() != actual.keys():
             return False
 
         # For the elements in the fixture and actual NamedLists corresponding to a given key...
-        for f_key in fixture_keys:
+        for f_key in fixture.keys():
             e: Dict = fixture[f_key]
             a: Dict = actual[f_key]
 
@@ -153,7 +151,10 @@ class CompareVariables(Callable):
             return self.compare_folders(fixture, actual, [])
 
         # Otherwise, find out what kind of variable we're looking at
-        var: Variable = self.schema.lookup(tuple(path))
+        try:
+            var: Variable = self.schema.lookup(tuple(path))
+        except AttributeError:
+            print("breakpoint")
         if var is None:
             raise ValueError("Unrecognized variable %s" % path_to_str(path))
         data_type: str = var.data_type
