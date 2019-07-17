@@ -4,7 +4,7 @@ from typing import Dict
 import pytest
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.track import Track
-from polytropos.tools.qc.values import CompareVariables
+from polytropos.tools.qc.values import CompareComplexVariable
 
 
 @pytest.fixture
@@ -159,20 +159,20 @@ def named_list_in_nested_folder_schema(empty_track) -> Schema:
 def test_fixture_none_raises(simple_schema):
     """This should simply never happen, because the comparison algorithm should never try to traverse a null as a
     folder."""
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     with pytest.raises(AssertionError):
         compare(None, {})
 
 def test_actual_none(simple_schema):
     """This could happen, and represents a mismatch."""
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare({}, None) is False
 
 def test_empty_roots(simple_schema):
     """Empty roots are identical and therefore match."""
     fixture: Dict = {}
     actual: Dict = {}
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is True
 
 def test_empty_folders(simple_schema):
@@ -183,7 +183,7 @@ def test_empty_folders(simple_schema):
     actual: Dict = {
         "the_folder": {}
     }
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is True
 
 def test_identical_folders(simple_schema):
@@ -194,7 +194,7 @@ def test_identical_folders(simple_schema):
         }
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is True
 
 def test_fixture_has_extra_in_folder(simple_schema):
@@ -206,7 +206,7 @@ def test_fixture_has_extra_in_folder(simple_schema):
     actual: Dict = {
         "some_text": "Foo"
     }
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is False
 
 def test_actual_has_extra_in_folder(simple_schema):
@@ -218,7 +218,7 @@ def test_actual_has_extra_in_folder(simple_schema):
         "some_text": "Foo",
         "some_number": 75
     }
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is True
 
 def test_singly_nested_identical(simple_schema):
@@ -229,7 +229,7 @@ def test_singly_nested_identical(simple_schema):
         }
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is True
 
 def test_fixture_has_extra_out_of_folder(simple_schema):
@@ -245,7 +245,7 @@ def test_fixture_has_extra_out_of_folder(simple_schema):
             "some_text": "Bar"
         }
     }
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is False
 
 def test_actual_has_extra_out_of_folder(simple_schema):
@@ -261,7 +261,7 @@ def test_actual_has_extra_out_of_folder(simple_schema):
             "some_text": "Bar"
         }
     }
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is True
 
 def test_only_fixture_has_folder(simple_schema):
@@ -275,7 +275,7 @@ def test_only_fixture_has_folder(simple_schema):
     actual: Dict = {
         "some_text": "Foo"
     }
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is False
 
 def test_only_actual_has_folder(simple_schema):
@@ -289,7 +289,7 @@ def test_only_actual_has_folder(simple_schema):
             "some_text": "Bar"
         }
     }
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is True
 
 def test_only_fixture_has_folder_empty(simple_schema):
@@ -301,7 +301,7 @@ def test_only_fixture_has_folder_empty(simple_schema):
     actual: Dict = {
         "some_text": "Foo"
     }
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is False
 
 def test_only_actual_has_folder_empty(simple_schema):
@@ -313,7 +313,7 @@ def test_only_actual_has_folder_empty(simple_schema):
         "some_text": "Foo",
         "the_folder": {}
     }
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is True
 
 def test_non_nested_mismatch(simple_schema):
@@ -323,7 +323,7 @@ def test_non_nested_mismatch(simple_schema):
     actual: Dict = {
         "some_text": "Bar"
     }
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is False
 
 def test_singly_nested_mismatch(simple_schema):
@@ -339,7 +339,7 @@ def test_singly_nested_mismatch(simple_schema):
             "some_text": "Y"
         }
     }
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     assert compare(fixture, actual) is False
 
 def test_triply_nested_folder_identical(nested_folder_schema):
@@ -356,7 +356,7 @@ def test_triply_nested_folder_identical(nested_folder_schema):
         }
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareVariables = CompareVariables(nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(nested_folder_schema)
     assert compare(fixture, actual) is True
 
 def test_triply_nested_folder_fixture_has_extra(nested_folder_schema):
@@ -382,7 +382,7 @@ def test_triply_nested_folder_fixture_has_extra(nested_folder_schema):
             }
         }
     }
-    compare: CompareVariables = CompareVariables(nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(nested_folder_schema)
     assert compare(fixture, actual) is False
 
 def test_triply_nested_folder_actual_has_extra(nested_folder_schema):
@@ -407,7 +407,7 @@ def test_triply_nested_folder_actual_has_extra(nested_folder_schema):
             }
         }
     }
-    compare: CompareVariables = CompareVariables(nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(nested_folder_schema)
     assert compare(fixture, actual) is True
 
 def test_triply_nested_folder_mismatch(nested_folder_schema):
@@ -435,7 +435,7 @@ def test_triply_nested_folder_mismatch(nested_folder_schema):
             }
         }
     }
-    compare: CompareVariables = CompareVariables(nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(nested_folder_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_mismatch_on_lower_level(nested_folder_schema):
@@ -463,7 +463,7 @@ def test_nested_mismatch_on_lower_level(nested_folder_schema):
             }
         }
     }
-    compare: CompareVariables = CompareVariables(nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(nested_folder_schema)
     assert compare(fixture, actual) is False
 
 def test_list_in_folder_mismatch(list_in_nested_folder_schema):
@@ -493,7 +493,7 @@ def test_list_in_folder_mismatch(list_in_nested_folder_schema):
             }
         }
     }
-    compare: CompareVariables = CompareVariables(list_in_nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(list_in_nested_folder_schema)
     assert compare(fixture, actual) is False
 
 def test_list_in_folder_identical(list_in_nested_folder_schema):
@@ -511,7 +511,7 @@ def test_list_in_folder_identical(list_in_nested_folder_schema):
         }
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareVariables = CompareVariables(list_in_nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(list_in_nested_folder_schema)
     assert compare(fixture, actual) is True
 
 def test_named_list_in_folder_mismatch(named_list_in_nested_folder_schema):
@@ -541,7 +541,7 @@ def test_named_list_in_folder_mismatch(named_list_in_nested_folder_schema):
             }
         }
     }
-    compare: CompareVariables = CompareVariables(named_list_in_nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_nested_folder_schema)
     assert compare(fixture, actual) is False
 
 def test_named_list_in_folder_identical(named_list_in_nested_folder_schema):
@@ -559,7 +559,7 @@ def test_named_list_in_folder_identical(named_list_in_nested_folder_schema):
         }
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareVariables = CompareVariables(named_list_in_nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_nested_folder_schema)
     assert compare(fixture, actual) is True
 
 def test_unrecognized_folder_raises(simple_schema):
@@ -569,7 +569,7 @@ def test_unrecognized_folder_raises(simple_schema):
         }
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareVariables = CompareVariables(simple_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_schema)
     with pytest.raises(ValueError):
         compare(fixture, actual)
 
@@ -584,7 +584,7 @@ def test_unrecognized_nested_folder_raises(nested_folder_schema):
         }
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareVariables = CompareVariables(nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(nested_folder_schema)
     with pytest.raises(ValueError):
         compare(fixture, actual)
 

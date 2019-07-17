@@ -10,14 +10,6 @@ from polytropos.tools.qc.outcome import Outcome, ValueMatch, ValueMismatch, Miss
 def schema(empty_track, simple_track) -> Schema:
     return Schema(simple_track, empty_track)
 
-@pytest.fixture
-def period() -> str:
-    return "201410"
-
-@pytest.fixture
-def entity_id() -> str:
-    return "012345678"
-
 def test_empty_both(schema, period, entity_id):
     """Outcomes should remain empty."""
     fixture: Dict = {}

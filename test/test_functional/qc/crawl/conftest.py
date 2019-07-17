@@ -50,29 +50,17 @@ def complex_track() -> Track:
             "data_type": "List",
             "sort_order": 0
         },
-        "text_in_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "list_in_root",
-            "sort_order": 0
-        },
         "folder_in_list": {
             "name": "the_folder",
             "data_type": "Folder",
             "parent": "list_in_root",
-            "sort_order": 1
-        },
-        "text_in_folder_in_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "folder_in_list",
             "sort_order": 0
         },
         "list_in_folder_in_list": {
             "name": "inner",
             "data_type": "List",
             "parent": "folder_in_list",
-            "sort_order": 1
+            "sort_order": 0
         },
         "text_in_list_in_folder_in_list": {
             "name": "some_text",
@@ -82,4 +70,12 @@ def complex_track() -> Track:
         }
     }
     return Track.build(specs, None, "simple")
+
+@pytest.fixture
+def period() -> str:
+    return "201410"
+
+@pytest.fixture
+def entity_id() -> str:
+    return "012345678"
 

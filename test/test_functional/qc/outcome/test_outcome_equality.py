@@ -109,36 +109,6 @@ def test_each_has_different_missing_not_equal():
 
     assert p != q
 
-def test_both_have_same_undefined_equal():
-    p: Outcome = Outcome()
-    p_undefined: UndefinedPath = UndefinedPath("the_entity_id", "the_period", "/path/to/var")
-    p.undefined.append(p_undefined)
-
-    q: Outcome = Outcome()
-    q_undefined: UndefinedPath = UndefinedPath("the_entity_id", "the_period", "/path/to/var")
-    q.undefined.append(q_undefined)
-
-    assert p == q
-
-def test_one_has_undefined_not_equal():
-    p: Outcome = Outcome()
-    p_undefined: UndefinedPath = UndefinedPath("the_entity_id", "the_period", "/path/to/var")
-    p.undefined.append(p_undefined)
-
-    q: Outcome = Outcome()
-
-    assert p != q
-
-def test_each_has_different_undefined_not_equal():
-    p: Outcome = Outcome()
-    p_undefined: UndefinedPath = UndefinedPath("a_different_entity", "the_period", "/path/to/var")
-    p.undefined.append(p_undefined)
-
-    q: Outcome = Outcome()
-    q_undefined: UndefinedPath = UndefinedPath("the_entity_id", "the_period", "/path/to/var")
-    q.undefined.append(q_undefined)
-
-    assert p != q
 
 def test_both_have_everything_equal():
     p: Outcome = Outcome()
@@ -152,9 +122,6 @@ def test_both_have_everything_equal():
     p_missing: MissingValue = MissingValue("the_entity_id", "the_period", "/path/to/var", "Text", None)
     p.missings.append(p_missing)
 
-    p_undefined: UndefinedPath = UndefinedPath("the_entity_id", "the_period", "/path/to/var")
-    p.undefined.append(p_undefined)
-
     q: Outcome = Outcome()
 
     q_match: ValueMatch = ValueMatch("the_entity_id", "the_period", "/path/to/var", "Text", "foo")
@@ -165,9 +132,6 @@ def test_both_have_everything_equal():
 
     q_missing: MissingValue = MissingValue("the_entity_id", "the_period", "/path/to/var", "Text", None)
     q.missings.append(q_missing)
-
-    q_undefined: UndefinedPath = UndefinedPath("the_entity_id", "the_period", "/path/to/var")
-    q.undefined.append(q_undefined)
 
     assert p == q
 
@@ -183,13 +147,7 @@ def test_almost_same_not_equal():
     p_missing: MissingValue = MissingValue("the_entity_id", "the_period", "/path/to/var", "Text", None)
     p.missings.append(p_missing)
 
-    p_undefined: UndefinedPath = UndefinedPath("the_entity_id", "the_period", "/path/to/var")
-    p.undefined.append(p_undefined)
-
     q: Outcome = Outcome()
-
-    q_match: ValueMatch = ValueMatch("the_entity_id", "the_period", "/path/to/var", "Text", "foo")
-    q.matches.append(q_match)
 
     q_mismatch: ValueMismatch = ValueMismatch("the_entity_id", "the_period", "/path/to/var", "Text", "foo", "bar")
     q.mismatches.append(q_mismatch)

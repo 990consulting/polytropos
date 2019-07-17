@@ -6,7 +6,7 @@ from typing import Dict
 import pytest
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.track import Track
-from polytropos.tools.qc.values import CompareVariables
+from polytropos.tools.qc.values import CompareComplexVariable
 
 @pytest.fixture
 def simple_list_schema(empty_track) -> Schema:
@@ -108,19 +108,19 @@ def named_list_in_list_schema(empty_track) -> Schema:
 def test_fixture_none_raises(simple_list_schema):
     """This should simply never happen, because the comparison algorithm should never try to traverse a null as a
     folder."""
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     with pytest.raises(AssertionError):
         compare(None, {})
 
 def test_actual_none(simple_list_schema):
     """This could happen, and represents a mismatch."""
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     assert compare({}, None) is False
 
 def test_empty_roots(simple_list_schema):
     fixture: Dict = {}
     actual: Dict = {}
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     assert compare(fixture, actual) is True
 
 def test_empty_lists(simple_list_schema):
@@ -130,7 +130,7 @@ def test_empty_lists(simple_list_schema):
     actual: Dict = {
         "the_list": []
     }
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     assert compare(fixture, actual) is True
 
 def test_identical_simple_lists(simple_list_schema):
@@ -146,7 +146,7 @@ def test_identical_simple_lists(simple_list_schema):
         ]
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     assert compare(fixture, actual) is True
 
 def test_same_number_empty_elements(simple_list_schema):
@@ -156,7 +156,7 @@ def test_same_number_empty_elements(simple_list_schema):
     actual: Dict = {
         "the_list": [{}] * 5
     }
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     assert compare(fixture, actual) is True
 
 def test_different_number_empty_elements(simple_list_schema):
@@ -166,7 +166,7 @@ def test_different_number_empty_elements(simple_list_schema):
     actual: Dict = {
         "the_list": [{}] * 5
     }
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     assert compare(fixture, actual) is False
 
 def test_actual_has_more_elements(simple_list_schema):
@@ -189,7 +189,7 @@ def test_actual_has_more_elements(simple_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     assert compare(fixture, actual) is False
 
 def test_fixture_has_more_elements(simple_list_schema):
@@ -212,7 +212,7 @@ def test_fixture_has_more_elements(simple_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     assert compare(fixture, actual) is False
 
 def test_mismatch_in_one_element(simple_list_schema):
@@ -238,7 +238,7 @@ def test_mismatch_in_one_element(simple_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     assert compare(fixture, actual) is False
 
 # TODO May want to change this in a future release
@@ -276,7 +276,7 @@ def test_extra_key_in_actual_element(simple_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     assert compare(fixture, actual) is True
 
 def test_extra_key_in_fixture_element(simple_list_schema):
@@ -302,7 +302,7 @@ def test_extra_key_in_fixture_element(simple_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(simple_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(simple_list_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_folder_identical(folder_in_list_schema):
@@ -321,7 +321,7 @@ def test_nested_folder_identical(folder_in_list_schema):
         ]
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareVariables = CompareVariables(folder_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(folder_in_list_schema)
     assert compare(fixture, actual) is True
 
 def test_nested_folder_empty_in_fixture(folder_in_list_schema):
@@ -352,7 +352,7 @@ def test_nested_folder_empty_in_fixture(folder_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(folder_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(folder_in_list_schema)
     assert compare(fixture, actual) is True
 
 def test_nested_folder_empty_in_actual(folder_in_list_schema):
@@ -382,7 +382,7 @@ def test_nested_folder_empty_in_actual(folder_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(folder_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(folder_in_list_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_folder_only_in_fixture(folder_in_list_schema):
@@ -410,7 +410,7 @@ def test_nested_folder_only_in_fixture(folder_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(folder_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(folder_in_list_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_folder_only_in_actual(folder_in_list_schema):
@@ -439,7 +439,7 @@ def test_nested_folder_only_in_actual(folder_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(folder_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(folder_in_list_schema)
     assert compare(fixture, actual) is True
 
 def test_nested_folder_contains_mismatch(folder_in_list_schema):
@@ -471,7 +471,7 @@ def test_nested_folder_contains_mismatch(folder_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(folder_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(folder_in_list_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_list_identical(list_in_list_schema):
@@ -492,7 +492,7 @@ def test_nested_list_identical(list_in_list_schema):
         ]
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareVariables = CompareVariables(list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(list_in_list_schema)
     assert compare(fixture, actual) is True
 
 def test_nested_list_actual_has_more_elements(list_in_list_schema):
@@ -527,7 +527,7 @@ def test_nested_list_actual_has_more_elements(list_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(list_in_list_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_list_fixture_has_more_elements(list_in_list_schema):
@@ -562,7 +562,7 @@ def test_nested_list_fixture_has_more_elements(list_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(list_in_list_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_list_extra_value_in_actual(list_in_list_schema):
@@ -599,7 +599,7 @@ def test_nested_list_extra_value_in_actual(list_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(list_in_list_schema)
     assert compare(fixture, actual) is True
 
 def test_nested_list_extra_value_in_fixture(list_in_list_schema):
@@ -635,7 +635,7 @@ def test_nested_list_extra_value_in_fixture(list_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(list_in_list_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_named_list_identical(named_list_in_list_schema):
@@ -656,7 +656,7 @@ def test_nested_named_list_identical(named_list_in_list_schema):
         ]
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareVariables = CompareVariables(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
     assert compare(fixture, actual) is True
 
 def test_nested_named_list_key_mismatch(named_list_in_list_schema):
@@ -692,7 +692,7 @@ def test_nested_named_list_key_mismatch(named_list_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_named_list_extra_value_in_actual_element(named_list_in_list_schema):
@@ -727,7 +727,7 @@ def test_nested_named_list_extra_value_in_actual_element(named_list_in_list_sche
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_named_list_extra_value_in_fixture(named_list_in_list_schema):
@@ -762,7 +762,7 @@ def test_nested_named_list_extra_value_in_fixture(named_list_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_named_list_only_in_fixture(named_list_in_list_schema):
@@ -793,7 +793,7 @@ def test_nested_named_list_only_in_fixture(named_list_in_list_schema):
             {}
         ]
     }
-    compare: CompareVariables = CompareVariables(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
     assert compare(fixture, actual) is False
 
 def test_nested_named_list_only_in_actual(named_list_in_list_schema):
@@ -825,7 +825,7 @@ def test_nested_named_list_only_in_actual(named_list_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
     assert compare(fixture, actual) is True
 
 def test_named_list_element_only_in_fixture(named_list_in_list_schema):
@@ -862,7 +862,7 @@ def test_named_list_element_only_in_fixture(named_list_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
     assert compare(fixture, actual) is False
 
 def test_named_list_element_only_in_actual(named_list_in_list_schema):
@@ -898,6 +898,6 @@ def test_named_list_element_only_in_actual(named_list_in_list_schema):
             }
         ]
     }
-    compare: CompareVariables = CompareVariables(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
     assert compare(fixture, actual) is True
 

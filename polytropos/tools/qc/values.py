@@ -16,7 +16,7 @@ def compare_primitives(fixture: Optional[Any], actual: Optional[Any]) -> bool:
 
     return polytropos.util.compare.compare(fixture, actual, allow_nested=False)
 
-class CompareVariables(Callable):
+class CompareComplexVariable(Callable):
     def __init__(self, schema: Schema):
         self.schema = schema
         

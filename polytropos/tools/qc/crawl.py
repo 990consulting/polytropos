@@ -2,6 +2,8 @@ from abc import abstractmethod
 from typing import Callable, Dict, Optional, List as ListType, Any
 
 from attr import dataclass
+
+from polytropos.tools.qc.values import compare_primitives, CompareComplexVariable
 from polytropos.util.nesteddicts import str_to_path, path_to_str
 
 from polytropos.ontology.schema import Schema
@@ -46,7 +48,7 @@ class Crawl(Callable):
         # NOTE: Since we reached this point by crawling the fixture (in __call__), if f_subtree is null, it means the
         # fixture explicitly called it null (rather than simply having omitted it)
         var_path: str = path_to_str(path)
-        if f_val == a_val:
+        if compare_primitives(f_val, a_val):
             match: ValueMatch = ValueMatch(self.entity_id, self.label, var_path, data_type, f_val)
             self.outcome.matches.append(match)
         else:
@@ -54,14 +56,23 @@ class Crawl(Callable):
             self.outcome.mismatches.append(mismatch)
 
     def _traverse(self, data_type: str, f_subtree: Dict, a_subtree: Optional[Dict], path: ListType):
-        if data_type == "List":
-            raise NotImplementedError
-        elif data_type == "NamedList":
-            raise NotImplementedError
+        if data_type in {"List", "NamedList"}:
+            self._inspect_complex(data_type, f_subtree, a_subtree, path)
         elif data_type == "Folder":
             self._crawl_folder(f_subtree, a_subtree, path)
         else:
             self._inspect_primitive(data_type, f_subtree, a_subtree, path)
+
+    def _inspect_complex(self, data_type: str, f_subtree: Optional[Any], a_subtree: Optional[Any], path: ListType):
+        var_path: str = path_to_str(path)
+        compare: CompareComplexVariable = CompareComplexVariable(self.schema)
+        if compare(f_subtree, a_subtree, path=path):
+            match: ValueMatch = ValueMatch(self.entity_id, self.label, var_path, data_type, f_subtree)
+            self.outcome.matches.append(match)
+        else:
+            mismatch: ValueMismatch = ValueMismatch(self.entity_id, self.label, var_path, data_type, f_subtree,
+                                                    a_subtree)
+            self.outcome.mismatches.append(mismatch)
 
     def _record_all_as_missing(self, f_subtree: Optional[Any], path: ListType[str]):
         """Recursively find all non-folders in the subtree, recording them as missing variables."""
