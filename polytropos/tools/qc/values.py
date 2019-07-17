@@ -7,6 +7,7 @@ from polytropos.ontology.schema import Schema
 import polytropos.util.compare
 from polytropos.ontology.variable import Variable
 from polytropos.util.nesteddicts import path_to_str
+
 def compare_primitives(fixture: Optional[Any], actual: Optional[Any]) -> bool:
     """Compares two primitive values. Returns true if and only if they are identical, or both null."""
 
@@ -65,8 +66,8 @@ class CompareVariables(Callable):
 
     def compare_named_lists(self, fixture: Dict[str, Dict], actual: Optional[Dict[str, Dict]],
                             path: ListType[str]) -> bool:
-        """Compares within a Python dictionary that represents a Polytropos "NamedList" data type. Returns True if and only
-        if:
+        """Compares within a Python dictionary that represents a Polytropos "NamedList" data type. Returns True if and
+        only if:
 
             (1) The actual NamedList exists.
             (2) There is an equal number of elements in the fixture NamedList and the actual NamedList.
@@ -78,8 +79,8 @@ class CompareVariables(Callable):
 
            Notes:
             - The NamedList is treated as an atomic object, so mismatches are all-or-nothing.
-            - Does NOT require that all keys present in an element from the actual NamedList are also present in the fixture
-              NamedList, as missing child fields in the fixture represent a lack of test coverage.
+            - Does NOT require that all keys present in an element from the actual NamedList are also present in the
+              fixture NamedList, as missing child fields in the fixture represent a lack of test coverage.
             - If the NamedList contains a List, Folder, or NamedList, a deep (recursive) comparison will be performed.
             - The behavior of compare_folders and compare_named_lists are very different, even though both are comparing
               the same kind of Python object, because Folders and NamedLists have very different meanings in Polytropos.
@@ -119,7 +120,8 @@ class CompareVariables(Callable):
         return True
 
     def compare_folders(self, fixture: Dict[str, Any], actual: Optional[Dict[str, Any]], path: ListType[str]) -> bool:
-        """Compares within a Python dictionary that represents a Polytropos "Folder" data type. Returns True if and only if:
+        """Compares within a Python dictionary that represents a Polytropos "Folder" data type. Returns True if and only
+           if:
 
             (1) The actual Folder exists.
             (2) For every key in the fixture Folder, there is a corresponding key in the actual Folder.
@@ -151,10 +153,7 @@ class CompareVariables(Callable):
             return self.compare_folders(fixture, actual, [])
 
         # Otherwise, find out what kind of variable we're looking at
-        try:
-            var: Variable = self.schema.lookup(tuple(path))
-        except AttributeError:
-            print("breakpoint")
+        var: Variable = self.schema.lookup(tuple(path))
         if var is None:
             raise ValueError("Unrecognized variable %s" % path_to_str(path))
         data_type: str = var.data_type

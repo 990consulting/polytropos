@@ -165,6 +165,8 @@ class Schema:
             if abs_path == frozen_abs_path:
                 return var
 
+        return None
+
     def lookup(self, abs_path: Iterable[str]) -> Optional[Variable]:
         frozen_abs_path = tuple(abs_path)
         return self._lookup(frozen_abs_path)

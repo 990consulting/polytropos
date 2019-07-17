@@ -6,7 +6,7 @@ from typing import Dict
 import pytest
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.track import Track
-from polytropos.tools.qc.comparators import CompareVariables
+from polytropos.tools.qc.values import CompareVariables
 
 @pytest.fixture
 def simple_list_schema(empty_track) -> Schema:

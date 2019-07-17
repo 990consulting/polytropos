@@ -1,6 +1,6 @@
 import pytest
 from typing import Optional, Any
-from polytropos.tools.qc.comparators import compare_primitives
+from polytropos.tools.qc.values import compare_primitives
 
 @pytest.mark.parametrize("fixture, actual, expected", [
     (None, None, True),
