@@ -1,6 +1,7 @@
 from typing import TextIO
 import click
 
+from polytropos.tools.schema.catalog import variable_catalog
 from polytropos.tools.schema.linkage import ExportLinkages, ImportLinkages
 
 @click.group()
@@ -36,3 +37,11 @@ def linkage_export(schema_basepath: str, source_schema: str, target_schema: str,
 def linkage_import(schema_basepath: str, source_schema: str, target_schema: str, input_file: TextIO, suffix: str):
     """Import a modified translation linkage and output it."""
     ImportLinkages.from_files(schema_basepath, source_schema, target_schema, input_file, suffix)
+
+@schema.command()
+@click.argument('schema_basepath', type=click.Path(exists=True))
+@click.argument('schema_name', type=str)
+@click.argument('output_file', type=click.File('w'))
+def catalog(schema_basepath: str, schema_name: str, output_file: TextIO):
+    """Export a CSV-formatted catalog of variables in a schema."""
+    variable_catalog(schema_basepath, schema_name, output_file)

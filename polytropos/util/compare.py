@@ -25,7 +25,7 @@ def compare_float(data1, data2):
     return isclose(data1, data2)
 
 
-def compare(data1, data2):
+def compare(data1, data2, allow_nested=True):
     """Compare two json-like nested structures using approximate matching for
     numeric values"""
     if type(data1) == int and type(data2) == float:
@@ -34,9 +34,9 @@ def compare(data1, data2):
         return compare_float(data1, data2)
     if type(data1) != type(data2):
         return False
-    if isinstance(data1, dict):
+    if isinstance(data1, dict) and allow_nested:
         return compare_dict(data1, data2)
-    elif isinstance(data1, list):
+    elif isinstance(data1, list) and allow_nested:
         return compare_list(data1, data2)
     elif isinstance(data1, str):
         return compare_str(data1, data2)

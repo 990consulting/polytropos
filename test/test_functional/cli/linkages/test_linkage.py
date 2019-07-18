@@ -46,8 +46,3 @@ def test_import_modifications(target_schema, basepath, target_id, source_ids):
         do_import()
     var: Variable = target_schema.get(target_id)
     assert var.sources == source_ids
-
-#def test_lifecycle():
-#    """Apply the modified linkage file to the schema, export the linkages of the modified schema, and verify that the
-#    export matches the modified linkage file."""
-#    pytest.fail()
