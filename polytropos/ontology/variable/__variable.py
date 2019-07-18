@@ -2,10 +2,11 @@ import logging
 import json
 from dataclasses import dataclass, field, fields
 from collections import defaultdict
-from typing import List as ListType, Dict, Iterator, TYPE_CHECKING
+from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set
 from functools import partial
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
+from polytropos.util.nesteddicts import path_to_str
 
 if TYPE_CHECKING:
     from polytropos.ontology.track import Track
@@ -421,15 +422,26 @@ def _check_folder_has_sources(variable: "Variable", sources: ListType[str]):
         raise ValueError(msg_template % (var_id, source_str))
 
 def _verify_source_parent(variable: "Variable", source_var_id: str):
-    list_ancestor = variable.get_first_list_ancestor()
+    list_ancestor: Optional["Variable"] = variable.get_first_list_ancestor()
     if list_ancestor is None:
         return
-    parent_sources = set(list_ancestor.sources)
-    source = variable.track.source[source_var_id]
+    parent_sources: Set[str] = set(list_ancestor.sources)
+    source: "Variable" = variable.track.source[source_var_id]
     while source.parent != '' and source.var_id not in parent_sources:
         source = variable.track.source[source.parent]
     if source.var_id not in parent_sources:
-        raise ValueError('Wrong source descendant')
+        template: str = 'Variable %s (%s), which descends from %s %s (%s), includes %s (%s) as a source, but that ' \
+                        'does not descend from one of the root list\'s sources.'
+        msg = template % (
+            path_to_str(variable.absolute_path),
+            variable.var_id,
+            list_ancestor.data_type,
+            path_to_str(list_ancestor.absolute_path),
+            list_ancestor.var_id,
+            path_to_str(source.absolute_path),
+            source.var_id
+        )
+        raise ValueError(msg)
 
 def _verify_source_exists(variable: "Variable", source_var_id: str):
     if source_var_id not in variable.track.source:
