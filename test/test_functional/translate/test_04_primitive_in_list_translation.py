@@ -157,9 +157,11 @@ def test_remove_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     assert actual == expected
 
 def test_two_sources_both_missing(source_spec: Dict, target_spec: Dict):
-    """Two sources defined, but both are missing from the source document; no list is created."""
+    """Two sources defined, but both are missing from the source document; an empty list is created."""
     source_doc = {}
-    expected: Dict = {}
+    expected: Dict = {
+        "People": []
+    }
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_two_sources_both_empty(source_spec: Dict, target_spec: Dict):

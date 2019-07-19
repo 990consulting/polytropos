@@ -87,13 +87,14 @@ class Translator(Callable):
             raise SourceNotFoundException
         return candidate
 
-    # TODO This should be done with iterators to save concatenation time on long lists
-    def translate_list(self, variable_id, variable, document, parent):
+    # TODO Find out all the classes "parent" can take
+    def translate_list(self, variable_id: str, variable: Variable, document: Dict, parent):
         """Translate for lists"""
         if variable.sources is None or len(variable.sources) == 0:
             raise SourceNotFoundException
         results = []
         # We have to restrict the sources to the descendants of parent
+        # TODO Detect a case where this happens so I can figure out what it means
         parent_source = None
         if parent:
             parent_source = variable.track.source[parent]
@@ -103,22 +104,21 @@ class Translator(Callable):
             if parent_source and not parent_source.check_ancestor(source):
                 continue
             # get the document values for the current source
-            list_source = self.find_in_document(source, document, parent)
-            if list_source is None:
+            try:
+                list_source = self.find_in_document(source, document, parent)
+            except SourceNotFoundException:
                 continue
+            if list_source is None:
+                raise RuntimeError("I don't think this should be possible, because SourceNotFoundException replaced it")
             # sometimes lists with one element are represented as folders
             if isinstance(list_source, dict):
                 list_source = [list_source]
             for value in list_source:
                 # translate the values in the list one by one and add them to
                 # the result
-                results.append(
-                    self(
-                        value,
-                        variable_id,
-                        source
-                    )
-                )
+                # noinspection PyTypeChecker
+                matches: Dict = self(value, variable_id, source)
+                results.append(matches)
         return results
 
     def translate_named_list(self, variable_id, variable, document, parent):
@@ -164,7 +164,8 @@ class Translator(Callable):
     def __call__(self, document: Dict, parent='', source_parent=''):
         output_document: Dict = {}
         # Translate all variables with the same parent
-        for variable_id, variable in self.target_variables_by_parent[parent].items():  # type: str, "Variable"
+        children: Dict = self.target_variables_by_parent[parent]
+        for variable_id, variable in children.items():  # type: str, "Variable"
             try:
                 translate = self.get_translate_function(variable)
                 result: Optional[Any] = translate(variable_id, variable, document, source_parent)
