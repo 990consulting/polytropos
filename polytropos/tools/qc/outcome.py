@@ -33,12 +33,15 @@ class Outcome:
 
     @property
     def match_case_ids(self) -> Iterator[str]:
-        pass
+        for match in self.matches:
+            yield "/%s/%s%s" % (match.entity_id, match.observation, match.var_path)
 
     @property
     def mismatch_case_ids(self) -> Iterator[str]:
-        pass
+        for mismatch in self.mismatches:
+            yield "/%s/%s%s" % (mismatch.entity_id, mismatch.observation, mismatch.var_path)
 
     @property
     def missing_case_ids(self) -> Iterator[str]:
-        pass
+        for missing in self.missings:
+            yield "/%s/%s%s" % (missing.entity_id, missing.observation, missing.var_path)

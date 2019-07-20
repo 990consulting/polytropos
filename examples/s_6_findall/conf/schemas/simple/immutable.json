@@ -1,0 +1,18 @@
+{
+  "immutable_root_text": {
+    "name": "immutable_root_text",
+    "data_type": "Text",
+    "sort_order": 0
+  },
+  "immutable_folder": {
+    "name": "immutable_folder",
+    "data_type": "Folder",
+    "sort_order": 1
+  },
+  "immutable_folder_text": {
+    "name": "immutable_folder_text",
+    "data_type": "Text",
+    "parent": "immutable_folder",
+    "sort_order": 0
+  }
+}

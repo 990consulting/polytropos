@@ -1,0 +1,11 @@
+{
+  "period_1": {
+    "temporal_root_text": "Should never be checked"
+  },
+  "immutable": {
+    "immutable_root_text": "PQR",
+    "immutable_folder": {
+      "immutable_folder_text": "333"
+    }
+  }
+}

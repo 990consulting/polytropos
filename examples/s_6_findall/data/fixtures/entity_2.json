@@ -1,0 +1,20 @@
+{
+  "period_1": {
+    "temporal_root_text": "GHI",
+    "temporal_folder": {
+      "temporal_folder_text": "000"
+    }
+  },
+  "period_2": {
+    "temporal_root_text": "JKL",
+    "temporal_folder": {
+      "temporal_folder_text": "111"
+    }
+  },
+  "immutable": {
+    "immutable_root_text": "MNO",
+    "immutable_folder": {
+      "immutable_folder_text": "222"
+    }
+  }
+}
