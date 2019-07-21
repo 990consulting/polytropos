@@ -1,0 +1,14 @@
+{
+  "period_1": {
+    "temporal_root_text": "ABC",
+    "temporal_folder": {
+      "temporal_folder_text": "123"
+    }
+  },
+  "immutable": {
+    "immutable_root_text": "DEF",
+    "immutable_folder": {
+      "immutable_folder_text": "456"
+    }
+  }
+}

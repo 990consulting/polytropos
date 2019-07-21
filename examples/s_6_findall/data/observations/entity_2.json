@@ -1,0 +1,11 @@
+{
+  "period_1": {
+    "temporal_root_text": "GGG",
+    "temporal_folder": {
+      "temporal_folder_text": "000"
+    }
+  },
+  "immutable": {
+    "immutable_root_text": "MMM"
+  }
+}
