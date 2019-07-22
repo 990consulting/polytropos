@@ -1,8 +1,7 @@
 import json
-from collections import deque, OrderedDict
 import logging
 import os
-from typing import Dict, Set, Optional, Deque, Iterator, List
+from typing import Dict, Set, Optional, Iterator, List
 
 from polytropos.ontology.composite import Composite
 

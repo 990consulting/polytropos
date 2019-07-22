@@ -10,7 +10,6 @@ from polytropos.ontology.composite import Composite
 
 from polytropos.actions.step import Step
 from polytropos.ontology.paths import PathLocator
-from polytropos.ontology.variable import Variable
 from polytropos.util.loader import load
 from polytropos.ontology.schema import Schema
 from polytropos.util.config import MAX_WORKERS

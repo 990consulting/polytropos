@@ -1,8 +1,7 @@
 import pytest
 import os
 from polytropos.ontology.task import Task
-import polytropos.actions.consume
-import examples.s_5_tr_export.conf.consumers.count
+import polytropos.actions
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -30,6 +29,9 @@ def cleanup():
     ]
 )
 def test_task_consume(scenario, task_name, expected_location):
+    polytropos.actions.register_all()
+    import examples.s_5_tr_export.conf.consumers.count
+
     conf = os.path.join(BASEPATH, '../../examples', scenario, 'conf')
     data = os.path.join(BASEPATH, '../../examples', scenario, 'data')
     task = Task.build(conf, data, task_name)

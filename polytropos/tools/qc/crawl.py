@@ -92,7 +92,7 @@ class Crawl(Callable):
     def _inspect(self, key: str, f_tree: Dict, a_tree: Dict, path: ListType):
         var: Variable = self.schema.lookup(path + [key])
         if var is None:
-            raise ValueError("No variable called %s" % path_to_str(path))
+            raise ValueError("No variable called %s" % path_to_str(path + [key]))
         data_type: str = var.data_type
         f_subtree: Optional[Any] = f_tree[key]
         if key not in a_tree:

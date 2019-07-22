@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from polytropos.ontology.paths import PathLocator
     from polytropos.ontology.schema import Schema
+
 class Step(Callable):
 
     @classmethod

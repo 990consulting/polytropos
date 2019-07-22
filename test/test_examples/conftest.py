@@ -6,11 +6,12 @@ import os
 import pytest
 from polytropos.ontology.task import Task
 from polytropos.util.compare import compare
-
+import polytropos.actions
 
 @pytest.fixture
 def run_task(basepath) -> Callable:
     def _run_task(scenario, task_name, expected_location):
+        polytropos.actions.register_all()
         conf = os.path.join(basepath, '../examples', scenario, 'conf')
         data = os.path.join(basepath, '../examples', scenario, 'data')
         task = Task.build(conf, data, task_name)
