@@ -1,3 +1,3 @@
 def register_change_subclasses():
     """Import all built-in Change subclasses so that they can be accessed by tasks."""
-    pass
+    from polytropos.actions.changes.cast import Cast

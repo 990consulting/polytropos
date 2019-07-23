@@ -395,6 +395,40 @@ def test_underscore_variables_ignored():
     cast(composite)
     assert composite.content == expected
 
+def test_underscore_folders_ignored():
+    spec: Dict = {
+        "binary_in_root": {
+            "name": "the_binary",
+            "data_type": "Binary",
+            "sort_order": 0
+        }
+    }
+    immutable: Track = Track.build(spec, None, "immutable")
+    temporal: Track = Track.build({}, None, "temporal")
+    schema: Schema = Schema(temporal, immutable)
+    content: Dict = {
+        "immutable": {
+            "the_binary": "true",
+            "_folder": {
+                "foo": "shouldn't matter",
+                "bar": "also shouldn't matter"
+            }
+        }
+    }
+    expected: Dict = {
+        "immutable": {
+            "the_binary": True,
+            "_folder": {
+                "foo": "shouldn't matter",
+                "bar": "also shouldn't matter"
+            }
+        }
+    }
+    composite: Composite = Composite(schema, content)
+    cast: Cast = Cast(schema, {})
+    cast(composite)
+    assert composite.content == expected
+
 def test_cast_nested_illegal_value(nested_track):
     """If a primitive contains an unintelligible value, it is deleted from the dataset, since we don't want to falsely
     report explicit null and its presence could break downstream steps. The value is recorded as an exception. If the

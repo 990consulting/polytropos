@@ -91,8 +91,9 @@ class _Crawl(Callable):
             self._cast_immutable()
 
 class Cast(Change):
-    """Crawls all periods (and immutable), casting variables according to their data type. Raises a warning if a path
-    exists that does not correspond to a variable. Ignores paths that start with underscores."""
+    """Crawls all periods (and immutable), casting variables according to their data type. Records an exception if a
+    path exists that does not correspond to a variable. If a variable has a value that is incompatible with its variable
+    type, it is deleted and Ignores paths that start with underscores."""
 
     def __call__(self, composite: Composite):
         crawl: _Crawl = _Crawl(composite)

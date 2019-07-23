@@ -331,46 +331,49 @@ class Container(Variable):
 @dataclass
 class Primitive(Variable):
     @abstractmethod
-    def cast(self, value: str) -> Optional[Any]:
+    def cast(self, value: Optional[Any]) -> Optional[Any]:
         pass
 
 @dataclass
 class Integer(Primitive):
-    def cast(self, value: str) -> Optional[int]:
+    def cast(self, value: Optional[Any]) -> Optional[int]:
         if value is None or value == "":
             return None
         return int(value)
 
 @dataclass
 class Text(Primitive):
-    def cast(self, value: str) -> Optional[str]:
+    def cast(self, value: Optional[Any]) -> Optional[str]:
         if value is None or value == "":
             return None
         return str(value)
 
 @dataclass
 class Decimal(Primitive):
-    def cast(self, value: str) -> Optional[float]:
+    def cast(self, value: Optional[Any]) -> Optional[float]:
         if value is None or value == "":
             return None
         return float(value)
 
 @dataclass
 class Unary(Primitive):
-    def cast(self, value: str) -> Optional[bool]:
+    def cast(self, value: Optional[Any]) -> Optional[bool]:
         if value is None or value == "":
             return None
-        if not value.lower() == "x":
+        if value is True:
+            return True
+        if not (isinstance(value, str) and value.lower() == "x"):
             raise ValueError
-        assert value.lower() == "x"
         return True
 
 
 @dataclass
 class Binary(Primitive):
-    def cast(self, value: str) -> Optional[bool]:
+    def cast(self, value: Optional[Any]) -> Optional[bool]:
         if value is None or value == "":
             return None
+        if isinstance(value, bool):
+            return value
         vl = value.lower()
         if vl in {"1", "true"}:
             return True
@@ -381,35 +384,35 @@ class Binary(Primitive):
 
 @dataclass
 class Currency(Primitive):
-    def cast(self, value: str) -> Optional[float]:
+    def cast(self, value: Optional[Any]) -> Optional[float]:
         if value is None or value == "":
             return None
         return float(value)
 
 @dataclass
 class Phone(Primitive):
-    def cast(self, value: str) -> Optional[str]:
+    def cast(self, value: Optional[Any]) -> Optional[str]:
         if value is None or value == "":
             return None
         return str(value)
 
 @dataclass
 class Email(Primitive):
-    def cast(self, value: str) -> Optional[str]:
+    def cast(self, value: Optional[Any]) -> Optional[str]:
         if value is None or value == "":
             return None
         return str(value)
 
 @dataclass
 class URL(Primitive):
-    def cast(self, value: str) -> Optional[str]:
+    def cast(self, value: Optional[Any]) -> Optional[str]:
         if value is None or value == "":
             return None
         return str(value)
 
 @dataclass
 class Date(Primitive):
-    def cast(self, value: str) -> Optional[str]:
+    def cast(self, value: Optional[Any]) -> Optional[str]:
         if value is None or value in {"", "000000"}:
             return None
         if len(value) == 6 and value.isdecimal():
