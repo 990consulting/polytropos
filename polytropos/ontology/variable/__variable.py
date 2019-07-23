@@ -1,12 +1,14 @@
 import logging
 import json
+from abc import abstractmethod
 from dataclasses import dataclass, field, fields
 from collections import defaultdict
-from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set
+from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any
 from functools import partial
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
 from polytropos.util.nesteddicts import path_to_str
+from datetime import datetime
 
 if TYPE_CHECKING:
     from polytropos.ontology.track import Track
@@ -206,23 +208,23 @@ class Variable:
 
     @property
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'relative_path'))
-    def relative_path(self) -> Iterator[str]:
+    def relative_path(self) -> ListType[str]:
         """The path from this node to the nearest list or or root."""
         if not self.parent:
             return [self.name]
-        parent = self.track[self.parent]
+        parent: "Variable" = self.track[self.parent]
         if isinstance(parent, GenericList):
             return [self.name]
-        parent_path = parent.relative_path
+        parent_path: ListType = parent.relative_path
         return parent_path + [self.name]
 
     @property
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'absolute_path'))
-    def absolute_path(self) -> Iterator[str]:
+    def absolute_path(self) -> ListType[str]:
         """The path from this node to the root."""
         if not self.parent:
             return [self.name]
-        parent_path = self.track[self.parent].absolute_path
+        parent_path: ListType = self.track[self.parent].absolute_path
         return parent_path + [self.name]
 
     @property
@@ -328,60 +330,103 @@ class Container(Variable):
 
 @dataclass
 class Primitive(Variable):
-    pass
+    @abstractmethod
+    def cast(self, value: str) -> Optional[Any]:
+        pass
 
 @dataclass
 class Integer(Primitive):
-    pass
-
+    def cast(self, value: str) -> Optional[int]:
+        if value is None or value == "":
+            return None
+        return int(value)
 
 @dataclass
 class Text(Primitive):
-    pass
-
+    def cast(self, value: str) -> Optional[str]:
+        if value is None or value == "":
+            return None
+        return str(value)
 
 @dataclass
 class Decimal(Primitive):
-    pass
-
+    def cast(self, value: str) -> Optional[float]:
+        if value is None or value == "":
+            return None
+        return float(value)
 
 @dataclass
 class Unary(Primitive):
-    pass
+    def cast(self, value: str) -> Optional[bool]:
+        if value is None or value == "":
+            return None
+        if not value.lower() == "x":
+            raise ValueError
+        assert value.lower() == "x"
+        return True
 
 
 @dataclass
 class Binary(Primitive):
-    pass
+    def cast(self, value: str) -> Optional[bool]:
+        if value is None or value == "":
+            return None
+        vl = value.lower()
+        if vl in {"1", "true"}:
+            return True
+        if vl in {"0", "false"}:
+            return False
+        raise ValueError
 
 
 @dataclass
 class Currency(Primitive):
-    pass
-
+    def cast(self, value: str) -> Optional[float]:
+        if value is None or value == "":
+            return None
+        return float(value)
 
 @dataclass
 class Phone(Primitive):
-    pass
-
+    def cast(self, value: str) -> Optional[str]:
+        if value is None or value == "":
+            return None
+        return str(value)
 
 @dataclass
 class Email(Primitive):
-    pass
-
+    def cast(self, value: str) -> Optional[str]:
+        if value is None or value == "":
+            return None
+        return str(value)
 
 @dataclass
 class URL(Primitive):
-    pass
-
+    def cast(self, value: str) -> Optional[str]:
+        if value is None or value == "":
+            return None
+        return str(value)
 
 @dataclass
 class Date(Primitive):
-    pass
+    def cast(self, value: str) -> Optional[str]:
+        if value is None or value in {"", "000000"}:
+            return None
+        if len(value) == 6 and value.isdecimal():
+            year: str = value[:4]
+            month: str = value[4:]
+            return "%s-%s-01" % (year, month)
 
+        if len(value) >= 10:
+            retained = value[:10]
 
-# TODO The following three produce an error in PyCharm (although the code runs). "Inherited non-default arguments
-#  defined in Container follows inherited default arguments defined in Variable."
+            # Will raise a ValueError if unexpected content
+            datetime.strptime(retained, "%Y-%m-%d")
+
+            return retained
+
+        raise ValueError
+
 @dataclass
 class Folder(Container):
     @property
