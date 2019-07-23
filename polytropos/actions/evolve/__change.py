@@ -3,6 +3,8 @@ from abc import abstractmethod
 from collections.abc import Callable
 from typing import Dict
 
+from polytropos.ontology.composite import Composite
+
 from polytropos.ontology.schema import Schema
 
 
@@ -15,6 +17,6 @@ class Change(Callable):
     lookups: Dict
 
     @abstractmethod
-    def __call__(self, composite: Dict):
+    def __call__(self, composite: Composite):
         """Perform the change on the supplied composite."""
         pass

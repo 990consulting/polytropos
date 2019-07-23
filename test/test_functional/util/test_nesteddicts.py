@@ -1,3 +1,5 @@
+import pytest
+
 from polytropos.util import nesteddicts
 from pytest import raises, mark
 from typing import *
