@@ -1,7 +1,7 @@
 import csv
 import os
 import tempfile
-from collections import Callable
+from collections.abc import Callable
 
 import pytest
 from polytropos.ontology.schema import Schema
@@ -11,7 +11,7 @@ from polytropos.tools.schema.catalog import write_catalog
 @pytest.fixture
 def do_test(basepath: str) -> Callable:
     def _do_test(schema: Schema, expected_fn: str):
-        expected_path: str = os.path.join(basepath, 'test_functional', 'cli', 'catalog', expected_fn)
+        expected_path: str = os.path.join(basepath, 'test_functional', 'tools', 'catalog', expected_fn)
         output_file: tempfile.NamedTemporaryFile = tempfile.NamedTemporaryFile(mode="w", delete=False)
         write_catalog(schema, output_file)
         output_file.close()

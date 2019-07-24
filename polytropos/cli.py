@@ -1,6 +1,7 @@
 from typing import TextIO
 import click
 
+from polytropos.tools.schema import treeview
 from polytropos.tools.schema.catalog import variable_catalog
 from polytropos.tools.schema.linkage import ExportLinkages, ImportLinkages
 
@@ -45,3 +46,10 @@ def linkage_import(schema_basepath: str, source_schema: str, target_schema: str,
 def catalog(schema_basepath: str, schema_name: str, output_file: TextIO):
     """Export a CSV-formatted catalog of variables in a schema."""
     variable_catalog(schema_basepath, schema_name, output_file)
+
+@schema.command(name="treeview")
+@click.argument('schema_basepath', type=click.Path(exists=True))
+@click.argument('schema_name', type=str)
+def schema_treeview(schema_basepath: str, schema_name: str):
+    """Output an ASCII tree representation of a schema to stdout."""
+    treeview.print_from_files(schema_basepath, schema_name)
