@@ -1,7 +1,7 @@
 import csv
 import os
 import tempfile
-from collections import Callable
+from collections.abc import Callable
 
 import pytest
 from polytropos.ontology.schema import Schema
