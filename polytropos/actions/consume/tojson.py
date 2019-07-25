@@ -1,6 +1,7 @@
 import json
 import os
 from dataclasses import dataclass
+from typing import Optional, Any, Iterable, Tuple
 
 from polytropos.actions.consume import Consume
 from polytropos.ontology.composite import Composite
@@ -21,7 +22,10 @@ class ExportToJSON(Consume):
         )
         self.fobj.write('{\n')
 
-    def consume(self, composite_id: str, composite: Composite):
+    def extract(self, composite: Composite) -> Optional[Any]:
+        return composite
+
+    def _to_json(self, composite_id: str, composite: Composite):
         if not self.first:
             self.fobj.write(',\n')
         # noinspection PyAttributeOutsideInit
@@ -33,6 +37,11 @@ class ExportToJSON(Consume):
                 self.fobj.write('\n')
                 self.fobj.write(' ' * self.indent)
             self.fobj.write(line)
+
+    def consume(self, extracts: Iterable[Tuple[str, Composite]]) -> None:
+        for filename, composite in extracts:
+            composite_id: str = filename[:-5]
+            self._to_json(composite_id, composite)
 
     def after(self):
         self.fobj.write('\n}')

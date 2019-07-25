@@ -1,7 +1,11 @@
+from collections import Callable
+from typing import Tuple
+
 import pytest
 import os
 from polytropos.ontology.task import Task
 import polytropos.actions
+import json
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -21,28 +25,35 @@ def cleanup():
     delete_if_exists("temporal.csv")
     delete_if_exists("records.json")
 
-@pytest.mark.parametrize(
-    'scenario,task_name,expected_location',
-    [
-        ('s_5_tr_export', 'custom_consumer', 'expected'),
-        ('s_5_tr_export', 'export_to_json', 'expected'),
-    ]
-)
-def test_task_consume(scenario, task_name, expected_location):
-    polytropos.actions.register_all()
-    import examples.s_5_tr_export.conf.consumers.count
+@pytest.fixture()
+def do_export() -> Callable:
+    def _do_export(task_name: str) -> Tuple[str, str]:
+        polytropos.actions.register_all()
+        conf = os.path.join(BASEPATH, '../../examples', "s_5_tr_export", 'conf')
+        data = os.path.join(BASEPATH, '../../examples', "s_5_tr_export", 'data')
+        task = Task.build(conf, data, task_name)
+        task.run()
+        actual_path: str = os.path.join(task.path_locator.conf_dir, '../')
+        expected_path: str = os.path.join(
+            task.path_locator.conf_dir, '../', "expected"
+        )
+        filename: str = task.steps[-1].filename
+        actual_fn: str = os.path.join(actual_path, filename)
+        expected_fn: str = os.path.join(expected_path, filename)
+        return actual_fn, expected_fn
+    return _do_export
 
-    conf = os.path.join(BASEPATH, '../../examples', scenario, 'conf')
-    data = os.path.join(BASEPATH, '../../examples', scenario, 'data')
-    task = Task.build(conf, data, task_name)
-    task.run()
-    actual_path = os.path.join(task.path_locator.conf_dir, '../')
-    expected_path = os.path.join(
-        task.path_locator.conf_dir, '../', expected_location
-    )
-    filename = task.steps[-1].filename
-    with open(os.path.join(actual_path, filename), 'r') as f:
-        with open(os.path.join(expected_path, filename), 'r') as g:
-            actual_data = f.read()
-            expected_data = g.read()
-            assert actual_data == expected_data
+def test_task_json_exporter(do_export):
+    actual_fn, expected_fn = do_export("export_to_json")
+    with open(actual_fn) as actual_fh, open(expected_fn) as expected_fh:
+        actual = json.load(actual_fh)
+        expected = json.load(expected_fh)
+        assert actual == expected
+
+def test_task_custom_consumer(do_export):
+    import examples.s_5_tr_export.conf.consumers.count
+    actual_fn, expected_fn = do_export("custom_consumer")
+    with open(actual_fn) as actual_fh, open(expected_fn) as expected_fh:
+        actual = actual_fh.read()
+        expected = expected_fh.read()
+        assert actual == expected
