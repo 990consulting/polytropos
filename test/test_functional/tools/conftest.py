@@ -5,7 +5,7 @@ import pytest
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.track import Track
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def half_source_spec() -> Callable:
     def _half_source_spec(cardinal: int, ordinal: str, prefix: str, track_name: str) -> Dict:
         return {

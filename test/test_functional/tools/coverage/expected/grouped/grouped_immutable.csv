@@ -1,0 +1,11 @@
+variable,in_schema,var_id,data_type,immutable_group_1
+/another_made_up_variable,FALSE,,,1.00
+/first_immutable_folder,TRUE,source_i_folder_1,Folder,0.50
+/first_immutable_folder/a_list,TRUE,source_i_list_1,List,0.50
+/first_immutable_folder/a_list/a_named_list,TRUE,source_i_named_list_1,NamedList,0.50
+/first_immutable_folder/a_list/a_named_list/some_text,TRUE,source_i_named_list_text_1,Text,0.50
+/second_immutable_folder,TRUE,source_i_folder_2,Folder,1.00
+/second_immutable_folder/a_list,TRUE,source_i_list_2,List,0.50
+/second_immutable_folder/a_list/a_named_list,TRUE,source_i_named_list_2,NamedList,0.50
+/second_immutable_folder/a_list/a_named_list/some_text,TRUE,source_i_named_list_text_2,Text,0.50
+/second_immutable_folder/some_text,TRUE,source_i_folder_text_2,Text,1.00
