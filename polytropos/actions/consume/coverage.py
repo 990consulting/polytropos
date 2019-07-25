@@ -3,11 +3,23 @@ from collections import defaultdict, Counter
 from dataclasses import dataclass, field
 from typing import Iterable, Tuple, Any, Optional, Dict, NamedTuple, Set, List
 
+from polytropos.ontology.track import Track
 from polytropos.util import nesteddicts
 
 from polytropos.actions.consume import Consume
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import Variable
+
+def _get_sorted_vars(group_var_counts: Dict[str, Counter], track: Track):
+    all_known_vars: Set[Tuple] = set()
+    for counter in group_var_counts.values():
+        for key in counter:
+            all_known_vars.add(key)
+    for variable in track.values():
+        path: Tuple = tuple(variable.absolute_path)
+        all_known_vars.add(path)
+    sorted_vars: List[Tuple] = sorted(all_known_vars)
+    return sorted_vars
 
 @dataclass
 class CoverageFile(Consume):
@@ -137,33 +149,8 @@ class CoverageFile(Consume):
                 "data_type": ""
             }
 
-    def _write(self, infix: str, group_var_counts: Dict[str, Counter], group_obs_counts: Dict[str, int],
-               grouping_var_id: str):
-        fn: str = self.file_prefix + "_" + infix + ".csv"
-        groups = sorted([str(x) for x in group_var_counts.keys()])
-        columns = ["variable", "in_schema", "var_id", "data_type"] + groups
-        all_known_vars: Set[Tuple] = set()
-        for counter in group_var_counts.values():
-            for key in counter:
-                all_known_vars.add(key)
-        sorted_vars: List[Tuple] = sorted(all_known_vars)
-
-        with open(fn, "w") as fh:
-            writer: csv.DictWriter = csv.DictWriter(fh, columns)
-            writer.writeheader()
-            for var_path in sorted_vars:
-                row: Dict = self._init_row(var_path)
-                for group in group_obs_counts.keys():
-                    n_in_group: int = group_obs_counts[group]
-                    times_var_observed: int = group_var_counts[group][var_path]
-                    frac: float = times_var_observed / n_in_group
-                    if frac > 1.0:
-                        print("breakpoint")
-                    row[str(group)] = "%0.2f" % frac
-                writer.writerow(row)
-
+    def _write_groups_file(self, group_obs_counts: Dict[str, int], grouping_var_id: str, infix: str):
         groups_fn: str = self.file_prefix + "_" + infix + "_groups.csv"
-
         with open(groups_fn, "w") as fh:
             group_var_path: str = "Group"
             if grouping_var_id is not None:
@@ -179,11 +166,39 @@ class CoverageFile(Consume):
                     "observations": str(value)
                 })
 
+    def _write_coverage_file(self, track: Track, group_obs_counts: Dict[str, int],
+                             group_var_counts: Dict[str, Counter], infix: str):
+        groups: List[str] = sorted([str(x) for x in group_var_counts.keys()])
+        columns: List[str] = ["variable", "in_schema", "var_id", "data_type"] + groups
+        sorted_vars = _get_sorted_vars(group_var_counts, track)
+
+        fn: str = self.file_prefix + "_" + infix + ".csv"
+        with open(fn, "w") as fh:
+            writer: csv.DictWriter = csv.DictWriter(fh, columns)
+            writer.writeheader()
+            for var_path in sorted_vars:
+                row: Dict = self._init_row(var_path)
+                for group in group_obs_counts.keys():
+                    n_in_group: int = group_obs_counts[group]
+                    times_var_observed: int = group_var_counts[group][var_path]
+                    frac: float = times_var_observed / n_in_group
+                    assert frac <= 1.0
+                    row[str(group)] = "%0.2f" % frac
+                writer.writerow(row)
+
+    def _write(self, track: Track, infix: str, group_var_counts: Dict[str, Counter], group_obs_counts: Dict[str, int],
+               grouping_var_id: str):
+
+        self._write_coverage_file(track, group_obs_counts, group_var_counts, infix)
+        self._write_groups_file(group_obs_counts, grouping_var_id, infix)
+
     def _write_temporal(self):
-        self._write("temporal", self.temporal_var_counts, self.temporal_n, self.temporal_grouping_var)
+        self._write(self.schema.temporal, "temporal", self.temporal_var_counts, self.temporal_n,
+                    self.temporal_grouping_var)
 
     def _write_immutable(self):
-        self._write("immutable", self.immutable_var_counts, self.immutable_n, self.immutable_grouping_var)
+        self._write(self.schema.immutable, "immutable", self.immutable_var_counts, self.immutable_n,
+                    self.immutable_grouping_var)
 
     def after(self):
         self._write_temporal()

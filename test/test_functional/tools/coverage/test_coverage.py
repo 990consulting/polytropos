@@ -64,7 +64,7 @@ def setup(do_run, output_basepath) -> None:
 
     yield
 
-    shutil.rmtree(output_basepath)
+    #shutil.rmtree(output_basepath)
 
 @pytest.mark.parametrize("filename", [
     "grouped/grouped_immutable.csv",
@@ -82,5 +82,6 @@ def test_files_match(module_basepath, output_basepath, filename):
     with open(expected_path) as expected_fh, open(actual_path) as actual_fh:
         expected: csv.DictReader = csv.DictReader(expected_fh)
         actual: csv.DictReader = csv.DictReader(actual_fh)
-        for e_row, a_row in zip(expected, actual):
-            assert e_row == a_row
+        e_rows = [row for row in expected]
+        a_rows = [row for row in actual]
+        assert a_rows == e_rows
