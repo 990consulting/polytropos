@@ -15,7 +15,7 @@ setuptools.setup(
         'scipy',
         'numpy',
         'pytest',
-        'pytest-mock'
+        'pytest-mock',
         'glom',
         'pytest-repeat',
         'dacite',
