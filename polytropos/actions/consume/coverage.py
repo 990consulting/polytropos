@@ -3,6 +3,8 @@ from collections import defaultdict, Counter
 from dataclasses import dataclass, field
 from typing import Iterable, Tuple, Any, Optional, Dict, NamedTuple, Set, List
 
+from polytropos.ontology.schema import Schema
+
 from polytropos.ontology.track import Track
 from polytropos.util import nesteddicts
 
@@ -42,6 +44,16 @@ class CoverageFile(Consume):
     # Number of times each value of the grouping variable was observed
     temporal_n: Dict[str, int] = field(default_factory=lambda: defaultdict(int), init=False)
     immutable_n: Dict[str, int] = field(default_factory=lambda: defaultdict(int), init=False)
+
+    # noinspection PyTypeChecker
+    @classmethod
+    def standalone(cls, schema_basepath: str, schema_name: str, data_path: str, output_prefix: str,
+                   t_group: str, i_group: str):
+
+        schema: Schema = Schema.load(schema_name, base_path=schema_basepath)
+        # TODO Refactor so unnecessary arguments aren't required.
+        coverage: "CoverageFile" = cls(None, schema, output_prefix, t_group, i_group)
+        coverage(data_path, None)
 
     def before(self):
         if self.temporal_grouping_var is not None and self.schema.get(self.temporal_grouping_var) is None:
@@ -105,6 +117,9 @@ class CoverageFile(Consume):
     def _extract_immutable(self, composite: Composite) -> Dict[str, Counter]:
         """Note that this will always return a dictionary of length 0 or 1, but using a Dict simplifies code due to
         analogy with _extract_temporal."""
+        if "immutable" not in composite.content:
+            return {}
+
         group: Optional[str] = self._get_immutable_group(composite)
         self.immutable_n[group] += 1
         observed: Set[Tuple] = set()

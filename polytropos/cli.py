@@ -1,6 +1,8 @@
-from typing import TextIO
+from typing import TextIO, Optional
 import click
 
+from polytropos.actions.consume.coverage import CoverageFile
+from polytropos.ontology.task import Task
 from polytropos.tools.schema import treeview
 from polytropos.tools.schema.catalog import variable_catalog
 from polytropos.tools.schema.linkage import ExportLinkages, ImportLinkages
@@ -9,6 +11,15 @@ from polytropos.tools.schema.linkage import ExportLinkages, ImportLinkages
 def cli():
     """Polytropos. Copyright (c) 2019 Applied Nonprofit Research."""
     pass
+
+@cli.command()
+@click.argument('data_path', type=click.Path(exists=True))
+@click.argument('config_path', type=click.Path(exists=True))
+@click.argument('task_name', type=str)
+def task(data_path: str, config_path: str, task_name: str):
+    """Perform a Polytropos task."""
+    task = Task.build(config_path, data_path, task_name)
+    task.run()
 
 @cli.group()
 def schema():
@@ -53,3 +64,16 @@ def catalog(schema_basepath: str, schema_name: str, output_file: TextIO):
 def schema_treeview(schema_basepath: str, schema_name: str):
     """Output an ASCII tree representation of a schema to stdout."""
     treeview.print_from_files(schema_basepath, schema_name)
+
+@cli.command()
+@click.argument('schema_basepath', type=click.Path(exists=True))
+@click.argument('schema_name', type=str)
+@click.argument('data_path', type=click.Path(exists=True))
+@click.argument('output_prefix', type=str)
+@click.option('--t-group', type=str, default=None, help="Variable ID of temporal grouping variable, if any.")
+@click.option('--i-group', type=str, default=None, help="Variable ID of immutable grouping variable, if any.")
+def coverage(schema_basepath: str, schema_name: str, data_path: str, output_prefix: str, t_group: Optional[str],
+             i_group: Optional[str]):
+    """Produce a coverage report consisting of four files: coverage and groups for each of immutable and temporal
+    tracks."""
+    CoverageFile.standalone(schema_basepath, schema_name, data_path, output_prefix, t_group, i_group)
