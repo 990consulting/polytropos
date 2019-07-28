@@ -1,0 +1,46 @@
+{
+  "outer_a": {
+    "name": "zelda",
+    "data_type": "Folder",
+    "sort_order": 3
+  },
+  "outer_b": {
+    "name": "mary",
+    "data_type": "List",
+    "sort_order": 2
+  },
+  "outer_c": {
+    "name": "adam",
+    "data_type": "NamedList",
+    "sort_order": 0
+  },
+  "outer_d": {
+    "name": "bob",
+    "data_type": "Text",
+    "sort_order": 1
+  },
+  "outer_a_1": {
+    "name": "joseph",
+    "parent": "outer_a",
+    "data_type": "List",
+    "sort_order": 1
+  },
+  "outer_a_2": {
+    "name": "clarence",
+    "parent": "outer_a",
+    "data_type": "Integer",
+    "sort_order": 0
+  },
+  "outer_a_1_1": {
+    "name": "dmitri",
+    "parent": "outer_a_1",
+    "data_type": "Binary",
+    "sort_order": 0
+  },
+  "outer_a_1_2": {
+    "name": "elizabeth",
+    "parent": "outer_a_1",
+    "data_type": "Unary",
+    "sort_order": 1
+  }
+}

@@ -6,6 +6,7 @@ from polytropos.ontology.task import Task
 from polytropos.tools.schema import treeview
 from polytropos.tools.schema.catalog import variable_catalog
 from polytropos.tools.schema.linkage import ExportLinkages, ImportLinkages
+from polytropos.tools.schema.repair_sort import repair_sort_order
 
 @click.group()
 def cli():
@@ -64,6 +65,13 @@ def catalog(schema_basepath: str, schema_name: str, output_file: TextIO):
 def schema_treeview(schema_basepath: str, schema_name: str):
     """Output an ASCII tree representation of a schema to stdout."""
     treeview.print_from_files(schema_basepath, schema_name)
+
+@schema.command(name="repair")
+@click.argument('schema_path', type=click.Path(exists=True))
+def schema_repair(schema_path: str):
+    """Replaces the existing sort order in a schema (if any) with an arbitrary, but valid, sort order. No aspect of the
+    old sort order will be preserved; the new order will be alphabetized by variable name."""
+    repair_sort_order(schema_path)
 
 @cli.command()
 @click.argument('schema_basepath', type=click.Path(exists=True))

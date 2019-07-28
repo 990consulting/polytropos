@@ -1,0 +1,12 @@
+{
+  "last": {
+    "name": "ZZZ",
+    "data_type": "Text",
+    "sort_order": 1
+  },
+  "first": {
+    "name": "AAA",
+    "data_type": "Text",
+    "sort_order": 0
+  }
+}
