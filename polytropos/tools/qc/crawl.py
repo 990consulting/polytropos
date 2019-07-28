@@ -1,8 +1,10 @@
+import logging
 from abc import abstractmethod
 from typing import Callable, Dict, Optional, List as ListType, Any
 
 from attr import dataclass
 
+from polytropos.tools.qc import POLYTROPOS_NA
 from polytropos.tools.qc.values import compare_primitives, CompareComplexVariable
 from polytropos.util.nesteddicts import str_to_path, path_to_str
 
@@ -48,7 +50,12 @@ class Crawl(Callable):
         # NOTE: Since we reached this point by crawling the fixture (in __call__), if f_subtree is null, it means the
         # fixture explicitly called it null (rather than simply having omitted it)
         var_path: str = path_to_str(path)
-        if compare_primitives(f_val, a_val):
+        if f_val == POLYTROPOS_NA and a_val == POLYTROPOS_NA:
+            """In the fixture, |--|NA|--| is a special value signalling the absence of a key in the observation. That
+            value was chosen to be totally unique. If it ever occurs in an observation, we need to change the value."""
+            msg: str = "Ostensibly unique sentinel string %s occurred at path %s"
+            raise ValueError(msg % (POLYTROPOS_NA, path_to_str(path)))
+        elif compare_primitives(f_val, a_val):
             match: ValueMatch = ValueMatch(self.entity_id, self.label, var_path, data_type, f_val)
             self.outcome.matches.append(match)
         else:
@@ -95,7 +102,12 @@ class Crawl(Callable):
             raise ValueError("No variable called %s" % path_to_str(path + [key]))
         data_type: str = var.data_type
         f_subtree: Optional[Any] = f_tree[key]
-        if key not in a_tree:
+        # TODO This needs to work differently. Instead of traversing both trees at the same time, we need to traverse
+        #  just the fixture tree, looking for corresponding keys in the actual tree. Ditto for the complex case.
+        if f_subtree == POLYTROPOS_NA and key not in a_tree:
+            match: ValueMatch = ValueMatch(self.entity_id, self.label, path_to_str(path + [key]), data_type, f_subtree)
+            self.outcome.matches.append(match)
+        elif key not in a_tree:
             self._record_all_as_missing(f_subtree, path + [key])
         else:
             a_subtree: Optional[Any] = a_tree[key]  # Null means explicit null

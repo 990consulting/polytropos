@@ -1,0 +1,1 @@
+POLYTROPOS_NA: str = "|--|NA|--|"
