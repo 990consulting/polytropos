@@ -1,16 +1,19 @@
 # Atomic comparators for Polytropos variables. Note that the compare_folders method is all-or-nothing, unlike what
 # occurs inside CompareFixtureToActual. This all-or-nothing method is used only when comparing folders nested inside of
 # Lists and NamedLists.
-from typing import List as ListType, Dict, Optional, Any, Set
+from typing import List as ListType, Dict, Optional, Any
 from collections.abc import Callable
 from polytropos.ontology.schema import Schema
 import polytropos.util.compare
 from polytropos.ontology.variable import Variable
+from polytropos.tools.qc import POLYTROPOS_CONFIRMED_NA, POLYTROPOS_NA
 from polytropos.util.nesteddicts import path_to_str
 
 def compare_primitives(fixture: Optional[Any], actual: Optional[Any]) -> bool:
     """Compares two primitive values. Returns true if and only if they are identical, or both null."""
 
+    if actual in {POLYTROPOS_NA, POLYTROPOS_CONFIRMED_NA}:
+        raise ValueError("Actual value contained ostensibly non-occurring sentinel %s" % actual)
     if fixture is None and actual is None:
         return True
 
@@ -25,10 +28,9 @@ class CompareComplexVariable(Callable):
 
             (1) The actual List exists.
             (2) There is an equal number of elements in the fixture List and the actual List.
-            (3) For the nth element in each list, all of the keys in the fixture element are present in the actual
-                element.
-            (4) For the nth element in each list, each of the values in the fixture element are identical to the value
-                corresponding to the same key from the actual element.
+            (3) For the nth element in each list, each of the values in the fixture element either indicate explicit
+                absence (and explicit absence is confirmed) or are identical to the value corresponding to the same key
+                from the actual element.
 
            Notes:
             - The List is treated as an atomic object, so mismatches are all-or-nothing.
@@ -48,17 +50,14 @@ class CompareComplexVariable(Callable):
 
         # For the nth element of each list...
         for e, a in zip(fixture, actual):  # type: Dict, Dict
-
-            # (3) ...all of the keys in the fixture element are present in the actual element.
-            e_keys: Set = set(e.keys())
-            a_keys: Set = set(a.keys())
-            if len(e_keys.difference(a_keys)) > 0:
-                return False
-
-            # (4) ...each of the values in the fixture element are identical to the value corresponding to the same key
+            # (3) For the nth element in each list, each of the values in the fixture element either indicate explicit
+            # absence (and explicit absence is confirmed) or are identical to the value corresponding to the same key
             # from the actual element.
             for key in e.keys():
-                assert key in a, "Internal error: condition 3 violated even though it was checked"
+                if e[key] == POLYTROPOS_NA and key not in a:
+                    continue
+                if key not in a:
+                    return False
                 if not self(e[key], a[key], path + [key]):
                     return False
 
@@ -72,10 +71,9 @@ class CompareComplexVariable(Callable):
             (1) The actual NamedList exists.
             (2) There is an equal number of elements in the fixture NamedList and the actual NamedList.
             (3) Each key in the fixture NamedList exists in the actual NamedList.
-            (4) For the elements in the fixture and actual NamedLists corresponding to a given key, all of the keys in
-                the fixture element are present in the actual element.
-            (5) For the elements in the fixture and actual NamedLists corresponding to a given key, all of the values in
-                the fixture element are identical to the values corresponding to the same key in the actual element.
+            (4) For the elements in the fixture and actual NamedLists corresponding to a given key, each of the values
+                in the fixture element either indicate explicit absence (and explicit absence is confirmed) or are
+                identical to the value corresponding to the same key from the actual element.
 
            Notes:
             - The NamedList is treated as an atomic object, so mismatches are all-or-nothing.
@@ -104,16 +102,14 @@ class CompareComplexVariable(Callable):
             e: Dict = fixture[f_key]
             a: Dict = actual[f_key]
 
-            # (4) ...all of the keys in the fixture element are present in the actual element.
-            e_keys: Set = set(e.keys())
-            a_keys: Set = set(a.keys())
-            if len(e_keys.difference(a_keys)) > 0:
-                return False
-
-            # (5) ...each of the values in the fixture element are identical to the value corresponding to the same key
-            # from the actual element.
+            # (4) For the elements in the fixture and actual NamedLists corresponding to a given key, each of the values
+            # in the fixture element either indicate explicit absence (and explicit absence is confirmed) or are
+            # identical to the value corresponding to the same key from the actual element.
             for e_key in e.keys():
-                assert e_key in a, "Internal error: condition 3 violated even though it was checked"
+                if e[e_key] == POLYTROPOS_NA and e_key not in a:
+                    continue
+                if e_key not in a:
+                    return False
                 if not self(e[e_key], a[e_key], path + [e_key]):
                     return False
 

@@ -3,12 +3,14 @@ from typing import Callable, Dict, Optional, List as ListType, Any
 
 from attr import dataclass
 
+from polytropos.tools.qc import POLYTROPOS_NA, POLYTROPOS_CONFIRMED_NA
 from polytropos.tools.qc.values import compare_primitives, CompareComplexVariable
-from polytropos.util.nesteddicts import str_to_path, path_to_str
+from polytropos.util import nesteddicts
 
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.variable import Variable
 from polytropos.tools.qc.outcome import Outcome, ValueMatch, ValueMismatch, MissingValue
+import json
 
 @dataclass
 class Crawl(Callable):
@@ -32,48 +34,6 @@ class Crawl(Callable):
     def label(self) -> str:
         pass
 
-    def _crawl_folder(self, f_subtree: Dict, a_subtree: Optional[Any], path: ListType):
-        # If the actual variable is not a folder, the whole subtree is a mismatch
-        if not isinstance(a_subtree, dict):
-            var_path: str = path_to_str(path)
-            mismatch: ValueMismatch = ValueMismatch(self.entity_id, self.label, var_path, "Folder", f_subtree,
-                                                    a_subtree)
-            self.outcome.mismatches.append(mismatch)
-            return
-
-        for key in f_subtree.keys():
-            self._inspect(key, f_subtree, a_subtree, path)
-
-    def _inspect_primitive(self, data_type: str, f_val: Optional[Any], a_val: Optional[Any], path: ListType):
-        # NOTE: Since we reached this point by crawling the fixture (in __call__), if f_subtree is null, it means the
-        # fixture explicitly called it null (rather than simply having omitted it)
-        var_path: str = path_to_str(path)
-        if compare_primitives(f_val, a_val):
-            match: ValueMatch = ValueMatch(self.entity_id, self.label, var_path, data_type, f_val)
-            self.outcome.matches.append(match)
-        else:
-            mismatch: ValueMismatch = ValueMismatch(self.entity_id, self.label, var_path, data_type, f_val, a_val)
-            self.outcome.mismatches.append(mismatch)
-
-    def _traverse(self, data_type: str, f_subtree: Dict, a_subtree: Optional[Dict], path: ListType):
-        if data_type in {"List", "NamedList"}:
-            self._inspect_complex(data_type, f_subtree, a_subtree, path)
-        elif data_type == "Folder":
-            self._crawl_folder(f_subtree, a_subtree, path)
-        else:
-            self._inspect_primitive(data_type, f_subtree, a_subtree, path)
-
-    def _inspect_complex(self, data_type: str, f_subtree: Optional[Any], a_subtree: Optional[Any], path: ListType):
-        var_path: str = path_to_str(path)
-        compare: CompareComplexVariable = CompareComplexVariable(self.schema)
-        if compare(f_subtree, a_subtree, path=path):
-            match: ValueMatch = ValueMatch(self.entity_id, self.label, var_path, data_type, f_subtree)
-            self.outcome.matches.append(match)
-        else:
-            mismatch: ValueMismatch = ValueMismatch(self.entity_id, self.label, var_path, data_type, f_subtree,
-                                                    a_subtree)
-            self.outcome.mismatches.append(mismatch)
-
     def _record_all_as_missing(self, f_subtree: Optional[Any], path: ListType[str]):
         """Recursively find all non-folders in the subtree, recording them as missing variables."""
         if len(path) == 0:
@@ -85,28 +45,97 @@ class Crawl(Callable):
             for key, subfolder in f_subtree.items():
                 self._record_all_as_missing(subfolder, path + [key])
         else:
-            var_path: str = path_to_str(path)
+            var_path: str = nesteddicts.path_to_str(path)
             missing: MissingValue = MissingValue(self.entity_id, self.label, var_path, data_type, f_subtree)
             self.outcome.missings.append(missing)
 
-    def _inspect(self, key: str, f_tree: Dict, a_tree: Dict, path: ListType):
-        var: Variable = self.schema.lookup(path + [key])
-        if var is None:
-            raise ValueError("No variable called %s" % path_to_str(path + [key]))
-        data_type: str = var.data_type
-        f_subtree: Optional[Any] = f_tree[key]
-        if key not in a_tree:
-            self._record_all_as_missing(f_subtree, path + [key])
+    def _record_match(self, path: ListType, data_type: str, value: Optional[Any]):
+        path_str = nesteddicts.path_to_str(path)
+        match: ValueMatch = ValueMatch(self.entity_id, self.label, path_str, data_type, value)
+        self.outcome.matches.append(match)
+
+    def _record_missing(self, path: ListType, data_type: str, value: Optional[Any]):
+        path_str = nesteddicts.path_to_str(path)
+        missing: MissingValue = MissingValue(self.entity_id, self.label, path_str, data_type, value)
+        self.outcome.missings.append(missing)
+
+    def _record_mismatch(self, path: ListType, data_type: str, expected: Optional[Any], actual: Optional[Any]):
+        path_str = nesteddicts.path_to_str(path)
+        mismatch: ValueMismatch = ValueMismatch(self.entity_id, self.label, path_str, data_type, expected, actual)
+        self.outcome.mismatches.append(mismatch)
+
+    # TODO Since a_tree is now invariant, factor out the traverse/inspect logic into a class after tests pass
+    def _handle_explicit_na(self, data_type: str, a_tree: Dict, path: ListType):
+        a_val: Optional[Any] = nesteddicts.get(a_tree, path, default=POLYTROPOS_CONFIRMED_NA)
+        if a_val == POLYTROPOS_NA:
+            raise ValueError("Actual value contained ostensibly non-occurring sentinel value %s" % POLYTROPOS_NA)
+        if a_val == POLYTROPOS_CONFIRMED_NA:
+            self._record_match(path, data_type, POLYTROPOS_NA)
         else:
-            a_subtree: Optional[Any] = a_tree[key]  # Null means explicit null
-            self._traverse(data_type, f_subtree, a_subtree, path + [key])
+            self._record_mismatch(path, data_type, POLYTROPOS_NA, a_val)
+
+    def _handle_explicit_none(self, data_type: str, a_tree: Dict, path: ListType):
+        a_val: Optional[Any] = nesteddicts.get(a_tree, path, default=POLYTROPOS_CONFIRMED_NA)
+        if a_val is None:
+            self._record_match(path, data_type, None)
+        else:
+            self._record_mismatch(path, data_type, None, a_val)
+
+    def _inspect_folder(self, f_tree: Dict, a_tree: Dict, path: ListType):
+        assert f_tree != POLYTROPOS_NA  # Should have been handled at _inspect
+        if f_tree is None:
+            self._handle_explicit_none("Folder", a_tree, path)
+            return
+
+        for key, value in f_tree.items():
+            self._inspect(key, value, a_tree, path)
+
+    def _inspect_primitive(self, data_type: str, f_val: Optional[Any], a_tree: Dict, path: ListType):
+        assert f_val != POLYTROPOS_NA  # Should have been handled at _inspect
+        a_val: Optional[Any] = nesteddicts.get(a_tree, path, default=POLYTROPOS_CONFIRMED_NA)
+        if a_val == POLYTROPOS_CONFIRMED_NA:
+            self._record_missing(path, data_type, f_val)
+        elif compare_primitives(f_val, a_val):
+            self._record_match(path, data_type, f_val)
+        else:
+            self._record_mismatch(path, data_type, f_val, a_val)
+
+    def _inspect_complex(self, data_type: str, f_val: Optional[Any], a_tree: Optional[Any], path: ListType):
+        assert f_val != POLYTROPOS_NA  # Should have been handled at _inspect
+        a_val: Optional[Any] = nesteddicts.get(a_tree, path, default=POLYTROPOS_CONFIRMED_NA)
+        if a_val == POLYTROPOS_CONFIRMED_NA:
+            self._record_missing(path, data_type, json.dumps(f_val, sort_keys=True))
+            return
+
+        compare: CompareComplexVariable = CompareComplexVariable(self.schema)
+        if compare(f_val, a_val, path=path):
+            self._record_match(path, data_type, json.dumps(f_val, sort_keys=True))
+        else:
+            self._record_mismatch(path, data_type, json.dumps(f_val, sort_keys=True), json.dumps(a_val, sort_keys=True))
+
+    def _inspect(self, key: str, f_tree: Optional[Any], a_tree: Dict, path: ListType):
+        child_path: ListType = path + [key]
+        var: Variable = self.schema.lookup(child_path)
+        if var is None:
+            raise ValueError("No variable called %s" % nesteddicts.path_to_str(path + [key]))
+        data_type: str = var.data_type
+
+        if f_tree == POLYTROPOS_NA:
+            self._handle_explicit_na(data_type, a_tree, child_path)
+            return
+
+        if data_type == "Folder":
+            self._inspect_folder(f_tree, a_tree, child_path)
+        elif data_type in {"List", "NamedList"}:
+            self._inspect_complex(data_type, f_tree, a_tree, child_path)
+        else:
+            self._inspect_primitive(data_type, f_tree, a_tree, child_path)
 
     def __call__(self):
         if self.actual is None:
             self._record_all_as_missing(self.fixture, [])
         else:
-            for key in self.fixture.keys():  # type: str
-                self._inspect(key, self.fixture, self.actual, [])
+            self._inspect_folder(self.fixture, self.actual, [])
 
 @dataclass
 class CrawlPeriod(Crawl):
