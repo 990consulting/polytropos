@@ -1,7 +1,6 @@
 from collections import deque
 from dataclasses import field, dataclass
-from typing import Deque, Iterator, NamedTuple, Optional, Any
-
+from typing import Deque, Iterator, NamedTuple, Optional, Any, Set
 
 class ValueMatch(NamedTuple):
     entity_id: str
@@ -45,3 +44,18 @@ class Outcome:
     def missing_case_ids(self) -> Iterator[str]:
         for missing in self.missings:
             yield "/%s/%s%s" % (missing.entity_id, missing.observation, missing.var_path)
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+
+        if set(other.matches) != set(self.matches):
+            return False
+
+        if set(other.mismatches) != set(self.mismatches):
+            return False
+
+        if set(other.missings) != set(self.missings):
+            return False
+
+        return True

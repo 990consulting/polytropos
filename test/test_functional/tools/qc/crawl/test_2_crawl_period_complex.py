@@ -3,8 +3,9 @@ comparisons are found in test/test_functional/qc/values."""
 
 import copy
 from typing import Dict
-
+import json
 import pytest
+
 from polytropos.ontology.schema import Schema
 from polytropos.tools.qc.crawl import CrawlPeriod
 from polytropos.tools.qc.outcome import Outcome, ValueMatch, ValueMismatch, MissingValue
@@ -36,7 +37,7 @@ def test_identical_complex(schema, period, entity_id):
     observed: Dict = copy.deepcopy(fixture)
 
     expected: Outcome = Outcome()
-    expected.matches.append(ValueMatch(entity_id, period, "/outer", "List", fixture["outer"]))
+    expected.matches.append(ValueMatch(entity_id, period, "/outer", "List", json.dumps(fixture["outer"])))
 
     actual: Outcome = Outcome()
 
@@ -84,8 +85,8 @@ def test_mismatch_complex(schema, entity_id, period):
         ]
     }
     expected: Outcome = Outcome()
-    expected.mismatches.append(ValueMismatch(entity_id, period, "/outer", "List", fixture["outer"],
-                                             observed["outer"]))
+    expected.mismatches.append(ValueMismatch(entity_id, period, "/outer", "List", json.dumps(fixture["outer"]),
+                                             json.dumps(observed["outer"])))
 
     actual: Outcome = Outcome()
 
@@ -117,7 +118,8 @@ def test_missing_complex(schema, entity_id, period):
     observed: Dict = {}
 
     expected: Outcome = Outcome()
-    expected.missings.append(MissingValue(entity_id, period, "/outer", "List", fixture["outer"]))
+    expected.missings.append(MissingValue(entity_id, period, "/outer", "List",
+                                          json.dumps(fixture["outer"])))
 
     actual: Outcome = Outcome()
 
