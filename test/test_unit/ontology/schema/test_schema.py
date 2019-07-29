@@ -107,3 +107,14 @@ def test_var_path_conflict_raises():
     i_track = Track.build(i_spec, None, "immutable")
     with pytest.raises(DuplicatePathError):
         Schema(t_track, i_track)
+
+@pytest.mark.parametrize("var_id, expected", [
+    ("the_temporal_var", True),
+    ("the_immutable_var", False)
+])
+def test_is_temporal(var_id, expected, schema):
+    assert schema.is_temporal(var_id) is expected
+
+def test_is_temporal_unknown_raises(schema):
+    with pytest.raises(ValueError):
+        schema.is_temporal("not a real variable")

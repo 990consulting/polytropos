@@ -185,6 +185,10 @@ class Variable:
             self.track[sibling].__dict__['sort_order'] += diff
 
     @property
+    def temporal(self) -> bool:
+        return self.track.schema.is_temporal(self.var_id)
+
+    @property
     def siblings(self) -> Iterator[str]:
         if self.parent == '':
             return map(lambda root: root.var_id, self.track.roots)

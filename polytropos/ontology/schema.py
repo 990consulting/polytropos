@@ -176,6 +176,15 @@ class Schema:
         self._var_id_cache.clear()
         self._var_path_cache.clear()
 
+    @cachedmethod(lambda self: self._var_id_cache, key=partial(hashkey, 'istemporal'))
+    def is_temporal(self, var_id: str) -> bool:
+        assert not (var_id in self.temporal and var_id in self.immutable)
+        if var_id in self.temporal:
+            return True
+        if var_id in self.immutable:
+            return False
+        raise ValueError("No variable called %s" % var_id)
+
     def __iter__(self) -> Iterator["Variable"]:
         for track in [self.temporal, self.immutable]:
             yield from track.values()

@@ -83,6 +83,8 @@ class CompareComplexVariable(Callable):
             - The behavior of compare_folders and compare_named_lists are very different, even though both are comparing
               the same kind of Python object, because Folders and NamedLists have very different meanings in Polytropos.
         """
+        if fixture is False or not isinstance(fixture, dict):
+            print("breakpoint")
         assert fixture is not False and isinstance(fixture, dict)
 
         # (1) The actual NamedList exists.
