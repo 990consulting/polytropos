@@ -55,3 +55,14 @@ def test_put_immutable_overwrites(simple_composite: Composite):
 def test_put_immutable_unknown_var_raises(simple_composite):
     with pytest.raises(ValueError):
         simple_composite.put_immutable("not_a_thing", "xyz")
+
+def test_del_immutable(simple_composite: Composite):
+    expected: Dict = {
+        "first_name": "Steve",
+        "gender": "male",
+        "total_weight_gain": 3.9,
+        "personal_summary": "Steve's favorite color is orange (FFA000). Over the observation period, he gained"
+                            " 3.9 lbs."
+    }
+    simple_composite.del_immutable("color_folder")
+    assert simple_composite.content["immutable"] == expected
