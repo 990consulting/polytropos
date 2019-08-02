@@ -82,6 +82,11 @@ class Composite:
         path: List = [period] + list(var.absolute_path)
         nesteddicts.delete(self.content, path)
 
+    def del_immutable(self, var_id: str) -> None:
+        var = self.as_var(var_id, track_type=TrackType.IMMUTABLE)
+        path: List = ["immutable"] + list(var.absolute_path)
+        nesteddicts.delete(self.content, path)
+
     def encode_list(self, mappings: Dict[str, str], content: List[Dict]) -> Iterator[Dict]:
         """Create a schema-compliant version of a list of dicts based on data structured in some other format.
         :param mappings: A mapping between the internal list item names and the IDs of the list-item variables they
