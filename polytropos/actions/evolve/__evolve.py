@@ -13,7 +13,6 @@ from polytropos.util.exceptions import ExceptionWrapper
 from polytropos.util.loader import load
 from polytropos.actions.evolve import Change
 from polytropos.actions.step import Step
-from polytropos.util.config import MAX_WORKERS
 
 if TYPE_CHECKING:
     from polytropos.ontology.paths import PathLocator
@@ -101,7 +100,7 @@ class Evolve(Step):
     def __call__(self, origin_dir, target_dir):
         targets = os.listdir(origin_dir)
         logging.debug("I have the following targets:\n   - %s" % "\n   - ".join(targets))
-        with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        with ProcessPoolExecutor() as executor:
             results = executor.map(
                 partial(self.process_composite, origin_dir, target_dir),
                 targets

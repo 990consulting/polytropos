@@ -15,7 +15,11 @@ def _get_composite(path: str, entity_id: str, schema: Schema) -> Optional[Compos
     if not os.path.exists(filename):
         return None
     with open(filename) as fh:
-        content: Dict = json.load(fh)
+        try:
+            content: Dict = json.load(fh)
+        except Exception as e:
+            logging.error("Error reading composite %s" % filename)
+            raise e
     return Composite(schema, content, composite_id=entity_id)
 
 class FixtureOutcomes:

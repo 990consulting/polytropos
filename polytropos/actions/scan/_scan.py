@@ -3,15 +3,13 @@ import json
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict, Optional, Any, Iterable, Tuple, TYPE_CHECKING, Type
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from functools import partial
 
 from polytropos.ontology.composite import Composite
 
 from polytropos.actions.step import Step
-from polytropos.ontology.variable import Variable
 from polytropos.util.loader import load
-from polytropos.util.config import MAX_WORKERS
 
 if TYPE_CHECKING:
     from polytropos.ontology.paths import PathLocator
@@ -65,14 +63,14 @@ class Scan(Step):
             json.dump(composite.content, target_file, indent=2)
 
     def __call__(self, origin_dir: str, target_dir: str):
-        with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        with ThreadPoolExecutor() as executor:
             self.analyze(
                 executor.map(
                     partial(self.process_composite, origin_dir),
                     os.listdir(origin_dir)
                 )
             )
-        with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        with ThreadPoolExecutor() as executor:
             executor.map(
                 partial(self.alter_and_write_composite, origin_dir, target_dir),
                 os.listdir(origin_dir)
