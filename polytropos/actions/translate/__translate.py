@@ -3,13 +3,12 @@ from dataclasses import dataclass
 import os
 import json
 from typing import TYPE_CHECKING, Optional
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from functools import partial
 
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.actions.translate import Translator
-from polytropos.util.config import MAX_WORKERS
 from polytropos.util.exceptions import ExceptionWrapper
 
 if TYPE_CHECKING:
@@ -66,7 +65,7 @@ class Translate(Step):
         return None
 
     def __call__(self, origin_dir: str, target_dir: str):
-        with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        with ThreadPoolExecutor() as executor:
             results = executor.map(
                 partial(self.process_composite, origin_dir, target_dir),
                 os.listdir(origin_dir)
