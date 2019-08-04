@@ -166,6 +166,8 @@ class Translator(Callable):
         # Translate all variables with the same parent
         children: Dict = self.target_variables_by_parent[parent]
         for variable_id, variable in children.items():  # type: str, "Variable"
+            if variable_id in {"logical_temporal_000393"}:
+                print("breakpoint")
             try:
                 translate = self.get_translate_function(variable)
                 result: Optional[Any] = translate(variable_id, variable, document, source_parent)
