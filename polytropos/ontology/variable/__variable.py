@@ -326,6 +326,12 @@ class Variable:
     def data_type(self) -> str:
         return self.__class__.__name__
 
+    def ancestors(self, parent_id_to_stop: str) -> Iterator["Variable"]:
+        current = self
+        yield current
+        while current.parent != parent_id_to_stop:
+            current = self.track[current.parent]
+            yield current
 
 @dataclass
 class Container(Variable):

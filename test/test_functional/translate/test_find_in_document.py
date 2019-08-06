@@ -1,5 +1,7 @@
 import pytest
 from typing import Dict
+
+from polytropos.actions.translate.__document import DocumentValueProvider
 from polytropos.ontology.track import Track
 from polytropos.actions.translate.__translator import Translator, SourceNotFoundException
 
@@ -83,41 +85,37 @@ def translate(source_spec: Dict, target_spec: Dict) -> Translator:
 
 
 def test_base(source_doc, translate):
-    actual = translate.find_in_document('source_meaning_of_life', source_doc)
+    actual = DocumentValueProvider(source_doc).variable_value(translate.source['source_meaning_of_life'])
     expected = 42
     assert actual == expected
 
 
 def test_deep(source_doc, translate):
-    actual = translate.find_in_document('source_deeper', source_doc)
+    actual = DocumentValueProvider(source_doc).variable_value(translate.source['source_deeper'])
     expected = 'nothing'
     assert actual == expected
-    actual = translate.find_in_document('source_folder_color', source_doc)
+    actual = DocumentValueProvider(source_doc).variable_value(translate.source['source_folder_color'])
     expected = 'orange'
     assert actual == expected
 
 
 def test_parent(source_doc, translate):
-    actual = translate.find_in_document(
-        'source_folder_color', source_doc['my_folder'], 'source_folder'
-    )
+    actual = DocumentValueProvider(source_doc['my_folder']).variable_value(translate.source['source_folder_color'], 'source_folder')
     expected = 'orange'
     assert actual == expected
 
 
 def test_parent_no_parent(source_doc, translate):
     with pytest.raises(SourceNotFoundException):
-        translate.find_in_document('source_folder_color', source_doc['my_folder'])
+        DocumentValueProvider(source_doc['my_folder']).variable_value(translate.source['source_folder_color'])
 
 
 def test_parent_immediate(source_doc, translate):
-    actual = translate.find_in_document(
-        'source_folder_color', source_doc['my_folder']['the_folder'], 'source_folder_folder'
-    )
+    actual = DocumentValueProvider(source_doc['my_folder']['the_folder']).variable_value(translate.source['source_folder_color'], 'source_folder_folder')
     expected = 'orange'
     assert actual == expected
 
 
 def test_parent_immediate_no_parent(source_doc, translate):
     with pytest.raises(SourceNotFoundException):
-        actual = translate.find_in_document('source_folder_color', source_doc['my_folder']['the_folder'])
+        DocumentValueProvider(source_doc['my_folder']['the_folder']).variable_value(translate.source['source_folder_color'])
