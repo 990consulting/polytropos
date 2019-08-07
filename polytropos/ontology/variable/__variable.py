@@ -3,7 +3,7 @@ import json
 from abc import abstractmethod
 from dataclasses import dataclass, field, fields
 from collections import defaultdict
-from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType, cast
+from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType
 from functools import partial
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -18,57 +18,60 @@ VariableId = NewType("VariableId", str)
 
 class Validator:
     @staticmethod
-    def validate_sources(variable: "Variable", sources: ListType[VariableId], init: bool=False):
-        if variable.track is not None:
-            if not init:
-                _check_folder_has_sources(variable, sources)
-            if sources:
-                for source in sources:
-                    #_verify_source_parent(variable, source)
-                    _verify_source_exists(variable, source)
-                    _verify_source_compatible(variable, source)
+    def validate_sources(variable: "Variable", sources: ListType[VariableId], init: bool = False) -> None:
+        if not init:
+            _check_folder_has_sources(variable, sources)
+        if sources:
+            for source in sources:
+                #_verify_source_parent(variable, source)
+                _verify_source_exists(variable, source)
+                _verify_source_compatible(variable, source)
 
     @staticmethod
-    def validate_parent(variable: "Variable", parent: Optional[VariableId]):
-        if variable.track is not None:
-            if parent is None:
-                return
-            if parent not in variable.track:
-                # invalid parent
-                raise ValueError('Nonexistent parent')
-            if not isinstance(variable.track[parent], Container):
-                # parent not container
-                raise ValueError('Parent is not a container')
-            if (
-                    isinstance(variable, GenericList) and
-                    variable.descends_from_list
-            ):
-                logging.debug('Nested list: %s', variable)
+    def validate_parent(variable: "Variable", parent: Optional[VariableId]) -> None:
+        if parent is None:
+            return
+        if parent == "":
+            raise ValueError("Parent id is an empty string")
+        if parent not in variable.track:
+            # invalid parent
+            raise ValueError('Nonexistent parent')
+        if not isinstance(variable.track[parent], Container):
+            # parent not container
+            raise ValueError('Parent is not a container')
+        if (
+                isinstance(variable, GenericList) and
+                variable.descends_from_list
+        ):
+            logging.debug('Nested list: %s', variable)
 
     @staticmethod
-    def validate_name(variable: "Variable", name: str):
+    def validate_name(variable: "Variable", name: str) -> None:
         if '/' in name or '.' in name:
             raise ValueError
-        if variable.track is not None:
-            sibling_names = set(
-                variable.track[sibling].name
-                for sibling in variable.siblings
-                if sibling != variable.var_id
-            )
-            if name in sibling_names:
-                raise ValueError('Duplicate name with siblings')
+        sibling_names = set(
+            variable.track[sibling].name
+            for sibling in variable.siblings
+            if sibling != variable.var_id
+        )
+        if name in sibling_names:
+            raise ValueError('Duplicate name with siblings')
 
     @staticmethod
-    def validate_sort_order(variable: "Variable", sort_order: int, adding=False):
+    def validate_sort_order(variable: "Variable", sort_order: int, adding: bool = False) -> None:
         if sort_order < 0:
             raise ValueError
-        if variable.track is not None:
-            # This line is very slow. Consider adding a cache for variable.siblings.
-            if sort_order >= len(list(variable.siblings)) + (1 if adding else 0):
-                raise ValueError('Invalid sort order')
+        # This line is very slow. Consider adding a cache for variable.siblings.
+        if sort_order >= len(list(variable.siblings)) + (1 if adding else 0):
+            raise ValueError('Invalid sort order')
+
+    @staticmethod
+    def validate_var_id(var_id: VariableId) -> None:
+        if var_id == "":
+            raise ValueError("Variable id is an empty string")
 
     @classmethod
-    def validate(cls, variable: "Variable", init=False, adding=False):
+    def validate(cls, variable: "Variable", init: bool = False, adding: bool = False) -> None:
         """Run validation on the variable, init=True disables some of the
         validation that shouldn't run during schema initialization. For
         example, we might create a child before a parent.
@@ -76,6 +79,7 @@ class Validator:
         need it because when we are adding a new variable the sort order logic
         is slightly different (because we will end up having one more
         sibling"""
+        cls.validate_var_id(variable.var_id)
         cls.validate_parent(variable, variable.parent)
         cls.validate_name(variable, variable.name)
 
@@ -88,6 +92,13 @@ class Validator:
 
 @dataclass
 class Variable:
+    # The track to which this variable belongs
+    track: "Track"
+
+    # The variable id of the variable in the corresponding track.
+    # WARNING! The variable ID _MUST_ be unique within the schema, or terrible things will happen!
+    var_id: VariableId
+
     # The name of the node, as used in paths. Not to be confused with its ID, which is path-immutable.
     name: str
 
@@ -95,17 +106,17 @@ class Variable:
     sort_order: int
 
     # Metadata: any information about the variable that the operator chooses to include.
-    notes: str = field(default=None)
+    notes: Optional[str] = field(default=None)
 
     # An alphabetically sortable indicator of when this field first came into use.
-    earliest_epoch: str = field(default=None)
+    earliest_epoch: Optional[str] = field(default=None)
 
     # An alphabetically sortable indicator of when this field ceased to be used.
-    latest_epoch: str = field(default=None)
+    latest_epoch: Optional[str] = field(default=None)
 
     # Descriptions of the variable -- used in various situations
-    short_description: str = field(default=None)
-    long_description: str = field(default=None)
+    short_description: Optional[str] = field(default=None)
+    long_description: Optional[str] = field(default=None)
 
     # The variable IDs (not names!) from the preceding stage from which to derive values for this variable, if any.
     sources: ListType[VariableId] = field(default_factory=list)
@@ -113,40 +124,41 @@ class Variable:
     # The container variable above this variable in the hierarchy, if any.
     parent: Optional[VariableId] = field(default=None)
 
-    # The track to which this variable belongs
-    track = None
-
-    # The variable id of the variable in the corresponding track.
-    # WARNING! The variable ID _MUST_ be unique within the schema, or terrible things will happen!
-    var_id = None
-
     _cache: Dict = field(init=False, default_factory=dict)
+
+    initialized = False
+
+    def __post_init__(self) -> None:
+        self.initialized = True
 
     def __hash__(self) -> int:
         return hash(self.var_id) if self.var_id is not None else 0
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         return isinstance(other, self.__class__) and other.var_id == self.var_id
 
-    def set_track(self, track: "Track"):
-        self.track = track
+    def __setattr__(self, attribute: str, value: Any) -> None:
+        if self.initialized:
+            value = self.validate_attribute_value(attribute, value)
 
-    def set_id(self, var_id: VariableId):
-        self.var_id = var_id
+        self.__dict__[attribute] = value
 
-    def __setattr__(self, attribute, value):
-        if attribute == 'name':
+    def validate_attribute_value(self, attribute: str, value: Any) -> Any:
+        if attribute == 'var_id':
+            Validator.validate_var_id(value)
+        elif attribute == 'name':
             Validator.validate_name(self, value)
-        if attribute == 'sources':
+        elif attribute == 'sources':
             Validator.validate_sources(self, value)
             if self.track and isinstance(self, GenericList):
-                child_sources = defaultdict(list)
+                child_sources: Dict[VariableId, ListType[Variable]] = defaultdict(list)
                 for child in self.children:
-                    for source in child.sources:
-                        child_sources[source].append(child)
+                    for source_id in child.sources:
+                        child_sources[source_id].append(child)
                 safe = set()
-                for source in value:
-                    source_var = self.track.source[source]
+                assert self.track.source is not None
+                for source_id in value:
+                    source_var = self.track.source[source_id]
                     for child_source in child_sources:
                         if source_var.check_ancestor(child_source):
                             safe.add(child_source)
@@ -154,25 +166,25 @@ class Variable:
                     if child_source not in safe:
                         for child in children:
                             child.sources.remove(child_source)
-        if attribute == 'parent':
+        elif attribute == 'parent':
             Validator.validate_parent(self, value)
-        if attribute == 'sort_order':
+        elif attribute == 'sort_order':
             Validator.validate_sort_order(self, value)
-        if attribute in {'notes', 'earliest_epoch', 'latest_epoch', 'short_description', 'long_description'}:
+        elif attribute in {'notes', 'earliest_epoch', 'latest_epoch', 'short_description', 'long_description'}:
             if value is not None:
-                self.__dict__[attribute] = value.strip()
-                return
-        if attribute == 'data_type':
+                return value.strip()
+        elif attribute == 'data_type':
             raise AttributeError
-        if self.track and attribute in {'sort_order', 'parent', 'name'}:
-            self.track.invalidate_variables_cache()
-        self.__dict__[attribute] = value
 
-    def invalidate_cache(self):
+        if attribute in {'sort_order', 'parent', 'name'}:
+            self.track.invalidate_variables_cache()
+        return value
+
+    def invalidate_cache(self) -> None:
         logging.debug("Invaliding cache for variable %s." % self.var_id)
         self._cache.clear()
 
-    def update_sort_order(self, old_order=None, new_order=None):
+    def update_sort_order(self, old_order: Optional[int] = None, new_order: Optional[int] = None) -> None:
         if old_order is None:
             old_order = len(list(self.siblings)) + 1
         if new_order is None:
@@ -189,7 +201,7 @@ class Variable:
 
     @property
     def temporal(self) -> bool:
-        return self.track.schema.is_temporal(self.var_id)
+        return self.track.schema is not None and self.track.schema.is_temporal(self.var_id)
 
     @property
     def siblings(self) -> Iterator[VariableId]:
@@ -244,7 +256,7 @@ class Variable:
                 self.children, key=lambda child: child.sort_order
             )
         ]
-        tree = dict(
+        tree: Dict[str, Any] = dict(
             title=self.name,
             varId=self.var_id,
             dataType=self.data_type,
@@ -261,7 +273,7 @@ class Variable:
             'sort_order': self.sort_order
         }
         for var_field in fields(self):
-            if var_field.name == 'name' or var_field.name == 'sort_order':
+            if var_field.name == 'name' or var_field.name == 'sort_order' or var_field.name == 'var_id' or var_field.name == 'track':
                 continue
             if not getattr(self, var_field.name):
                 continue
@@ -272,8 +284,8 @@ class Variable:
         """A JSON-compatible representation of this variable. (For serialization.)"""
         return json.dumps(self.dump(), indent=4)
 
-    def check_ancestor(self, child, stop_at_list: bool = False) -> bool:
-        variable = self.track[child]
+    def check_ancestor(self, child_id: VariableId, stop_at_list: bool = False) -> bool:
+        variable = self.track[child_id]
         if variable.parent is None:
             return False
         if (
@@ -285,7 +297,7 @@ class Variable:
             return True
         return self.check_ancestor(variable.parent)
 
-    def get_first_list_ancestor(self):
+    def get_first_list_ancestor(self) -> Optional["Variable"]:
         parent_id = self.parent
         if parent_id is None:
             return None
@@ -309,7 +321,7 @@ class Variable:
             if self.check_ancestor(variable_id, stop_at_list=True):
                 yield variable_id
 
-    def targets(self) -> Iterator[str]:
+    def targets(self) -> Iterator[VariableId]:
         """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
         stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
         if self.track.target:
@@ -450,10 +462,10 @@ class Date(Primitive):
 @dataclass
 class Folder(Container):
     @property
-    def has_targets(self):
+    def has_targets(self) -> bool:
         return False
 
-    def targets(self):
+    def targets(self) -> Iterator[VariableId]:
         raise AttributeError
 
 
@@ -470,7 +482,7 @@ class List(GenericList):
 class NamedList(GenericList):
     pass
 
-def _incompatible_type(source_var: Variable, variable: Variable):
+def _incompatible_type(source_var: Variable, variable: Variable) -> bool:
     if variable.__class__ == List:
         if source_var.__class__ not in {List, Folder}:
             return True
@@ -478,7 +490,7 @@ def _incompatible_type(source_var: Variable, variable: Variable):
         return True
     return False
 
-def _check_folder_has_sources(variable: "Variable", sources: ListType[VariableId]):
+def _check_folder_has_sources(variable: "Variable", sources: ListType[VariableId]) -> None:
     if sources is not None and isinstance(variable, Folder):
         var_id: VariableId = variable.var_id
         source_str = ", ".join(sources)
@@ -486,11 +498,12 @@ def _check_folder_has_sources(variable: "Variable", sources: ListType[VariableId
                             'sources: %s'
         raise ValueError(msg_template % (var_id, source_str))
 
-def _verify_source_parent(variable: "Variable", source_var_id: VariableId):
+def _verify_source_parent(variable: "Variable", source_var_id: VariableId) -> None:
     list_ancestor: Optional["Variable"] = variable.get_first_list_ancestor()
     if list_ancestor is None:
         return
     parent_sources: Set[VariableId] = set(list_ancestor.sources)
+    assert variable.track.source is not None
     source: "Variable" = variable.track.source[source_var_id]
     while source.parent is not None and source.var_id not in parent_sources:
         source = variable.track.source[source.parent]
@@ -508,7 +521,8 @@ def _verify_source_parent(variable: "Variable", source_var_id: VariableId):
         )
         raise ValueError(msg)
 
-def _verify_source_exists(variable: "Variable", source_var_id: VariableId):
+def _verify_source_exists(variable: "Variable", source_var_id: VariableId) -> None:
+    assert variable.track.source is not None
     if source_var_id not in variable.track.source:
         var_id: VariableId = variable.var_id
         source_track_name: str = variable.track.source.name
@@ -516,7 +530,8 @@ def _verify_source_exists(variable: "Variable", source_var_id: VariableId):
                             'source track "%s"'
         raise ValueError(msg_template % (var_id, source_var_id, source_track_name))
 
-def _verify_source_compatible(variable: "Variable", source_var_id: VariableId):
+def _verify_source_compatible(variable: "Variable", source_var_id: VariableId) -> None:
+    assert variable.track.source is not None
     source_var = variable.track.source[source_var_id]
     if _incompatible_type(source_var, variable):
         var_id: VariableId = variable.var_id

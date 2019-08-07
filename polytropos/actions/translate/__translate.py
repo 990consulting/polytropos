@@ -24,7 +24,7 @@ class Translate(Step):
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, path_locator: "PathLocator", schema: Schema, target_schema: str):
+    def build(cls, path_locator: "PathLocator", schema: Schema, target_schema: str) -> "Translate":
         """
         :param path_locator:
         :param schema: The source schema, already instantiated.
@@ -64,13 +64,13 @@ class Translate(Step):
             return ExceptionWrapper(e)
         return None
 
-    def __call__(self, origin_dir: str, target_dir: str):
+    def __call__(self, origin_dir: str, target_dir: str) -> None:
         with ThreadPoolExecutor() as executor:
             results = executor.map(
                 partial(self.process_composite, origin_dir, target_dir),
                 os.listdir(origin_dir)
             )
             # TODO: Exceptions are supposed to propagate from a ProcessPoolExecutor. Why aren't mine?
-            for result in results:  # type: ExceptionWrapper
+            for result in results:  # type: Optional[ExceptionWrapper]
                 if result is not None:
                     result.re_raise()

@@ -1,18 +1,20 @@
 import logging
 from copy import deepcopy
 import json
-from typing import Iterator, Dict, TYPE_CHECKING, Any, Iterable, Optional
+from typing import Iterator, Dict, TYPE_CHECKING, Any, Iterable, Optional, List as ListType
 from collections.abc import MutableMapping
+
+from dacite import from_dict, Config
+
 from polytropos.ontology.variable import (
-    build_variable,
     Primitive, Container, GenericList, Validator,
     List, NamedList, Variable, VariableId
 )
+import polytropos.ontology.variable
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
 from functools import partial
 import time
-
 
 class Track(MutableMapping):
     """Represents a hierarchy of variables associated with a particular aspect (stage) of a particular entity type, and
@@ -20,21 +22,64 @@ class Track(MutableMapping):
     which are structured identically. The two tracks interact during the Analysis step in the generation of this entity
     type's data."""
 
-    def __init__(self, variables: Dict["VariableId", "Variable"], source: Optional["Track"], name: str):
+    def __init__(self, specs: Dict, source: Optional["Track"], name: str):
         """Do not call directly; use Track.build()."""
-        self._variables: Dict["VariableId", "Variable"] = variables
+        self._variables: Dict["VariableId", "Variable"] = {}
         self.name = name
         self.source = source
         self.target = None
         self.schema = None
-        self._cache = {}
+        self._cache: Dict[str, Any] = {}
         if source:
             source.target = self
+
+        logging.info("Building variables for track '%s'." % name)
+        n: int = 0
+        for variable_id, variable_data in specs.items():
+            if variable_id == '':
+                # Invalid var id
+                raise ValueError
+
+            logging.debug('Building variable "%s".' % variable_id)
+            variable: "Variable" = self.build_variable(variable_data, variable_id)
+            self._variables[VariableId(variable_id)] = variable
+            n += 1
+            if n % 100 == 0:
+                logging.info("Built %i variables." % n)
+        logging.info('Finished building all %i variables for track "%s".' % (n, name))
+
+        # we only validate after the whole thing is built to be able to
+        # accurately compute siblings, parents and children
+        self.invalidate_variables_cache()
+
+        n = 0
+        if name.startswith("nonprofit_origin"):
+            logging.warning("Skipping validation for nonprofit origin. THIS IS DANGEROUS DEBUG LOGIC--REMOVE LATER.")
+        else:
+            logging.info('Performing post-load validation on variables for track "%s".' % name)
+            for variable in self.values():
+                Validator.validate(variable, init=True)
+                n += 1
+                if n % 100 == 0:
+                    logging.info("Validated %i variables." % n)
+            logging.info('All variables valid "%s".' % name)
+
+    def build_variable(self, data: Dict, var_id: VariableId) -> Variable:
+        data_type = data['data_type']
+        try:
+            cls = getattr(polytropos.ontology.variable, data_type)
+            data = data.copy()
+            data["track"] = self
+            data["var_id"] = var_id
+            return from_dict(cls, data, Config(forward_references={"Track": Track, "Optional": Optional, "ListType": ListType, "Dict": Dict}))
+        except Exception as e:
+            print("breakpoint")
+            raise e
 
     ###########################################
     # Mapping methods
 
-    def __getitem__(self, key: "VariableId") -> Variable:
+    def __getitem__(self, key: VariableId) -> Variable:
         return self._variables[key]
 
     def __setitem__(self, key: "VariableId", value: Variable) -> None:
@@ -43,16 +88,16 @@ class Track(MutableMapping):
     def __delitem__(self, key: "VariableId") -> None:
         del self._variables[key]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._variables)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[VariableId]:
         return self._variables.__iter__()
 
     ###########################################
 
     @classmethod
-    def build(cls, specs: Dict, source: Optional["Track"], name: str):
+    def build(cls, specs: Dict, source: Optional["Track"], name: str) -> "Track":
         """Convert specs into a Variable hierarchy, then construct a Track instance.
 
         :param specs: The specifications for the variables in this track.
@@ -61,68 +106,24 @@ class Track(MutableMapping):
          (stage) of the analysis process that precedes this one for the particular entity type represented.
 
         :param name: The name of the stage/aspect."""
-        logging.info("Building variables for track '%s'." % name)
-        built_vars: Dict["VariableId", "Variable"] = {}
-        n: int = 0
-        for variable_id, variable_data in specs.items():
-            if variable_id == '':
-                # Invalid var id
-                raise ValueError
-
-            logging.debug('Building variable "%s".' % variable_id)
-            variable: "Variable" = build_variable(variable_data)
-            built_vars[VariableId(variable_id)] = variable
-            n += 1
-            if n % 100 == 0:
-                logging.info("Built %i variables." % n)
-        logging.info('Finished building all %i variables for track "%s".' % (n, name))
-
-        track: "Track" = cls(built_vars, source, name)
-
-        logging.info("Assigning track callbacks to variables.")
-        n = 0
-        for variable_id, variable in track.items():
-            variable.set_track(track)
-            variable.set_id(variable_id)
-            n += 1
-            if n % 100 == 0:
-                logging.info("Assigned callbacks to %i variables." % n)
-        logging.info("Assigned callbacks to all %i variables." % n)
-
-        # we only validate after the whole thing is built to be able to
-        # accurately compute siblings, parents and children
-        track.invalidate_variables_cache()
-
-        n = 0
-        if name.startswith("nonprofit_origin"):
-            logging.warning("Skipping validation for nonprofit origin. THIS IS DANGEROUS DEBUG LOGIC--REMOVE LATER.")
-        else:
-            logging.info('Performing post-load validation on variables for track "%s".' % name)
-            for variable in track.values():
-                Validator.validate(variable, init=True)
-                n += 1
-                if n % 100 == 0:
-                    logging.info("Validated %i variables." % n)
-            logging.info('All variables valid "%s".' % name)
-
-        return track
+        return cls(specs, source, name)
 
     @property
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'root'))
-    def roots(self) -> Iterator["Variable"]:
+    def roots(self) -> ListType["Variable"]:
         """All the roots of this track's variable tree."""
         return list(filter(
             lambda variable: variable.parent is None,
             self._variables.values()
         ))
 
-    def invalidate_variables_cache(self):
+    def invalidate_variables_cache(self) -> None:
         logging.debug("Invalidating cache for all variables.")
         for variable in self._variables.values():
             variable.invalidate_cache()
         self.invalidate_cache()
 
-    def invalidate_cache(self):
+    def invalidate_cache(self) -> None:
         logging.debug("Invalidating track cache.")
         self._cache.clear()
         if self.schema:
@@ -144,21 +145,21 @@ class Track(MutableMapping):
         if var_id == '':
             # Invalid var id
             raise ValueError
-        variable = build_variable(spec)
-        variable.set_track(self)
-        variable.set_id(var_id)
+        variable = self.build_variable(spec, var_id)
         Validator.validate(variable, init=True, adding=True)
         variable.update_sort_order(None, variable.sort_order)
         self._variables[var_id] = variable
         self.invalidate_variables_cache()
 
-    def duplicate(self, source_var_id: VariableId, new_var_id: Optional[VariableId]=None):
+    def duplicate(self, source_var_id: VariableId, new_var_id: Optional[VariableId]=None) -> None:
         """Creates a duplicate of a node, including its sources, but not including its targets."""
         if new_var_id is None:
             new_var_id = self.new_var_id()
         if new_var_id in self._variables:
             raise ValueError
-        self._variables[new_var_id] = deepcopy(self._variables[source_var_id])
+        new_var = deepcopy(self._variables[source_var_id])
+        new_var.var_id = new_var_id
+        self._variables[new_var_id] = new_var
         self.invalidate_variables_cache()
 
     def delete(self, var_id: VariableId) -> None:
@@ -172,7 +173,7 @@ class Track(MutableMapping):
         del self._variables[var_id]
         self.invalidate_variables_cache()
 
-    def move(self, var_id: VariableId, parent_id: Optional[VariableId], sort_order: int):
+    def move(self, var_id: VariableId, parent_id: Optional[VariableId], sort_order: int) -> None:
         """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
         variable = self._variables[var_id]
         if parent_id and parent_id not in self._variables:
@@ -191,7 +192,7 @@ class Track(MutableMapping):
         self.invalidate_variables_cache()
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
-            -> Iterator[str]:
+            -> Iterator[VariableId]:
         """Provides a list of variable IDs in this track that meet certain criteria.
         :param data_type: The type of descendant to be found.
         :param targets: If -1, include only variables that lack targets; if 1, only variables without targets.
