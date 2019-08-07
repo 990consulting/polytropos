@@ -131,7 +131,7 @@ def immutable_track() -> Track:
         },
         "i_int_in_named_list": {
             "name": "some_int",
-            "data_type": "Text",
+            "data_type": "Integer",
             "parent": "i_named_list_in_root",
             "sort_order": 1
         },
