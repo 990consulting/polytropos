@@ -1,6 +1,6 @@
-from typing import Any, Iterator, Dict
+from typing import Any, Iterator, Dict, Optional
 
-from polytropos.ontology.variable import Variable
+from polytropos.ontology.variable import Variable, VariableId
 
 
 class SourceNotFoundException(RuntimeError):
@@ -11,7 +11,7 @@ class DocumentValueProvider:
     def __init__(self, document: Dict):
         self.document = document
 
-    def variable_value(self, variable: Variable, parent_id_to_stop: str = "") -> Any:
+    def variable_value(self, variable: Variable, parent_id_to_stop: Optional[VariableId] = None) -> Any:
         """Function that finds a variable (given its id) in a document. The
         parent_id_to_stop parameter is used to limit the depth for the recursive search"""
         # TODO What type is parent supposed to be here? Play around to find out.

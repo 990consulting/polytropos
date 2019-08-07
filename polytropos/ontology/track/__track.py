@@ -6,15 +6,13 @@ from collections.abc import MutableMapping
 from polytropos.ontology.variable import (
     build_variable,
     Primitive, Container, GenericList, Validator,
-    List, NamedList, Variable
+    List, NamedList, Variable, VariableId
 )
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
 from functools import partial
 import time
 
-if TYPE_CHECKING:
-    from polytropos.ontology.variable import Variable
 
 class Track(MutableMapping):
     """Represents a hierarchy of variables associated with a particular aspect (stage) of a particular entity type, and
@@ -22,9 +20,9 @@ class Track(MutableMapping):
     which are structured identically. The two tracks interact during the Analysis step in the generation of this entity
     type's data."""
 
-    def __init__(self, variables: Dict[str, "Variable"], source: Optional["Track"], name: str):
+    def __init__(self, variables: Dict["VariableId", "Variable"], source: Optional["Track"], name: str):
         """Do not call directly; use Track.build()."""
-        self._variables: Dict[str, "Variable"] = variables
+        self._variables: Dict["VariableId", "Variable"] = variables
         self.name = name
         self.source = source
         self.target = None
@@ -36,13 +34,13 @@ class Track(MutableMapping):
     ###########################################
     # Mapping methods
 
-    def __getitem__(self, key: str) -> Variable:
+    def __getitem__(self, key: "VariableId") -> Variable:
         return self._variables[key]
 
-    def __setitem__(self, key: str, value: Variable) -> None:
+    def __setitem__(self, key: "VariableId", value: Variable) -> None:
         self._variables[key] = value
 
-    def __delitem__(self, key: str) -> None:
+    def __delitem__(self, key: "VariableId") -> None:
         del self._variables[key]
 
     def __len__(self):
@@ -64,12 +62,16 @@ class Track(MutableMapping):
 
         :param name: The name of the stage/aspect."""
         logging.info("Building variables for track '%s'." % name)
-        built_vars: Dict[str, "Variable"] = {}
+        built_vars: Dict["VariableId", "Variable"] = {}
         n: int = 0
         for variable_id, variable_data in specs.items():
+            if variable_id == '':
+                # Invalid var id
+                raise ValueError
+
             logging.debug('Building variable "%s".' % variable_id)
             variable: "Variable" = build_variable(variable_data)
-            built_vars[variable_id] = variable
+            built_vars[VariableId(variable_id)] = variable
             n += 1
             if n % 100 == 0:
                 logging.info("Built %i variables." % n)
@@ -110,7 +112,7 @@ class Track(MutableMapping):
     def roots(self) -> Iterator["Variable"]:
         """All the roots of this track's variable tree."""
         return list(filter(
-            lambda variable: variable.parent == '',
+            lambda variable: variable.parent is None,
             self._variables.values()
         ))
 
@@ -126,13 +128,13 @@ class Track(MutableMapping):
         if self.schema:
             self.schema.invalidate_cache()
 
-    def new_var_id(self):
+    def new_var_id(self) -> VariableId:
         """If no ID is supplied, use <stage name>_<temporal|invarant>_<n+1>,
         where n is the number of variables."""
         # Missing the temporal/immutable part for now
-        return '{}_{}'.format(self.name, len(self._variables) + 1)
+        return VariableId('{}_{}'.format(self.name, len(self._variables) + 1))
 
-    def add(self, spec: Dict, var_id: str=None) -> None:
+    def add(self, spec: Dict, var_id: Optional[VariableId]=None) -> None:
         """Validate, create, and then insert a new variable into the track."""
         if var_id is None:
             var_id = self.new_var_id()
@@ -150,7 +152,7 @@ class Track(MutableMapping):
         self._variables[var_id] = variable
         self.invalidate_variables_cache()
 
-    def duplicate(self, source_var_id: str, new_var_id: str=None):
+    def duplicate(self, source_var_id: VariableId, new_var_id: Optional[VariableId]=None):
         """Creates a duplicate of a node, including its sources, but not including its targets."""
         if new_var_id is None:
             new_var_id = self.new_var_id()
@@ -159,7 +161,7 @@ class Track(MutableMapping):
         self._variables[new_var_id] = deepcopy(self._variables[source_var_id])
         self.invalidate_variables_cache()
 
-    def delete(self, var_id: str) -> None:
+    def delete(self, var_id: VariableId) -> None:
         """Attempts to delete a node. Fails if the node has children or targets"""
         if var_id not in self._variables:
             raise ValueError
@@ -170,10 +172,9 @@ class Track(MutableMapping):
         del self._variables[var_id]
         self.invalidate_variables_cache()
 
-    def move(self, var_id: str, parent_id: Optional[str], sort_order: int):
+    def move(self, var_id: VariableId, parent_id: Optional[VariableId], sort_order: int):
         """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
         variable = self._variables[var_id]
-        parent_id = parent_id or ''
         if parent_id and parent_id not in self._variables:
             raise ValueError
         if parent_id and variable.check_ancestor(parent_id):

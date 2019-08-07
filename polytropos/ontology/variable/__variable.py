@@ -3,7 +3,7 @@ import json
 from abc import abstractmethod
 from dataclasses import dataclass, field, fields
 from collections import defaultdict
-from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any
+from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType, cast
 from functools import partial
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -13,9 +13,12 @@ from datetime import datetime
 if TYPE_CHECKING:
     from polytropos.ontology.track import Track
 
+VariableId = NewType("VariableId", str)
+
+
 class Validator:
     @staticmethod
-    def validate_sources(variable: "Variable", sources: ListType[str], init: bool=False):
+    def validate_sources(variable: "Variable", sources: ListType[VariableId], init: bool=False):
         if variable.track is not None:
             if not init:
                 _check_folder_has_sources(variable, sources)
@@ -26,9 +29,9 @@ class Validator:
                     _verify_source_compatible(variable, source)
 
     @staticmethod
-    def validate_parent(variable, parent):
+    def validate_parent(variable: "Variable", parent: Optional[VariableId]):
         if variable.track is not None:
-            if parent == '':
+            if parent is None:
                 return
             if parent not in variable.track:
                 # invalid parent
@@ -43,7 +46,7 @@ class Validator:
                 logging.debug('Nested list: %s', variable)
 
     @staticmethod
-    def validate_name(variable, name):
+    def validate_name(variable: "Variable", name: str):
         if '/' in name or '.' in name:
             raise ValueError
         if variable.track is not None:
@@ -56,7 +59,7 @@ class Validator:
                 raise ValueError('Duplicate name with siblings')
 
     @staticmethod
-    def validate_sort_order(variable, sort_order, adding=False):
+    def validate_sort_order(variable: "Variable", sort_order: int, adding=False):
         if sort_order < 0:
             raise ValueError
         if variable.track is not None:
@@ -65,7 +68,7 @@ class Validator:
                 raise ValueError('Invalid sort order')
 
     @classmethod
-    def validate(cls, variable, init=False, adding=False):
+    def validate(cls, variable: "Variable", init=False, adding=False):
         """Run validation on the variable, init=True disables some of the
         validation that shouldn't run during schema initialization. For
         example, we might create a child before a parent.
@@ -105,10 +108,10 @@ class Variable:
     long_description: str = field(default=None)
 
     # The variable IDs (not names!) from the preceding stage from which to derive values for this variable, if any.
-    sources: ListType[str] = field(default_factory=list)
+    sources: ListType[VariableId] = field(default_factory=list)
 
     # The container variable above this variable in the hierarchy, if any.
-    parent: str = field(default='')
+    parent: Optional[VariableId] = field(default=None)
 
     # The track to which this variable belongs
     track = None
@@ -119,8 +122,8 @@ class Variable:
 
     _cache: Dict = field(init=False, default_factory=dict)
 
-    def __hash__(self) -> str:
-        return self.var_id
+    def __hash__(self) -> int:
+        return hash(self.var_id) if self.var_id is not None else 0
 
     def __eq__(self, other) -> bool:
         return isinstance(other, self.__class__) and other.var_id == self.var_id
@@ -128,7 +131,7 @@ class Variable:
     def set_track(self, track: "Track"):
         self.track = track
 
-    def set_id(self, var_id: str):
+    def set_id(self, var_id: VariableId):
         self.var_id = var_id
 
     def __setattr__(self, attribute, value):
@@ -189,8 +192,8 @@ class Variable:
         return self.track.schema.is_temporal(self.var_id)
 
     @property
-    def siblings(self) -> Iterator[str]:
-        if self.parent == '':
+    def siblings(self) -> Iterator[VariableId]:
+        if self.parent is None:
             return map(lambda root: root.var_id, self.track.roots)
         return map(
             lambda child: child.var_id,
@@ -271,7 +274,7 @@ class Variable:
 
     def check_ancestor(self, child, stop_at_list: bool = False) -> bool:
         variable = self.track[child]
-        if variable.parent == '':
+        if variable.parent is None:
             return False
         if (
                 stop_at_list and
@@ -284,7 +287,7 @@ class Variable:
 
     def get_first_list_ancestor(self):
         parent_id = self.parent
-        if parent_id == '':
+        if parent_id is None:
             return None
         parent = self.track[parent_id]
         if isinstance(parent, GenericList):
@@ -326,10 +329,14 @@ class Variable:
     def data_type(self) -> str:
         return self.__class__.__name__
 
-    def ancestors(self, parent_id_to_stop: str) -> Iterator["Variable"]:
+    def ancestors(self, parent_id_to_stop: Optional[VariableId]) -> Iterator["Variable"]:
+        """Returns an iterator of ancestors (self, self.parent, self.parent.parent, etc).
+        The first item - the current variable.
+        If the parent_id_to_stop parameter is None all ancestors are returned.
+        Otherwise the last item is the ancestor with parent identifier equal to parent_id_to_stop."""
         current = self
         yield current
-        while current.parent != parent_id_to_stop:
+        while current.parent is not None and current.parent != parent_id_to_stop:
             current = self.track[current.parent]
             yield current
 
@@ -471,21 +478,21 @@ def _incompatible_type(source_var: Variable, variable: Variable):
         return True
     return False
 
-def _check_folder_has_sources(variable: "Variable", sources: ListType[str]):
+def _check_folder_has_sources(variable: "Variable", sources: ListType[VariableId]):
     if sources is not None and isinstance(variable, Folder):
-        var_id: str = variable.var_id
+        var_id: VariableId = variable.var_id
         source_str = ", ".join(sources)
         msg_template: str = 'Folders can\'t have sources, but variable "%s" is a Folder and lists the following ' \
                             'sources: %s'
         raise ValueError(msg_template % (var_id, source_str))
 
-def _verify_source_parent(variable: "Variable", source_var_id: str):
+def _verify_source_parent(variable: "Variable", source_var_id: VariableId):
     list_ancestor: Optional["Variable"] = variable.get_first_list_ancestor()
     if list_ancestor is None:
         return
-    parent_sources: Set[str] = set(list_ancestor.sources)
+    parent_sources: Set[VariableId] = set(list_ancestor.sources)
     source: "Variable" = variable.track.source[source_var_id]
-    while source.parent != '' and source.var_id not in parent_sources:
+    while source.parent is not None and source.var_id not in parent_sources:
         source = variable.track.source[source.parent]
     if source.var_id not in parent_sources:
         template: str = 'Variable %s (%s), which descends from %s %s (%s), includes %s (%s) as a source, but that ' \
@@ -501,18 +508,18 @@ def _verify_source_parent(variable: "Variable", source_var_id: str):
         )
         raise ValueError(msg)
 
-def _verify_source_exists(variable: "Variable", source_var_id: str):
+def _verify_source_exists(variable: "Variable", source_var_id: VariableId):
     if source_var_id not in variable.track.source:
-        var_id: str = variable.var_id
+        var_id: VariableId = variable.var_id
         source_track_name: str = variable.track.source.name
         msg_template: str = 'Variable "%s" is attempting to add source variable "%s", which does not exist in the ' \
                             'source track "%s"'
         raise ValueError(msg_template % (var_id, source_var_id, source_track_name))
 
-def _verify_source_compatible(variable: "Variable", source_var_id: str):
+def _verify_source_compatible(variable: "Variable", source_var_id: VariableId):
     source_var = variable.track.source[source_var_id]
     if _incompatible_type(source_var, variable):
-        var_id: str = variable.var_id
+        var_id: VariableId = variable.var_id
         var_type: str = variable.__class__.__name__
         source_var_type: str = source_var.__class__.__name__
         msg_template: str = 'Variable "%s" (%s) is attempting to add incompatible source variable %s (%s)'
