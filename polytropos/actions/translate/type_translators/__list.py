@@ -1,19 +1,21 @@
-from typing import List, Any
+from typing import List as ListType, Any, Dict
 
 from polytropos.actions.translate.type_translators.__base import BaseTypeTranslator
-from polytropos.ontology.variable import VariableId
+from polytropos.actions.translate.type_translators.__decorator import type_translator
+from polytropos.ontology.variable import VariableId, List
 
 
-class ListTranslator(BaseTypeTranslator[List[Any]]):
+@type_translator(List)
+class ListTranslator(BaseTypeTranslator[ListType[Dict[str, Any]]]):
     """Translate for lists"""
 
-    def initial_result(self) -> List[Any]:
+    def initial_result(self) -> ListType[Dict[str, Any]]:
         return []
 
     def initialize(self) -> None:
         self.has_result = True
 
-    def process_source_value(self, source_value: List[Any], source_id: VariableId) -> None:
+    def process_source_value(self, source_value: ListType[Dict[str, Any]], source_id: VariableId) -> None:
         # The resulting list is the concatenation of all the translations,
         # source by source
 
@@ -22,9 +24,9 @@ class ListTranslator(BaseTypeTranslator[List[Any]]):
         # sometimes lists with one element are represented as folders
         if isinstance(source_value, dict):
             source_value = [source_value]
-        for item in source_value:
+        for item in source_value:  # type: Dict[str, Any]
             # translate the values in the list one by one and add them to
             # the result
             # noinspection PyTypeChecker
-            matches = self.translator(item, self.variable.var_id, source_id)
-            self.result.append(matches)
+            translated: Dict[str, Any] = self.translator(item, self.variable.var_id, source_id)
+            self.result.append(translated)

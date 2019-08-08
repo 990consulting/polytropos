@@ -1,19 +1,15 @@
 import logging
 from collections import defaultdict
 from collections.abc import Callable
-from typing import Dict, Optional, Any, Type
+from typing import Dict, Optional, Any, Type, List
 
 from polytropos.actions.translate.__document import SourceNotFoundException, DocumentValueProvider
+from polytropos.actions.translate.__type_translator_register import get_type_translator_class
 from polytropos.ontology.track import Track
 from polytropos.ontology.variable import Variable, VariableId
 
 
-#if TYPE_CHECKING:
-#    from polytropos.ontology.variable import Variable
-
 class Translator(Callable):
-    registered_type_translators: Dict[Optional[Type], Type] = {}
-
     """Class in charge of translating documents given a source track and a
     target track"""
     def __init__(self, target: Track, failsafe: bool=False):
@@ -28,30 +24,28 @@ class Translator(Callable):
         # a recursion in the translate function
         # NB: `defaultdict(list)` means "Create a dictionary that automatically supplies missing values"--very nice
         logging.debug("Grouping variables by parents.")
-        self.target_variables_by_parent: Dict = defaultdict(list)
-        for variable_id, variable in target.items():  # type: str, "Variable"
+        self.target_variables_by_parent: Dict[Optional[VariableId], List[Variable]] = defaultdict(list)
+        for variable in target.values():  # type: Variable
             self.target_variables_by_parent[variable.parent].append(variable)
 
         # when failsafe is true exceptions are caught and ignored
         self.failsafe = failsafe
 
-    def create_type_translator(self, document: DocumentValueProvider, variable: "Variable", parent_id: Optional[VariableId]) -> Callable:
-        for variable_type, translator_type in Translator.registered_type_translators.items():
-            if variable_type is not None and isinstance(variable, variable_type):
-                return translator_type(self, document, variable, parent_id)
+    def create_type_translator(self, document: DocumentValueProvider, variable: Variable, parent_id: Optional[VariableId]) -> Callable:
+        type_translator_class: Type = get_type_translator_class(variable.__class__)
+        return type_translator_class(self, document, variable, parent_id)
 
-        return Translator.registered_type_translators[None](self, document, variable, parent_id)
-
-    # TODO Figure out what classes parent and source_parent are ever allowed to be.
-    def __call__(self, document: Dict, parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> Dict:
+    def __call__(self, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> Dict[str, Any]:
         assert document is not None, "Unexpected situation occurred -- study"
+        assert not (parent_id is None and source_parent_id is not None)
 
-        output_document = {}
+        document_value_provider: DocumentValueProvider = DocumentValueProvider(document)
+        output_document: Dict[str, Any] = {}
         # Translate all variables with the same parent
-        children = self.target_variables_by_parent[parent_id]
-        for variable in children:  # type: "Variable"
+        children: List[Variable] = self.target_variables_by_parent[parent_id]
+        for variable in children:  # type: Variable
             try:
-                type_translator = self.create_type_translator(DocumentValueProvider(document), variable, source_parent_id)
+                type_translator: Callable = self.create_type_translator(document_value_provider, variable, source_parent_id)
                 result: Any = type_translator()
                 output_document[variable.name] = result
             except SourceNotFoundException:
@@ -63,7 +57,3 @@ class Translator(Callable):
                 else:
                     raise e
         return output_document
-
-    @classmethod
-    def register_type_translator(cls, variable_type: Optional[Type], translator_type: Type) -> None:
-        cls.registered_type_translators[variable_type] = translator_type

@@ -1,8 +1,11 @@
 from typing import Any
 
 from polytropos.actions.translate.type_translators.__base import BaseTypeTranslator
+from polytropos.actions.translate.type_translators.__decorator import type_translator
+from polytropos.ontology.variable import Variable
 
 
+@type_translator(Variable)
 class GenericTypeTranslator(BaseTypeTranslator[Any]):
     """Translate for primitive (non-container) variables"""
 

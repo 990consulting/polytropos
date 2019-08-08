@@ -2,8 +2,11 @@ from typing import Dict, Any
 
 from polytropos.actions.translate.__document import SourceNotFoundException
 from polytropos.actions.translate.type_translators.__base import BaseTypeTranslator
+from polytropos.actions.translate.type_translators.__decorator import type_translator
+from polytropos.ontology.variable import Folder
 
 
+@type_translator(Folder)
 class FolderTranslator(BaseTypeTranslator[Dict[str, Any]]):
     """Translate for folders"""
 
@@ -12,9 +15,9 @@ class FolderTranslator(BaseTypeTranslator[Dict[str, Any]]):
 
     def __call__(self) -> Dict[str, Any]:
         # Just translate all variables in the folder
-        candidate = self.translator(self.document.document, self.variable.var_id, self.parent_id)
+        translated: Dict[str, Any] = self.translator(self.document.document, self.variable.var_id, self.parent_id)
 
         # If the resulting dictionary is empty, none of the children were found, so don't include the folder at all.
-        if len(candidate) == 0:
+        if len(translated) == 0:
             raise SourceNotFoundException
-        return candidate
+        return translated

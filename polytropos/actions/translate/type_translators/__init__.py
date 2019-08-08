@@ -1,11 +1,4 @@
-from polytropos.actions.translate import Translator
 from polytropos.actions.translate.type_translators.__named_list import NamedListTranslator
 from polytropos.actions.translate.type_translators.__list import ListTranslator
 from polytropos.actions.translate.type_translators.__folder import FolderTranslator
 from polytropos.actions.translate.type_translators.__generic import GenericTypeTranslator
-import polytropos.ontology.variable
-
-Translator.register_type_translator(polytropos.ontology.variable.NamedList, NamedListTranslator)
-Translator.register_type_translator(polytropos.ontology.variable.List, ListTranslator)
-Translator.register_type_translator(polytropos.ontology.variable.Folder, FolderTranslator)
-Translator.register_type_translator(None, GenericTypeTranslator)
