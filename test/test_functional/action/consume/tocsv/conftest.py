@@ -108,7 +108,7 @@ def immutable_track() -> Track:
         },
         "i_named_list_in_inner_nested_list": {
             "name": "a_named_list",
-            "data_type": "List",
+            "data_type": "NamedList",
             "parent": "i_inner_nested_list",
             "sort_order": 1
         },
@@ -170,6 +170,18 @@ def immutable_track() -> Track:
             "parent": "i_list_in_inner_nested_named_list",
             "sort_order": 0
         },
+        "i_named_list_in_list_in_inner_nested_named_list": {
+            "name": "yet_another_named_list",
+            "data_type": "NamedList",
+            "parent": "i_list_in_inner_nested_named_list",
+            "sort_order": 1
+        },
+        "i_text_in_named_list_in_list_in_inner_nested_named_list": {
+            "name": "some_text",
+            "data_type": "Text",
+            "parent": "i_named_list_in_list_in_inner_nested_named_list",
+            "sort_order": 0
+        }
     }
     return Track.build(specs, None, "immutable")
 

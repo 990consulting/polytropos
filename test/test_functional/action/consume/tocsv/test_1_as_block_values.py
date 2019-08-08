@@ -42,7 +42,11 @@ def common_values() -> Dict:
                         "i_text_in_inner_nested_list": "foo"
                     },
                     {
-                        "i_text_in_inner_nested_list": "bar"
+                        "i_text_in_inner_nested_list": "bar",
+                        "i_named_list_in_inner_nested_list": {
+                            "black": {"i_text_in_named_list_in_inner_nested_list": "white"},
+                            "green": {"i_text_in_named_list_in_inner_nested_list": "red"}
+                        }
                     }
                 ]
             }
@@ -77,7 +81,21 @@ def common_values() -> Dict:
                         "i_text_in_inner_nested_named_list": "foo"
                     },
                     "yellow": {
-                        "i_text_in_inner_nested_named_list": "bar"
+                        "i_text_in_inner_nested_named_list": "bar",
+                        "i_list_in_inner_nested_named_list": [
+                            {"i_text_in_list_in_inner_nested_named_list": "black"},
+                            {
+                                "i_text_in_list_in_inner_nested_named_list": "white",
+                                "i_named_list_in_list_in_inner_nested_named_list": {
+                                    "this is extreme": {
+                                        "i_text_in_named_list_in_list_in_inner_nested_named_list": "but it works"
+                                    },
+                                    "another one": {
+                                        "i_text_in_named_list_in_list_in_inner_nested_named_list": "also ok"
+                                    }
+                                }
+                            },
+                        ]
                     }
                 }
             }
@@ -126,7 +144,7 @@ def test_named_list(as_block_value, common_values):
     actual: List = list(as_block_value(block, common_values))
     assert actual == expected
 
-def test_named_list_with_no_columns(as_block_value):
+def test_named_list_with_no_columns(as_block_value, common_values):
     block: Tuple = (("i_named_list_in_root",),)
     expected: List = [["peter"], ["paul"], ["mary"]]
     actual: List = list(as_block_value(block, common_values))
@@ -167,20 +185,15 @@ def test_nested_named_list(as_block_value, common_values):
     ),)
     expected: List = [
         ["peter", None, None, "a"],
-        ["paul", None, None, "b"],
+        ["paul", "red", None, "b"],
         ["mary", "orange", "foo", "c"],
         ["mary", "yellow", "bar", "c"]
     ]
     actual: List = list(as_block_value(block, common_values))
     assert actual == expected
 
-"""
-def test_named_list_in_nested_list(as_block_value):
-    pytest.fail()
-"""
-
 def test_empty_nested_named_list(as_block_value):
-    value_set: ValueSet = ValueSet({}, {}, {})
+    values: Dict = {}
     block: Tuple = (
         (
             "i_outer_nested_named_list",
@@ -192,10 +205,85 @@ def test_empty_nested_named_list(as_block_value):
         ),
     )
     expected: List = [[None, None, None, None]]
-    actual: List = list(as_block_value(block, value_set))
+    actual: List = list(as_block_value(block, values))
     assert actual == expected
 
-"""
-def test_list_in_nested_named_list(as_block_value):
-    pytest.fail()
-"""
+def test_list_in_nested_named_list(as_block_value, common_values):
+    block: Tuple = (
+        (
+            "i_outer_nested_named_list",
+            (
+                "i_inner_nested_named_list",
+                "i_text_in_inner_nested_named_list",
+                (
+                    "i_list_in_inner_nested_named_list",
+                    "i_text_in_list_in_inner_nested_named_list"
+                )
+            ),
+            "i_text_in_outer_nested_named_list"
+        ),
+    )
+    expected: List = [
+        ["peter", None, None, None, "a"],
+        ["paul", "red", None, None, "b"],
+        ["mary", "orange", "foo", None, "c"],
+        ["mary", "yellow", "bar", "black", "c"],
+        ["mary", "yellow", "bar", "white", "c"],
+    ]
+    actual: List = list(as_block_value(block, common_values))
+    assert expected == actual
+
+def test_named_list_in_nested_list(as_block_value, common_values):
+    block: Tuple = (
+        (
+            "i_outer_nested_list",
+            (
+                "i_inner_nested_list",
+                "i_text_in_inner_nested_list",
+                (
+                    "i_named_list_in_inner_nested_list",
+                    "i_text_in_named_list_in_inner_nested_list"
+                )
+            ),
+            "i_text_in_outer_nested_list"
+        ),
+    )
+    expected: List = [
+        [None, None, None, "a"],
+        [None, None, None, "b"],
+        ["foo", None, None, "c"],
+        ["bar", "black", "white", "c"],
+        ["bar", "green", "red", "c"],
+    ]
+    actual: List = list(as_block_value(block, common_values))
+    assert expected == actual
+
+def test_quadruple_nesting(common_values, as_block_value):
+    block: Tuple = (
+        (
+            "i_outer_nested_named_list",
+            (
+                "i_inner_nested_named_list",
+                "i_text_in_inner_nested_named_list",
+                (
+                    "i_list_in_inner_nested_named_list",
+                    "i_text_in_list_in_inner_nested_named_list",
+                    (
+                        "i_named_list_in_list_in_inner_nested_named_list",
+                        "i_text_in_named_list_in_list_in_inner_nested_named_list"
+                    )
+                )
+            ),
+            "i_text_in_outer_nested_named_list"
+        ),
+    )
+    expected: List = [
+        ["peter", None, None, None, None, None, "a"],
+        ["paul", "red", None, None, None, None, "b"],
+        ["mary", "orange", "foo", None, None, None, "c"],
+        ["mary", "yellow", "bar", "black", None, None, "c"],
+        ["mary", "yellow", "bar", "white", "this is extreme", "but it works", "c"],
+        ["mary", "yellow", "bar", "white", "another one", "also ok", "c"],
+    ]
+    actual: List = list(as_block_value(block, common_values))
+    assert expected == actual
