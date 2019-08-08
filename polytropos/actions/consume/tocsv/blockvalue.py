@@ -31,30 +31,30 @@ def _cartesian(block_values: List) -> Iterator[List[Optional[Any]]]:
 class AsBlockValue(Callable):
     schema: Schema
 
-    def find_columns_num(self, block: Tuple) -> int:
-        num = 0
-        for elem in block:
-            if isinstance(elem, Tuple):
-                num += self.find_columns_num(elem)
+    def find_num_columns(self, block: Tuple) -> int:
+        num_columns: int = 0
+        for subblock in block:
+            if isinstance(subblock, Tuple):
+                num_columns += self.find_num_columns(subblock)
             else:
-                var: Variable = self.schema.get(elem)
+                var: Variable = self.schema.get(subblock)
                 if isinstance(var, (Primitive, NamedList)):
-                    num += 1
-        return num
+                    num_columns += 1
+        return num_columns
 
     def _unpack_as_list(self, block: Tuple, values: List) -> Iterator[List[Optional[Any]]]:
         if values is None:
-            yield [None] * len(block)
-        for i, element in enumerate(values):
-            yield list(self(block, element))
+            yield [[None] * self.find_num_columns(block)]
+        else:
+            for element in values:
+                yield from self(block, element)
 
     def _unpack_as_named_list(self, block: Tuple, values: Dict) -> Iterator[List[Optional[Any]]]:
         if values is None:
-            yield [[None] * (self.find_columns_num(block) + 1)]
+            yield [[None] * (self.find_num_columns(block) + 1)]
             return
-        for i, (key, element) in enumerate(values.items()):
-            ret = list(_cartesian([[key]] + [list(self(block, element))]))
-            yield from ret
+        for key, element in values.items():
+            yield from _cartesian([[key]] + [list(self(block, element))])
 
     def __call__(self, block: Tuple, values: Dict) -> Iterator[List[Optional[Any]]]:
         """Takes a block of variable IDs representing a primitive, a list, or a named list (including nested lists and
@@ -62,9 +62,6 @@ class AsBlockValue(Callable):
         block_values: List = [None] * len(block)
         for i, subblock in enumerate(block):
             if isinstance(subblock, str):
-                if not isinstance(values, dict):
-                    print("breakpoint")
-                assert isinstance(values, dict)
                 block_values[i] = _unpack_as_singleton(subblock, values)
             elif isinstance(subblock, tuple):
                 root_id: str = subblock[0]
@@ -72,13 +69,7 @@ class AsBlockValue(Callable):
                 dt: str = root_var.data_type
                 if dt == "List":
                     nested_values: Optional[List] = values.get(root_id)
-                    if nested_values is None:
-                        block_values[i] = [[None] * self.find_columns_num(subblock)]
-                    else:
-                        cur = []
-                        for k, elem in enumerate(nested_values):
-                            cur.extend(list(self(subblock[1:], elem)))
-                        block_values[i] = cur
+                    block_values[i] = self._unpack_as_list(subblock[1:], nested_values)
                 elif dt == "NamedList":
                     nested_values: Optional[Dict] = values.get(root_id)
                     block_values[i] = self._unpack_as_named_list(subblock[1:], nested_values)
