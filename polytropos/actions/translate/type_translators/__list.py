@@ -28,5 +28,5 @@ class ListTranslator(BaseTypeTranslator[ListType[Dict[str, Any]]]):
             # translate the values in the list one by one and add them to
             # the result
             # noinspection PyTypeChecker
-            translated: Dict[str, Any] = self.translator(item, self.variable.var_id, source_id)
+            translated: Dict[str, Any] = self.translator.translate(item, self.variable.var_id, source_id)
             self.result.append(translated)

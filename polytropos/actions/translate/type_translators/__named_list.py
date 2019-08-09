@@ -26,5 +26,5 @@ class NamedListTranslator(BaseTypeTranslator[Dict[str, Dict[str, Any]]]):
             if key in self.result:
                 # No duplicate keys
                 raise ValueError
-            self.result[key] = self.translator(item, self.variable.var_id, source_id)
+            self.result[key] = self.translator.translate(item, self.variable.var_id, source_id)
             self.has_result = True

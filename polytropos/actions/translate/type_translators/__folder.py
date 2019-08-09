@@ -15,7 +15,7 @@ class FolderTranslator(BaseTypeTranslator[Dict[str, Any]]):
 
     def __call__(self) -> Dict[str, Any]:
         # Just translate all variables in the folder
-        translated: Dict[str, Any] = self.translator(self.document.document, self.variable.var_id, self.parent_id)
+        translated: Dict[str, Any] = self.translator.translate(self.document.document, self.variable.var_id, self.parent_id)
 
         # If the resulting dictionary is empty, none of the children were found, so don't include the folder at all.
         if len(translated) == 0:

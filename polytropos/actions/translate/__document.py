@@ -28,5 +28,7 @@ class DocumentValueProvider:
     def value(self, path: Iterator[str]) -> Any:
         result: Any = self.document
         for name in path:  # type: str
+            if not isinstance(result, dict):
+                raise KeyError
             result = result[name]
         return result

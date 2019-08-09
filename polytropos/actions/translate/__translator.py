@@ -4,7 +4,7 @@ from collections.abc import Callable
 from typing import Dict, Optional, Any, Type, List
 
 from polytropos.actions.translate.__document import SourceNotFoundException, DocumentValueProvider
-from polytropos.actions.translate.__type_translator_register import get_type_translator_class
+from polytropos.actions.translate.__type_translator_registry import TypeTranslatorRegistry
 from polytropos.ontology.track import Track
 from polytropos.ontology.variable import Variable, VariableId
 
@@ -32,10 +32,13 @@ class Translator(Callable):
         self.failsafe = failsafe
 
     def create_type_translator(self, document: DocumentValueProvider, variable: Variable, parent_id: Optional[VariableId]) -> Callable:
-        type_translator_class: Type = get_type_translator_class(variable.__class__)
+        type_translator_class: Type = TypeTranslatorRegistry.get_translator_class(variable.__class__)
         return type_translator_class(self, document, variable, parent_id)
 
     def __call__(self, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> Dict[str, Any]:
+        return self.translate(document, parent_id, source_parent_id)
+
+    def translate(self, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> Dict[str, Any]:
         assert document is not None, "Unexpected situation occurred -- study"
         assert not (parent_id is None and source_parent_id is not None)
 
