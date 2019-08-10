@@ -115,6 +115,7 @@ class Variable:
 
     # The variable id of the variable in the corresponding track.
     # WARNING! The variable ID _MUST_ be unique within the schema, or terrible things will happen!
+    #var_id: Optional[str] = None
     var_id = None
 
     _cache: Dict = field(init=False, default_factory=dict)
