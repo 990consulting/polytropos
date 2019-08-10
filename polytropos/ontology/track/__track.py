@@ -4,8 +4,6 @@ import json
 from typing import Iterator, Dict, TYPE_CHECKING, Any, Iterable, Optional, List as ListType
 from collections.abc import MutableMapping
 
-from dacite import from_dict, Config
-
 from polytropos.ontology.variable import (
     Primitive, Container, GenericList, Validator,
     List, NamedList, Variable, VariableId
@@ -67,11 +65,11 @@ class Track(MutableMapping):
     def build_variable(self, data: Dict, var_id: VariableId) -> Variable:
         data_type = data['data_type']
         try:
+            del data['data_type']
             cls = getattr(polytropos.ontology.variable, data_type)
-            data = data.copy()
-            data["track"] = self
-            data["var_id"] = var_id
-            return from_dict(cls, data, Config(forward_references={"Track": Track, "Optional": Optional, "ListType": ListType, "Dict": Dict}))
+            var = cls(track=self, var_id=var_id, **data)
+            data['data_type'] = data_type
+            return var
         except Exception as e:
             print("breakpoint")
             raise e

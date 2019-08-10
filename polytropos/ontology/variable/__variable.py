@@ -1,7 +1,6 @@
 import logging
 import json
 from abc import abstractmethod
-from dataclasses import dataclass, field, fields
 from collections import defaultdict
 from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType
 from functools import partial
@@ -90,45 +89,47 @@ class Validator:
         cls.validate_sort_order(variable, variable.sort_order, adding)
 
 
-@dataclass
 class Variable:
-    # The track to which this variable belongs
-    track: "Track"
+    def __init__(self, track: "Track", var_id: VariableId, name: str, sort_order: int,
+                 notes: Optional[str] = None, earliest_epoch: Optional[str] = None, latest_epoch: Optional[str] = None,
+                 short_description: Optional[str] = None, long_description: Optional[str] = None,
+                 sources: Optional[ListType[VariableId]] = None, parent: Optional[VariableId] = None):
+        self.initialized = False
 
-    # The variable id of the variable in the corresponding track.
-    # WARNING! The variable ID _MUST_ be unique within the schema, or terrible things will happen!
-    var_id: VariableId
+        # The track to which this variable belongs
+        self.track: "Track" = track
 
-    # The name of the node, as used in paths. Not to be confused with its ID, which is path-immutable.
-    name: str
+        # The variable id of the variable in the corresponding track.
+        # WARNING! The variable ID _MUST_ be unique within the schema, or terrible things will happen!
+        self.var_id: VariableId = var_id
 
-    # The order that this variable appears in instance hierarchies.
-    sort_order: int
+        # The name of the node, as used in paths. Not to be confused with its ID, which is path-immutable.
+        self.name: str = name
 
-    # Metadata: any information about the variable that the operator chooses to include.
-    notes: Optional[str] = field(default=None)
+        # The order that this variable appears in instance hierarchies.
+        self.sort_order: int = sort_order
 
-    # An alphabetically sortable indicator of when this field first came into use.
-    earliest_epoch: Optional[str] = field(default=None)
+        # Metadata: any information about the variable that the operator chooses to include.
+        self.notes: Optional[str] = notes
 
-    # An alphabetically sortable indicator of when this field ceased to be used.
-    latest_epoch: Optional[str] = field(default=None)
+        # An alphabetically sortable indicator of when this field first came into use.
+        self.earliest_epoch: Optional[str] = earliest_epoch
 
-    # Descriptions of the variable -- used in various situations
-    short_description: Optional[str] = field(default=None)
-    long_description: Optional[str] = field(default=None)
+        # An alphabetically sortable indicator of when this field ceased to be used.
+        self.latest_epoch: Optional[str] = latest_epoch
 
-    # The variable IDs (not names!) from the preceding stage from which to derive values for this variable, if any.
-    sources: ListType[VariableId] = field(default_factory=list)
+        # Descriptions of the variable -- used in various situations
+        self.short_description: Optional[str] = short_description
+        self.long_description: Optional[str] = long_description
 
-    # The container variable above this variable in the hierarchy, if any.
-    parent: Optional[VariableId] = field(default=None)
+        # The variable IDs (not names!) from the preceding stage from which to derive values for this variable, if any.
+        self.sources: ListType[VariableId] = sources if sources is not None else []
 
-    _cache: Dict = field(init=False, default_factory=dict)
+        # The container variable above this variable in the hierarchy, if any.
+        self.parent: Optional[VariableId] = parent
 
-    initialized = False
+        self._cache: Dict = {}
 
-    def __post_init__(self) -> None:
         self.initialized = True
 
     def __hash__(self) -> int:
@@ -138,7 +139,7 @@ class Variable:
         return isinstance(other, self.__class__) and other.var_id == self.var_id
 
     def __setattr__(self, attribute: str, value: Any) -> None:
-        if self.initialized:
+        if attribute != "initialized" and self.initialized:
             value = self.validate_attribute_value(attribute, value)
 
         self.__dict__[attribute] = value
@@ -272,12 +273,11 @@ class Variable:
             'data_type': self.data_type,
             'sort_order': self.sort_order
         }
-        for var_field in fields(self):
-            if var_field.name == 'name' or var_field.name == 'sort_order' or var_field.name == 'var_id' or var_field.name == 'track':
+        for field_name, field_value in vars(self).items():
+            if field_name == 'name' or field_name == 'sort_order' or field_name == 'var_id' or field_name == 'track' or field_name == 'initialized':
                 continue
-            if not getattr(self, var_field.name):
-                continue
-            representation[var_field.name] = getattr(self, var_field.name)
+            if field_value:
+                representation[field_name] = field_value
         return representation
 
     def dumps(self) -> str:
@@ -352,39 +352,38 @@ class Variable:
             current = self.track[current.parent]
             yield current
 
-@dataclass
+
 class Container(Variable):
     pass
 
 
-@dataclass
 class Primitive(Variable):
     @abstractmethod
     def cast(self, value: Optional[Any]) -> Optional[Any]:
         pass
 
-@dataclass
+
 class Integer(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[int]:
         if value is None or value == "":
             return None
         return int(value)
 
-@dataclass
+
 class Text(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[str]:
         if value is None or value == "":
             return None
         return str(value)
 
-@dataclass
+
 class Decimal(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[float]:
         if value is None or value == "":
             return None
         return float(value)
 
-@dataclass
+
 class Unary(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[bool]:
         if value is None or value == "":
@@ -396,7 +395,6 @@ class Unary(Primitive):
         return True
 
 
-@dataclass
 class Binary(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[bool]:
         if value is None or value == "":
@@ -411,35 +409,34 @@ class Binary(Primitive):
         raise ValueError
 
 
-@dataclass
 class Currency(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[float]:
         if value is None or value == "":
             return None
         return float(value)
 
-@dataclass
+
 class Phone(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[str]:
         if value is None or value == "":
             return None
         return str(value)
 
-@dataclass
+
 class Email(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[str]:
         if value is None or value == "":
             return None
         return str(value)
 
-@dataclass
+
 class URL(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[str]:
         if value is None or value == "":
             return None
         return str(value)
 
-@dataclass
+
 class Date(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[str]:
         if value is None or value in {"", "000000"}:
@@ -459,7 +456,7 @@ class Date(Primitive):
 
         raise ValueError
 
-@dataclass
+
 class Folder(Container):
     @property
     def has_targets(self) -> bool:
@@ -469,16 +466,14 @@ class Folder(Container):
         raise AttributeError
 
 
-@dataclass
 class GenericList(Container):
     pass
 
 
-@dataclass
 class List(GenericList):
     pass
 
-@dataclass
+
 class NamedList(GenericList):
     pass
 
