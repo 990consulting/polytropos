@@ -17,7 +17,14 @@ def create_variable(ancestor_names: List[str]) -> Any:
     return ancestors[0]
 
 
-def test_value():
+@pytest.mark.parametrize("path, expected", [
+    (["a"], 1),
+    (["b"], 2),
+    (["c", "d"], "1"),
+    (["c", "e"], {"f": "2"}),
+    (["c", "e", "f"], "2"),
+])
+def test_value(path, expected):
     doc: Dict[str, Any] = {
         "a": 1,
         "b": 2,
@@ -30,14 +37,16 @@ def test_value():
     }
 
     provider = DocumentValueProvider(doc)
-    assert provider.value(["a"]) == 1
-    assert provider.value(["b"]) == 2
-    assert provider.value(["c", "d"]) == "1"
-    assert provider.value(["c", "e"]) == {"f": "2"}
-    assert provider.value(["c", "e", "f"]) == "2"
+    assert provider.value(path) == expected
 
 
-def test_missing_value():
+@pytest.mark.parametrize("path", [
+    ["b"],
+    ["c", "f"],
+    ["c", "e", "z"],
+    ["c", "e", "f", "a"],
+])
+def test_missing_value(path):
     doc: Dict[str, Any] = {
         "a": 1,
         "c": {
@@ -50,19 +59,17 @@ def test_missing_value():
     provider = DocumentValueProvider(doc)
 
     with pytest.raises(KeyError):
-        _ = provider.value(["b"])
-
-    with pytest.raises(KeyError):
-        _ = provider.value(["c", "f"])
-
-    with pytest.raises(KeyError):
-        _ = provider.value(["c", "e", "z"])
-
-    with pytest.raises(KeyError):
-        _ = provider.value(["c", "e", "f", "a"])
+        _ = provider.value(path)
 
 
-def test_variable_value():
+@pytest.mark.parametrize("ancestor_names, expected", [
+    (["a"], 1),
+    (["b"], 2),
+    (["d", "c"], "1"),
+    (["e", "c"], {"f": "2"}),
+    (["f", "e", "c"], "2"),
+])
+def test_variable_value(ancestor_names, expected):
     doc: Dict[str, Any] = {
         "a": 1,
         "b": 2,
@@ -75,14 +82,16 @@ def test_variable_value():
     }
 
     provider = DocumentValueProvider(doc)
-    assert provider.variable_value(create_variable(["a"])) == 1
-    assert provider.variable_value(create_variable(["b"])) == 2
-    assert provider.variable_value(create_variable(["d", "c"])) == "1"
-    assert provider.variable_value(create_variable(["e", "c"])) == {"f": "2"}
-    assert provider.variable_value(create_variable(["f", "e", "c"])) == "2"
+    assert provider.variable_value(create_variable(ancestor_names)) == expected
 
 
-def test_missing_variable_value():
+@pytest.mark.parametrize("ancestor_names", [
+    ["b"],
+    ["f", "c"],
+    ["z", "e", "c"],
+    ["a", "f", "e", "c"],
+])
+def test_missing_variable_value(ancestor_names):
     doc: Dict[str, Any] = {
         "a": 1,
         "c": {
@@ -93,18 +102,8 @@ def test_missing_variable_value():
     }
 
     provider = DocumentValueProvider(doc)
-
     with pytest.raises(SourceNotFoundException):
-        _ = provider.variable_value(create_variable(["b"]))
-
-    with pytest.raises(SourceNotFoundException):
-        _ = provider.variable_value(create_variable(["f", "c"]))
-
-    with pytest.raises(SourceNotFoundException):
-        _ = provider.variable_value(create_variable(["z", "e", "c"]))
-
-    with pytest.raises(SourceNotFoundException):
-        _ = provider.variable_value(create_variable(["a", "f", "e", "c"]))
+        _ = provider.variable_value(create_variable(ancestor_names))
 
 
 def test_empty_doc():
