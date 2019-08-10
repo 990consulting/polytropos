@@ -13,13 +13,15 @@ def test_add_root_source(target_list_track):
     }
     source_track.add(new_source_spec, "A")
     target_list_track["target_list"].sources = ["source_list", "A"]
-    assert target_track["target_list"].dump() == {
+    expected: Dict = {
         "name": "the_list",
         "data_type": "List",
         "parent": "target_folder_outer",
         "sort_order": 1,
         "sources": ["source_list", "A"]
     }
+    actual: Dict = target_track["target_list"].dump()
+    assert actual == expected
 
 def test_add_root_source_does_not_affect_children(target_list_track):
     target_track: Track = target_list_track
