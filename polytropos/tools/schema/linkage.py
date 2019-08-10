@@ -7,9 +7,10 @@ from polytropos.util.nesteddicts import path_to_str, str_to_path
 import csv
 
 from polytropos.ontology.schema import Schema
-from polytropos.ontology.variable import Variable
+from polytropos.ontology.variable import Variable, VariableId
 
-def _source_path(var: Variable, source_id: str) -> str:
+
+def _source_path(var: Variable, source_id: VariableId) -> str:
     source_track: Track = var.track.source
     try:
         source_var: Variable = source_track[source_id]
@@ -68,7 +69,7 @@ class ImportLinkages(Callable):
             os.mkdir(output_path)
         target_schema_instance.serialize(output_path)
 
-    def _as_source_ids(self, source_paths: List[str]) -> Iterator[str]:
+    def _as_source_ids(self, source_paths: List[str]) -> Iterator[VariableId]:
         for source_path_str in source_paths:
             path: Iterable[str] = str_to_path(source_path_str)
             var: Variable = self.schema.source.lookup(path)

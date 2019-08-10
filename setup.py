@@ -17,7 +17,6 @@ setuptools.setup(
         'pytest',
         'glom',
         'pytest-repeat',
-        'dacite',
         'pyyaml',
         'cachetools',
         'tblib',
