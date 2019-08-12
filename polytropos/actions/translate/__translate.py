@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import os
 import json
 from typing import TYPE_CHECKING, Optional
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 
 from polytropos.actions.step import Step
@@ -24,7 +24,7 @@ class Translate(Step):
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, path_locator: "PathLocator", schema: Schema, target_schema: str) -> "Translate":
+    def build(cls, path_locator: "PathLocator", schema: Schema, target_schema: str) -> "Translate":  # type: ignore # Signature of "build" incompatible with supertype "Step"
         """
         :param path_locator:
         :param schema: The source schema, already instantiated.
@@ -32,7 +32,8 @@ class Translate(Step):
         :return:
         """
         logging.info("Initializing Translate step.")
-        target_schema_instance: Schema = Schema.load(target_schema, source_schema=schema, path_locator=path_locator)
+        target_schema_instance: Optional[Schema] = Schema.load(target_schema, source_schema=schema, path_locator=path_locator)
+        assert target_schema_instance is not None
         translate_immutable: Translator = Translator(target_schema_instance.immutable)
         translate_temporal: Translator = Translator(target_schema_instance.temporal)
         return cls(target_schema_instance, translate_immutable, translate_temporal)

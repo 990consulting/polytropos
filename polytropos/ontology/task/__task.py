@@ -1,7 +1,7 @@
 import logging
 import os
 from shutil import rmtree
-from typing import Type
+from typing import Optional, Any, List, Dict
 
 import yaml
 from tempfile import TemporaryDirectory
@@ -25,19 +25,19 @@ STEP_TYPES = {
 
 class Task:
     def __init__(
-        self, path_locator,
-        origin_data, origin_schema,
-        target_data=None, target_schema=None
+        self, path_locator: PathLocator,
+        origin_data: Any, origin_schema: Schema,
+        target_data: Optional[Any] = None, target_schema: Optional[Schema] = None
     ):
         self.path_locator = path_locator
         self.origin_data = origin_data
         self.origin_schema = origin_schema
         self.target_data = target_data
         self.target_schema = target_schema
-        self.steps = []
+        self.steps: List[Step] = []
 
     @classmethod
-    def build(cls, conf_dir, data_dir, name):
+    def build(cls, conf_dir: str, data_dir: str, name: str) -> "Task":
         """Build task from yaml, read all input data and create corresponding
         objects"""
         logging.info("Constructing task execution plan.")
@@ -48,10 +48,12 @@ class Task:
             logging.info("Task configuration loaded from %s." % task_path)
             spec = yaml.safe_load(f)
         resulting_in = spec.get('resulting_in', {})
+        origin_schema = Schema.load(spec['starting_with']['schema'], path_locator=path_locator)
+        assert origin_schema is not None
         task = cls(
             path_locator=path_locator,
             origin_data=spec['starting_with']['data'],
-            origin_schema=Schema.load(spec['starting_with']['schema'], path_locator=path_locator),
+            origin_schema=origin_schema,
             target_data=resulting_in.get('data'),
             target_schema=Schema.load(resulting_in.get('schema'), path_locator=path_locator)
         )
@@ -60,7 +62,7 @@ class Task:
         assert task.target_data is not None or isinstance(task.steps[-1], Consume)
         return task
 
-    def load_steps(self, step_descriptions):
+    def load_steps(self, step_descriptions: List[Dict[str, Any]]) -> None:
         """Load steps of the current task"""
         logging.info("Initializing task pipeline steps.")
         current_schema = self.origin_schema
@@ -70,7 +72,7 @@ class Task:
                 'Step description can have only one key, value pair'
             )
             for class_name, kwargs in step.items():
-                step_type: Type = STEP_TYPES[class_name]
+                step_type = STEP_TYPES[class_name]
                 try:
                     step_instance: Step = step_type.build(
                         path_locator=self.path_locator, schema=current_schema, **kwargs
@@ -82,10 +84,11 @@ class Task:
 
                 # Aggregation changes schema
                 if class_name in ('Aggregate', 'Translate'):
+                    assert isinstance(step_instance, Aggregate) or isinstance(step_instance, Translate)
                     # noinspection PyUnresolvedReferences
                     current_schema = step_instance.target_schema
 
-    def run(self):
+    def run(self) -> None:
         """Run the task: run steps one by one handling intermediate outputs in
         temporary folders"""
         origin_path = os.path.join(self.path_locator.entities_dir, self.origin_data)
@@ -118,6 +121,7 @@ class Task:
                 current_path_obj.cleanup()
             current_path = next_path.name
             current_path_obj = next_path
+        assert next_path is not None
         if self.target_data is not None:
             # Move the last temporary folder to destination
             logging.info("Renaming %s to %s" % (next_path.name, task_output_path))

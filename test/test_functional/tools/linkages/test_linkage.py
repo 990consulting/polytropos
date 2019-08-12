@@ -25,14 +25,14 @@ def test_export_linkages(target_schema, basepath):
     assert actual == expected
 
 @pytest.mark.parametrize("target_id, source_ids", [
-    ("target_t_folder", None),
+    ("target_t_folder", []),
     ("target_t_folder_text", ["source_t_folder_text_1", "source_t_folder_text_2"]),
     ("target_t_list", ["source_t_list_1", "source_t_list_2"]),
     ("target_t_list_text", ["source_t_list_text_1", "source_t_list_text_2"]),
     ("target_t_named_list", ["source_t_named_list_1", "source_t_named_list_2"]),
     ("target_t_named_list_text", ["source_t_named_list_text_1", "source_t_named_list_text_2"]),
-    ("target_i_folder", None),
-    ("target_i_folder_text", None),
+    ("target_i_folder", []),
+    ("target_i_folder_text", []),
     ("target_i_list", ["source_i_list_2"]),
     ("target_i_list_text", ["source_i_list_text_2"]),
     ("target_i_named_list", ["source_i_named_list_2"]),

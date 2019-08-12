@@ -10,7 +10,7 @@ from functools import partial
 
 from polytropos.ontology.track import Track
 
-from polytropos.ontology.variable import Variable
+from polytropos.ontology.variable import Variable, VariableId
 
 if TYPE_CHECKING:
     from polytropos.ontology.paths import PathLocator
@@ -27,7 +27,7 @@ class DuplicatePathError(ValueError):
         self.var1 = var1
         self.var2 = var2
 
-    def __str__(self):
+    def __str__(self) -> str:
         template: str = 'Variables %s and %s have the same absolute path (%s)'
         return template % (self.var1.var_id, self.var2.var_id, self.var1.absolute_path)
 
@@ -35,6 +35,7 @@ def _resolve_path(path_locator: Optional["PathLocator"], schemas_dir: Optional[s
     if path_locator:
         assert schemas_dir is None, "Cannot provide both a PathLocator object and an explicit base path"
         schemas_dir = path_locator.schemas_dir
+    assert schemas_dir is not None
     return os.path.join(schemas_dir, path, filename)
 
 @dataclass
@@ -43,13 +44,13 @@ class Schema:
     temporal: Track
     immutable: Track
     name: str = "UNSPECIFIED"
-    source: "Schema" = None
+    source: Optional["Schema"] = None
 
     _var_id_cache: Dict = field(init=False, default_factory=dict)
     _var_path_cache: Dict = field(init=False, default_factory=dict)
 
-    def __post_init__(self):
-        if self.temporal.source or self.immutable.source:
+    def __post_init__(self) -> None:
+        if self.temporal.source and self.immutable.source:
             if self.temporal.source.schema is not self.immutable.source.schema:
                 raise RuntimeError("Temporal and immutable tracks have different source schemas.")
             self.source = self.temporal.source.schema
@@ -63,15 +64,15 @@ class Schema:
             )
         self._preload_var_path_cache()
 
-    def _preload_var_path_cache(self):
+    def _preload_var_path_cache(self) -> None:
         for track in [self.temporal, self.immutable]:  # type: Track
-            for var in track.values():  # type: str, "Variable"
-                abs_path: Tuple[str] = tuple(var.absolute_path)
+            for var in track.values():  # type: "Variable"
+                abs_path: Tuple[str, ...] = tuple(var.absolute_path)
                 if abs_path in self._var_path_cache:
                     raise DuplicatePathError(var, self._var_path_cache[abs_path])
                 self._var_path_cache[abs_path] = var
 
-    def serialize(self, path: str):
+    def serialize(self, path: str) -> None:
         """
         Write this schema to JSON files at the specified path.
 
@@ -88,7 +89,7 @@ class Schema:
             json.dump(immutable_json, i_fn)
 
     @classmethod
-    def load(cls, path: str, source_schema: "Schema"=None, path_locator: "PathLocator"=None, base_path: str = None):
+    def load(cls, path: str, source_schema: "Schema"=None, path_locator: "PathLocator"=None, base_path: str = None) -> Optional["Schema"]:
         """
         Constructs a schema.
 
@@ -99,9 +100,9 @@ class Schema:
         :return:
         """
         assert (path_locator or base_path) and not (path_locator and base_path)
-        schema_name = "UNSPECIFIED"
+        schema_name: str = "UNSPECIFIED"
         if path is not None:
-            schema_name: str = path.replace("/", "_")
+            schema_name = path.replace("/", "_")
 
         logging.info('Loading schema "%s".' % schema_name)
         # We return None if path is None to adapt to the case of a task not
@@ -135,10 +136,10 @@ class Schema:
             )
 
     @cachedmethod(lambda self: self._var_id_cache, key=partial(hashkey, 'root'))
-    def get(self, var_id: str, track_type: TrackType=TrackType.ANY) -> Optional[Variable]:
+    def get(self, var_id: VariableId, track_type: TrackType=TrackType.ANY) -> Optional[Variable]:
         """Retrieve a particular variable from the Schema. Optionally verify the track it came from"""
-        immutable_match: Variable = self.immutable.get(var_id)
-        temporal_match: Variable = self.temporal.get(var_id)
+        immutable_match: Optional[Variable] = self.immutable.get(var_id)
+        temporal_match: Optional[Variable] = self.temporal.get(var_id)
 
         if immutable_match is not None and temporal_match is not None:
             raise ValueError('Variable ID "%s" occurs in both immutable and temporal tracks' % var_id)
@@ -154,12 +155,12 @@ class Schema:
 
         return immutable_match
 
-    def _lookup(self, frozen_abs_path: Tuple[str]) -> Optional[Variable]:
+    def _lookup(self, frozen_abs_path: Tuple[str, ...]) -> Optional[Variable]:
         if frozen_abs_path in self._var_path_cache:
             return self._var_path_cache[frozen_abs_path]
 
         for var in self:  # type: "Variable"
-            abs_path: Tuple[str] = tuple(var.absolute_path)
+            abs_path: Tuple[str, ...] = tuple(var.absolute_path)
             if abs_path not in self._var_path_cache:
                 self._var_path_cache[abs_path] = var
             if abs_path == frozen_abs_path:
@@ -168,16 +169,16 @@ class Schema:
         return None
 
     def lookup(self, abs_path: Iterable[str]) -> Optional[Variable]:
-        frozen_abs_path = tuple(abs_path)
+        frozen_abs_path: Tuple[str, ...] = tuple(abs_path)
         return self._lookup(frozen_abs_path)
 
-    def invalidate_cache(self):
+    def invalidate_cache(self) -> None:
         logging.info("Invalidating schema caches.")
         self._var_id_cache.clear()
         self._var_path_cache.clear()
 
     @cachedmethod(lambda self: self._var_id_cache, key=partial(hashkey, 'istemporal'))
-    def is_temporal(self, var_id: str) -> bool:
+    def is_temporal(self, var_id: VariableId) -> bool:
         assert not (var_id in self.temporal and var_id in self.immutable)
         if var_id in self.temporal:
             return True

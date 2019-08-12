@@ -179,6 +179,7 @@ class Variable:
 
         if attribute in {'sort_order', 'parent', 'name'}:
             self.track.invalidate_variables_cache()
+
         return value
 
     def invalidate_cache(self) -> None:
@@ -226,7 +227,7 @@ class Variable:
         parent = self.track[self.parent]
         return isinstance(parent, GenericList) or parent.descends_from_list
 
-    @property
+    @property  # type: ignore # Decorated property not supported
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'relative_path'))
     def relative_path(self) -> ListType[str]:
         """The path from this node to the nearest list or or root."""
@@ -238,7 +239,7 @@ class Variable:
         parent_path: ListType = parent.relative_path
         return parent_path + [self.name]
 
-    @property
+    @property  # type: ignore # Decorated property not supported
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'absolute_path'))
     def absolute_path(self) -> ListType[str]:
         """The path from this node to the root."""
@@ -247,7 +248,7 @@ class Variable:
         parent_path: ListType = self.track[self.parent].absolute_path
         return parent_path + [self.name]
 
-    @property
+    @property  # type: ignore # Decorated property not supported
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'tree'))
     def tree(self) -> Dict:
         """A tree representing the descendants of this node. (For UI)"""
@@ -486,7 +487,7 @@ def _incompatible_type(source_var: Variable, variable: Variable) -> bool:
     return False
 
 def _check_folder_has_sources(variable: "Variable", sources: ListType[VariableId]) -> None:
-    if sources is not None and isinstance(variable, Folder):
+    if len(sources) > 0 and isinstance(variable, Folder):
         var_id: VariableId = variable.var_id
         source_str = ", ".join(sources)
         msg_template: str = 'Folders can\'t have sources, but variable "%s" is a Folder and lists the following ' \

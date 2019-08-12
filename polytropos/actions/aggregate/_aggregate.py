@@ -13,13 +13,13 @@ from polytropos.ontology.paths import PathLocator
 from polytropos.util.loader import load
 from polytropos.ontology.schema import Schema
 
-def write_composite(target_dir: str, emission: Composite):
+def write_composite(target_dir: str, emission: Tuple[str, Composite]) -> None:
     filename, composite = emission
     with open(os.path.join(target_dir, filename + '.json'), 'w') as target_file:
         json.dump(composite.content, target_file, indent=2)
 
 @dataclass
-class Aggregate(Step):
+class Aggregate(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
     """Iterates over all composites following one schema, and produces a new set of composites, representing a different
     kind of entity, and following a different schema."""
     origin_schema: Schema
@@ -28,11 +28,11 @@ class Aggregate(Step):
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(
+    def build(  # type: ignore # Signature of "build" incompatible with supertype "Step"
             cls, path_locator: PathLocator, schema: Schema, name: str, target_schema: str, id_var: str,
             input_mappings: Dict, output_mappings: Dict
-    ): 
-        target_schema_instance: Schema = Schema.load(target_schema, path_locator=path_locator)
+    ):
+        target_schema_instance: Optional[Schema] = Schema.load(target_schema, path_locator=path_locator)
         aggregations: Dict[str, Type] = load(cls)
         return aggregations[name](origin_schema=schema, target_schema=target_schema_instance, id_var=id_var,
                                   **input_mappings, **output_mappings)
@@ -63,7 +63,7 @@ class Aggregate(Step):
             composite: Composite = Composite(self.origin_schema, content)
             return filename, self.extract(composite)
 
-    def __call__(self, origin_dir: str, target_dir: str):
+    def __call__(self, origin_dir: str, target_dir: str) -> None:
         # References:
         #    * https://docs.python.org/3/library/concurrent.futures.html
         #    * _Fluent Python_ 1st ed, p. 547

@@ -74,7 +74,6 @@ def test_incompatible_source_raises(target_nested_dict_track):
         target_track["target_var_2"].sources = ["source_text_var"]
 
 @pytest.mark.parametrize("sources", [
-    [],
     ["source_var_2"],
     ["source_var_2", "source_var_3"]
 ])

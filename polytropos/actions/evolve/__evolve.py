@@ -7,7 +7,6 @@ from functools import partial
 from typing import Dict, List, Optional, TYPE_CHECKING, Type, Iterator
 
 from polytropos.ontology.composite import Composite
-from polytropos.ontology.variable import Variable
 from polytropos.util.exceptions import ExceptionWrapper
 
 from polytropos.util.loader import load
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
     from polytropos.ontology.paths import PathLocator
     from polytropos.ontology.schema import Schema
 
-class _EvolveFactory(Callable):
+class _EvolveFactory:
     def __init__(self, path_locator: "PathLocator",
                  change_specs: List[Dict],
                  schema: "Schema",
@@ -69,7 +68,7 @@ class Evolve(Step):
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, *, path_locator: "PathLocator", schema: "Schema", changes: List[Dict], lookups: List[str]=None) -> "Evolve":
+    def build(cls, *, path_locator: "PathLocator", schema: "Schema", changes: List[Dict], lookups: List[str]=None) -> "Evolve":  # type: ignore # Signature of "build" incompatible with supertype "Step"
         """Loads in the specified lookup tables, constructs the specified Changes, and passes these Changes to the
         constructor.
         :param path_locator: Helper class that finds requested files in a configuration path.
@@ -80,7 +79,7 @@ class Evolve(Step):
         do_build: Callable = _EvolveFactory(path_locator, changes, schema, lookups)
         return do_build(cls)
 
-    def process_composite(self, origin, target, filename) -> Optional[ExceptionWrapper]:
+    def process_composite(self, origin: str, target: str, filename: str) -> Optional[ExceptionWrapper]:
         try:
             origin_filename: str = os.path.join(origin, filename)
             logging.debug("Evolving %s." % origin_filename)
@@ -97,7 +96,7 @@ class Evolve(Step):
             return ExceptionWrapper(e)
         return None
 
-    def __call__(self, origin_dir, target_dir):
+    def __call__(self, origin_dir: str, target_dir: str) -> None:
         targets = os.listdir(origin_dir)
         logging.debug("I have the following targets:\n   - %s" % "\n   - ".join(targets))
         with ProcessPoolExecutor() as executor:
@@ -106,6 +105,6 @@ class Evolve(Step):
                 targets
             )
             # TODO: Exceptions are supposed to propagate from a ProcessPoolExecutor. Why aren't mine?
-            for result in results:  # type: ExceptionWrapper
+            for result in results:  # type: Optional[ExceptionWrapper]
                 if result is not None:
                     result.re_raise()

@@ -23,7 +23,7 @@ def _do_get(target: Any, nodes: List[str]) -> Optional[Any]:
 
     return _do_get(cur, nodes[1:])
 
-def get(target: Dict, spec: List[str], default: Any=NO_DEFAULT, accept_none=True):
+def get(target: Dict, spec: List[str], default: Any=NO_DEFAULT, accept_none: bool=True) -> Any:
     """Given a nested dict, traverse the specified path and return the value."""
     if spec == "":
         return target
@@ -55,7 +55,7 @@ def _get_or_init(target: Dict, key: str) -> Dict:
         raise IncompleteNestingError
     return ret
 
-def _do_put(target: Dict, spec_arr: List, value: Any):
+def _do_put(target: Dict, spec_arr: List, value: Any) -> None:
     assert len(spec_arr) > 0
 
     if len(spec_arr) == 1:
@@ -70,23 +70,23 @@ def _do_put(target: Dict, spec_arr: List, value: Any):
     _do_put(target[key], spec_arr[1:], value)
 
 
-def put(target: Dict, spec: List[str], value: Any):
+def put(target: Dict, spec: List[str], value: Any) -> None:
     """Given a nested dict, traverse the specified path and assign the value."""
     if len(spec) == 0:
         return
 
     _do_put(target, spec, value)
 
-def delete(target: Dict, spec: List[str]):
+def delete(target: Dict, spec: List[str]) -> None:
     """Deletes the final node indicated."""
     name: str = spec[-1]
     root: Dict = get(target, spec[:-1], default={})
     if name in root:
         del root[name]
 
-def pop(*args, **kwargs) -> Optional[Any]:
-    val: Any = get(*args, **kwargs)
-    delete(*args)
+def pop(target: Dict, spec: List[str], default: Any=NO_DEFAULT, accept_none: bool=True) -> Optional[Any]:
+    val: Any = get(target, spec, default, accept_none)
+    delete(target, spec)
     return val
 
 def path_to_str(path: Iterable[str]) -> str:
