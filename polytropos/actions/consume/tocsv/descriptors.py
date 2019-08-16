@@ -24,5 +24,12 @@ class DescriptorsToColumnNames(Callable):
 
             self.schema.get(var_id).absolute_path
 
-        where "var_id" is the variable ID whose path you want."""
+        where "var_id" is the variable ID whose path you want.
+        
+        Schema.get:
+        https://github.com/borenstein/polytropos/blob/csv/polytropos/ontology/schema.py#L138
+        
+        Variable.absolute_path:
+        https://github.com/borenstein/polytropos/blob/csv/polytropos/ontology/variable/__variable.py#L227
+        """
         pass
