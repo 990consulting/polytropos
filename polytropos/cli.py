@@ -1,5 +1,6 @@
 from typing import TextIO, Optional
 import click
+import logging
 
 from polytropos.actions.consume.coverage import CoverageFile
 from polytropos.ontology.task import Task
@@ -7,6 +8,8 @@ from polytropos.tools.schema import treeview
 from polytropos.tools.schema.catalog import variable_catalog
 from polytropos.tools.schema.linkage import ExportLinkages, ImportLinkages
 from polytropos.tools.schema.repair_sort import repair_sort_order
+
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 @click.group()
 def cli():

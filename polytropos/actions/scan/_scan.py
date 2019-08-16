@@ -3,7 +3,7 @@ import json
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict, Optional, Any, Iterable, Tuple, TYPE_CHECKING, Type
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 
 from polytropos.ontology.composite import Composite
