@@ -9,10 +9,10 @@ from polytropos.ontology.composite import Composite
 class ExportToCSV(Consume):
     columns: List[Dict]
 
-    def before(self):
+    def before(self) -> None:
         pass
 
-    def after(self):
+    def after(self) -> None:
         pass
 
     def extract(self, composite: Composite) -> Optional[Any]:

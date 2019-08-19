@@ -6,16 +6,15 @@ This package is responsible for converting composites to simplified representati
 by their variable IDs and are only nested in cases of one-to-many relationships.
 """
 from collections import OrderedDict
-from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Tuple, Dict, List as ListType, Optional, Any, Iterable, Union, Iterator
+from typing import Tuple, Dict, List as ListType, Optional, Any, Iterable, Union, Iterator, cast
 
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import Variable, GenericList
 from polytropos.util import nesteddicts
 
 @dataclass
-class Topological(Callable):
+class Topological:
     """Given a nested tuple of variable IDs, with nesting representing one-to-many relationships, create a topological
     representation of the requested variables."""
 
@@ -43,17 +42,19 @@ class Topological(Callable):
         for list_item in content:
             yield self._traverse(child_elements, list_item)
 
-    def _add_one_to_many(self, ret: Dict, tree: Dict, block: Tuple):
+    def _add_one_to_many(self, ret: Dict, tree: Dict, block: Tuple) -> None:
         root_var: GenericList = self._get_root_var(block)
         root_path: ListType = list(root_var.relative_path)
         try:
-            subtree: Optional[Union[ListType, Dict]] = nesteddicts.get(tree, root_path)
+            subtree: Union[ListType, Dict] = nesteddicts.get(tree, root_path)
         except nesteddicts.MissingDataError:
             return
 
         if root_var.data_type == "List":
+            subtree = cast(ListType, subtree)
             ret[root_var.var_id] = list(self._handle_list(subtree, block[1:]))
         elif root_var.data_type == "NamedList":
+            subtree = cast(Dict, subtree)
             ret[root_var.var_id] = self._handle_named_list(subtree, block[1:])
         else:
             raise ValueError('Unexpected data type "{}" for putative root variable {}'

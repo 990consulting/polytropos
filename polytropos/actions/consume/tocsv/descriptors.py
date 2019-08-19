@@ -1,16 +1,15 @@
-from collections.abc import Callable
 from dataclasses import dataclass
 from typing import List, Tuple
 
 from polytropos.ontology.schema import Schema
 
-class DescriptorsToBlocks(Callable):
+class DescriptorsToBlocks:
     """Convert a list of column descriptors to column blocks, which can in turn be used to extract data."""
     def __call__(self, descriptors: List) -> Tuple:
         pass
 
 @dataclass
-class DescriptorsToColumnNames(Callable):
+class DescriptorsToColumnNames:
     """Convert a list of column descriptors to column names. By default, the column names are the absolute path of the
     variables, but these column names can be overridden."""
 
