@@ -1,5 +1,8 @@
+import json
+import os
+
 from polytropos.actions.consume.tocsv.blockvalue import AsBlockValue
-from typing import Dict
+from typing import Dict, Callable
 
 import pytest
 from polytropos.ontology.composite import Composite
@@ -54,6 +57,12 @@ def immutable_track() -> Track:
             "data_type": "Text",
             "parent": "i_folder_in_root",
             "sort_order": 0
+        },
+        "i_int_in_folder": {
+            "name": "some_int",
+            "data_type": "Integer",
+            "parent": "i_folder_in_root",
+            "sort_order": 1
         },
         "i_list_in_folder": {
             "name": "simple_list",
@@ -191,16 +200,11 @@ def schema(temporal_track, immutable_track) -> Schema:
     return Schema(temporal_track, immutable_track)
 
 @pytest.fixture()
-def composite_1(schema) -> Composite:
-    # Read from file -- this one should have everything and lots of periods
-    pass
-
-@pytest.fixture()
-def composite_2(schema) -> Composite:
-    # Read from file -- this one should have only immutable
-    pass
-
-@pytest.fixture()
-def composite_3(schema) -> Composite:
-    # Read from file -- this one should have only temporal
-    pass
+def read_composite(schema, basepath) -> Callable:
+    def _read_composite(composite_number: int) -> Composite:
+        filename: str = "composite_%i.json" % composite_number
+        filepath: str = os.path.join(basepath, "test_functional", "action", "consume", "tocsv", filename)
+        with open(filepath) as fh:
+            content: Dict = json.load(fh)
+        return Composite(schema, content, composite_id=filename[:-5])
+    return _read_composite
