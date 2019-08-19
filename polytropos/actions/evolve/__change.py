@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from abc import abstractmethod
-from collections.abc import Callable
 from typing import Dict
 
 from polytropos.ontology.composite import Composite
@@ -9,7 +8,7 @@ from polytropos.ontology.schema import Schema
 
 
 @dataclass
-class Change(Callable):
+class Change:  # type: ignore # https://github.com/python/mypy/issues/5374
     """A transformation to be applied to a single composite. The transformation can create or alter any variable that
     is defined in the schema. As a matter of practice, however, the variables to be altered should be defined in the
     Mutation's parameters."""
@@ -17,6 +16,6 @@ class Change(Callable):
     lookups: Dict
 
     @abstractmethod
-    def __call__(self, composite: Composite):
+    def __call__(self, composite: Composite) -> None:
         """Perform the change on the supplied composite."""
         pass

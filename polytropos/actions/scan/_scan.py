@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from polytropos.ontology.schema import Schema
 
 @dataclass
-class Scan(Step):
+class Scan(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
     schema: "Schema"
 
     """Scan iterates through all of the composites in the task pipeline twice: once to gather global information, and
@@ -26,7 +26,7 @@ class Scan(Step):
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, path_locator: "PathLocator", schema: "Schema", name: str, mappings: Dict):
+    def build(cls, path_locator: "PathLocator", schema: "Schema", name: str, mappings: Dict):  # type: ignore # Signature of "build" incompatible with supertype "Step"
         scan_subclasses: Dict[str, Type] = load(cls)
         instance_subclass: Type = scan_subclasses[name]
         return instance_subclass(**mappings, schema=schema)
@@ -48,13 +48,13 @@ class Scan(Step):
         the alteration."""
         pass
 
-    def process_composite(self, origin_dir: str, filename: str):
+    def process_composite(self, origin_dir: str, filename: str) -> Tuple[str, Optional[Any]]:
         with open(os.path.join(origin_dir, filename), 'r') as origin_file:
             content: Dict = json.load(origin_file)
             composite: Composite = Composite(self.schema, content)
             return filename, self.extract(composite)
 
-    def alter_and_write_composite(self, origin_dir, target_dir, filename):
+    def alter_and_write_composite(self, origin_dir: str, target_dir: str, filename: str) -> None:
         with open(os.path.join(origin_dir, filename), 'r') as origin_file:
             content: Dict = json.load(origin_file)
             composite: Composite = Composite(self.schema, content)
@@ -62,7 +62,7 @@ class Scan(Step):
         with open(os.path.join(target_dir, filename), 'w') as target_file:
             json.dump(composite.content, target_file, indent=2)
 
-    def __call__(self, origin_dir: str, target_dir: str):
+    def __call__(self, origin_dir: str, target_dir: str) -> None:
         with ThreadPoolExecutor() as executor:
             self.analyze(
                 executor.map(

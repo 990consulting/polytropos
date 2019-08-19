@@ -19,7 +19,7 @@ def compare_primitives(fixture: Optional[Any], actual: Optional[Any]) -> bool:
 
     return polytropos.util.compare.compare(fixture, actual, allow_nested=False)
 
-class CompareComplexVariable(Callable):
+class CompareComplexVariable:
     def __init__(self, schema: Schema):
         self.schema = schema
         
@@ -143,7 +143,7 @@ class CompareComplexVariable(Callable):
                 return False
         return True
 
-    def __call__(self, fixture: Any, actual: Optional[Any], path: Optional[ListType[str]] = None):
+    def __call__(self, fixture: Any, actual: Optional[Any], path: Optional[ListType[str]] = None) -> bool:
         assert fixture is not None
 
         # If we have a dictionary and no path, we're starting with the root
@@ -151,7 +151,8 @@ class CompareComplexVariable(Callable):
             return self.compare_folders(fixture, actual, [])
 
         # Otherwise, find out what kind of variable we're looking at
-        var: Variable = self.schema.lookup(tuple(path))
+        assert path is not None
+        var: Optional[Variable] = self.schema.lookup(tuple(path))
         if var is None:
             raise ValueError("Unrecognized variable %s" % path_to_str(path))
         data_type: str = var.data_type

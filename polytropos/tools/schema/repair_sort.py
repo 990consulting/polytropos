@@ -3,15 +3,18 @@ import json
 from collections import defaultdict
 from typing import Dict, Optional
 
+from polytropos.ontology.variable import VariableId
+
+
 def _repair_spec(track_spec: Dict[str, Dict]) -> None:
-    parents: Dict[str, Dict] = defaultdict(dict)
+    parents: Dict[Optional[VariableId], Dict] = defaultdict(dict)
 
     for var_id, variable in track_spec.items():
-        parent: Optional[str] = variable.get("parent")
+        parent: Optional[VariableId] = variable.get("parent")
         parents[parent][var_id] = variable
 
     for parent_id, children in parents.items():
-        child_names: Dict[str] = {}
+        child_names: Dict[str, VariableId] = {}
         for child_id, child in children.items():
             name: str = child["name"]
             assert name not in child_names
@@ -21,7 +24,7 @@ def _repair_spec(track_spec: Dict[str, Dict]) -> None:
             track_spec[child_id]["sort_order"] = sort_order
             sort_order += 1
 
-def _repair_track_sort_order(schema_location: str, track_name: str):
+def _repair_track_sort_order(schema_location: str, track_name: str) -> None:
     track_fn: str = os.path.join(schema_location, track_name + ".json")
     with open(track_fn) as fh:
         track_spec: Dict = json.load(fh)
@@ -32,7 +35,7 @@ def _repair_track_sort_order(schema_location: str, track_name: str):
     with open(repaired_fn, "w") as fh:
         json.dump(track_spec, fh, indent=2)
 
-def repair_sort_order(schema_location: str):
+def repair_sort_order(schema_location: str) -> None:
     """Replaces the existing sort order in a schema (if any) with an arbitrary, but valid, sort order. No aspect of the
     old sort order will be preserved; the new order will be alphabetized by variable name."""
     for track_name in ["temporal", "immutable"]:

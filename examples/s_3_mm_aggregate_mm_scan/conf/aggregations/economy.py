@@ -3,7 +3,7 @@ from typing import Iterator, Tuple, Dict, Iterable, Any, Optional
 
 from polytropos.ontology.composite import Composite
 
-from polytropos.ontology.variable.__variable import Decimal, Text
+from polytropos.ontology.variable.__variable import Decimal, Text, VariableId
 
 from polytropos.actions.aggregate import Aggregate
 from polytropos.actions.validator import VariableValidator
@@ -12,19 +12,19 @@ from polytropos.ontology.variable import Integer
 
 @dataclass
 class EconomicOverview(Aggregate):
-    n_employee_var: str = VariableValidator(data_type=Integer, temporal=1)
-    revenue_var: str = VariableValidator(data_type=Decimal, temporal=1)
-    source_zip_var: str = VariableValidator(data_type=Text, temporal=-1)
-    source_city_var: str = VariableValidator(data_type=Text, temporal=-1)
-    source_state_var: str = VariableValidator(data_type=Text, temporal=-1)
+    n_employee_var: VariableId = VariableValidator(data_type=Integer, temporal=1)
+    revenue_var: VariableId = VariableValidator(data_type=Decimal, temporal=1)
+    source_zip_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
+    source_city_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
+    source_state_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
 
     # Output schema variables
-    n_company_var: str = VariableValidator(data_type=Integer, temporal=1)
-    mean_employee_var: str = VariableValidator(data_type=Decimal, temporal=1)
-    annual_prod_var: str = VariableValidator(data_type=Decimal, temporal=1)
-    target_zip_var: str = VariableValidator(data_type=Text, temporal=-1)
-    target_city_var: str = VariableValidator(data_type=Text, temporal=-1)
-    target_state_var: str = VariableValidator(data_type=Text, temporal=-1)
+    n_company_var: VariableId = VariableValidator(data_type=Integer, temporal=1)
+    mean_employee_var: VariableId = VariableValidator(data_type=Decimal, temporal=1)
+    annual_prod_var: VariableId = VariableValidator(data_type=Decimal, temporal=1)
+    target_zip_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
+    target_city_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
+    target_state_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
 
     def __post_init__(self):
         # Internal variable used for reduce/analyze step

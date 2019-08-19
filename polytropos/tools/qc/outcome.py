@@ -1,6 +1,6 @@
 from collections import deque
 from dataclasses import field, dataclass
-from typing import Deque, Iterator, NamedTuple, Optional, Any, Set
+from typing import Deque, Iterator, NamedTuple, Optional, Any
 
 class ValueMatch(NamedTuple):
     entity_id: str
@@ -45,7 +45,7 @@ class Outcome:
         for missing in self.missings:
             yield "/%s/%s%s" % (missing.entity_id, missing.observation, missing.var_path)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return False
 

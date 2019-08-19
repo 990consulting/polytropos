@@ -2,17 +2,18 @@ from typing import Dict, List
 import pytest
 
 from polytropos.ontology.track import Track
-from polytropos.ontology.variable import Variable
+from polytropos.ontology.variable import Variable, VariableId
+
 
 def test_alter_source_changes_sources_list(target_nested_dict_track):
     track: Track = target_nested_dict_track
-    var: Variable = track["target_var_2"]
+    var: Variable = track[VariableId("target_var_2")]
     var.sources = ["source_var_2", "source_var_3"]
     assert var.sources == ["source_var_2", "source_var_3"]
 
 def do_source_swap(track: Track) -> Variable:
-    var: Variable = track["target_var_2"]
-    var.sources = ["source_var_3"]
+    var: Variable = track[VariableId("target_var_2")]
+    var.sources = [VariableId("source_var_3")]
     return var
 
 def test_alter_source_changes_dict(target_nested_dict_track):
@@ -73,7 +74,6 @@ def test_incompatible_source_raises(target_nested_dict_track):
         target_track["target_var_2"].sources = ["source_text_var"]
 
 @pytest.mark.parametrize("sources", [
-    [],
     ["source_var_2"],
     ["source_var_2", "source_var_3"]
 ])

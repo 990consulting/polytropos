@@ -2,17 +2,17 @@ from dataclasses import dataclass
 
 from polytropos.actions.evolve.__change import Change
 from polytropos.ontology.composite import Composite
-from polytropos.ontology.variable import Text, Decimal
+from polytropos.ontology.variable import Text, Decimal, VariableId
 from polytropos.actions.validator import VariableValidator
 
 @dataclass
 class GeneratePersonDescription(Change):
-    color_name_var: str = VariableValidator(data_type=Text)
-    rgb_var: str = VariableValidator(data_type=Text)
-    person_name_var: str = VariableValidator(data_type=Text)
-    gender_var: str = VariableValidator(data_type=Text)
-    weight_gain_var: str = VariableValidator(data_type=Decimal)
-    sentence_var: str = VariableValidator(data_type=Text)
+    color_name_var: VariableId = VariableValidator(data_type=Text)
+    rgb_var: VariableId = VariableValidator(data_type=Text)
+    person_name_var: VariableId = VariableValidator(data_type=Text)
+    gender_var: VariableId = VariableValidator(data_type=Text)
+    weight_gain_var: VariableId = VariableValidator(data_type=Decimal)
+    sentence_var: VariableId = VariableValidator(data_type=Text)
 
     def get_pronoun(self, composite: Composite):
         gender: str = composite.get_immutable(self.gender_var)

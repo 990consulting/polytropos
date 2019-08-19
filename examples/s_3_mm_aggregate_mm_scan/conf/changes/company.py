@@ -4,13 +4,14 @@ from polytropos.ontology.composite import Composite
 
 from polytropos.actions.evolve.__change import Change
 from polytropos.actions.validator import VariableValidator
-from polytropos.ontology.variable import Text
+from polytropos.ontology.variable import Text, VariableId
+
 
 @dataclass
 class AssignCityState(Change):
-    zip_var: str = VariableValidator(data_type=Text, temporal=-1)
-    city_var: str = VariableValidator(data_type=Text, temporal=-1)
-    state_var: str = VariableValidator(data_type=Text, temporal=-1)
+    zip_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
+    city_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
+    state_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
 
     def __call__(self, composite: Composite):
         zip_code: str = composite.get_immutable(self.zip_var)

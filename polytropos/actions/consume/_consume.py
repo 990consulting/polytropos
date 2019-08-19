@@ -14,23 +14,24 @@ from polytropos.ontology.paths import PathLocator
 
 
 @dataclass
-class Consume(Step):
-    path_locator: PathLocator
+class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
+    path_locator: Optional[PathLocator]
     schema: Schema
 
     """Export data from a set of composites to a single file."""
+    # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, path_locator: PathLocator, schema: Schema, name: str, **kwargs):
+    def build(cls, path_locator: PathLocator, schema: Schema, name: str, **kwargs):  # type: ignore # Signature of "build" incompatible with supertype "Step"
         consumes = load(cls)
         return consumes[name](path_locator, schema, **kwargs)
 
     @abstractmethod
-    def before(self):
+    def before(self) -> None:
         """Optional actions to be performed after the constructor runs but before starting to consume composites."""
         pass
 
     @abstractmethod
-    def after(self):
+    def after(self) -> None:
         """Optional actions to be performed after the composites are all consumed."""
 
     @abstractmethod
@@ -46,7 +47,7 @@ class Consume(Step):
         :param extracts: Tuple of (composite filename, whatever is returned by extract)"""
         pass
 
-    def process_composite(self, origin_dir: str, filename: str):
+    def process_composite(self, origin_dir: str, filename: str) -> Tuple[str, Optional[Any]]:
         """Open a composite JSON file, deserialize it into a Composite object, then extract information to be used in
         analysis."""
         with open(os.path.join(origin_dir, filename), 'r') as origin_file:
@@ -54,7 +55,7 @@ class Consume(Step):
             composite: Composite = Composite(self.schema, content)
             return filename, self.extract(composite)
 
-    def __call__(self, origin_dir: str, target_dir: str):
+    def __call__(self, origin_dir: str, target_dir: Optional[str]) -> None:
         """Generate the export file."""
         self.before()
         with futures.ThreadPoolExecutor() as executor:

@@ -6,5 +6,9 @@ python:
 # command to install dependencies
 install:
   - pip install .
-# command to run tests
-script: pytest
+  - pip install mypy
+script:
+  # command to run tests
+  - pytest
+  # command to run mypy
+  - mypy . --disallow-untyped-defs --ignore-missing-imports
