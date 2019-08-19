@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Dict, Any, Iterable
+from typing import Dict, Any, Iterable, Optional
 
 from asciitree import LeftAligned
 from asciitree.drawing import BoxStyle, BOX_DOUBLE
@@ -21,7 +21,7 @@ def _traverse(variables: Iterable[Variable]) -> Dict:
         sort_orders[key] = var.sort_order
 
     # Python Cookbook, recipe 1.8
-    ret = OrderedDict()
+    ret: OrderedDict[str, int] = OrderedDict()
     for sort_order, key in sorted(zip(sort_orders.values(), sort_orders.keys())):
         ret[key] = unsorted[key]
 
@@ -44,6 +44,7 @@ def as_ascii(schema: Schema) -> str:
     return "\n\n".join([temporal, immutable])
 
 def print_from_files(schema_basepath: str, schema_name: str) -> None:
-    schema: Schema = Schema.load(schema_name, base_path=schema_basepath)
+    schema: Optional[Schema] = Schema.load(schema_name, base_path=schema_basepath)
+    assert schema is not None
     tree: str = as_ascii(schema)
     print(tree)

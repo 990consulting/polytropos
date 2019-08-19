@@ -37,7 +37,7 @@ class FixtureOutcomes:
                 self.no_actual.add(entity_id)
                 logging.warning("No actual value observed for fixture %s." % entity_id)
                 continue
-            fixture: Composite = _get_composite(fixture_path, entity_id, schema)
+            fixture: Optional[Composite] = _get_composite(fixture_path, entity_id, schema)
             assert fixture is not None
             comparator: FixtureComparator = FixtureComparator(schema, entity_id, fixture, actual)
             outcome: Outcome = comparator.outcome

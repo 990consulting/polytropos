@@ -9,7 +9,7 @@ from polytropos.ontology.track import Track
 from polytropos.ontology.variable import Variable, VariableId
 
 
-class Translator(Callable):
+class Translator:
     """Class in charge of translating documents given a source track and a
     target track"""
     def __init__(self, target: Track, failsafe: bool=False):

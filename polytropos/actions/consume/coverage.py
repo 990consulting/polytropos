@@ -1,7 +1,7 @@
 import csv
 from collections import defaultdict, Counter
 from dataclasses import dataclass, field
-from typing import Iterable, Tuple, Any, Optional, Dict, NamedTuple, Set, List
+from typing import Iterable, Tuple, Any, Optional, Dict, Set, List
 
 from polytropos.ontology.schema import Schema
 
@@ -10,9 +10,10 @@ from polytropos.util import nesteddicts
 
 from polytropos.actions.consume import Consume
 from polytropos.ontology.composite import Composite
-from polytropos.ontology.variable import Variable
+from polytropos.ontology.variable import Variable, VariableId
 
-def _get_sorted_vars(group_var_counts: Dict[str, Counter], track: Track):
+
+def _get_sorted_vars(group_var_counts: Dict[Optional[str], Counter], track: Track) -> List[Tuple]:
     all_known_vars: Set[Tuple] = set()
     for counter in group_var_counts.values():
         for key in counter:
@@ -34,28 +35,29 @@ class CoverageFile(Consume):
     Produces two files: one for temporal observations, and one for immutable observations."""
 
     file_prefix: str
-    temporal_grouping_var: Optional[str] = field(default=None)
-    immutable_grouping_var: Optional[str] = field(default=None)
+    temporal_grouping_var: Optional[VariableId] = field(default=None)
+    immutable_grouping_var: Optional[VariableId] = field(default=None)
 
     # Count of observations of each variable path by grouping variable
-    temporal_var_counts: Dict[str, Counter] = field(default_factory=lambda: defaultdict(Counter), init=False)
-    immutable_var_counts: Dict[str, Counter] = field(default_factory=lambda: defaultdict(Counter), init=False)
+    temporal_var_counts: Dict[Optional[str], Counter] = field(default_factory=lambda: defaultdict(Counter), init=False)
+    immutable_var_counts: Dict[Optional[str], Counter] = field(default_factory=lambda: defaultdict(Counter), init=False)
 
     # Number of times each value of the grouping variable was observed
-    temporal_n: Dict[str, int] = field(default_factory=lambda: defaultdict(int), init=False)
-    immutable_n: Dict[str, int] = field(default_factory=lambda: defaultdict(int), init=False)
+    temporal_n: Dict[Optional[str], int] = field(default_factory=lambda: defaultdict(int), init=False)
+    immutable_n: Dict[Optional[str], int] = field(default_factory=lambda: defaultdict(int), init=False)
 
     # noinspection PyTypeChecker
     @classmethod
     def standalone(cls, schema_basepath: str, schema_name: str, data_path: str, output_prefix: str,
-                   t_group: str, i_group: str):
+                   t_group: Optional[VariableId], i_group: Optional[VariableId]) -> None:
 
-        schema: Schema = Schema.load(schema_name, base_path=schema_basepath)
+        schema: Optional[Schema] = Schema.load(schema_name, base_path=schema_basepath)
+        assert schema is not None
         # TODO Refactor so unnecessary arguments aren't required.
         coverage: "CoverageFile" = cls(None, schema, output_prefix, t_group, i_group)
         coverage(data_path, None)
 
-    def before(self):
+    def before(self) -> None:
         if self.temporal_grouping_var is not None and self.schema.get(self.temporal_grouping_var) is None:
             raise ValueError('Temporal grouping variable "%s" does not exist.')
         if self.immutable_grouping_var is not None and self.schema.get(self.immutable_grouping_var) is None:
@@ -71,7 +73,7 @@ class CoverageFile(Consume):
             return None
         return composite.get_immutable(self.immutable_grouping_var, treat_missing_as_null=True)
 
-    def _crawl(self, content: Dict, observed: Set[Tuple], path: List):
+    def _crawl(self, content: Dict, observed: Set[Tuple], path: List) -> None:
         for key, value in content.items():  # type: str, Any
             # Ignore system variables
             if key.startswith("_"):
@@ -83,7 +85,7 @@ class CoverageFile(Consume):
 
             # For known named lists, skip over the particular key names. Beyond this, we don't worry at this stage
             # whether the variable is known or not.
-            child_var: Variable = self.schema.lookup(child_path)
+            child_var: Optional[Variable] = self.schema.lookup(child_path)
             if child_var and child_var.data_type == "NamedList":
                 for child_value in value.values():
                     self._crawl(child_value, observed, child_path)
@@ -99,12 +101,12 @@ class CoverageFile(Consume):
 
             # In all other cases, the variable is a leaf node (primitive), so no further action needed.
 
-    def _extract_temporal(self, composite: Composite) -> Dict[str, Counter]:
+    def _extract_temporal(self, composite: Composite) -> Dict[Optional[str], Counter]:
         """For each grouping variable value, get a count of the number of OBSERVATIONS with AT LEAST ONE instance of a
         given variable. That is, if a variable is nested inside a list and happens 100 times, it only counts once; but
         if this happens in two different observations within the same composite, and both observations have the same
         grouping variable value, then the count for that group/variable combo is 2."""
-        ret: Dict[str, Counter] = defaultdict(Counter)
+        ret: Dict[Optional[str], Counter] = defaultdict(Counter)
         for period in composite.periods:
             group: Optional[str] = self._get_temporal_group(composite, period)
             self.temporal_n[group] += 1
@@ -114,13 +116,13 @@ class CoverageFile(Consume):
                 ret[group][path] += 1
         return ret
 
-    def _extract_immutable(self, composite: Composite) -> Dict[str, Counter]:
+    def _extract_immutable(self, composite: Composite) -> Dict[Optional[str], Counter]:
         """Note that this will always return a dictionary of length 0 or 1, but using a Dict simplifies code due to
         analogy with _extract_temporal."""
         if "immutable" not in composite.content:
             return {}
 
-        group: Optional[str] = self._get_immutable_group(composite)
+        group: Optional[Optional[str]] = self._get_immutable_group(composite)
         self.immutable_n[group] += 1
         observed: Set[Tuple] = set()
         self._crawl(composite.content["immutable"], observed, [])
@@ -132,9 +134,9 @@ class CoverageFile(Consume):
             counts[path] += 1
         return {group: counts}
 
-    def extract(self, composite: Composite) -> Tuple[Dict[str, Counter], Dict[str, Counter]]:
-        temporal_counts: Dict[str, Counter] = self._extract_temporal(composite)
-        immutable_counts: Dict[str, Counter] = self._extract_immutable(composite)
+    def extract(self, composite: Composite) -> Tuple[Dict[Optional[str], Counter], Dict[Optional[str], Counter]]:
+        temporal_counts: Dict[Optional[str], Counter] = self._extract_temporal(composite)
+        immutable_counts: Dict[Optional[str], Counter] = self._extract_immutable(composite)
         return temporal_counts, immutable_counts
 
     def consume(self, extracts: Iterable[Tuple[str, Tuple[Dict[str, Counter], Dict[str, Counter]]]]) -> None:
@@ -164,14 +166,14 @@ class CoverageFile(Consume):
                 "data_type": ""
             }
 
-    def _write_groups_file(self, group_obs_counts: Dict[str, int], grouping_var_id: str, infix: str):
+    def _write_groups_file(self, group_obs_counts: Dict[Optional[str], int], grouping_var_id: Optional[str], infix: str) -> None:
         groups_fn: str = self.file_prefix + "_" + infix + "_groups.csv"
         with open(groups_fn, "w") as fh:
             group_var_path: str = "Group"
             if grouping_var_id is not None:
-                group_var: Variable = self.schema.lookup(grouping_var_id)
+                group_var: Optional[Variable] = self.schema.lookup(grouping_var_id)
                 if group_var is not None:
-                    group_var_path: str = nesteddicts.path_to_str(group_var.absolute_path)
+                    group_var_path = nesteddicts.path_to_str(group_var.absolute_path)
 
             writer: csv.DictWriter = csv.DictWriter(fh, [group_var_path, "observations"])
             writer.writeheader()
@@ -181,8 +183,8 @@ class CoverageFile(Consume):
                     "observations": str(value)
                 })
 
-    def _write_coverage_file(self, track: Track, group_obs_counts: Dict[str, int],
-                             group_var_counts: Dict[str, Counter], infix: str):
+    def _write_coverage_file(self, track: Track, group_obs_counts: Dict[Optional[str], int],
+                             group_var_counts: Dict[Optional[str], Counter], infix: str) -> None:
         groups: List[str] = sorted([str(x) for x in group_var_counts.keys()])
         columns: List[str] = ["variable", "in_schema", "var_id", "data_type"] + groups
         sorted_vars = _get_sorted_vars(group_var_counts, track)
@@ -201,20 +203,20 @@ class CoverageFile(Consume):
                     row[str(group)] = "%0.2f" % frac
                 writer.writerow(row)
 
-    def _write(self, track: Track, infix: str, group_var_counts: Dict[str, Counter], group_obs_counts: Dict[str, int],
-               grouping_var_id: str):
+    def _write(self, track: Track, infix: str, group_var_counts: Dict[Optional[str], Counter], group_obs_counts: Dict[Optional[str], int],
+               grouping_var_id: Optional[str]) -> None:
 
         self._write_coverage_file(track, group_obs_counts, group_var_counts, infix)
         self._write_groups_file(group_obs_counts, grouping_var_id, infix)
 
-    def _write_temporal(self):
+    def _write_temporal(self) -> None:
         self._write(self.schema.temporal, "temporal", self.temporal_var_counts, self.temporal_n,
                     self.temporal_grouping_var)
 
-    def _write_immutable(self):
+    def _write_immutable(self) -> None:
         self._write(self.schema.immutable, "immutable", self.immutable_var_counts, self.immutable_n,
                     self.immutable_grouping_var)
 
-    def after(self):
+    def after(self) -> None:
         self._write_temporal()
         self._write_immutable()

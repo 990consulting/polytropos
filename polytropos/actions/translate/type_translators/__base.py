@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from typing import TypeVar, Generic, Any, Optional, cast
+from typing import TypeVar, Generic, Optional, cast
 
 from polytropos.actions.translate import Translator
 from polytropos.actions.translate.__document import DocumentValueProvider, SourceNotFoundException
@@ -10,7 +10,7 @@ T = TypeVar('T')
 
 
 @dataclass
-class BaseTypeTranslator(Generic[T]):
+class BaseTypeTranslator(Generic[T]):  # type: ignore # https://github.com/python/mypy/issues/5374
     translator: Translator
     document: DocumentValueProvider
     variable: Variable

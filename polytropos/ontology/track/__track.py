@@ -1,18 +1,21 @@
 import logging
 from copy import deepcopy
 import json
-from typing import Iterator, Dict, TYPE_CHECKING, Any, Iterable, Optional, List as ListType
+from typing import Iterator, Dict, TYPE_CHECKING, Any, Optional, List as ListType
 from collections.abc import MutableMapping
 
 from polytropos.ontology.variable import (
-    Primitive, Container, GenericList, Validator,
-    List, NamedList, Variable, VariableId
+    Primitive, Container, Validator,
+    Variable, VariableId
 )
 import polytropos.ontology.variable
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
 from functools import partial
-import time
+
+if TYPE_CHECKING:
+    from polytropos.ontology.schema import Schema
+
 
 class Track(MutableMapping):
     """Represents a hierarchy of variables associated with a particular aspect (stage) of a particular entity type, and
@@ -26,7 +29,7 @@ class Track(MutableMapping):
         self.name = name
         self.source = source
         self.target = None
-        self.schema = None
+        self.schema: Optional["Schema"] = None
         self._cache: Dict[str, Any] = {}
         if source:
             source.target = self
@@ -106,7 +109,7 @@ class Track(MutableMapping):
         :param name: The name of the stage/aspect."""
         return cls(specs, source, name)
 
-    @property
+    @property  # type: ignore # Decorated property not supported
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'root'))
     def roots(self) -> ListType["Variable"]:
         """All the roots of this track's variable tree."""
