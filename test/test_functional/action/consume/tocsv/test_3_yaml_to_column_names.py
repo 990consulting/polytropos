@@ -1,5 +1,5 @@
 """Tests to create the same blocks as are used in test_1_as_block_values."""
-from typing import Tuple, List, Callable, Type
+from typing import Tuple, List, Callable, Type, Iterator
 
 import pytest
 import yaml
@@ -8,7 +8,7 @@ from polytropos.actions.consume.tocsv.descriptors import DescriptorsToColumnName
 
 @pytest.fixture()
 def to_column_names(schema) -> Callable:   # Schema defined in conftest.py, in this directory
-    def _to_column_names(raw_yaml: str) -> Tuple:
+    def _to_column_names(raw_yaml: str) -> Iterator:
         descriptors: List = yaml.full_load(raw_yaml)
         y2c: DescriptorsToColumnNames = DescriptorsToColumnNames(schema)
         return y2c(descriptors)
@@ -17,7 +17,7 @@ def to_column_names(schema) -> Callable:   # Schema defined in conftest.py, in t
 @pytest.fixture()
 def do_test(to_column_names) -> Callable:
     def _ret(raw_yaml: str, expected: Tuple):
-        actual: Tuple = to_column_names(raw_yaml)
+        actual: Tuple = tuple(to_column_names(raw_yaml))
         assert actual == expected
     return _ret
 
@@ -90,7 +90,7 @@ def test_list_with_no_columns(do_test):
     - i_list_in_folder:
         type: List
     """
-    expected: Tuple = (("i_list_in_folder",),)
+    expected: Tuple = ()
     do_test(raw_yaml, expected)
 
 def test_named_list(do_test):
