@@ -12,6 +12,7 @@ from polytropos.util.exceptions import ExceptionWrapper
 from polytropos.util.loader import load
 from polytropos.actions.evolve import Change
 from polytropos.actions.step import Step
+from polytropos.util.paths import find_all_composites, relpath_for
 
 if TYPE_CHECKING:
     from polytropos.ontology.paths import PathLocator
@@ -79,26 +80,29 @@ class Evolve(Step):
         do_build: Callable = _EvolveFactory(path_locator, changes, schema, lookups)
         return do_build(cls)
 
-    def process_composite(self, origin: str, target: str, filename: str) -> Optional[ExceptionWrapper]:
+    def process_composite(self, origin_dir: str, base_target_dir: str, composite_id: str) -> Optional[ExceptionWrapper]:
         try:
-            origin_filename: str = os.path.join(origin, filename)
+            relpath: str = relpath_for(composite_id)
+            origin_filename: str = os.path.join(origin_dir, relpath, "%s.json" % composite_id)
             logging.debug("Evolving %s." % origin_filename)
-            with open(origin_filename, 'r') as origin_file:
+            with open(origin_filename) as origin_file:
                 content: Dict = json.load(origin_file)
-                composite_id: str = filename[:-5]
                 composite: Composite = Composite(self.schema, content, composite_id=composite_id)
                 for change in self.changes:
                     logging.debug('Applying change "%s" to %s.' % (change.__class__.__name__, origin_filename))
                     change(composite)
-            with open(os.path.join(target, filename), 'w') as target_file:
+            target_dir: str = os.path.join(base_target_dir, relpath)
+            os.makedirs(target_dir, exist_ok=True)
+            target_filepath: str = os.path.join(target_dir, "%s.json" % composite_id)
+            with open(target_filepath, 'w') as target_file:
                 json.dump(composite.content, target_file, indent=2)
         except Exception as e:
             return ExceptionWrapper(e)
         return None
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
-        targets = os.listdir(origin_dir)
-        logging.debug("I have the following targets:\n   - %s" % "\n   - ".join(targets))
+        targets = list(find_all_composites(origin_dir))
+        #logging.debug("I have the following targets:\n   - %s" % "\n   - ".join(targets))
         with ProcessPoolExecutor() as executor:
             results = executor.map(
                 partial(self.process_composite, origin_dir, target_dir),
@@ -108,3 +112,5 @@ class Evolve(Step):
             for result in results:  # type: Optional[ExceptionWrapper]
                 if result is not None:
                     result.re_raise()
+        #for target in targets:
+        #    self.process_composite(origin_dir, target_dir, target)

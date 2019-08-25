@@ -10,6 +10,7 @@ from polytropos.ontology.composite import Composite
 
 from polytropos.actions.step import Step
 from polytropos.util.loader import load
+from polytropos.util.paths import find_all_composites, relpath_for
 
 if TYPE_CHECKING:
     from polytropos.ontology.paths import PathLocator
@@ -48,18 +49,22 @@ class Scan(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
         the alteration."""
         pass
 
-    def process_composite(self, origin_dir: str, filename: str) -> Tuple[str, Optional[Any]]:
-        with open(os.path.join(origin_dir, filename), 'r') as origin_file:
+    def process_composite(self, origin_dir: str, composite_id: str) -> Tuple[str, Optional[Any]]:
+        relpath: str = relpath_for(composite_id)
+        with open(os.path.join(origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
             content: Dict = json.load(origin_file)
-            composite: Composite = Composite(self.schema, content)
-            return filename, self.extract(composite)
+            composite: Composite = Composite(self.schema, content, composite_id=composite_id)
+            return composite_id, self.extract(composite)
 
-    def alter_and_write_composite(self, origin_dir: str, target_dir: str, filename: str) -> None:
-        with open(os.path.join(origin_dir, filename), 'r') as origin_file:
+    def alter_and_write_composite(self, origin_dir: str, target_base_dir: str, composite_id: str) -> None:
+        relpath: str = relpath_for(composite_id)
+        with open(os.path.join(origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
             content: Dict = json.load(origin_file)
-            composite: Composite = Composite(self.schema, content)
-            self.alter(filename, composite)
-        with open(os.path.join(target_dir, filename), 'w') as target_file:
+            composite: Composite = Composite(self.schema, content, composite_id=composite_id)
+            self.alter(composite_id, composite)
+        target_dir: str = os.path.join(target_base_dir, relpath)
+        os.makedirs(target_dir, exist_ok=True)
+        with open(os.path.join(target_dir, "%s.json" % composite_id), 'w') as target_file:
             json.dump(composite.content, target_file, indent=2)
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
@@ -67,11 +72,11 @@ class Scan(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
             self.analyze(
                 executor.map(
                     partial(self.process_composite, origin_dir),
-                    os.listdir(origin_dir)
+                    find_all_composites(origin_dir)
                 )
             )
         with ThreadPoolExecutor() as executor:
             executor.map(
                 partial(self.alter_and_write_composite, origin_dir, target_dir),
-                os.listdir(origin_dir)
+                find_all_composites(origin_dir)
             )

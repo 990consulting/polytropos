@@ -10,6 +10,7 @@ from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.actions.translate import Translator
 from polytropos.util.exceptions import ExceptionWrapper
+from polytropos.util.paths import find_all_composites, relpath_for
 
 if TYPE_CHECKING:
     from polytropos.ontology.paths import PathLocator
@@ -38,18 +39,12 @@ class Translate(Step):
         translate_temporal: Translator = Translator(target_schema_instance.temporal)
         return cls(target_schema_instance, translate_immutable, translate_temporal)
 
-    def process_composite(self, origin_dir: str, target_dir: str, filename: str) -> Optional[ExceptionWrapper]:
-        logging.debug('Translating composite "%s".' % filename)
+    def process_composite(self, origin_dir: str, target_base_dir: str, composite_id: str) -> Optional[ExceptionWrapper]:
+        logging.debug('Translating composite "%s".' % composite_id)
+        relpath: str = relpath_for(composite_id)
         try:
-            if filename.startswith("."):
-                logging.info('Skipping hidden file "%s"' % filename)
-                return None
-            if not filename.endswith(".json"):
-                logging.info('Skipping non-JSON file "%s"' % filename)
-                return None
-
             translated = {}
-            with open(os.path.join(origin_dir, filename), 'r') as origin_file:
+            with open(os.path.join(origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
                 composite = json.load(origin_file)
                 for key, value in composite.items():
                     if key.isdigit():
@@ -58,10 +53,12 @@ class Translate(Step):
                         translated[key] = self.translate_immutable(value)
                     else:
                         pass
-            with open(os.path.join(target_dir, filename), 'w') as target_file:
+            target_dir: str = os.path.join(target_base_dir, relpath)
+            os.makedirs(target_dir, exist_ok=True)
+            with open(os.path.join(target_dir, "%s.json" % composite_id), 'w') as target_file:
                 json.dump(translated, target_file, indent=2)
         except Exception as e:
-            logging.error("Error translating composite %s." % filename)
+            logging.error("Error translating composite %s." % composite_id)
             return ExceptionWrapper(e)
         return None
 
@@ -69,7 +66,7 @@ class Translate(Step):
         with ThreadPoolExecutor() as executor:
             results = executor.map(
                 partial(self.process_composite, origin_dir, target_dir),
-                os.listdir(origin_dir)
+                find_all_composites(origin_dir)
             )
             # TODO: Exceptions are supposed to propagate from a ProcessPoolExecutor. Why aren't mine?
             for result in results:  # type: Optional[ExceptionWrapper]
