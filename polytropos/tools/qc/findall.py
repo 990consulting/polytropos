@@ -9,9 +9,11 @@ from polytropos.ontology.schema import Schema
 from polytropos.tools.qc.compare import FixtureComparator
 
 from polytropos.tools.qc.outcome import Outcome, ValueMatch, ValueMismatch, MissingValue
+from polytropos.util.paths import find_all_composites, relpath_for
 
-def _get_composite(path: str, entity_id: str, schema: Schema) -> Optional[Composite]:
-    filename: str = "%s/%s.json" % (path, entity_id)
+def _get_composite(basepath: str, composite_id: str, schema: Schema) -> Optional[Composite]:
+    relpath: str = relpath_for(composite_id)
+    filename: str = os.path.join(basepath, relpath, "%s.json" % composite_id)
     if not os.path.exists(filename):
         return None
     with open(filename) as fh:
@@ -20,28 +22,24 @@ def _get_composite(path: str, entity_id: str, schema: Schema) -> Optional[Compos
         except Exception as e:
             logging.error("Error reading composite %s" % filename)
             raise e
-    return Composite(schema, content, composite_id=entity_id)
+    return Composite(schema, content, composite_id=composite_id)
 
 class FixtureOutcomes:
     def __init__(self, schema: Schema, fixture_path: str, actual_path: str):
         unsorted_outcomes: Dict[str, Outcome] = {}
         self.no_actual: Set[str] = set()
 
-        for filename in os.listdir(fixture_path):
-            if not filename.endswith(".json") or filename.startswith("."):
-                logging.warning("Skipping non-fixture file %s." % filename)
-                continue
-            entity_id: str = filename[:-5]  # Strip off the ".json"
-            actual: Optional[Composite] = _get_composite(actual_path, entity_id, schema)
+        for composite_id in find_all_composites(fixture_path):
+            actual: Optional[Composite] = _get_composite(actual_path, composite_id, schema)
             if actual is None:
-                self.no_actual.add(entity_id)
-                logging.warning("No actual value observed for fixture %s." % entity_id)
+                self.no_actual.add(composite_id)
+                logging.warning("No actual value observed for fixture %s." % composite_id)
                 continue
-            fixture: Optional[Composite] = _get_composite(fixture_path, entity_id, schema)
+            fixture: Optional[Composite] = _get_composite(fixture_path, composite_id, schema)
             assert fixture is not None
-            comparator: FixtureComparator = FixtureComparator(schema, entity_id, fixture, actual)
+            comparator: FixtureComparator = FixtureComparator(schema, composite_id, fixture, actual)
             outcome: Outcome = comparator.outcome
-            unsorted_outcomes[entity_id] = outcome
+            unsorted_outcomes[composite_id] = outcome
 
         self.outcomes: List = [unsorted_outcomes[key] for key in sorted(unsorted_outcomes.keys())]
 

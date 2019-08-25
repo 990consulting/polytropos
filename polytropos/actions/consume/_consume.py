@@ -11,7 +11,7 @@ from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.util.loader import load
 from polytropos.ontology.paths import PathLocator
-
+from polytropos.util.paths import find_all_composites, relpath_for
 
 @dataclass
 class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
@@ -47,26 +47,24 @@ class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/537
         :param extracts: Tuple of (composite filename, whatever is returned by extract)"""
         pass
 
-    def process_composite(self, origin_dir: str, filename: str) -> Tuple[str, Optional[Any]]:
+    def process_composite(self, origin_dir: str, composite_id: str) -> Tuple[str, Optional[Any]]:
         """Open a composite JSON file, deserialize it into a Composite object, then extract information to be used in
         analysis."""
-        with open(os.path.join(origin_dir, filename), 'r') as origin_file:
+        relpath: str = relpath_for(composite_id)
+        with open(os.path.join(origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
             content: Dict = json.load(origin_file)
             composite: Composite = Composite(self.schema, content)
-            return filename, self.extract(composite)
+            return composite_id, self.extract(composite)
 
     def __call__(self, origin_dir: str, target_dir: Optional[str]) -> None:
         """Generate the export file."""
         self.before()
+        composite_ids: Iterable[str] = find_all_composites(origin_dir)
         with futures.ThreadPoolExecutor() as executor:
-            json_file_paths: ListType[str] = os.listdir(origin_dir)
             future_to_file_path: Dict = {}
-            for file_path in json_file_paths:
-                if not file_path.endswith(".json"):
-                    logging.warning("Skipping non-JSON file %s" % file_path)
-                    continue
-                future = executor.submit(self.process_composite, origin_dir, file_path)
-                future_to_file_path[future] = file_path
+            for composite_id in composite_ids:
+                future = executor.submit(self.process_composite, origin_dir, composite_id)
+                future_to_file_path[future] = composite_id
 
             per_composite_futures: Iterable[futures.Future] = futures.as_completed(future_to_file_path)
 
@@ -74,7 +72,6 @@ class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/537
                 (future.result() for future in per_composite_futures)
 
             self.consume(per_composite_results)
-
         self.after()
 
 
