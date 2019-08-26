@@ -55,7 +55,8 @@ class Track(MutableMapping):
 
         n = 0
         if name.startswith("nonprofit_origin"):
-            logging.warning("Skipping validation for nonprofit origin. THIS IS DANGEROUS DEBUG LOGIC--REMOVE LATER.")
+            logging.warning("""Skipping validation for nonprofit_origin because validation currently checks stuff that
+            doesn't need to be checked in the first stage. HARD CODED CLOODGE -- REMOVE LATER.""")
         else:
             logging.info('Performing post-load validation on variables for track "%s".' % name)
             for variable in self.values():

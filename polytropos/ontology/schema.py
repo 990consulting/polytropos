@@ -166,6 +166,7 @@ class Schema:
             if abs_path == frozen_abs_path:
                 return var
 
+        self._var_path_cache[frozen_abs_path] = None
         return None
 
     def lookup(self, abs_path: Iterable[str]) -> Optional[Variable]:

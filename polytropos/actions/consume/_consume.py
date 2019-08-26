@@ -53,13 +53,14 @@ class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/537
         relpath: str = relpath_for(composite_id)
         with open(os.path.join(origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
             content: Dict = json.load(origin_file)
-            composite: Composite = Composite(self.schema, content)
+            composite: Composite = Composite(self.schema, content, composite_id=composite_id)
             return composite_id, self.extract(composite)
 
     def __call__(self, origin_dir: str, target_dir: Optional[str]) -> None:
         """Generate the export file."""
         self.before()
         composite_ids: Iterable[str] = find_all_composites(origin_dir)
+        #per_composite_results = (self.process_composite(origin_dir, composite_id) for composite_id in composite_ids)
         with futures.ThreadPoolExecutor() as executor:
             future_to_file_path: Dict = {}
             for composite_id in composite_ids:
@@ -71,7 +72,7 @@ class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/537
             per_composite_results: Iterable[Tuple[str, Optional[Any]]] = \
                 (future.result() for future in per_composite_futures)
 
-            self.consume(per_composite_results)
+        self.consume(per_composite_results)
         self.after()
 
 

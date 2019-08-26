@@ -1,4 +1,5 @@
 import csv
+import logging
 from collections import defaultdict, Counter
 from dataclasses import dataclass, field
 from typing import Iterable, Tuple, Any, Optional, Dict, Set, List
@@ -58,6 +59,7 @@ class CoverageFile(Consume):
         coverage(data_path, None)
 
     def before(self) -> None:
+        logging.info("Validating grouping variables (if any).")
         if self.temporal_grouping_var is not None and self.schema.get(self.temporal_grouping_var) is None:
             raise ValueError('Temporal grouping variable "%s" does not exist.')
         if self.immutable_grouping_var is not None and self.schema.get(self.immutable_grouping_var) is None:
@@ -90,8 +92,8 @@ class CoverageFile(Consume):
                 for child_value in value.values():
                     self._crawl(child_value, observed, child_path)
 
-            # For lists, crawl each list item
-            elif isinstance(value, list):
+            # For lists (except string lists), crawl each list item -- exclude string lists
+            elif isinstance(value, list) and not (len(value) > 0 and isinstance(value[0], str)):
                 for child_value in value:
                     self._crawl(child_value, observed, child_path)
 
@@ -135,6 +137,7 @@ class CoverageFile(Consume):
         return {group: counts}
 
     def extract(self, composite: Composite) -> Tuple[Dict[Optional[str], Counter], Dict[Optional[str], Counter]]:
+        logging.debug("Extracting data from composite %s", composite.composite_id)
         temporal_counts: Dict[Optional[str], Counter] = self._extract_temporal(composite)
         immutable_counts: Dict[Optional[str], Counter] = self._extract_immutable(composite)
         return temporal_counts, immutable_counts
@@ -168,6 +171,8 @@ class CoverageFile(Consume):
 
     def _write_groups_file(self, group_obs_counts: Dict[Optional[str], int], grouping_var_id: Optional[str], infix: str) -> None:
         groups_fn: str = self.file_prefix + "_" + infix + "_groups.csv"
+        logging.info("Writing groups file to %s.", groups_fn)
+
         with open(groups_fn, "w") as fh:
             group_var_path: str = "Group"
             if grouping_var_id is not None:
@@ -185,15 +190,18 @@ class CoverageFile(Consume):
 
     def _write_coverage_file(self, track: Track, group_obs_counts: Dict[Optional[str], int],
                              group_var_counts: Dict[Optional[str], Counter], infix: str) -> None:
+        fn: str = self.file_prefix + "_" + infix + ".csv"
+        logging.info("Writing coverage file to %s.", fn)
+
         groups: List[str] = sorted([str(x) for x in group_var_counts.keys()])
         columns: List[str] = ["variable", "in_schema", "var_id", "data_type"] + groups
         sorted_vars = _get_sorted_vars(group_var_counts, track)
 
-        fn: str = self.file_prefix + "_" + infix + ".csv"
         with open(fn, "w") as fh:
             writer: csv.DictWriter = csv.DictWriter(fh, columns)
             writer.writeheader()
             for var_path in sorted_vars:
+                logging.debug("Writing coverage for %s.", nesteddicts.path_to_str(var_path))
                 row: Dict = self._init_row(var_path)
                 for group in group_obs_counts.keys():
                     n_in_group: int = group_obs_counts[group]
