@@ -25,6 +25,11 @@ def _get_sorted_vars(group_var_counts: Dict[Optional[str], Counter], track: Trac
     sorted_vars: List[Tuple] = sorted(all_known_vars)
     return sorted_vars
 
+def _observe_path(path: List, key: str, observed: Set) -> List:
+    child_path: List = path + [key]
+    observed.add(tuple(child_path))
+    return child_path
+
 @dataclass
 class CoverageFile(Consume):
     """Iterates over all periods in all composites, optionally classifying them according to a grouping variable. Within
@@ -75,6 +80,21 @@ class CoverageFile(Consume):
             return None
         return composite.get_immutable(self.immutable_grouping_var, treat_missing_as_null=True)
 
+    def _handle_named_list(self, child_path: List, value: Any, observed: Set) -> bool:
+        child_var: Optional[Variable] = self.schema.lookup(child_path)
+        if child_var and child_var.data_type == "NamedList":
+            for child_value in value.values():
+                self._crawl(child_value, observed, child_path)
+            return True
+        return False
+
+    def _handle_list(self, child_path: List, value: Any, observed: Set) -> bool:
+        if isinstance(value, list) and not (len(value) > 0 and isinstance(value[0], str)):
+            for child_value in value:
+                self._crawl(child_value, observed, child_path)
+            return True
+        return False
+
     def _crawl(self, content: Dict, observed: Set[Tuple], path: List) -> None:
         for key, value in content.items():  # type: str, Any
             # Ignore system variables
@@ -82,23 +102,19 @@ class CoverageFile(Consume):
                 continue
 
             # Record that we saw this path
-            child_path: List = path + [key]
-            observed.add(tuple(child_path))
+            child_path: List = _observe_path(path, key, observed)
 
             # For known named lists, skip over the particular key names. Beyond this, we don't worry at this stage
             # whether the variable is known or not.
-            child_var: Optional[Variable] = self.schema.lookup(child_path)
-            if child_var and child_var.data_type == "NamedList":
-                for child_value in value.values():
-                    self._crawl(child_value, observed, child_path)
+            if self._handle_named_list(child_path, value, observed):
+                return
 
             # For lists (except string lists), crawl each list item -- exclude string lists
-            elif isinstance(value, list) and not (len(value) > 0 and isinstance(value[0], str)):
-                for child_value in value:
-                    self._crawl(child_value, observed, child_path)
+            if self._handle_list(child_path, value, observed):
+                return
 
             # If the value is a dict, and we do not it to be a named list, then we assume that it is a real folder.
-            elif isinstance(value, dict):
+            if isinstance(value, dict):
                 self._crawl(value, observed, child_path)
 
             # In all other cases, the variable is a leaf node (primitive), so no further action needed.

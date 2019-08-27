@@ -144,6 +144,9 @@ class Variable:
 
         self.__dict__[attribute] = value
 
+        if attribute in {'sort_order', 'parent', 'name'}:
+            self.track.invalidate_variables_cache()
+
     def validate_attribute_value(self, attribute: str, value: Any) -> Any:
         if attribute == 'var_id':
             Validator.validate_var_id(value)
@@ -176,9 +179,6 @@ class Variable:
                 return value.strip()
         elif attribute == 'data_type':
             raise AttributeError
-
-        if attribute in {'sort_order', 'parent', 'name'}:
-            self.track.invalidate_variables_cache()
 
         return value
 

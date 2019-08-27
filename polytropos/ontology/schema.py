@@ -65,11 +65,13 @@ class Schema:
         self._preload_var_path_cache()
 
     def _preload_var_path_cache(self) -> None:
+        logging.info("Preloading absolute path cache.")
         for track in [self.temporal, self.immutable]:  # type: Track
             for var in track.values():  # type: "Variable"
                 abs_path: Tuple[str, ...] = tuple(var.absolute_path)
                 if abs_path in self._var_path_cache:
                     raise DuplicatePathError(var, self._var_path_cache[abs_path])
+                logging.debug("Caching %s", "/".join(abs_path))
                 self._var_path_cache[abs_path] = var
 
     def serialize(self, path: str) -> None:
@@ -159,13 +161,7 @@ class Schema:
         if frozen_abs_path in self._var_path_cache:
             return self._var_path_cache[frozen_abs_path]
 
-        for var in self:  # type: "Variable"
-            abs_path: Tuple[str, ...] = tuple(var.absolute_path)
-            if abs_path not in self._var_path_cache:
-                self._var_path_cache[abs_path] = var
-            if abs_path == frozen_abs_path:
-                return var
-
+        logging.debug("Path %s not in schema. Noting that in the cache.", "/".join(frozen_abs_path))
         self._var_path_cache[frozen_abs_path] = None
         return None
 
@@ -177,6 +173,7 @@ class Schema:
         logging.info("Invalidating schema caches.")
         self._var_id_cache.clear()
         self._var_path_cache.clear()
+        self._preload_var_path_cache()
 
     @cachedmethod(lambda self: self._var_id_cache, key=partial(hashkey, 'istemporal'))
     def is_temporal(self, var_id: VariableId) -> bool:

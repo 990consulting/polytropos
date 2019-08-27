@@ -4,7 +4,7 @@ import json
 from abc import abstractmethod
 from dataclasses import dataclass
 from concurrent import futures
-from typing import List as ListType, Dict, Iterable, Optional, Any, Tuple
+from typing import List as ListType, Dict, Iterable, Optional, Any, Tuple, List
 
 from polytropos.ontology.composite import Composite
 from polytropos.actions.step import Step
@@ -12,6 +12,7 @@ from polytropos.ontology.schema import Schema
 from polytropos.util.loader import load
 from polytropos.ontology.paths import PathLocator
 from polytropos.util.paths import find_all_composites, relpath_for
+from multiprocessing import cpu_count
 
 @dataclass
 class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
@@ -59,7 +60,7 @@ class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/537
     def __call__(self, origin_dir: str, target_dir: Optional[str]) -> None:
         """Generate the export file."""
         self.before()
-        composite_ids: Iterable[str] = find_all_composites(origin_dir)
+        composite_ids: List[str] = list(find_all_composites(origin_dir))
         #per_composite_results = (self.process_composite(origin_dir, composite_id) for composite_id in composite_ids)
         with futures.ThreadPoolExecutor() as executor:
             future_to_file_path: Dict = {}
@@ -74,5 +75,3 @@ class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/537
 
         self.consume(per_composite_results)
         self.after()
-
-
