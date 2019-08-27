@@ -1,5 +1,6 @@
 import logging
 import json
+import warnings
 from abc import abstractmethod
 from collections import defaultdict
 from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType
@@ -14,6 +15,9 @@ if TYPE_CHECKING:
 
 VariableId = NewType("VariableId", str)
 
+warnings.warn("""Caching are not reliably maintained when renaming variables (see test_schema_lookup.py). Schema
+manipulation will eventually be moved to its own runtime, and polytropos will assume invariant schemas. Use schema edit
+methods at your own peril.""", RuntimeWarning)
 
 class Validator:
     @staticmethod
@@ -141,11 +145,11 @@ class Variable:
     def __setattr__(self, attribute: str, value: Any) -> None:
         if attribute != "initialized" and self.initialized:
             value = self.validate_attribute_value(attribute, value)
+            if attribute in {'sort_order', 'parent', 'name'}:
+                self.track.invalidate_variables_cache()
 
         self.__dict__[attribute] = value
 
-        if attribute in {'sort_order', 'parent', 'name'}:
-            self.track.invalidate_variables_cache()
 
     def validate_attribute_value(self, attribute: str, value: Any) -> Any:
         if attribute == 'var_id':

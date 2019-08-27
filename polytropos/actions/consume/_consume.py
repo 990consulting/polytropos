@@ -57,12 +57,16 @@ class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/537
             composite: Composite = Composite(self.schema, content, composite_id=composite_id)
             return composite_id, self.extract(composite)
 
+    # noinspection PyMethodMayBeStatic
+    def _get_executor(self, *args, **kwargs) -> futures.Executor:
+        return futures.ThreadPoolExecutor()
+
     def __call__(self, origin_dir: str, target_dir: Optional[str]) -> None:
         """Generate the export file."""
         self.before()
-        composite_ids: List[str] = list(find_all_composites(origin_dir))
+        composite_ids: Iterable[str] = find_all_composites(origin_dir)
         #per_composite_results = (self.process_composite(origin_dir, composite_id) for composite_id in composite_ids)
-        with futures.ThreadPoolExecutor() as executor:
+        with self._get_executor() as executor:
             future_to_file_path: Dict = {}
             for composite_id in composite_ids:
                 future = executor.submit(self.process_composite, origin_dir, composite_id)

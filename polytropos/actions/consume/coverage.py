@@ -223,7 +223,10 @@ class CoverageFile(Consume):
                     n_in_group: int = group_obs_counts[group]
                     times_var_observed: int = group_var_counts[group][var_path]
                     frac: float = times_var_observed / n_in_group
-                    assert frac <= 1.0
+                    if frac > 1.0:
+                        logging.warning("Observed coverage of {:.5f} (>1) for variable {:}."
+                                        .format(frac, nesteddicts.path_to_str(var_path)))
+                    #assert frac <= 1.0
                     row[str(group)] = "%0.2f" % frac
                 writer.writerow(row)
 
