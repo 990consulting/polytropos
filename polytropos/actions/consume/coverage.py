@@ -273,4 +273,4 @@ class CoverageFile(Consume):
 
     def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Tuple[str, Optional[Any]]]:
         return itertools.chain.from_iterable(run_on_process_pool(self.process_composites_chunk, list(composite_ids),
-                                                                 origin_dir))
+                                                                 origin_dir, chunk_size=1000))
