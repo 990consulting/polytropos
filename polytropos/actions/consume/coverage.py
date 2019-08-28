@@ -5,6 +5,8 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Iterable, Tuple, Any, Optional, Dict, Set, List
 
+from tqdm import tqdm
+
 from polytropos.ontology.schema import Schema
 
 from polytropos.ontology.track import Track
@@ -267,5 +269,6 @@ class CoverageFile(Consume):
         return [self.process_composite(composite_id, origin_dir) for composite_id in composite_ids]
 
     def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Tuple[str, Optional[Any]]]:
-        return itertools.chain.from_iterable(run_on_process_pool(self.process_composites_chunk, list(composite_ids),
-                                                                 origin_dir))
+        composite_ids_list = list(composite_ids)
+        return tqdm(itertools.chain.from_iterable(run_on_process_pool(self.process_composites_chunk, composite_ids_list,
+                                                                 origin_dir, chunk_size=1000)), total=len(composite_ids_list))
