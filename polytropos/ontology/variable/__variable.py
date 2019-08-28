@@ -100,6 +100,8 @@ class Variable:
                  sources: Optional[ListType[VariableId]] = None, parent: Optional[VariableId] = None):
         self.initialized = False
 
+        self.data_type = self.__class__.__name__
+
         # The track to which this variable belongs
         self.track: "Track" = track
 
@@ -341,10 +343,6 @@ class Variable:
             lambda variable: variable.parent == self.var_id,
             self.track.values()
         )
-
-    @property
-    def data_type(self) -> str:
-        return self.__class__.__name__
 
     def ancestors(self, parent_id_to_stop: Optional[VariableId]) -> Iterator["Variable"]:
         """Returns an iterator of ancestors (self, self.parent, self.parent.parent, etc).
