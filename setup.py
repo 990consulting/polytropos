@@ -21,7 +21,8 @@ setuptools.setup(
         'cachetools',
         'tblib',
         'click',
-        'asciitree'
+        'asciitree',
+        'tqdm'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

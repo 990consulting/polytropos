@@ -1,8 +1,10 @@
 import math
 import os
-from concurrent.futures import as_completed, Executor, ThreadPoolExecutor
+from concurrent.futures import as_completed, Executor, ThreadPoolExecutor, Future
 from concurrent.futures.process import ProcessPoolExecutor
-from typing import Optional, Callable, List, Any, Iterable
+from typing import Optional, Callable, List, Any, Iterable, Dict
+
+from tqdm import tqdm
 
 MAX_PROCESS_POOL_CHUNK_SIZE = 10000
 
@@ -42,13 +44,18 @@ def run_on_pool(executor: Executor, func: Callable, items: List[Any], *args: Any
 
     exceptions: List[BaseException] = []
     with executor:
-        futures = [executor.submit(func, chunk, *args) for chunk in chunks]
-        for future in as_completed(futures):
-            e = future.exception()
-            if e is not None:
-                exceptions.append(e)
-            else:
-                yield future.result()
+        futures: Dict[Future, int] = {}
+        for chunk in chunks:
+            future = executor.submit(func, chunk, *args)
+            futures[future] = len(chunk)
+        with tqdm(total=len(items)) as pbar:
+            for future in as_completed(futures.keys()):
+                pbar.update(futures[future])
+                e = future.exception()
+                if e is not None:
+                    exceptions.append(e)
+                else:
+                    yield future.result()
     if len(exceptions) > 0:
         raise exceptions[0]
 
