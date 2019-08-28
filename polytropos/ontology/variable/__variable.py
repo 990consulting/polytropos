@@ -96,6 +96,8 @@ class Variable:
 
         self.initialized = False
 
+        self.data_type = self.__class__.__name__
+
         # The track to which this variable belongs
         self.track: "Track" = track
 

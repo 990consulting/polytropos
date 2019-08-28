@@ -4,7 +4,7 @@ import os
 from typing import Iterator, Iterable
 import textwrap
 
-def _use_scandir(basepath: str, outer: bool=False) -> Iterator[str]:
+def _use_scandir(basepath: str, outer: bool = False) -> Iterator[str]:
     if outer is True:
         logging.info("Crawling %s for composites." % basepath)
     i: int = 0

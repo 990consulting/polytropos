@@ -1,6 +1,7 @@
 import csv
+import itertools
 import logging
-from collections import defaultdict, Counter
+from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Iterable, Tuple, Any, Optional, Dict, Set, List
 
@@ -12,23 +13,45 @@ from polytropos.util import nesteddicts
 from polytropos.actions.consume import Consume
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import Variable, VariableId
+from polytropos.util.futures import run_on_process_pool
 
 
-def _get_sorted_vars(group_var_counts: Dict[Optional[str], Counter], track: Track) -> List[Tuple]:
-    all_known_vars: Set[Tuple] = set()
+def _get_sorted_vars(group_var_counts: Dict[Optional[str], Dict[Tuple[str, ...], int]], track: Track) \
+        -> List[Tuple[str, ...]]:
+    all_known_vars: Set[Tuple[str, ...]] = set()
     for counter in group_var_counts.values():
         for key in counter:
             all_known_vars.add(key)
     for variable in track.values():
-        path: Tuple = tuple(variable.absolute_path)
+        path: Tuple[str, ...] = tuple(variable.absolute_path)
         all_known_vars.add(path)
-    sorted_vars: List[Tuple] = sorted(all_known_vars)
+    sorted_vars: List[Tuple[str, ...]] = sorted(all_known_vars)
     return sorted_vars
 
-def _observe_path(path: List, key: str, observed: Set) -> List:
-    child_path: List = path + [key]
-    observed.add(tuple(child_path))
-    return child_path
+
+class CoverageFileExtractResult:
+    def __init__(self) -> None:
+        # Count of observations of each variable path by grouping variable
+        self.temporal_var_counts: Dict[Optional[str], Dict[Tuple[str, ...], int]] = defaultdict(dict)
+        self.immutable_var_counts: Dict[Optional[str], Dict[Tuple[str, ...], int]] = defaultdict(dict)
+
+        # Number of times each value of the grouping variable was observed
+        self.temporal_n: Dict[Optional[str], int] = defaultdict(int)
+        self.immutable_n: Dict[Optional[str], int] = defaultdict(int)
+
+    def update(self, other: "CoverageFileExtractResult") -> None:
+        for group, counts in other.temporal_var_counts.items():  # types: Optional[str], dict
+            for path, count in counts.items():
+                self.temporal_var_counts.setdefault(group, defaultdict(int))[path] += count
+        for group, counts in other.immutable_var_counts.items():  # types: Optional[str], dict
+            for path, count in counts.items():
+                self.immutable_var_counts.setdefault(group, defaultdict(int))[path] += count
+
+        for group, count in other.temporal_n.items():  # types: Optional[str], int
+            self.temporal_n[group] += count
+        for group, count in other.immutable_n.items():  # types: Optional[str], int
+            self.immutable_n[group] += count
+
 
 @dataclass
 class CoverageFile(Consume):
@@ -44,13 +67,7 @@ class CoverageFile(Consume):
     temporal_grouping_var: Optional[VariableId] = field(default=None)
     immutable_grouping_var: Optional[VariableId] = field(default=None)
 
-    # Count of observations of each variable path by grouping variable
-    temporal_var_counts: Dict[Optional[str], Counter] = field(default_factory=lambda: defaultdict(Counter), init=False)
-    immutable_var_counts: Dict[Optional[str], Counter] = field(default_factory=lambda: defaultdict(Counter), init=False)
-
-    # Number of times each value of the grouping variable was observed
-    temporal_n: Dict[Optional[str], int] = field(default_factory=lambda: defaultdict(int), init=False)
-    immutable_n: Dict[Optional[str], int] = field(default_factory=lambda: defaultdict(int), init=False)
+    coverage_result: CoverageFileExtractResult = field(default_factory=CoverageFileExtractResult, init=False)
 
     # noinspection PyTypeChecker
     @classmethod
@@ -80,92 +97,94 @@ class CoverageFile(Consume):
             return None
         return composite.get_immutable(self.immutable_grouping_var, treat_missing_as_null=True)
 
-    def _handle_named_list(self, child_path: List, value: Any, observed: Set) -> bool:
-        child_var: Optional[Variable] = self.schema.lookup(child_path)
-        if child_var and child_var.data_type == "NamedList":
-            for child_value in value.values():
-                self._crawl(child_value, observed, child_path)
-            return True
-        return False
+    def _handle_named_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
+        for child_value in value.values():
+            if child_value is None:
+                logging.warning("Encountered empty named list item in composite %s (path %s).", composite_id,
+                                nesteddicts.path_to_str(child_path))
+                continue
+            self._crawl(composite_id, child_value, observed, child_path)
 
-    def _handle_list(self, child_path: List, value: Any, observed: Set) -> bool:
-        if isinstance(value, list) and not (len(value) > 0 and isinstance(value[0], str)):
-            for child_value in value:
-                self._crawl(child_value, observed, child_path)
-            return True
-        return False
+    def _handle_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
+        for child_value in value:
+            if child_value is None:
+                logging.warning("Encountered empty list item in composite %s (path %s).", composite_id,
+                                nesteddicts.path_to_str(child_path))
+                continue
+            self._crawl(composite_id, child_value, observed, child_path)
 
-    def _crawl(self, content: Dict, observed: Set[Tuple], path: List) -> None:
+    def _crawl(self, composite_id: str, content: Dict, observed: Set[Tuple], path: Tuple[str, ...]) -> None:
         for key, value in content.items():  # type: str, Any
             # Ignore system variables
-            if key.startswith("_"):
+            if key[0] == "_":
                 continue
 
             # Record that we saw this path
-            child_path: List = _observe_path(path, key, observed)
+            child_path: Tuple[str, ...] = path + (key,)
+            observed.add(child_path)
 
             # For known named lists, skip over the particular key names. Beyond this, we don't worry at this stage
             # whether the variable is known or not.
-            if self._handle_named_list(child_path, value, observed):
+
+            # Micro-optimization - direct access to a protected member
+            # noinspection PyProtectedMember
+            child_var: Optional[Variable] = self.schema._var_path_cache.get(child_path)
+            if child_var is not None and child_var.data_type == "NamedList":
+                self._handle_named_list(composite_id, child_path, value, observed)
                 return
 
             # For lists (except string lists), crawl each list item -- exclude string lists
-            if self._handle_list(child_path, value, observed):
+            if isinstance(value, list) and not (len(value) > 0 and isinstance(value[0], str)):
+                self._handle_list(composite_id, child_path, value, observed)
                 return
 
             # If the value is a dict, and we do not it to be a named list, then we assume that it is a real folder.
             if isinstance(value, dict):
-                self._crawl(value, observed, child_path)
+                self._crawl(composite_id, value, observed, child_path)
 
             # In all other cases, the variable is a leaf node (primitive), so no further action needed.
 
-    def _extract_temporal(self, composite: Composite) -> Dict[Optional[str], Counter]:
+    def _extract_temporal(self, composite: Composite, result: CoverageFileExtractResult) -> None:
         """For each grouping variable value, get a count of the number of OBSERVATIONS with AT LEAST ONE instance of a
         given variable. That is, if a variable is nested inside a list and happens 100 times, it only counts once; but
         if this happens in two different observations within the same composite, and both observations have the same
         grouping variable value, then the count for that group/variable combo is 2."""
-        ret: Dict[Optional[str], Counter] = defaultdict(Counter)
         for period in composite.periods:
             group: Optional[str] = self._get_temporal_group(composite, period)
-            self.temporal_n[group] += 1
+            result.temporal_n[group] += 1
             observed: Set[Tuple] = set()
-            self._crawl(composite.content[period], observed, [])
+            self._crawl(composite.composite_id, composite.content[period], observed, ())
             for path in observed:
-                ret[group][path] += 1
-        return ret
+                result.temporal_var_counts.setdefault(group, defaultdict(int))[path] += 1
 
-    def _extract_immutable(self, composite: Composite) -> Dict[Optional[str], Counter]:
+    def _extract_immutable(self, composite: Composite, result: CoverageFileExtractResult) -> None:
         """Note that this will always return a dictionary of length 0 or 1, but using a Dict simplifies code due to
         analogy with _extract_temporal."""
         if "immutable" not in composite.content:
-            return {}
+            return
 
         group: Optional[Optional[str]] = self._get_immutable_group(composite)
-        self.immutable_n[group] += 1
+        result.immutable_n[group] += 1
         observed: Set[Tuple] = set()
-        self._crawl(composite.content["immutable"], observed, [])
+        self._crawl(composite.composite_id, composite.content["immutable"], observed, ())
         if len(observed) == 0:
-            return {}
+            return
 
-        counts: Counter = Counter()
+        counts: dict = defaultdict(int)
         for path in observed:
             counts[path] += 1
-        return {group: counts}
+        result.immutable_var_counts[group] = counts
 
-    def extract(self, composite: Composite) -> Tuple[Dict[Optional[str], Counter], Dict[Optional[str], Counter]]:
+    def extract(self, composite: Composite) -> CoverageFileExtractResult:
         logging.debug("Extracting data from composite %s", composite.composite_id)
-        temporal_counts: Dict[Optional[str], Counter] = self._extract_temporal(composite)
-        immutable_counts: Dict[Optional[str], Counter] = self._extract_immutable(composite)
-        return temporal_counts, immutable_counts
+        extract_result = CoverageFileExtractResult()
+        self._extract_temporal(composite, extract_result)
+        self._extract_immutable(composite, extract_result)
+        return extract_result
 
-    def consume(self, extracts: Iterable[Tuple[str, Tuple[Dict[str, Counter], Dict[str, Counter]]]]) -> None:
+    def consume(self, extracts: Iterable[Tuple[str, CoverageFileExtractResult]]) -> None:
         for filename, extract in extracts:
-            # Incorporate temporal data
-            temporal_counts, immutable_counts = extract
-            for group, counts in temporal_counts.items():  # types: Optional[str], Counter
-                self.temporal_var_counts[group] += counts
-            for group, counts in immutable_counts.items():
-                self.immutable_var_counts[group] += counts
+            self.coverage_result.update(extract)
 
     def _init_row(self, var_path: Tuple) -> Dict:
         var_path_str: str = nesteddicts.path_to_str(var_path)
@@ -185,7 +204,8 @@ class CoverageFile(Consume):
                 "data_type": ""
             }
 
-    def _write_groups_file(self, group_obs_counts: Dict[Optional[str], int], grouping_var_id: Optional[str], infix: str) -> None:
+    def _write_groups_file(self, group_obs_counts: Dict[Optional[str], int], grouping_var_id: Optional[str],
+                           infix: str) -> None:
         groups_fn: str = self.file_prefix + "_" + infix + "_groups.csv"
         logging.info("Writing groups file to %s.", groups_fn)
 
@@ -205,7 +225,7 @@ class CoverageFile(Consume):
                 })
 
     def _write_coverage_file(self, track: Track, group_obs_counts: Dict[Optional[str], int],
-                             group_var_counts: Dict[Optional[str], Counter], infix: str) -> None:
+                             group_var_counts: Dict[Optional[str], Dict[Tuple[str, ...], int]], infix: str) -> None:
         fn: str = self.file_prefix + "_" + infix + ".csv"
         logging.info("Writing coverage file to %s.", fn)
 
@@ -230,20 +250,27 @@ class CoverageFile(Consume):
                     row[str(group)] = "%0.2f" % frac
                 writer.writerow(row)
 
-    def _write(self, track: Track, infix: str, group_var_counts: Dict[Optional[str], Counter], group_obs_counts: Dict[Optional[str], int],
-               grouping_var_id: Optional[str]) -> None:
+    def _write(self, track: Track, infix: str, group_var_counts: Dict[Optional[str], Dict[Tuple[str, ...], int]],
+               group_obs_counts: Dict[Optional[str], int], grouping_var_id: Optional[str]) -> None:
 
         self._write_coverage_file(track, group_obs_counts, group_var_counts, infix)
         self._write_groups_file(group_obs_counts, grouping_var_id, infix)
 
     def _write_temporal(self) -> None:
-        self._write(self.schema.temporal, "temporal", self.temporal_var_counts, self.temporal_n,
-                    self.temporal_grouping_var)
+        self._write(self.schema.temporal, "temporal", self.coverage_result.temporal_var_counts,
+                    self.coverage_result.temporal_n, self.temporal_grouping_var)
 
     def _write_immutable(self) -> None:
-        self._write(self.schema.immutable, "immutable", self.immutable_var_counts, self.immutable_n,
-                    self.immutable_grouping_var)
+        self._write(self.schema.immutable, "immutable", self.coverage_result.immutable_var_counts,
+                    self.coverage_result.immutable_n, self.immutable_grouping_var)
 
     def after(self) -> None:
         self._write_temporal()
         self._write_immutable()
+
+    def process_composites_chunk(self, composite_ids: List[str], origin_dir: str) -> List[Tuple[str, Optional[Any]]]:
+        return [self.process_composite(composite_id, origin_dir) for composite_id in composite_ids]
+
+    def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Tuple[str, Optional[Any]]]:
+        return itertools.chain.from_iterable(run_on_process_pool(self.process_composites_chunk, list(composite_ids),
+                                                                 origin_dir))
