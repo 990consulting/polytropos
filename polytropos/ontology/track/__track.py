@@ -49,22 +49,14 @@ class Track(MutableMapping):
                 logging.info("Built %i variables." % n)
         logging.info('Finished building all %i variables for track "%s".' % (n, name))
 
-        # we only validate after the whole thing is built to be able to
-        # accurately compute siblings, parents and children
-        self.invalidate_variables_cache()
-
+        logging.info('Performing post-load validation on variables for track "%s".' % name)
         n = 0
-        if name.startswith("nonprofit_origin"):
-            logging.warning("""Skipping validation for nonprofit_origin because validation currently checks stuff that
-            doesn't need to be checked in the first stage. HARD CODED CLOODGE -- REMOVE LATER.""")
-        else:
-            logging.info('Performing post-load validation on variables for track "%s".' % name)
-            for variable in self.values():
-                Validator.validate(variable, init=True)
-                n += 1
-                if n % 100 == 0:
-                    logging.info("Validated %i variables." % n)
-            logging.info('All variables valid "%s".' % name)
+        for variable in self.values():
+            Validator.validate(variable, init=True)
+            n += 1
+            if n % 100 == 0:
+                logging.info("Validated %i variables.", n)
+        logging.info('All variables valid "%s".' % name)
 
     def build_variable(self, data: Dict, var_id: VariableId) -> Variable:
         data_type = data['data_type']
@@ -119,79 +111,11 @@ class Track(MutableMapping):
             self._variables.values()
         ))
 
-    def invalidate_variables_cache(self) -> None:
-        logging.debug("Invalidating cache for all variables.")
-        for variable in self._variables.values():
-            variable.invalidate_cache()
-        self.invalidate_cache()
-
-    def invalidate_cache(self) -> None:
-        logging.debug("Invalidating track cache.")
-        self._cache.clear()
-        if self.schema:
-            self.schema.invalidate_cache()
-
     def new_var_id(self) -> VariableId:
         """If no ID is supplied, use <stage name>_<temporal|invarant>_<n+1>,
         where n is the number of variables."""
         # Missing the temporal/immutable part for now
         return VariableId('{}_{}'.format(self.name, len(self._variables) + 1))
-
-    def add(self, spec: Dict, var_id: Optional[VariableId]=None) -> None:
-        """Validate, create, and then insert a new variable into the track."""
-        if var_id is None:
-            var_id = self.new_var_id()
-        if var_id in self._variables:
-            # Duplicated var id
-            raise ValueError
-        if var_id == '':
-            # Invalid var id
-            raise ValueError
-        variable = self.build_variable(spec, var_id)
-        Validator.validate(variable, init=True, adding=True)
-        variable.update_sort_order(None, variable.sort_order)
-        self._variables[var_id] = variable
-        self.invalidate_variables_cache()
-
-    def duplicate(self, source_var_id: VariableId, new_var_id: Optional[VariableId]=None) -> None:
-        """Creates a duplicate of a node, including its sources, but not including its targets."""
-        if new_var_id is None:
-            new_var_id = self.new_var_id()
-        if new_var_id in self._variables:
-            raise ValueError
-        new_var = deepcopy(self._variables[source_var_id])
-        new_var.var_id = new_var_id
-        self._variables[new_var_id] = new_var
-        self.invalidate_variables_cache()
-
-    def delete(self, var_id: VariableId) -> None:
-        """Attempts to delete a node. Fails if the node has children or targets"""
-        if var_id not in self._variables:
-            raise ValueError
-        variable = self._variables[var_id]
-        variable.update_sort_order(variable.sort_order, None)
-        if any(variable.children) or variable.has_targets:
-            raise ValueError
-        del self._variables[var_id]
-        self.invalidate_variables_cache()
-
-    def move(self, var_id: VariableId, parent_id: Optional[VariableId], sort_order: int) -> None:
-        """Attempts to change the location of a node within the tree. If parent_id is None, it moves to root."""
-        variable = self._variables[var_id]
-        if parent_id and parent_id not in self._variables:
-            raise ValueError
-        if parent_id and variable.check_ancestor(parent_id):
-            raise ValueError
-        old_parent = variable.parent
-        old_descends_from_list = variable.descends_from_list
-        variable.update_sort_order(variable.sort_order, None)
-        variable.parent = parent_id
-        if variable.descends_from_list != old_descends_from_list:
-            variable.parent = old_parent
-            raise ValueError
-        variable.update_sort_order(None, sort_order)
-        variable.sort_order = sort_order
-        self.invalidate_variables_cache()
 
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
             -> Iterator[VariableId]:

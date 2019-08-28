@@ -145,17 +145,6 @@ def test_no_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     expected: Dict = {}
     do_test(source_doc, source_spec, expected, target_spec)
 
-def test_remove_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):
-    """Remove root sources at runtime, resulting in a cascade; no list is created."""
-
-    expected: Dict = {}
-    source_track: Track = Track.build(source_spec, None, "Source")
-    target_track: Track = Track.build(target_spec, source_track, "Target")
-    target_track["target_root"].sources = []
-    translate: Translator = Translator(target_track)
-    actual: Dict = translate(source_doc)
-    assert actual == expected
-
 def test_two_sources_both_missing(source_spec: Dict, target_spec: Dict):
     """Two sources defined, but both are missing from the source document; an empty list is created."""
     source_doc = {}
