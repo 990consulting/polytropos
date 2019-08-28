@@ -64,7 +64,7 @@ def setup(do_run, output_basepath) -> None:
 
     yield
 
-    #shutil.rmtree(output_basepath)
+    shutil.rmtree(output_basepath)
 
 @pytest.mark.parametrize("filename", [
     "grouped/grouped_immutable.csv",

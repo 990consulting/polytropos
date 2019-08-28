@@ -16,7 +16,8 @@ from polytropos.ontology.variable import Variable, VariableId
 from polytropos.util.futures import run_on_process_pool
 
 
-def _get_sorted_vars(group_var_counts: Dict[Optional[str], Dict[Tuple[str, ...], int]], track: Track) -> List[Tuple[str, ...]]:
+def _get_sorted_vars(group_var_counts: Dict[Optional[str], Dict[Tuple[str, ...], int]], track: Track) \
+        -> List[Tuple[str, ...]]:
     all_known_vars: Set[Tuple[str, ...]] = set()
     for counter in group_var_counts.values():
         for key in counter:
@@ -124,9 +125,12 @@ class CoverageFile(Consume):
 
             # For known named lists, skip over the particular key names. Beyond this, we don't worry at this stage
             # whether the variable is known or not.
-            child_var: Optional[Variable] = self.schema._var_path_cache.get(child_path)  # Micro-optimization - direct access to a protected member
+
+            # Micro-optimization - direct access to a protected member
+            # noinspection PyProtectedMember
+            child_var: Optional[Variable] = self.schema._var_path_cache.get(child_path)
             if child_var is not None and child_var.data_type == "NamedList":
-                self._handle_named_list(child_path, value, observed)
+                self._handle_named_list(composite_id, child_path, value, observed)
                 return
 
             # For lists (except string lists), crawl each list item -- exclude string lists
@@ -200,7 +204,8 @@ class CoverageFile(Consume):
                 "data_type": ""
             }
 
-    def _write_groups_file(self, group_obs_counts: Dict[Optional[str], int], grouping_var_id: Optional[str], infix: str) -> None:
+    def _write_groups_file(self, group_obs_counts: Dict[Optional[str], int], grouping_var_id: Optional[str],
+                           infix: str) -> None:
         groups_fn: str = self.file_prefix + "_" + infix + "_groups.csv"
         logging.info("Writing groups file to %s.", groups_fn)
 
