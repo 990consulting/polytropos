@@ -71,8 +71,7 @@ def test_tree_from_source_folder_1(source_nested_dict_track):
 
 def test_track_roots(source_nested_dict_track):
     track: Track = source_nested_dict_track
-    track.delete("source_folder_3")
-    expected: Set[str] = {"outer_s"}
+    expected: Set[str] = {"outer_s", "initially_empty_folder"}
     actual: Set[str] = {v.name for v in track.roots}
     assert expected == actual
 

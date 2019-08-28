@@ -145,11 +145,8 @@ class Variable:
     def __setattr__(self, attribute: str, value: Any) -> None:
         if attribute != "initialized" and self.initialized:
             value = self.validate_attribute_value(attribute, value)
-            if attribute in {'sort_order', 'parent', 'name'}:
-                self.track.invalidate_variables_cache()
 
         self.__dict__[attribute] = value
-
 
     def validate_attribute_value(self, attribute: str, value: Any) -> Any:
         if attribute == 'var_id':
@@ -185,25 +182,6 @@ class Variable:
             raise AttributeError
 
         return value
-
-    def invalidate_cache(self) -> None:
-        logging.debug("Invaliding cache for variable %s." % self.var_id)
-        self._cache.clear()
-
-    def update_sort_order(self, old_order: Optional[int] = None, new_order: Optional[int] = None) -> None:
-        if old_order is None:
-            old_order = len(list(self.siblings)) + 1
-        if new_order is None:
-            new_order = len(list(self.siblings)) + 1
-        for sibling in self.siblings:
-            if sibling == self.var_id:
-                continue
-            diff = 0
-            if self.track[sibling].sort_order >= new_order:
-                diff += 1
-            if self.track[sibling].sort_order >= old_order:
-                diff -= 1
-            self.track[sibling].__dict__['sort_order'] += diff
 
     @property
     def temporal(self) -> bool:

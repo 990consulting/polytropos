@@ -169,12 +169,6 @@ class Schema:
         frozen_abs_path: Tuple[str, ...] = tuple(abs_path)
         return self._lookup(frozen_abs_path)
 
-    def invalidate_cache(self) -> None:
-        logging.info("Invalidating schema caches.")
-        self._var_id_cache.clear()
-        self._var_path_cache.clear()
-        self._preload_var_path_cache()
-
     @cachedmethod(lambda self: self._var_id_cache, key=partial(hashkey, 'istemporal'))
     def is_temporal(self, var_id: VariableId) -> bool:
         assert not (var_id in self.temporal and var_id in self.immutable)
