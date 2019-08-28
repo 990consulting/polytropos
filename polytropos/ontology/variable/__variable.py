@@ -98,6 +98,7 @@ class Variable:
                  notes: Optional[str] = None, earliest_epoch: Optional[str] = None, latest_epoch: Optional[str] = None,
                  short_description: Optional[str] = None, long_description: Optional[str] = None,
                  sources: Optional[ListType[VariableId]] = None, parent: Optional[VariableId] = None):
+
         self.initialized = False
 
         # The track to which this variable belongs
@@ -144,7 +145,7 @@ class Variable:
 
     def __setattr__(self, attribute: str, value: Any) -> None:
         if attribute != "initialized" and self.initialized:
-            value = self.validate_attribute_value(attribute, value)
+            raise AttributeError("Variables are immutable at runtime and must be edited offline.")
 
         self.__dict__[attribute] = value
 

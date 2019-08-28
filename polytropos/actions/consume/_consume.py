@@ -58,7 +58,7 @@ class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/537
             return composite_id, self.extract(composite)
 
     # noinspection PyMethodMayBeStatic
-    def _get_executor(self, *args, **kwargs) -> futures.Executor:
+    def _get_executor(self, *args: Any, **kwargs: Any) -> futures.Executor:
         return futures.ThreadPoolExecutor()
 
     def __call__(self, origin_dir: str, target_dir: Optional[str]) -> None:

@@ -208,6 +208,11 @@ def target_list_track(source_list_track) -> Track:
             "parent": "target_named_list",
             "sort_order": 0,
             "sources": ["source_named_list_color"]
+        },
+        "outside_list_primitive": {
+            "name": "some_primitive",
+            "data_type": "Integer",
+            "sort_order": 1
         }
     }
     return Track.build(spec, source_list_track, "Target")
