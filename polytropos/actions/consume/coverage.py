@@ -96,15 +96,19 @@ class CoverageFile(Consume):
             return None
         return composite.get_immutable(self.immutable_grouping_var, treat_missing_as_null=True)
 
-    def _handle_named_list(self, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
+    def _handle_named_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
         for child_value in value.values():
-            self._crawl(child_value, observed, child_path)
+            if child_value is None:
+                logging.warning("Encountered empty list item in composite %s (path %s).", composite_id,
+                                nesteddicts.path_to_str(child_path))
+                continue
+            self._crawl(composite_id, child_value, observed, child_path)
 
-    def _handle_list(self, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
+    def _handle_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
         for child_value in value:
-            self._crawl(child_value, observed, child_path)
+            self._crawl(composite_id, child_value, observed, child_path)
 
-    def _crawl(self, content: Dict, observed: Set[Tuple], path: Tuple[str, ...]) -> None:
+    def _crawl(self, composite_id: str, content: Dict, observed: Set[Tuple], path: Tuple[str, ...]) -> None:
         for key, value in content.items():  # type: str, Any
             # Ignore system variables
             if key[0] == "_":
@@ -123,12 +127,12 @@ class CoverageFile(Consume):
 
             # For lists (except string lists), crawl each list item -- exclude string lists
             if isinstance(value, list) and not (len(value) > 0 and isinstance(value[0], str)):
-                self._handle_list(child_path, value, observed)
+                self._handle_list(composite_id, child_path, value, observed)
                 return
 
             # If the value is a dict, and we do not it to be a named list, then we assume that it is a real folder.
             if isinstance(value, dict):
-                self._crawl(value, observed, child_path)
+                self._crawl(composite_id, value, observed, child_path)
 
             # In all other cases, the variable is a leaf node (primitive), so no further action needed.
 
@@ -141,7 +145,7 @@ class CoverageFile(Consume):
             group: Optional[str] = self._get_temporal_group(composite, period)
             result.temporal_n[group] += 1
             observed: Set[Tuple] = set()
-            self._crawl(composite.content[period], observed, ())
+            self._crawl(composite.composite_id, composite.content[period], observed, ())
             for path in observed:
                 result.temporal_var_counts.setdefault(group, defaultdict(int))[path] += 1
 
@@ -154,7 +158,7 @@ class CoverageFile(Consume):
         group: Optional[Optional[str]] = self._get_immutable_group(composite)
         result.immutable_n[group] += 1
         observed: Set[Tuple] = set()
-        self._crawl(composite.content["immutable"], observed, ())
+        self._crawl(composite.composite_id, composite.content["immutable"], observed, ())
         if len(observed) == 0:
             return
 
@@ -237,19 +241,19 @@ class CoverageFile(Consume):
                     row[str(group)] = "%0.2f" % frac
                 writer.writerow(row)
 
-    def _write(self, track: Track, infix: str, group_var_counts: Dict[Optional[str], Dict[Tuple[str, ...], int]], group_obs_counts: Dict[Optional[str], int],
-               grouping_var_id: Optional[str]) -> None:
+    def _write(self, track: Track, infix: str, group_var_counts: Dict[Optional[str], Dict[Tuple[str, ...], int]],
+               group_obs_counts: Dict[Optional[str], int], grouping_var_id: Optional[str]) -> None:
 
         self._write_coverage_file(track, group_obs_counts, group_var_counts, infix)
         self._write_groups_file(group_obs_counts, grouping_var_id, infix)
 
     def _write_temporal(self) -> None:
-        self._write(self.schema.temporal, "temporal", self.coverage_result.temporal_var_counts, self.coverage_result.temporal_n,
-                    self.temporal_grouping_var)
+        self._write(self.schema.temporal, "temporal", self.coverage_result.temporal_var_counts,
+                    self.coverage_result.temporal_n, self.temporal_grouping_var)
 
     def _write_immutable(self) -> None:
-        self._write(self.schema.immutable, "immutable", self.coverage_result.immutable_var_counts, self.coverage_result.immutable_n,
-                    self.immutable_grouping_var)
+        self._write(self.schema.immutable, "immutable", self.coverage_result.immutable_var_counts,
+                    self.coverage_result.immutable_n, self.immutable_grouping_var)
 
     def after(self) -> None:
         self._write_temporal()
@@ -259,4 +263,5 @@ class CoverageFile(Consume):
         return [self.process_composite(composite_id, origin_dir) for composite_id in composite_ids]
 
     def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Tuple[str, Optional[Any]]]:
-        return itertools.chain.from_iterable(run_on_process_pool(self.process_composites_chunk, list(composite_ids), origin_dir))
+        return itertools.chain.from_iterable(run_on_process_pool(self.process_composites_chunk, list(composite_ids),
+                                                                 origin_dir))
