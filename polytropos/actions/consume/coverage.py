@@ -1,6 +1,8 @@
 import csv
 import itertools
+import json
 import logging
+import os
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Iterable, Tuple, Any, Optional, Dict, Set, List
@@ -14,6 +16,7 @@ from polytropos.actions.consume import Consume
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import Variable, VariableId
 from polytropos.util.futures import run_on_process_pool
+from polytropos.util.paths import relpath_for
 
 
 def _get_sorted_vars(group_var_counts: Dict[Optional[str], Dict[Tuple[str, ...], int]], track: Track) \
@@ -87,103 +90,11 @@ class CoverageFile(Consume):
         if self.immutable_grouping_var is not None and self.schema.get(self.immutable_grouping_var) is None:
             raise ValueError('Immutable grouping variable "%s" does not exist.')
 
-    def _get_temporal_group(self, composite: Composite, period: str) -> Optional[str]:
-        if self.temporal_grouping_var is None:
-            return None
-        return composite.get_observation(self.temporal_grouping_var, period, treat_missing_as_null=True)
-
-    def _get_immutable_group(self, composite: Composite) -> Optional[str]:
-        if self.immutable_grouping_var is None:
-            return None
-        return composite.get_immutable(self.immutable_grouping_var, treat_missing_as_null=True)
-
-    def _handle_named_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
-        for child_value in value.values():
-            if child_value is None:
-                logging.warning("Encountered empty named list item in composite %s (path %s).", composite_id,
-                                nesteddicts.path_to_str(child_path))
-                continue
-            self._crawl(composite_id, child_value, observed, child_path)
-
-    def _handle_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
-        for child_value in value:
-            if child_value is None:
-                logging.warning("Encountered empty list item in composite %s (path %s).", composite_id,
-                                nesteddicts.path_to_str(child_path))
-                continue
-            self._crawl(composite_id, child_value, observed, child_path)
-
-    def _crawl(self, composite_id: str, content: Dict, observed: Set[Tuple], path: Tuple[str, ...]) -> None:
-        for key, value in content.items():  # type: str, Any
-            # Ignore system variables
-            if key[0] == "_":
-                continue
-
-            # Record that we saw this path
-            child_path: Tuple[str, ...] = path + (key,)
-            observed.add(child_path)
-
-            # For known named lists, skip over the particular key names. Beyond this, we don't worry at this stage
-            # whether the variable is known or not.
-
-            # Micro-optimization - direct access to a protected member
-            # noinspection PyProtectedMember
-            child_var: Optional[Variable] = self.schema._var_path_cache.get(child_path)
-            if child_var is not None and child_var.data_type == "NamedList":
-                self._handle_named_list(composite_id, child_path, value, observed)
-                return
-
-            # For lists (except string lists), crawl each list item -- exclude string lists
-            if isinstance(value, list) and not (len(value) > 0 and isinstance(value[0], str)):
-                self._handle_list(composite_id, child_path, value, observed)
-                return
-
-            # If the value is a dict, and we do not it to be a named list, then we assume that it is a real folder.
-            if isinstance(value, dict):
-                self._crawl(composite_id, value, observed, child_path)
-
-            # In all other cases, the variable is a leaf node (primitive), so no further action needed.
-
-    def _extract_temporal(self, composite: Composite, result: CoverageFileExtractResult) -> None:
-        """For each grouping variable value, get a count of the number of OBSERVATIONS with AT LEAST ONE instance of a
-        given variable. That is, if a variable is nested inside a list and happens 100 times, it only counts once; but
-        if this happens in two different observations within the same composite, and both observations have the same
-        grouping variable value, then the count for that group/variable combo is 2."""
-        for period in composite.periods:
-            group: Optional[str] = self._get_temporal_group(composite, period)
-            result.temporal_n[group] += 1
-            observed: Set[Tuple] = set()
-            self._crawl(composite.composite_id, composite.content[period], observed, ())
-            for path in observed:
-                result.temporal_var_counts.setdefault(group, defaultdict(int))[path] += 1
-
-    def _extract_immutable(self, composite: Composite, result: CoverageFileExtractResult) -> None:
-        """Note that this will always return a dictionary of length 0 or 1, but using a Dict simplifies code due to
-        analogy with _extract_temporal."""
-        if "immutable" not in composite.content:
-            return
-
-        group: Optional[Optional[str]] = self._get_immutable_group(composite)
-        result.immutable_n[group] += 1
-        observed: Set[Tuple] = set()
-        self._crawl(composite.composite_id, composite.content["immutable"], observed, ())
-        if len(observed) == 0:
-            return
-
-        counts: dict = defaultdict(int)
-        for path in observed:
-            counts[path] += 1
-        result.immutable_var_counts[group] = counts
-
     def extract(self, composite: Composite) -> CoverageFileExtractResult:
-        logging.debug("Extracting data from composite %s", composite.composite_id)
-        extract_result = CoverageFileExtractResult()
-        self._extract_temporal(composite, extract_result)
-        self._extract_immutable(composite, extract_result)
-        return extract_result
+        raise NotImplementedError
 
-    def consume(self, extracts: Iterable[Tuple[str, CoverageFileExtractResult]]) -> None:
-        for filename, extract in extracts:
+    def consume(self, extracts: Iterable[Tuple[str, Any]]) -> None:
+        for _, extract in extracts:
             self.coverage_result.update(extract)
 
     def _init_row(self, var_path: Tuple) -> Dict:
@@ -268,9 +179,114 @@ class CoverageFile(Consume):
         self._write_temporal()
         self._write_immutable()
 
-    def process_composites_chunk(self, composite_ids: List[str], origin_dir: str) -> List[Tuple[str, Optional[Any]]]:
-        return [self.process_composite(composite_id, origin_dir) for composite_id in composite_ids]
-
     def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Tuple[str, Optional[Any]]]:
-        return itertools.chain.from_iterable(run_on_process_pool(self.process_composites_chunk, list(composite_ids),
-                                                                 origin_dir, chunk_size=1000))
+        extract = CoverageFileExtract(self.schema, origin_dir, self.temporal_grouping_var, self.immutable_grouping_var)
+        return run_on_process_pool(extract.extract, list(composite_ids), chunk_size=1000)
+
+
+class CoverageFileExtract:
+    def __init__(self, schema: Schema, origin_dir: str, temporal_grouping_var: Optional[VariableId], immutable_grouping_var: Optional[VariableId]):
+        self.schema = schema
+        self.origin_dir = origin_dir
+        self.temporal_grouping_var = temporal_grouping_var
+        self.immutable_grouping_var = immutable_grouping_var
+
+    def _get_temporal_group(self, composite: Composite, period: str) -> Optional[str]:
+        if self.temporal_grouping_var is None:
+            return None
+        return composite.get_observation(self.temporal_grouping_var, period, treat_missing_as_null=True)
+
+    def _get_immutable_group(self, composite: Composite) -> Optional[str]:
+        if self.immutable_grouping_var is None:
+            return None
+        return composite.get_immutable(self.immutable_grouping_var, treat_missing_as_null=True)
+
+    def _handle_named_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
+        for child_value in value.values():
+            if child_value is None:
+                logging.warning("Encountered empty named list item in composite %s (path %s).", composite_id,
+                                nesteddicts.path_to_str(child_path))
+                continue
+            self._crawl(composite_id, child_value, observed, child_path)
+
+    def _handle_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
+        for child_value in value:
+            if child_value is None:
+                logging.warning("Encountered empty list item in composite %s (path %s).", composite_id,
+                                nesteddicts.path_to_str(child_path))
+                continue
+            self._crawl(composite_id, child_value, observed, child_path)
+
+    def _crawl(self, composite_id: str, content: Dict, observed: Set[Tuple], path: Tuple[str, ...]) -> None:
+        for key, value in content.items():  # type: str, Any
+            # Ignore system variables
+            if key[0] == "_":
+                continue
+
+            # Record that we saw this path
+            child_path: Tuple[str, ...] = path + (key,)
+            observed.add(child_path)
+
+            # For known named lists, skip over the particular key names. Beyond this, we don't worry at this stage
+            # whether the variable is known or not.
+
+            # Micro-optimization - direct access to a protected member
+            # noinspection PyProtectedMember
+            child_var: Optional[Variable] = self.schema._var_path_cache.get(child_path)
+            if child_var is not None and child_var.data_type == "NamedList":
+                self._handle_named_list(composite_id, child_path, value, observed)
+                return
+
+            # For lists (except string lists), crawl each list item -- exclude string lists
+            if isinstance(value, list) and not (len(value) > 0 and isinstance(value[0], str)):
+                self._handle_list(composite_id, child_path, value, observed)
+                return
+
+            # If the value is a dict, and we do not it to be a named list, then we assume that it is a real folder.
+            if isinstance(value, dict):
+                self._crawl(composite_id, value, observed, child_path)
+
+            # In all other cases, the variable is a leaf node (primitive), so no further action needed.
+
+    def _extract_temporal(self, composite: Composite, result: CoverageFileExtractResult) -> None:
+        """For each grouping variable value, get a count of the number of OBSERVATIONS with AT LEAST ONE instance of a
+        given variable. That is, if a variable is nested inside a list and happens 100 times, it only counts once; but
+        if this happens in two different observations within the same composite, and both observations have the same
+        grouping variable value, then the count for that group/variable combo is 2."""
+        for period in composite.periods:
+            group: Optional[str] = self._get_temporal_group(composite, period)
+            result.temporal_n[group] += 1
+            observed: Set[Tuple] = set()
+            self._crawl(composite.composite_id, composite.content[period], observed, ())
+            for path in observed:
+                result.temporal_var_counts.setdefault(group, defaultdict(int))[path] += 1
+
+    def _extract_immutable(self, composite: Composite, result: CoverageFileExtractResult) -> None:
+        """Note that this will always return a dictionary of length 0 or 1, but using a Dict simplifies code due to
+        analogy with _extract_temporal."""
+        if "immutable" not in composite.content:
+            return
+
+        group: Optional[Optional[str]] = self._get_immutable_group(composite)
+        result.immutable_n[group] += 1
+        observed: Set[Tuple] = set()
+        self._crawl(composite.composite_id, composite.content["immutable"], observed, ())
+        if len(observed) == 0:
+            return
+
+        for path in observed:
+            result.immutable_var_counts.setdefault(group, defaultdict(int))[path] += 1
+
+    def extract(self, composite_ids: List[str]) -> Tuple[str, CoverageFileExtractResult]:
+        extract_result = CoverageFileExtractResult()
+        for composite_id in composite_ids:
+            logging.debug("Extracting data from composite %s", composite_id)
+
+            relpath: str = relpath_for(composite_id)
+            with open(os.path.join(self.origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
+                content: Dict = json.load(origin_file)
+            composite: Composite = Composite(self.schema, content, composite_id=composite_id)
+
+            self._extract_temporal(composite, extract_result)
+            self._extract_immutable(composite, extract_result)
+        return "dummy", extract_result
