@@ -1,7 +1,6 @@
 import json
 import os
 
-from polytropos.actions.consume.tocsv.blockvalue import AsBlockValue
 from typing import Dict, Callable
 
 import pytest
@@ -9,201 +8,17 @@ from polytropos.ontology.composite import Composite
 
 from polytropos.ontology.schema import Schema
 
-from polytropos.ontology.track import Track
-
 @pytest.fixture()
-def temporal_track() -> Track:
-    specs: Dict = {
-        "t_folder_in_root": {
-            "name": "t_folder",
-            "data_type": "Folder",
-            "sort_order": 0
-        },
-        "t_text_in_folder": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "t_folder_in_root",
-            "sort_order": 0
-        },
-        "t_text_in_root": {
-            "name": "some_text",
-            "data_type": "Text",
-            "sort_order": 1
-        },
-        "t_list_in_root": {
-            "name": "t_list",
-            "data_type": "List",
-            "sort_order": 2
-        },
-        "t_text_in_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "t_list_in_root",
-            "sort_order": 0
-        }
-    }
-    return Track.build(specs, None, "temporal")
-
-@pytest.fixture()
-def immutable_track() -> Track:
-    specs: Dict = {
-        "i_folder_in_root": {
-            "name": "i_folder",
-            "data_type": "Folder",
-            "sort_order": 0
-        },
-        "i_text_in_folder": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "i_folder_in_root",
-            "sort_order": 0
-        },
-        "i_int_in_folder": {
-            "name": "some_int",
-            "data_type": "Integer",
-            "parent": "i_folder_in_root",
-            "sort_order": 1
-        },
-        "i_list_in_folder": {
-            "name": "simple_list",
-            "data_type": "List",
-            "parent": "i_folder_in_root",
-            "sort_order": 1
-        },
-        "i_text_in_list_in_folder": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "i_list_in_folder",
-            "sort_order": 0
-        },
-        "i_int_in_list_in_folder": {
-            "name": "some_int",
-            "data_type": "Integer",
-            "parent": "i_list_in_folder",
-            "sort_order": 0
-        },
-        "i_list_in_root": {
-            "name": "simple_list",
-            "data_type": "List",
-            "sort_order": 1
-        },
-        "i_text_in_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "i_list_in_root",
-            "sort_order": 0
-        },
-        "i_outer_nested_list": {
-            "name": "outer_list",
-            "data_type": "List",
-            "sort_order": 2
-        },
-        "i_text_in_outer_nested_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "i_outer_nested_list",
-            "sort_order": 0
-        },
-        "i_inner_nested_list": {
-            "name": "inner_list",
-            "data_type": "List",
-            "parent": "i_outer_nested_list",
-            "sort_order": 1
-        },
-        "i_text_in_inner_nested_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "i_inner_nested_list",
-            "sort_order": 0
-        },
-        "i_named_list_in_inner_nested_list": {
-            "name": "a_named_list",
-            "data_type": "NamedList",
-            "parent": "i_inner_nested_list",
-            "sort_order": 1
-        },
-        "i_text_in_named_list_in_inner_nested_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "i_named_list_in_inner_nested_list",
-            "sort_order": 0
-        },
-        "i_named_list_in_root": {
-            "name": "simple_named_list",
-            "data_type": "NamedList",
-            "sort_order": 3
-        },
-        "i_text_in_named_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "i_named_list_in_root",
-            "sort_order": 0
-        },
-        "i_int_in_named_list": {
-            "name": "some_int",
-            "data_type": "Integer",
-            "parent": "i_named_list_in_root",
-            "sort_order": 1
-        },
-        "i_outer_nested_named_list": {
-            "name": "outer_named_list",
-            "data_type": "NamedList",
-            "sort_order": 4
-        },
-        "i_text_in_outer_nested_named_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "i_outer_nested_named_list",
-            "sort_order": 0
-        },
-        "i_inner_nested_named_list": {
-            "name": "inner_named_list",
-            "data_type": "NamedList",
-            "parent": "i_outer_nested_named_list",
-            "sort_order": 1
-        },
-        "i_text_in_inner_nested_named_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "i_inner_nested_named_list",
-            "sort_order": 0
-        },
-        "i_list_in_inner_nested_named_list": {
-            "name": "a_list",
-            "data_type": "List",
-            "parent": "i_inner_nested_named_list",
-            "sort_order": 1
-        },
-        "i_text_in_list_in_inner_nested_named_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "i_list_in_inner_nested_named_list",
-            "sort_order": 0
-        },
-        "i_named_list_in_list_in_inner_nested_named_list": {
-            "name": "yet_another_named_list",
-            "data_type": "NamedList",
-            "parent": "i_list_in_inner_nested_named_list",
-            "sort_order": 1
-        },
-        "i_text_in_named_list_in_list_in_inner_nested_named_list": {
-            "name": "some_text",
-            "data_type": "Text",
-            "parent": "i_named_list_in_list_in_inner_nested_named_list",
-            "sort_order": 0
-        }
-    }
-    return Track.build(specs, None, "immutable")
-
-@pytest.fixture()
-def schema(temporal_track, immutable_track) -> Schema:
-    return Schema(temporal_track, immutable_track)
+def schema(basepath) -> Schema:
+    path: str = os.path.join(basepath, "..", "examples", "s_7_csv", "conf", "schemas")
+    return Schema.load("composite", base_path=path)
 
 @pytest.fixture()
 def read_composite(schema, basepath) -> Callable:
     def _read_composite(composite_number: int) -> Composite:
         filename: str = "composite_%i.json" % composite_number
-        filepath: str = os.path.join(basepath, "test_functional", "action", "consume", "tocsv", filename)
+        filepath: str = os.path.join(basepath, "..", "examples", "s_7_csv", "data", "entities", "com", "pos", "ite",
+                                     filename)
         with open(filepath) as fh:
             content: Dict = json.load(fh)
         return Composite(schema, content, composite_id=filename[:-5])

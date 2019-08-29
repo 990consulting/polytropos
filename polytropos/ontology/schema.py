@@ -85,10 +85,10 @@ class Schema:
         temporal_fn: str = os.path.join(path, "temporal.json")
         with open(immutable_fn, "w") as i_fn, open(temporal_fn, "w") as t_fn:
             temporal_json: Dict = self.temporal.dump()
-            json.dump(temporal_json, t_fn)
+            json.dump(temporal_json, t_fn, indent=2)
 
             immutable_json: Dict = self.immutable.dump()
-            json.dump(immutable_json, i_fn)
+            json.dump(immutable_json, i_fn, indent=2)
 
     @classmethod
     def load(cls, path: str, source_schema: "Schema"=None, path_locator: "PathLocator"=None, base_path: str = None) -> Optional["Schema"]:
