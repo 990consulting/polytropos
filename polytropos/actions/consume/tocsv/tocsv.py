@@ -7,7 +7,12 @@ from polytropos.ontology.composite import Composite
 
 @dataclass
 class ExportToCSV(Consume):
-    columns: List[Dict]
+    filename: str
+    descriptors: Dict   # Column descriptors, as specified in YAML -- processed in __post_init__
+
+    def __post_init__(self) -> None:
+
+        pass
 
     def before(self) -> None:
         pass

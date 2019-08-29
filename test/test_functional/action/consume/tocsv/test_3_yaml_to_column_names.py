@@ -4,13 +4,13 @@ from typing import Tuple, List, Callable, Type, Iterator
 import pytest
 import yaml
 
-from polytropos.actions.consume.tocsv.descriptors import DescriptorsToColumnNames
+from polytropos.actions.consume.tocsv.descriptors.colnames import DescriptorBlockToColumnNames
 
 @pytest.fixture()
 def to_column_names(schema) -> Callable:   # Schema defined in conftest.py, in this directory
     def _to_column_names(raw_yaml: str) -> Iterator:
         descriptors: List = yaml.full_load(raw_yaml)
-        y2c: DescriptorsToColumnNames = DescriptorsToColumnNames(schema)
+        y2c: DescriptorBlockToColumnNames = DescriptorBlockToColumnNames(schema)
         return y2c(descriptors)
     return _to_column_names
 

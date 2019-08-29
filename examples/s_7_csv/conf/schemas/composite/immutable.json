@@ -143,5 +143,10 @@
     "data_type": "Text",
     "sort_order": 0,
     "parent": "i_outer_nested_named_list"
+  },
+  "i_text_never_populated": {
+    "name": "never_populated",
+    "data_type": "Text",
+    "sort_order": 5
   }
 }

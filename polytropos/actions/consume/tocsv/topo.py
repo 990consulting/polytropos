@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Tuple, Dict, List as ListType, Optional, Any, Iterable, Union, Iterator, cast
 
 from polytropos.ontology.composite import Composite
-from polytropos.ontology.variable import Variable, GenericList
+from polytropos.ontology.variable import Variable, GenericList, VariableId
 from polytropos.util import nesteddicts
 
 @dataclass
@@ -23,7 +23,7 @@ class Topological:
 
     def _get_root_var(self, block: Tuple) -> GenericList:
         assert isinstance(block[0], str)
-        root_var_id: str = block[0]
+        root_var_id: VariableId = cast(VariableId, block[0])
         root_var: Variable = self.composite.schema.get(root_var_id)
         if root_var is None:
             raise "Unknown variable '%s'" % root_var_id
@@ -60,7 +60,7 @@ class Topological:
             raise ValueError('Unexpected data type "{}" for putative root variable {}'
                              .format(root_var.data_type, root_var.var_id))
 
-    def _one_to_one(self, tree: Dict, var_id: str) -> Optional[Any]:
+    def _one_to_one(self, tree: Dict, var_id: VariableId) -> Optional[Any]:
         var: Variable = self.composite.schema.get(var_id)
         if var is None:
             raise ValueError('Unknown variable ID "%s"' % var_id)
@@ -69,7 +69,7 @@ class Topological:
 
     def _traverse(self, block: Iterable, tree: Dict) -> Dict:
         ret: Dict = {}
-        for element in block:  # type: Union[str, Tuple]
+        for element in block:  # type: Union[VariableId, Tuple]
             if isinstance(element, tuple):
                 self._add_one_to_many(ret, tree, element)
             else:

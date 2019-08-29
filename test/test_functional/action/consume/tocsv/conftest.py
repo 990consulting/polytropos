@@ -17,8 +17,8 @@ def schema(basepath) -> Schema:
 def read_composite(schema, basepath) -> Callable:
     def _read_composite(composite_number: int) -> Composite:
         filename: str = "composite_%i.json" % composite_number
-        filepath: str = os.path.join(basepath, "..", "examples", "s_7_csv", "data", "entities", "com", "pos", "ite",
-                                     filename)
+        filepath: str = os.path.join(basepath, "..", "examples", "s_7_csv", "data", "entities", "composite", "com",
+                                     "pos", "ite", filename)
         with open(filepath) as fh:
             content: Dict = json.load(fh)
         return Composite(schema, content, composite_id=filename[:-5])

@@ -4,13 +4,13 @@ from typing import Tuple, List, Callable, Type
 import pytest
 import yaml
 
-from polytropos.actions.consume.tocsv.descriptors import DescriptorsToBlocks
+from polytropos.actions.consume.tocsv.descriptors.colblocks import DescriptorBlockToColumnBlocks
 
 @pytest.fixture()
 def to_blocks() -> Callable:
     def _to_blocks(raw_yaml: str) -> Tuple:
         descriptors: List = yaml.full_load(raw_yaml)
-        y2b: DescriptorsToBlocks = DescriptorsToBlocks()
+        y2b: DescriptorBlockToColumnBlocks = DescriptorBlockToColumnBlocks()
         return y2b(descriptors)
     return _to_blocks
 

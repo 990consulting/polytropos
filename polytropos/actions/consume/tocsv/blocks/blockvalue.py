@@ -6,7 +6,7 @@ from polytropos.ontology.schema import Schema
 from polytropos.ontology.variable import Variable, Primitive, NamedList, VariableId
 import itertools
 
-def _unpack_as_singleton(var_id: str, values: Dict) -> Iterator[List[List[Optional[Any]]]]:
+def _unpack_as_singleton(var_id: str, values: Dict) -> Iterator[List]:
     value: Optional[Any] = values.get(var_id)
     yield [[value]]
 
@@ -20,7 +20,7 @@ def flatten(container: Union[List, Tuple]) -> Iterator:
         else:
             yield i
 
-def _cartesian(block_values: List) -> Iterator[List[List[Optional[Any]]]]:
+def _cartesian(block_values: List) -> Iterator[List[Optional[Any]]]:
     """Starts with an arbitrarily nested list of lists, where each singly nested list represents all observed values for
     one or more columns in a spreadsheet column block. Yields lists representing rows of the column block."""
     for nested in itertools.product(*block_values):
@@ -41,21 +41,21 @@ class AsBlockValue:
                     num_columns += 1
         return num_columns
 
-    def _unpack_as_list(self, block: Tuple, values: Optional[List]) -> Iterator[List[List[Optional[Any]]]]:
+    def _unpack_as_list(self, block: Tuple, values: Optional[List]) -> Iterator[List[Optional[Any]]]:
         if values is None:
             yield [[None] * self.find_num_columns(block)]
         else:
             for element in values:
                 yield from self(block, element)
 
-    def _unpack_as_named_list(self, block: Tuple, values: Optional[Dict]) -> Iterator[List[List[Optional[Any]]]]:
+    def _unpack_as_named_list(self, block: Tuple, values: Optional[Dict]) -> Iterator[List[Optional[Any]]]:
         if values is None:
             yield [[None] * (self.find_num_columns(block) + 1)]
             return
         for key, element in values.items():
             yield from _cartesian([[key]] + [list(self(block, element))])
 
-    def __call__(self, block: Tuple, values: Dict) -> Iterator[List[List[Optional[Any]]]]:
+    def __call__(self, block: Tuple, values: Dict) -> Iterator[List[Optional[Any]]]:
         """Takes a block of variable IDs representing a primitive, a list, or a named list (including nested lists and
         named lists) and yields lists of column values, where the columns represent a block of a larger CSV."""
         block_values: List = [None] * len(block)

@@ -1,6 +1,6 @@
 import pytest
 
-from polytropos.actions.consume.tocsv.blockvalue import AsBlockValue
+from polytropos.actions.consume.tocsv.blocks.blockvalue import AsBlockValue
 from typing import List, Tuple, Dict
 
 @pytest.fixture()
