@@ -15,10 +15,11 @@ class Count(Consume):
         pass
 
     def consume(self, extracts: Iterable[Tuple[str, Any]]) -> None:
-        pass
+        for _ in extracts:
+            self.n += 1
 
     def extract(self, composite: Dict):
-        self.n += 1
+        return True
 
     def after(self):
         filename = os.path.join(self.path_locator.conf_dir, '../', self.filename)

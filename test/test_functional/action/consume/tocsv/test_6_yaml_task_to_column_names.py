@@ -21,26 +21,26 @@ def do_test(all_column_names, basepath) -> Callable:
         with open(task_path) as fh:
             task_spec: Dict = yaml.full_load(fh)
         column_spec: List = task_spec["steps"][0]["Consume"]["columns"]
-        actual: Tuple = all_column_names(column_spec)
+        actual: List = all_column_names(column_spec)
         assert actual == expected
     return _do_test
 
 def test_immutable_singleton(do_test):
     filename: str = "01_immutable_singleton.yaml"
-    expected: Tuple = ("id", "/i_folder/some_text")
+    expected: List = ["id", "/i_folder/some_text"]
     do_test(filename, expected)
 
 def test_immutable_singleton_custom_name(do_test):
     filename: str = "03_immutable_singleton_custom_name.yaml"
-    expected: Tuple = ("id", "custom_name")
+    expected: List = ["id", "custom_name"]
     do_test(filename, expected)
 
 def test_immutable_and_temporal_singletons(do_test):
     filename: str = "04_immutable_and_temporal_singletons.yaml"
-    expected: Tuple = ("id", "period", "/i_folder/some_text", "/t_folder/some_text")
+    expected: List = ["id", "period", "/i_folder/some_text", "/t_folder/some_text"]
     do_test(filename, expected)
 
 def test_temporal_list_and_immutable_named_list(do_test):
     filename: str = "05_temporal_list_and_immutable_named_list.yaml"
-    expected: Tuple = ("id", "period", "/t_list/some_text", "/simple_named_list", "special name")
+    expected: List = ["id", "period", "/t_list/some_text", "/simple_named_list", "special name"]
     do_test(filename, expected)

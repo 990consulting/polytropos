@@ -71,13 +71,13 @@ class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/537
 
             per_composite_futures: Iterable[futures.Future] = futures.as_completed(future_to_file_path)
 
-            return (future.result() for future in per_composite_futures)
+        yield from (future.result() for future in per_composite_futures)
 
     def __call__(self, origin_dir: str, target_dir: Optional[str]) -> None:
         """Generate the export file."""
         self.before()
         composite_ids: Iterable[str] = find_all_composites(origin_dir)
-        per_composite_results = self.process_composites(composite_ids, origin_dir)
+        per_composite_results: Iterable[Tuple[str, Any]] = self.process_composites(composite_ids, origin_dir)
 
         self.consume(per_composite_results)
         self.after()
