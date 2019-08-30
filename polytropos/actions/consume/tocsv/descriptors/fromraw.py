@@ -18,7 +18,7 @@ constructors: Dict[str, Type] = {
 class GetAllColumnNames:
     spec_to_names: DescriptorBlockToColumnNames
 
-    def __call__(self, full_spec: List[Dict]) -> Tuple[str]:
+    def __call__(self, full_spec: List[Dict]) -> Tuple:
         has_temporal: bool = False
         block_columns: Deque[str] = deque()
         for block_spec in full_spec:  # type: Dict

@@ -17,7 +17,7 @@ class Block:
         values: Dict = topo(self.contents)
         yield from self.as_block_value(self.contents, values)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if other.__class__ != self.__class__:
             return False
         if other.contents != self.contents:

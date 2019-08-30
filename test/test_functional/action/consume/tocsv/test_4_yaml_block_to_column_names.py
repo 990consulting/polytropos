@@ -1,5 +1,5 @@
 """Tests to create the same blocks as are used in test_1_as_block_values."""
-from typing import Tuple, List, Callable, Type, Iterator
+from typing import Tuple, List, Callable, Iterator
 
 import pytest
 import yaml
