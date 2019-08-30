@@ -7,7 +7,7 @@ starting_with:
 steps:
   - Consume:
       name: ExportToCSV
-      filename: 01_immutable_singleton.yaml
+      filename: 01_immutable_singleton.csv
       columns:
         - immutable_block:
             - i_text_in_folder

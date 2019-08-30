@@ -7,7 +7,7 @@ from polytropos.actions.consume.tocsv.topo import Topological
 
 from polytropos.ontology.composite import Composite
 
-@dataclass
+@dataclass(cmp=False)
 class Block:
     contents: Tuple
     as_block_value: AsBlockValue
@@ -17,12 +17,17 @@ class Block:
         values: Dict = topo(self.contents)
         yield from self.as_block_value(self.contents, values)
 
-@dataclass
+    def __eq__(self, other) -> bool:
+        if other.__class__ != self.__class__:
+            return False
+        if other.contents != self.contents:
+            return False
+        return True
+
 class ImmutableBlock(Block):
     def __call__(self, composite: Composite) -> Iterator[List[Optional[Any]]]:
         yield from self._for_period(composite, "immutable")
 
-@dataclass
 class TemporalBlock(Block):
     def __call__(self, composite: Composite) -> Dict[str, Iterator[List[Optional[Any]]]]:
         ret: Dict[str, Iterator[List[Optional[Any]]]] = {}

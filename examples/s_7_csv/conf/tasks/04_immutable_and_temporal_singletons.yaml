@@ -7,7 +7,9 @@ starting_with:
 steps:
   - Consume:
       name: ExportToCSV
-      filename: 02_immutable_singleton_all_empty.csv
+      filename: 04_immutable_and_temporal_singletons.csv
       columns:
         - immutable_block:
-            - i_text_never_populated
+            - i_text_in_folder
+        - temporal_block:
+            - t_text_in_folder
