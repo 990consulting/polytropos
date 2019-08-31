@@ -1,6 +1,5 @@
 import csv
 import os
-from dataclasses import field, dataclass
 from typing import Iterable, Tuple, Any, Optional, List, Dict, TextIO, Callable, Iterator
 
 from polytropos.actions.consume.tocsv.blocks.blockvalue import AsBlockValue
@@ -31,7 +30,7 @@ def _open_file(path_locator: Optional[PathLocator], filename: str) -> TextIO:
 
 class ExportToCSV(Consume):
     def __init__(self, path_locator: Optional[PathLocator], schema: Schema, filename: str, columns: List):
-        super(path_locator, schema)
+        super(ExportToCSV, self).__init__(path_locator, schema)
         self.blocks: List[Block] = _get_all_blocks(schema, columns)
         self.column_names: List[str] = _get_all_column_names(schema, columns)
         self.fh: TextIO = _open_file(path_locator, filename)

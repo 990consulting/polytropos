@@ -1,0 +1,10 @@
+id,/outer_named_list,/outer_named_list/inner_named_list,/outer_named_list/inner_named_list/some_text,/outer_named_list/inner_named_list/a_list/some_text,/outer_named_list/inner_named_list/a_list/yet_another_named_list,/outer_named_list/inner_named_list/a_list/yet_another_named_list/some_text,/outer_named_list/some_text
+composite_4,,,,,,,
+composite_1,wakame,baseball,batting,mauve,poseidon,mnemosyne,hijiki
+composite_3,,,,,,,
+composite_2,peter,,,,,,a
+composite_2,paul,red,,,,,b
+composite_2,mary,orange,foo,,,,c
+composite_2,mary,yellow,bar,black,,,c
+composite_2,mary,yellow,bar,white,this is extreme,but it works,c
+composite_2,mary,yellow,bar,white,another one,also ok,c
