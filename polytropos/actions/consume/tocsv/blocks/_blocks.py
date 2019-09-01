@@ -33,4 +33,7 @@ class TemporalBlock(Block):
         ret: Dict[str, Iterator[List[Optional[Any]]]] = {}
         for period in composite.periods:
             ret[period] = self._for_period(composite, period)
+
+        if len(ret) == 0:
+            ret[""] = self.as_block_value(self.contents, {})
         return ret

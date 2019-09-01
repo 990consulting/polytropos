@@ -45,6 +45,12 @@ class BlockProduct:
         period."""
         prior: Dict = {}
         periods: List[str] = sorted(self.composite.periods)
+
+        # When a composite contains no temporal observations, temporal blocks contain a single key ("") representing a
+        # block of nulls. See TemporalBlock in _blocks.py.
+        if len(periods) == 0:
+            periods = [""]
+
         for i, block in enumerate(self.blocks):
             if isinstance(block, ImmutableBlock):
                 block_value: List = list(self.immutable_block_values[i])

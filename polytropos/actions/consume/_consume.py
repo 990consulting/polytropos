@@ -62,7 +62,7 @@ class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/537
         return futures.ThreadPoolExecutor()
 
     def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Tuple[str, Optional[Any]]]:
-        # return (self.process_composite(composite_id, origin_dir) for composite_id in composite_ids)
+        # yield from (self.process_composite(composite_id, origin_dir) for composite_id in composite_ids)
         with self._get_executor() as executor:
             future_to_file_path: Dict = {}
             for composite_id in composite_ids:
