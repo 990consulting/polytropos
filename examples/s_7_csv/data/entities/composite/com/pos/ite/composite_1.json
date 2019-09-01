@@ -1,0 +1,66 @@
+{
+  "period_1": {
+    "t_folder": {
+      "some_text": "in a folder"
+    },
+    "some_text": "in the root",
+    "t_list": [
+      {"some_text": "in a list"}
+    ]
+  },
+  "immutable": {
+    "simple_list": [
+      {"some_text": "ipsum"}
+    ],
+    "i_folder": {
+      "some_text": "lorem",
+      "simple_list": [
+        {
+          "some_text": "x",
+          "some_int": 37
+        }
+      ]
+    },
+    "outer_list": [
+      {
+        "some_text": "xyz",
+        "inner_list": [
+          {
+            "some_text": "dolor sic",
+            "a_named_list": {
+              "beatles": {
+                "some_text": "rolling stones"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "simple_named_list": {
+      "billy": {
+        "some_text": "bob",
+        "some_int": 345
+      }
+    },
+    "outer_named_list": {
+      "wakame": {
+        "some_text": "hijiki",
+        "inner_named_list": {
+          "baseball": {
+            "some_text": "batting",
+            "a_list": [
+              {
+                "some_text": "mauve",
+                "yet_another_named_list": {
+                  "poseidon": {
+                    "some_text": "mnemosyne"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

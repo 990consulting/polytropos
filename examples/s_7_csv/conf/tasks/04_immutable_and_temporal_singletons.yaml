@@ -1,0 +1,15 @@
+---
+
+starting_with:
+  data: composite
+  schema: composite
+
+steps:
+  - Consume:
+      name: ExportToCSV
+      filename: 04_immutable_and_temporal_singletons.csv
+      columns:
+        - immutable_block:
+            - i_text_in_folder
+        - temporal_block:
+            - t_text_in_folder

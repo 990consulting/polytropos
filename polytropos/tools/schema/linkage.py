@@ -48,16 +48,16 @@ class ExportLinkages:
             row: ListType = [var_id, abs_path] + [_source_path(var, source_id) for source_id in var.sources]
             writer.writerow(row)
 
+# TODO THIS SHOULD BE REPLACED WITH SOMETHING THAT WORKS DIRECTLY ON THE JSON FILES
+"""
 class ImportLinkages:
-    """Import a .csv in the same format as that produced by export_linkages(), and modify the sources of the variables
-    of the schema to reflect the ones in the file."""
-
     def __init__(self, schema: Schema, fh: TextIO):
         self.schema: Schema = schema
         self.fh: TextIO = fh
 
     @classmethod
-    def from_files(cls, schema_basepath: str, source_schema: str, target_schema: str, input_file: TextIO, suffix: str) -> None:
+    def from_files(cls, schema_basepath: str, source_schema: str, target_schema: str, input_file: TextIO, suffix: str) 
+    -> None:
         source_schema_instance: Optional[Schema] = Schema.load(source_schema, base_path=schema_basepath)
         target_schema_instance: Optional[Schema] = Schema.load(target_schema, source_schema=source_schema_instance,
                                                      base_path=schema_basepath)
@@ -92,3 +92,4 @@ class ImportLinkages:
             if var_by_id is not var_by_path:
                 raise SyntaxError("Cannot use linkage importer to modify absolute paths")
             var_by_id.sources = source_ids
+"""

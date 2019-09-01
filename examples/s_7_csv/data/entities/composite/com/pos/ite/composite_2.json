@@ -1,0 +1,101 @@
+{
+  "immutable": {
+    "i_folder": {
+      "some_text": "foo",
+      "simple_list": [
+        {
+          "some_text": "a"
+        },
+        {
+          "some_text": "b",
+          "some_int": 2
+        },
+        {
+          "some_text": "c",
+          "some_int": 3
+        }
+      ]
+    },
+    "outer_list": [
+      {
+        "some_text": "a"
+      },
+      {
+        "some_text": "b",
+        "inner_list": [
+          {}
+        ]
+      },
+      {
+        "some_text": "c",
+        "inner_list": [
+          {
+            "some_text": "foo"
+          },
+          {
+            "some_text": "bar",
+            "a_named_list": {
+              "black": {
+                "some_text": "white"
+              },
+              "green": {
+                "some_text": "red"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "simple_named_list": {
+      "peter": {
+        "some_text": "a"
+      },
+      "paul": {
+        "some_text": "b",
+        "some_int": 2
+      },
+      "mary": {
+        "some_text": "c",
+        "some_int": 3
+      }
+    },
+    "outer_named_list": {
+      "peter": {
+        "some_text": "a"
+      },
+      "paul": {
+        "some_text": "b",
+        "inner_named_list": {
+          "red": {}
+        }
+      },
+      "mary": {
+        "some_text": "c",
+        "inner_named_list": {
+          "orange": {
+            "some_text": "foo"
+          },
+          "yellow": {
+            "some_text": "bar",
+            "a_list": [
+              {
+                "some_text": "black"
+              },
+              {
+                "some_text": "white",
+                "yet_another_named_list": {
+                  "this is extreme": {
+                    "some_text": "but it works"
+                  },
+                  "another one": {
+                    "some_text": "also ok"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

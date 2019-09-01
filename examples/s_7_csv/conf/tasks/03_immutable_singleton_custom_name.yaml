@@ -1,0 +1,13 @@
+---
+
+starting_with:
+  data: composite
+  schema: composite
+
+steps:
+  - Consume:
+      name: ExportToCSV
+      filename: 03_immutable_singleton_custom_name.csv
+      columns:
+        - immutable_block:
+            - i_text_in_folder: custom_name

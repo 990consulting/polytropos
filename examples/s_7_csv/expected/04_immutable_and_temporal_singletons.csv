@@ -1,0 +1,7 @@
+id,period,/i_folder/some_text,/t_folder/some_text
+composite_4,period_1,I(folder),P1(folder)
+composite_4,period_2,I(folder),P2(folder)
+composite_3,period_1,,aaaa
+composite_3,period_2,,1111
+composite_1,period_1,lorem,in a folder
+composite_2,,foo,

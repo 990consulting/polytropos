@@ -13,7 +13,7 @@ from polytropos.ontology.variable import Variable, VariableId
 class Composite:
     schema: Schema
     content: Dict = field(default_factory=dict)
-    composite_id: Optional[str] = None
+    composite_id: str = field(default="UNDEFINED")
 
     def as_var(self, var_id: VariableId, **kwargs: Any) -> Variable:
         var: Variable = self.schema.get(var_id, **kwargs)

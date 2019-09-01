@@ -1,0 +1,21 @@
+---
+
+starting_with:
+  data: composite
+  schema: composite
+
+steps:
+  - Consume:
+      name: ExportToCSV
+      filename: 05_temporal_list_and_immutable_named_list.csv
+      columns:
+        - temporal_block:
+            - t_list_in_root:
+                type: List
+                children:
+                  - t_text_in_list
+        - immutable_block:
+            - i_named_list_in_root:
+                type: NamedList
+                children:
+                  - i_text_in_named_list: special name

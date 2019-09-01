@@ -37,8 +37,8 @@ class ExportToJSON(Consume):
             self.fobj.write(line)
 
     def consume(self, extracts: Iterable[Tuple[str, Composite]]) -> None:
-        for filename, composite in extracts:
-            composite_id: str = filename[:-5]
+        for composite_id, composite in extracts:  # type: str, Composite
+            composite_id = composite_id
             self._to_json(composite_id, composite)
 
     def after(self) -> None:

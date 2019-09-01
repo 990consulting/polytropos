@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 
-from polytropos.tools.schema.linkage import ExportLinkages, ImportLinkages
+from polytropos.tools.schema.linkage import ExportLinkages
 import csv
 
 from polytropos.ontology.variable import Variable
@@ -23,26 +23,3 @@ def test_export_linkages(target_schema, basepath):
         expected = [line for line in expected_reader]
     os.remove(output_file.name)
     assert actual == expected
-
-@pytest.mark.parametrize("target_id, source_ids", [
-    ("target_t_folder", []),
-    ("target_t_folder_text", ["source_t_folder_text_1", "source_t_folder_text_2"]),
-    ("target_t_list", ["source_t_list_1", "source_t_list_2"]),
-    ("target_t_list_text", ["source_t_list_text_1", "source_t_list_text_2"]),
-    ("target_t_named_list", ["source_t_named_list_1", "source_t_named_list_2"]),
-    ("target_t_named_list_text", ["source_t_named_list_text_1", "source_t_named_list_text_2"]),
-    ("target_i_folder", []),
-    ("target_i_folder_text", []),
-    ("target_i_list", ["source_i_list_2"]),
-    ("target_i_list_text", ["source_i_list_text_2"]),
-    ("target_i_named_list", ["source_i_named_list_2"]),
-    ("target_i_named_list_text", ["source_i_named_list_text_2"])
-])
-def test_import_modifications(target_schema, basepath, target_id, source_ids):
-    """Apply the modified linkage file to the schema, then verify that the sources are as expected."""
-    mods_path: str = os.path.join(basepath, 'test_functional', 'tools', 'linkages', 'modified_linkages.csv')
-    with open(mods_path) as fh:
-        do_import: ImportLinkages = ImportLinkages(target_schema, fh)
-        do_import()
-    var: Variable = target_schema.get(target_id)
-    assert var.sources == source_ids

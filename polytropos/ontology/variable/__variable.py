@@ -1,8 +1,8 @@
 import logging
 import json
 from abc import abstractmethod
-from collections import defaultdict
-from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType
+from collections import defaultdict, deque
+from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType, Iterable, Deque
 from functools import partial
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -14,7 +14,6 @@ if TYPE_CHECKING:
 
 VariableId = NewType("VariableId", str)
 
-
 class Validator:
     @staticmethod
     def validate_sources(variable: "Variable", sources: ListType[VariableId], init: bool = False) -> None:
@@ -22,7 +21,7 @@ class Validator:
             _check_folder_has_sources(variable, sources)
         if sources:
             for source in sources:
-                #_verify_source_parent(variable, source)
+                _verify_source_parent(variable, source)
                 _verify_source_exists(variable, source)
                 _verify_source_compatible(variable, source)
 
@@ -94,10 +93,16 @@ class Variable:
                  notes: Optional[str] = None, earliest_epoch: Optional[str] = None, latest_epoch: Optional[str] = None,
                  short_description: Optional[str] = None, long_description: Optional[str] = None,
                  sources: Optional[ListType[VariableId]] = None, parent: Optional[VariableId] = None):
+
         self.initialized = False
+
+        self.data_type = self.__class__.__name__
 
         # The track to which this variable belongs
         self.track: "Track" = track
+
+        # Used for single dispatch type situations, as well as for schema reports.
+        self.data_type = self.__class__.__name__
 
         # The variable id of the variable in the corresponding track.
         # WARNING! The variable ID _MUST_ be unique within the schema, or terrible things will happen!
@@ -140,7 +145,7 @@ class Variable:
 
     def __setattr__(self, attribute: str, value: Any) -> None:
         if attribute != "initialized" and self.initialized:
-            value = self.validate_attribute_value(attribute, value)
+            raise AttributeError("Variables are immutable at runtime and must be edited offline.")
 
         self.__dict__[attribute] = value
 
@@ -177,42 +182,21 @@ class Variable:
         elif attribute == 'data_type':
             raise AttributeError
 
-        if attribute in {'sort_order', 'parent', 'name'}:
-            self.track.invalidate_variables_cache()
-
         return value
-
-    def invalidate_cache(self) -> None:
-        logging.debug("Invaliding cache for variable %s." % self.var_id)
-        self._cache.clear()
-
-    def update_sort_order(self, old_order: Optional[int] = None, new_order: Optional[int] = None) -> None:
-        if old_order is None:
-            old_order = len(list(self.siblings)) + 1
-        if new_order is None:
-            new_order = len(list(self.siblings)) + 1
-        for sibling in self.siblings:
-            if sibling == self.var_id:
-                continue
-            diff = 0
-            if self.track[sibling].sort_order >= new_order:
-                diff += 1
-            if self.track[sibling].sort_order >= old_order:
-                diff -= 1
-            self.track[sibling].__dict__['sort_order'] += diff
 
     @property
     def temporal(self) -> bool:
         return self.track.schema is not None and self.track.schema.is_temporal(self.var_id)
 
-    @property
-    def siblings(self) -> Iterator[VariableId]:
+    @property  # type: ignore # Decorated property not supported
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'siblings'))
+    def siblings(self) -> Iterable[VariableId]:
         if self.parent is None:
-            return map(lambda root: root.var_id, self.track.roots)
-        return map(
+            return list(map(lambda root: root.var_id, self.track.roots))
+        return list(map(
             lambda child: child.var_id,
             self.track[self.parent].children
-        )
+        ))
 
     @property
     def has_targets(self) -> bool:
@@ -275,7 +259,7 @@ class Variable:
             'sort_order': self.sort_order
         }
         for field_name, field_value in vars(self).items():
-            if field_name == 'name' or field_name == 'sort_order' or field_name == 'var_id' or field_name == 'track' or field_name == 'initialized':
+            if field_name in {'name', 'sort_order', 'track', 'initialized', 'var_id', '_cache'}:
                 continue
             if field_value:
                 representation[field_name] = field_value
@@ -285,6 +269,7 @@ class Variable:
         """A JSON-compatible representation of this variable. (For serialization.)"""
         return json.dumps(self.dump(), indent=4)
 
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'check_ancestor'))
     def check_ancestor(self, child_id: VariableId, stop_at_list: bool = False) -> bool:
         variable = self.track[child_id]
         if variable.parent is None:
@@ -298,6 +283,7 @@ class Variable:
             return True
         return self.check_ancestor(variable.parent)
 
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'first_list_ancestor'))
     def get_first_list_ancestor(self) -> Optional["Variable"]:
         parent_id = self.parent
         if parent_id is None:
@@ -309,54 +295,57 @@ class Variable:
 
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'descendants_that'))
     def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
-            -> Iterator[str]:
+            -> Iterable[VariableId]:
         """Provides a list of variable IDs descending from this variable that meet certain criteria.
         :param data_type: The type of descendant to be found.
         :param targets: If -1, include only variables that lack targets; if 1, only variables without targets.
         :param container: If -1, include only primitives; if 1, only containers.
         :param inside_list: If -1, include only elements outside lists; if 1, only inside lists.
         """
+        ret: Deque[VariableId] = deque()
         for variable_id in self.track.descendants_that(
             data_type, targets, container, inside_list
         ):
             if self.check_ancestor(variable_id, stop_at_list=True):
-                yield variable_id
+                ret.append(variable_id)
+        return list(ret)
 
-    def targets(self) -> Iterator[VariableId]:
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'targets'))
+    def targets(self) -> Iterable[VariableId]:
         """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
         stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
+        targets: Deque[VariableId] = deque()
         if self.track.target:
             for variable_id, variable in self.track.target.items():
                 if self.var_id in variable.sources:
-                    yield variable_id
+                    targets.append(variable_id)
+        return list(targets)
 
-    @property
-    def children(self) -> Iterator["Variable"]:
+    @property   # type: ignore # Decorated property not supported
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'targets'))
+    def children(self) -> Iterable["Variable"]:
         # TODO Consider caching the list of children for each variable in Track.
-        return filter(
+        return list(filter(
             lambda variable: variable.parent == self.var_id,
             self.track.values()
-        )
+        ))
 
-    @property
-    def data_type(self) -> str:
-        return self.__class__.__name__
-
-    def ancestors(self, parent_id_to_stop: Optional[VariableId]) -> Iterator["Variable"]:
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'ancestors'))
+    def ancestors(self, parent_id_to_stop: Optional[VariableId]) -> Iterable["Variable"]:
         """Returns an iterator of ancestors (self, self.parent, self.parent.parent, etc).
         The first item - the current variable.
         If the parent_id_to_stop parameter is None all ancestors are returned.
         Otherwise the last item is the ancestor with parent identifier equal to parent_id_to_stop."""
+        ret: Deque[Variable] = deque()
         current = self
-        yield current
+        ret.append(current)
         while current.parent is not None and current.parent != parent_id_to_stop:
             current = self.track[current.parent]
-            yield current
-
+            ret.append(current)
+        return list(ret)
 
 class Container(Variable):
     pass
-
 
 class Primitive(Variable):
     @abstractmethod
@@ -494,6 +483,7 @@ def _check_folder_has_sources(variable: "Variable", sources: ListType[VariableId
                             'sources: %s'
         raise ValueError(msg_template % (var_id, source_str))
 
+# TODO This should work, but it doesn't
 def _verify_source_parent(variable: "Variable", source_var_id: VariableId) -> None:
     list_ancestor: Optional["Variable"] = variable.get_first_list_ancestor()
     if list_ancestor is None:

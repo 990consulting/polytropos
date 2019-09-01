@@ -1,0 +1,13 @@
+---
+
+starting_with:
+  data: composite
+  schema: composite
+
+steps:
+  - Consume:
+      name: ExportToCSV
+      filename: 02_immutable_singleton_all_empty.csv
+      columns:
+        - immutable_block:
+            - i_text_never_populated

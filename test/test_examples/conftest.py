@@ -2,14 +2,17 @@ from collections.abc import Callable
 from difflib import Differ
 import json
 import os
+from typing import List
 
 import pytest
 from polytropos.ontology.task import Task
 from polytropos.util.compare import compare
 import polytropos.actions
+from polytropos.util.paths import find_all_composites, relpath_for
 
 @pytest.fixture
 def run_task(basepath) -> Callable:
+    # noinspection DuplicatedCode
     def _run_task(scenario, task_name, expected_location):
         polytropos.actions.register_all()
         conf = os.path.join(basepath, '../examples', scenario, 'conf')
@@ -22,10 +25,12 @@ def run_task(basepath) -> Callable:
         expected_path = os.path.join(
             task.path_locator.entities_dir, expected_location
         )
-        assert os.listdir(actual_path) == os.listdir(expected_path)
-        for filename in os.listdir(actual_path):
-            with open(os.path.join(actual_path, filename), 'r') as f:
-                with open(os.path.join(expected_path, filename), 'r') as g:
+        composite_ids: List = list(find_all_composites(expected_path))
+        assert list(find_all_composites(expected_path)) == composite_ids
+        for composite_id in composite_ids:
+            relpath: str = relpath_for(composite_id)
+            with open(os.path.join(actual_path, relpath, "%s.json" % composite_id)) as f:
+                with open(os.path.join(expected_path, relpath, "%s.json" % composite_id)) as g:
                     actual_data = json.load(f)
                     expected_data = json.load(g)
                     diff = Differ().compare(

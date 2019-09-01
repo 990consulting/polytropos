@@ -1,0 +1,16 @@
+id,period,/t_list/some_text,/simple_named_list,special name
+composite_4,period_1,,nl_1,111
+composite_4,period_1,,nl_2,222
+composite_4,period_2,P2(list)(A),nl_1,111
+composite_4,period_2,P2(list)(A),nl_2,222
+composite_4,period_2,P2(list)(B),nl_1,111
+composite_4,period_2,P2(list)(B),nl_2,222
+composite_1,period_1,in a list,billy,bob
+composite_3,period_1,cccc,,
+composite_3,period_1,dddd,,
+composite_3,period_2,3333,,
+composite_3,period_2,4444,,
+composite_3,period_2,5555,,
+composite_2,,,peter,a
+composite_2,,,paul,b
+composite_2,,,mary,c

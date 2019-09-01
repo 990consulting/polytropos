@@ -12,10 +12,14 @@ from polytropos.actions.step import Step
 from polytropos.ontology.paths import PathLocator
 from polytropos.util.loader import load
 from polytropos.ontology.schema import Schema
+from polytropos.util.paths import find_all_composites, relpath_for
 
-def write_composite(target_dir: str, emission: Tuple[str, Composite]) -> None:
-    filename, composite = emission
-    with open(os.path.join(target_dir, filename + '.json'), 'w') as target_file:
+def write_composite(target_base_dir: str, emission: Tuple[str, Composite]) -> None:
+    composite_id, composite = emission
+    relpath: str = relpath_for(composite_id)
+    target_dir: str = os.path.join(target_base_dir, relpath)
+    os.makedirs(target_dir, exist_ok=True)
+    with open(os.path.join(target_dir, composite_id + '.json'), 'w') as target_file:
         json.dump(composite.content, target_file, indent=2)
 
 @dataclass
@@ -55,25 +59,34 @@ class Aggregate(Step):  # type: ignore # https://github.com/python/mypy/issues/5
         """Lazily produce instances of the target entity. Yields tuples of (new entity ID, new entity composite)."""
         pass
 
-    def process_composite(self, origin_dir: str, filename: str) -> Tuple[str, Optional[Any]]:
+    def process_composite(self, origin_dir: str, composite_id: str) -> Tuple[str, Optional[Any]]:
         """Open a composite JSON file, deserialize it into a Composite object, then extract information to be used in
         analysis."""
-        with open(os.path.join(origin_dir, filename), 'r') as origin_file:
+        relpath: str = relpath_for(composite_id)
+        with open(os.path.join(origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
             content: Dict = json.load(origin_file)
-            composite: Composite = Composite(self.origin_schema, content)
-            return filename, self.extract(composite)
+            composite: Composite = Composite(self.origin_schema, content, composite_id=composite_id)
+            return composite_id, self.extract(composite)
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
         # References:
         #    * https://docs.python.org/3/library/concurrent.futures.html
         #    * _Fluent Python_ 1st ed, p. 547
+        """
+        composite_ids: Iterator[str] = find_all_composites(origin_dir)
+        extracts = (self.process_composite(origin_dir, composite_id) for composite_id in composite_ids)
+        self.analyze(extracts)
+        targets = self.emit()
+        for target in targets:
+            write_composite(target_dir, target)
+        """
         with futures.ThreadPoolExecutor() as executor:
-            json_file_paths: ListType[str] = os.listdir(origin_dir)
-            future_to_file_path: Dict = {}
-            for file_path in json_file_paths:
-                future = executor.submit(self.process_composite, origin_dir, file_path)
-                future_to_file_path[future] = file_path
-            per_composite_futures: Iterable[futures.Future] = futures.as_completed(future_to_file_path)
+            composite_ids: Iterator[str] = find_all_composites(origin_dir)
+            future_to_composite_id: Dict = {}
+            for composite_id in composite_ids:
+                future = executor.submit(self.process_composite, origin_dir, composite_id)
+                future_to_composite_id[future] = composite_id
+            per_composite_futures: Iterable[futures.Future] = futures.as_completed(future_to_composite_id)
 
             per_composite_results: Iterable[Tuple[str, Optional[Any]]] = \
                 (future.result() for future in per_composite_futures)

@@ -1,13 +1,16 @@
 from typing import TextIO, Optional, cast
 import click
+import logging
 
 from polytropos.actions.consume.coverage import CoverageFile
 from polytropos.ontology.task import Task
 from polytropos.ontology.variable import VariableId
 from polytropos.tools.schema import treeview
 from polytropos.tools.schema.catalog import variable_catalog
-from polytropos.tools.schema.linkage import ExportLinkages, ImportLinkages
+from polytropos.tools.schema.linkage import ExportLinkages#, ImportLinkages
 from polytropos.tools.schema.repair_sort import repair_sort_order
+
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 @click.group()
 def cli() -> None:
@@ -42,6 +45,7 @@ def linkage_export(schema_basepath: str, source_schema: str, target_schema: str,
     """Export a translation linkage."""
     ExportLinkages.from_files(schema_basepath, source_schema, target_schema, output_file)
 
+"""
 @linkage.command(name="import")
 @click.argument('schema_basepath', type=click.Path(exists=True))
 @click.argument('source_schema', type=str)
@@ -49,8 +53,9 @@ def linkage_export(schema_basepath: str, source_schema: str, target_schema: str,
 @click.argument('input_file', type=click.File('r'))
 @click.option('-s', '--suffix', default="_revised", type=str)
 def linkage_import(schema_basepath: str, source_schema: str, target_schema: str, input_file: TextIO, suffix: str) -> None:
-    """Import a modified translation linkage and output it."""
+    #Import a modified translation linkage and output it.
     ImportLinkages.from_files(schema_basepath, source_schema, target_schema, input_file, suffix)
+"""
 
 @schema.command()
 @click.argument('schema_basepath', type=click.Path(exists=True))

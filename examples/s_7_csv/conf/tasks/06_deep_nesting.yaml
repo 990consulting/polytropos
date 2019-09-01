@@ -1,0 +1,28 @@
+---
+
+starting_with:
+  data: composite
+  schema: composite
+
+steps:
+  - Consume:
+      name: ExportToCSV
+      filename: 06_deep_nesting.csv
+      columns:
+        - immutable_block:
+          - i_outer_nested_named_list:
+              type: NamedList
+              children:
+                - i_inner_nested_named_list:
+                    type: NamedList
+                    children:
+                      - i_text_in_inner_nested_named_list
+                      - i_list_in_inner_nested_named_list:
+                          type: List
+                          children:
+                            - i_text_in_list_in_inner_nested_named_list
+                            - i_named_list_in_list_in_inner_nested_named_list:
+                                type: NamedList
+                                children:
+                                  - i_text_in_named_list_in_list_in_inner_nested_named_list
+                - i_text_in_outer_nested_named_list
