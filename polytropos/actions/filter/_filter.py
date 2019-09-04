@@ -27,7 +27,9 @@ class Filter(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, path_locator, schema: Schema, name: str, mappings: Dict):  # type: ignore
+    def build(cls, path_locator, schema: Schema, name: str, mappings: Optional[Dict] = None):  # type: ignore
+        if mappings is None:
+            mappings = {}
         logging.info('Building instance of filter class "%s"' % name)
         filters = load(cls)
         return filters[name](schema=schema, **mappings)

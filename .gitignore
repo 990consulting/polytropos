@@ -116,6 +116,7 @@ examples/s_5_tr_export/count_output.txt
 examples/s_5_tr_export/immutable.csv
 examples/s_5_tr_export/records.json
 examples/s_5_tr_export/temporal.csv
+examples/s_8_filter_narrow/data/entities/generic/actual/
 
 # Sandbox
 sandbox/

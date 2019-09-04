@@ -1,0 +1,15 @@
+starting_with:
+  data: generic/origin
+  schema: generic
+
+resulting_in:
+  data: generic/actual
+
+steps:
+  - Filter:
+      name: LatestFilter
+  - Filter:
+      name: ImmutableValueThreshold
+      mappings:
+        threshold_var: immutable_var
+        threshold: 7
