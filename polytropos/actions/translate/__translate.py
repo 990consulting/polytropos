@@ -1,4 +1,5 @@
 import logging
+import time
 from dataclasses import dataclass
 import os
 import json
@@ -63,9 +64,12 @@ class Translate(Step):
             return ExceptionWrapper(e)
         return None
 
-    def process_composites(self, origin_dir: str, target_dir: str, chunk: Iterable[str]) -> None:
+    def process_composites(self, origin_dir: str, target_dir: str, chunk: List[str]) -> None:
+        start: float = time.time()
         for composite_id in chunk:
             self.process_composite(origin_dir, target_dir, composite_id)
+        elapsed: float = time.time() - start
+        logging.info("Completed batch of {:,} translations in {:0.2f} seconds.".format(len(chunk), elapsed))
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
         composites: List[str] = list(find_all_composites(origin_dir))
