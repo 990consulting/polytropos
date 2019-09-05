@@ -30,5 +30,9 @@ def find_all_composites(basepath: str) -> Iterator[str]:
 
 @functools.lru_cache(maxsize=4194304)
 def relpath_for(composite_id: str) -> str:
-    chunks: Iterable[str] = textwrap.wrap(composite_id, 3)[:-1]
-    return os.path.join(*chunks)
+    try:
+        chunks: Iterable[str] = textwrap.wrap(composite_id, 3)[:-1]
+        return os.path.join(*chunks)
+    except Exception as e:
+        print("breakpoint")
+        raise e
