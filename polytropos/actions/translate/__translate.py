@@ -6,6 +6,7 @@ import json
 from typing import TYPE_CHECKING, Optional, List, Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from functools import partial
+import traceback
 
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
@@ -61,6 +62,7 @@ class Translate(Step):
                 json.dump(translated, target_file, indent=2)
         except Exception as e:
             logging.error("Error translating composite %s." % composite_id)
+            traceback.print_exc()
             return ExceptionWrapper(e)
         return None
 

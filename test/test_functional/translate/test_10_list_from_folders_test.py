@@ -105,3 +105,23 @@ def test_list_from_folders(source, target):
     translate: Translator = Translator(target_track)
     actual: Dict = translate(source_doc)
     assert actual == expected
+
+def test_folder_null_skipped(source, target):
+    """On occasion, e-files contain <EmptyElements/> that would normally contain list items. These are converted to
+    JSON as {"EmptyElement": null} and are not included as list items during translation."""
+    source_spec, source_doc = source
+    source_doc["second_source_folder"] = None
+    target_spec, _ = target
+    expected = {
+        "the_list": [
+            {
+                "name": "Steve",
+                "color": "red"
+            }
+        ]
+    }
+    source_track: Track = Track.build(source_spec, None, "Source")
+    target_track: Track = Track.build(target_spec, source_track, "Target")
+    translate: Translator = Translator(target_track)
+    actual: Dict = translate(source_doc)
+    assert actual == expected
