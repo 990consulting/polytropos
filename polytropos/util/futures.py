@@ -40,7 +40,7 @@ def run_on_pool(executor: Executor, func: Callable, items: List[Any], *args: Any
     if chunk_size is None:
         chunk_size = 1
 
-    chunks: Iterable[List[Any]] = _split_to_chunks(list(items), chunk_size)
+    chunks: Iterable[List[Any]] = split_to_chunks(list(items), chunk_size)
 
     exceptions: List[BaseException] = []
     with executor:
@@ -61,6 +61,6 @@ def run_on_pool(executor: Executor, func: Callable, items: List[Any], *args: Any
 
 
 # https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
-def _split_to_chunks(items: List[Any], chunk_size: int) -> Iterable[List[Any]]:
+def split_to_chunks(items: List[Any], chunk_size: int) -> Iterable[List[Any]]:
     for i in range(0, len(items), chunk_size):
         yield items[i:i + chunk_size]

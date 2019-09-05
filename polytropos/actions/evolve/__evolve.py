@@ -1,13 +1,15 @@
 import logging
 import os
 import json
+import time
 from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
-from typing import Dict, List, Optional, TYPE_CHECKING, Type, Iterator
+from typing import Dict, List, Optional, TYPE_CHECKING, Type, Iterator, Iterable
 
 from polytropos.ontology.composite import Composite
 from polytropos.util.exceptions import ExceptionWrapper
+from polytropos.util.futures import split_to_chunks
 
 from polytropos.util.loader import load
 from polytropos.actions.evolve import Change
@@ -100,17 +102,16 @@ class Evolve(Step):
             return ExceptionWrapper(e)
         return None
 
+    def process_composites(self, origin_dir: str, target_dir: str, chunk: List[str]) -> None:
+        start: float = time.time()
+        for composite_id in chunk:
+            self.process_composite(origin_dir, target_dir, composite_id)
+        elapsed: float = time.time() - start
+        logging.info("Completed batch of {:,} evolutions in {:0.2f} seconds.".format(len(chunk), elapsed))
+
     def __call__(self, origin_dir: str, target_dir: str) -> None:
-        targets = list(find_all_composites(origin_dir))
-        #logging.debug("I have the following targets:\n   - %s" % "\n   - ".join(targets))
+        composites: List[str] = list(find_all_composites(origin_dir))
+        chunks: Iterable[List[str]] = split_to_chunks(composites, 1000)
+        action: Callable = partial(self.process_composites, origin_dir, target_dir)
         with ProcessPoolExecutor() as executor:
-            results = executor.map(
-                partial(self.process_composite, origin_dir, target_dir),
-                targets
-            )
-            # TODO: Exceptions are supposed to propagate from a ProcessPoolExecutor. Why aren't mine?
-            for result in results:  # type: Optional[ExceptionWrapper]
-                if result is not None:
-                    result.re_raise()
-        #for target in targets:
-        #    self.process_composite(origin_dir, target_dir, target)
+            executor.map(action, chunks)

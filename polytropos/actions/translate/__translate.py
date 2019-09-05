@@ -1,15 +1,17 @@
 import logging
+import time
 from dataclasses import dataclass
 import os
 import json
-from typing import TYPE_CHECKING, Optional
-from concurrent.futures import ThreadPoolExecutor
+from typing import TYPE_CHECKING, Optional, List, Callable, Iterable
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from functools import partial
 
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.actions.translate import Translator
 from polytropos.util.exceptions import ExceptionWrapper
+from polytropos.util.futures import split_to_chunks
 from polytropos.util.paths import find_all_composites, relpath_for
 
 if TYPE_CHECKING:
@@ -62,13 +64,16 @@ class Translate(Step):
             return ExceptionWrapper(e)
         return None
 
+    def process_composites(self, origin_dir: str, target_dir: str, chunk: List[str]) -> None:
+        start: float = time.time()
+        for composite_id in chunk:
+            self.process_composite(origin_dir, target_dir, composite_id)
+        elapsed: float = time.time() - start
+        logging.info("Completed batch of {:,} translations in {:0.2f} seconds.".format(len(chunk), elapsed))
+
     def __call__(self, origin_dir: str, target_dir: str) -> None:
-        with ThreadPoolExecutor() as executor:
-            results = executor.map(
-                partial(self.process_composite, origin_dir, target_dir),
-                find_all_composites(origin_dir)
-            )
-            # TODO: Exceptions are supposed to propagate from a ProcessPoolExecutor. Why aren't mine?
-            for result in results:  # type: Optional[ExceptionWrapper]
-                if result is not None:
-                    result.re_raise()
+        composites: List[str] = list(find_all_composites(origin_dir))
+        chunks: Iterable[List[str]] = split_to_chunks(composites, 1000)
+        action: Callable = partial(self.process_composites, origin_dir, target_dir)
+        with ProcessPoolExecutor() as executor:
+            executor.map(action, chunks)

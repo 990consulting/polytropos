@@ -21,7 +21,7 @@ class Validator:
             _check_folder_has_sources(variable, sources)
         if sources:
             for source in sources:
-                _verify_source_parent(variable, source)
+                #_verify_source_parent(variable, source)  # TODO This validation is broken.
                 _verify_source_exists(variable, source)
                 _verify_source_compatible(variable, source)
 
