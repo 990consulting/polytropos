@@ -36,7 +36,7 @@ def source_spec() -> Dict:
     return {
         "source_root_1": {
             "name": "list_source_1",
-            "data_type": "NamedList",
+            "data_type": "KeyedList",
             "sort_order": 0
         },
         "source_root_1_name": {
@@ -65,7 +65,7 @@ def source_spec() -> Dict:
         },
         "source_root_2": {
             "name": "list_source_2",
-            "data_type": "NamedList",
+            "data_type": "KeyedList",
             "sort_order": 1,
         },
         "source_root_2_nombre": {
@@ -93,7 +93,7 @@ def target_spec() -> Dict:
     return {
         "target_root": {
             "name": "People",
-            "data_type": "NamedList",
+            "data_type": "KeyedList",
             "sources": ["source_root_1", "source_root_2"],
             "sort_order": 0,
         },

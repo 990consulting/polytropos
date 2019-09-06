@@ -1,4 +1,4 @@
-id,/outer_named_list,/outer_named_list/inner_named_list,/outer_named_list/inner_named_list/some_text,/outer_named_list/inner_named_list/a_list/some_text,/outer_named_list/inner_named_list/a_list/yet_another_named_list,/outer_named_list/inner_named_list/a_list/yet_another_named_list/some_text,/outer_named_list/some_text
+id,/outer_keyed_list,/outer_keyed_list/inner_keyed_list,/outer_keyed_list/inner_keyed_list/some_text,/outer_keyed_list/inner_keyed_list/a_list/some_text,/outer_keyed_list/inner_keyed_list/a_list/yet_another_keyed_list,/outer_keyed_list/inner_keyed_list/a_list/yet_another_keyed_list/some_text,/outer_keyed_list/some_text
 composite_4,,,,,,,
 composite_1,wakame,baseball,batting,mauve,poseidon,mnemosyne,hijiki
 composite_3,,,,,,,

@@ -7,7 +7,7 @@ starting_with:
 steps:
   - Consume:
       name: ExportToCSV
-      filename: 05_temporal_list_and_immutable_named_list.csv
+      filename: 05_temporal_list_and_immutable_keyed_list.csv
       columns:
         - temporal_block:
             - t_list_in_root:
@@ -15,7 +15,7 @@ steps:
                 children:
                   - t_text_in_list
         - immutable_block:
-            - i_named_list_in_root:
-                type: NamedList
+            - i_keyed_list_in_root:
+                type: KeyedList
                 children:
-                  - i_text_in_named_list: special name
+                  - i_text_in_keyed_list: special name

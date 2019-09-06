@@ -185,16 +185,16 @@ def test_cast_complex():
             "parent": "folder_in_list",
             "sort_order": 0
         },
-        "named_list_in_folder_in_list": {
-            "name": "the_named_list",
-            "data_type": "NamedList",
+        "keyed_list_in_folder_in_list": {
+            "name": "the_keyed_list",
+            "data_type": "KeyedList",
             "parent": "folder_in_list",
             "sort_order": 1
         },
-        "date_in_named_list_in_folder_in_list": {
+        "date_in_keyed_list_in_folder_in_list": {
             "name": "some_date",
             "data_type": "Date",
-            "parent": "named_list_in_folder_in_list",
+            "parent": "keyed_list_in_folder_in_list",
             "sort_order": 0
         }
     }
@@ -208,7 +208,7 @@ def test_cast_complex():
                     "some_int": "-0",
                     "the_folder": {
                         "some_binary": "1",
-                        "the_named_list": {
+                        "the_keyed_list": {
                             "bob": {
                                 "some_date": "2001-01-01"
                             },
@@ -222,7 +222,7 @@ def test_cast_complex():
                     "some_int": "74",
                     "the_folder": {
                         "some_binary": "FaLsE",
-                        "the_named_list": {
+                        "the_keyed_list": {
                             "bob": {
                                 "some_date": "201712"
                             },
@@ -240,7 +240,7 @@ def test_cast_complex():
                     "some_int": 0,
                     "the_folder": {
                         "some_binary": True,
-                        "the_named_list": {
+                        "the_keyed_list": {
                             "bob": {
                                 "some_date": "2001-01-01"
                             },
@@ -254,7 +254,7 @@ def test_cast_complex():
                     "some_int": 74,
                     "the_folder": {
                         "some_binary": False,
-                        "the_named_list": {
+                        "the_keyed_list": {
                             "bob": {
                                 "some_date": "2017-12-01"
                             },
@@ -307,7 +307,7 @@ def nested_track() -> Track:
 
 def test_cast_nonexistent(nested_track):
     """If Cast encounters an unknown variable, it records an exception and then leaves it unaltered. If the unknown
-    variable is nested inside one or more lists or named lists, only the last example of the error is recorded as an
+    variable is nested inside one or more lists or keyed lists, only the last example of the error is recorded as an
     exception."""
     temporal: Track = Track.build({}, None, "temporal")
     schema: Schema = Schema(temporal, nested_track)

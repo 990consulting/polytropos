@@ -32,16 +32,16 @@ def half_source_spec() -> Callable:
                 "parent": "source_%s_list_%i" % (prefix, cardinal),
                 "sort_order": 0
             },
-            "source_%s_named_list_%i" % (prefix, cardinal): {
-                "name": "a_named_list",
-                "data_type": "NamedList",
+            "source_%s_keyed_list_%i" % (prefix, cardinal): {
+                "name": "a_keyed_list",
+                "data_type": "KeyedList",
                 "parent": "source_%s_list_%i" % (prefix, cardinal),
                 "sort_order": 1
             },
-            "source_%s_named_list_text_%i" % (prefix, cardinal): {
+            "source_%s_keyed_list_text_%i" % (prefix, cardinal): {
                 "name": "some_text",
                 "data_type": "Text",
-                "parent": "source_%s_named_list_%i" % (prefix, cardinal),
+                "parent": "source_%s_keyed_list_%i" % (prefix, cardinal),
                 "sort_order": 0
             }
         }
@@ -93,19 +93,19 @@ def target_spec() -> Callable:
                 "sort_order": 0,
                 "sources": ["source_%s_list_text_%i" % (prefix, x) for x in [1, 2]]
             },
-            "target_%s_named_list" % prefix: {
-                "name": "a_named_list",
-                "data_type": "NamedList",
+            "target_%s_keyed_list" % prefix: {
+                "name": "a_keyed_list",
+                "data_type": "KeyedList",
                 "parent": "target_%s_list" % prefix,
                 "sort_order": 1,
-                "sources": ["source_%s_named_list_%i" % (prefix, x) for x in [1, 2]]
+                "sources": ["source_%s_keyed_list_%i" % (prefix, x) for x in [1, 2]]
             },
-            "target_%s_named_list_text" % prefix: {
+            "target_%s_keyed_list_text" % prefix: {
                 "name": "some_text",
                 "data_type": "Text",
-                "parent": "target_%s_named_list" % prefix,
+                "parent": "target_%s_keyed_list" % prefix,
                 "sort_order": 0,
-                "sources": ["source_%s_named_list_text_%i" % (prefix, x) for x in [1, 2]]
+                "sources": ["source_%s_keyed_list_text_%i" % (prefix, x) for x in [1, 2]]
             }
         }
     return _target_spec

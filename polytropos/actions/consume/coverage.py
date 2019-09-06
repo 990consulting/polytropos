@@ -201,10 +201,10 @@ class CoverageFileExtract:
             return None
         return composite.get_immutable(self.immutable_grouping_var, treat_missing_as_null=True)
 
-    def _handle_named_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
+    def _handle_keyed_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
         for child_value in value.values():
             if child_value is None:
-                logging.warning("Encountered empty named list item in composite %s (path %s).", composite_id,
+                logging.warning("Encountered empty keyed list item in composite %s (path %s).", composite_id,
                                 nesteddicts.path_to_str(child_path))
                 continue
             self._crawl(composite_id, child_value, observed, child_path)
@@ -227,14 +227,14 @@ class CoverageFileExtract:
             child_path: Tuple[str, ...] = path + (key,)
             observed.add(child_path)
 
-            # For known named lists, skip over the particular key names. Beyond this, we don't worry at this stage
+            # For known keyed lists, skip over the particular key names. Beyond this, we don't worry at this stage
             # whether the variable is known or not.
 
             # Micro-optimization - direct access to a protected member
             # noinspection PyProtectedMember
             child_var: Optional[Variable] = self.schema._var_path_cache.get(child_path)
-            if child_var is not None and child_var.data_type == "NamedList":
-                self._handle_named_list(composite_id, child_path, value, observed)
+            if child_var is not None and child_var.data_type == "KeyedList":
+                self._handle_keyed_list(composite_id, child_path, value, observed)
                 return
 
             # For lists (except string lists), crawl each list item -- exclude string lists
@@ -242,7 +242,7 @@ class CoverageFileExtract:
                 self._handle_list(composite_id, child_path, value, observed)
                 return
 
-            # If the value is a dict, and we do not it to be a named list, then we assume that it is a real folder.
+            # If the value is a dict, and we do not it to be a keyed list, then we assume that it is a real folder.
             if isinstance(value, dict):
                 self._crawl(composite_id, value, observed, child_path)
 

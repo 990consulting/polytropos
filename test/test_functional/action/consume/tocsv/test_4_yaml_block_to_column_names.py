@@ -93,38 +93,38 @@ def test_list_with_no_columns(do_test):
     expected: Tuple = ()
     do_test(raw_yaml, expected)
 
-def test_named_list(do_test):
+def test_keyed_list(do_test):
     raw_yaml: str = """
-    - i_named_list_in_root:
-        type: NamedList
+    - i_keyed_list_in_root:
+        type: KeyedList
         children:
-          - i_int_in_named_list
-          - i_text_in_named_list
+          - i_int_in_keyed_list
+          - i_text_in_keyed_list
     """
-    expected: Tuple = ("/simple_named_list", "/simple_named_list/some_int", "/simple_named_list/some_text")
+    expected: Tuple = ("/simple_keyed_list", "/simple_keyed_list/some_int", "/simple_keyed_list/some_text")
     do_test(raw_yaml, expected)
 
-def test_named_list_custom_column_names(do_test):
-    """Named lists have an extra column for the name of the list item. By default, the column name is the named list
+def test_keyed_list_custom_column_names(do_test):
+    """Keyed lists have an extra column for the name of the list item. By default, the column name is the keyed list
     root, but custom column names must be possible here as well, so a special key is supplied. Again, this should not
     affect the composition of the column data block."""
     raw_yaml: str = """
-    - i_named_list_in_root:
-        type: NamedList
+    - i_keyed_list_in_root:
+        type: KeyedList
         key_column_name: special_name_for_key_column
         children:
-          - i_int_in_named_list: name_1
-          - i_text_in_named_list: name_2
+          - i_int_in_keyed_list: name_1
+          - i_text_in_keyed_list: name_2
     """
     expected: Tuple = ("special_name_for_key_column", "name_1", "name_2")
     do_test(raw_yaml, expected)
 
-def test_named_list_with_no_columns(do_test):
+def test_keyed_list_with_no_columns(do_test):
     raw_yaml: str = """
-    - i_named_list_in_root:
-        type: NamedList
+    - i_keyed_list_in_root:
+        type: KeyedList
     """
-    expected: Tuple = ("/simple_named_list",)
+    expected: Tuple = ("/simple_keyed_list",)
     do_test(raw_yaml, expected)
 
 def test_nested_list(do_test):
@@ -141,51 +141,51 @@ def test_nested_list(do_test):
     expected: Tuple = ("/outer_list/inner_list/some_text", "/outer_list/some_text")
     do_test(raw_yaml, expected)
 
-def test_nested_named_list(do_test):
+def test_nested_keyed_list(do_test):
     raw_yaml: str = """
-    - i_outer_nested_named_list:
-        type: NamedList
+    - i_outer_nested_keyed_list:
+        type: KeyedList
         children:
-            - i_inner_nested_named_list:
-                type: NamedList
+            - i_inner_nested_keyed_list:
+                type: KeyedList
                 children:
-                    - i_text_in_inner_nested_named_list
-            - i_text_in_outer_nested_named_list
+                    - i_text_in_inner_nested_keyed_list
+            - i_text_in_outer_nested_keyed_list
     """
     expected: Tuple = (
-        "/outer_named_list",
-        "/outer_named_list/inner_named_list",
-        "/outer_named_list/inner_named_list/some_text",
-        "/outer_named_list/some_text"
+        "/outer_keyed_list",
+        "/outer_keyed_list/inner_keyed_list",
+        "/outer_keyed_list/inner_keyed_list/some_text",
+        "/outer_keyed_list/some_text"
     )
     do_test(raw_yaml, expected)
 
-def test_list_in_nested_named_list(do_test):
+def test_list_in_nested_keyed_list(do_test):
     raw_yaml: str = """
-    - i_outer_nested_named_list:
-        type: NamedList
+    - i_outer_nested_keyed_list:
+        type: KeyedList
         children:
-            - i_inner_nested_named_list:
-                type: NamedList
+            - i_inner_nested_keyed_list:
+                type: KeyedList
                 key_column_name: "THIS AFFECTS ONLY THIS COLUMN"
                 children:
-                    - i_text_in_inner_nested_named_list
-                    - i_list_in_inner_nested_named_list:
+                    - i_text_in_inner_nested_keyed_list
+                    - i_list_in_inner_nested_keyed_list:
                         type: List
                         children:
-                            - i_text_in_list_in_inner_nested_named_list
-            - i_text_in_outer_nested_named_list
+                            - i_text_in_list_in_inner_nested_keyed_list
+            - i_text_in_outer_nested_keyed_list
     """
     expected: Tuple = (
-        "/outer_named_list",
+        "/outer_keyed_list",
         "THIS AFFECTS ONLY THIS COLUMN",
-        "/outer_named_list/inner_named_list/some_text",
-        "/outer_named_list/inner_named_list/a_list/some_text",
-        "/outer_named_list/some_text"
+        "/outer_keyed_list/inner_keyed_list/some_text",
+        "/outer_keyed_list/inner_keyed_list/a_list/some_text",
+        "/outer_keyed_list/some_text"
     )
     do_test(raw_yaml, expected)
 
-def test_named_list_in_nested_list(do_test):
+def test_keyed_list_in_nested_list(do_test):
     raw_yaml: str = """
     - i_outer_nested_list:
         type: List
@@ -194,46 +194,46 @@ def test_named_list_in_nested_list(do_test):
                 type: List
                 children:
                     - i_text_in_inner_nested_list
-                    - i_named_list_in_inner_nested_list:
-                        type: NamedList
+                    - i_keyed_list_in_inner_nested_list:
+                        type: KeyedList
                         children:
-                            - i_text_in_named_list_in_inner_nested_list
+                            - i_text_in_keyed_list_in_inner_nested_list
             - i_text_in_outer_nested_list
     """
     expected: Tuple = (
         "/outer_list/inner_list/some_text",
-        "/outer_list/inner_list/a_named_list",
-        "/outer_list/inner_list/a_named_list/some_text",
+        "/outer_list/inner_list/a_keyed_list",
+        "/outer_list/inner_list/a_keyed_list/some_text",
         "/outer_list/some_text"
     )
     do_test(raw_yaml, expected)
 
 def test_quadruple_nesting(do_test):
     raw_yaml: str = """
-    - i_outer_nested_named_list:
-        type: NamedList
+    - i_outer_nested_keyed_list:
+        type: KeyedList
         children:
-            - i_inner_nested_named_list:
-                type: NamedList
+            - i_inner_nested_keyed_list:
+                type: KeyedList
                 children:
-                    - i_text_in_inner_nested_named_list
-                    - i_list_in_inner_nested_named_list:
+                    - i_text_in_inner_nested_keyed_list
+                    - i_list_in_inner_nested_keyed_list:
                         type: List
                         children:
-                            - i_text_in_list_in_inner_nested_named_list
-                            - i_named_list_in_list_in_inner_nested_named_list:
-                                type: NamedList
+                            - i_text_in_list_in_inner_nested_keyed_list
+                            - i_keyed_list_in_list_in_inner_nested_keyed_list:
+                                type: KeyedList
                                 children:
-                                    - i_text_in_named_list_in_list_in_inner_nested_named_list
-            - i_text_in_outer_nested_named_list
+                                    - i_text_in_keyed_list_in_list_in_inner_nested_keyed_list
+            - i_text_in_outer_nested_keyed_list
     """
     expected: Tuple = (
-        "/outer_named_list",
-        "/outer_named_list/inner_named_list",
-        "/outer_named_list/inner_named_list/some_text",
-        "/outer_named_list/inner_named_list/a_list/some_text",
-        "/outer_named_list/inner_named_list/a_list/yet_another_named_list",
-        "/outer_named_list/inner_named_list/a_list/yet_another_named_list/some_text",
-        "/outer_named_list/some_text"
+        "/outer_keyed_list",
+        "/outer_keyed_list/inner_keyed_list",
+        "/outer_keyed_list/inner_keyed_list/some_text",
+        "/outer_keyed_list/inner_keyed_list/a_list/some_text",
+        "/outer_keyed_list/inner_keyed_list/a_list/yet_another_keyed_list",
+        "/outer_keyed_list/inner_keyed_list/a_list/yet_another_keyed_list/some_text",
+        "/outer_keyed_list/some_text"
     )
     do_test(raw_yaml, expected)

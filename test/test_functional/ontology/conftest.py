@@ -140,16 +140,16 @@ def source_list_track() -> Track:
             "parent": "source_list",
             "sort_order": 1
         },
-        "source_named_list": {
-            "name": "source_inner_named_list",
-            "data_type": "NamedList",
+        "source_keyed_list": {
+            "name": "source_inner_keyed_list",
+            "data_type": "KeyedList",
             "parent": "source_folder",
             "sort_order": 1
         },
-        "source_named_list_color": {
+        "source_keyed_list_color": {
             "name": "color",
             "data_type": "Text",
-            "parent": "source_named_list",
+            "parent": "source_keyed_list",
             "sort_order": 0
         },
         "random_text_field": {
@@ -195,19 +195,19 @@ def target_list_track(source_list_track) -> Track:
             "sort_order": 1,
             "sources": ["source_list_color"]
         },
-        "target_named_list": {
-            "name": "the_named_list",
-            "data_type": "NamedList",
+        "target_keyed_list": {
+            "name": "the_keyed_list",
+            "data_type": "KeyedList",
             "parent": "target_folder_inner",
             "sort_order": 0,
-            "sources": ["source_named_list"]
+            "sources": ["source_keyed_list"]
         },
-        "target_named_list_color": {
+        "target_keyed_list_color": {
             "name": "color",
             "data_type": "Text",
-            "parent": "target_named_list",
+            "parent": "target_keyed_list",
             "sort_order": 0,
-            "sources": ["source_named_list_color"]
+            "sources": ["source_keyed_list_color"]
         },
         "outside_list_primitive": {
             "name": "some_primitive",
@@ -218,11 +218,11 @@ def target_list_track(source_list_track) -> Track:
     return Track.build(spec, source_list_track, "Target")
 
 @pytest.fixture()
-def source_named_list_track() -> Track:
+def source_keyed_list_track() -> Track:
     spec: Dict = {
         "source_root_1": {
             "name": "list_source_1",
-            "data_type": "NamedList",
+            "data_type": "KeyedList",
             "sort_order": 0
         },
         "source_root_1_name": {
@@ -251,7 +251,7 @@ def source_named_list_track() -> Track:
         },
         "source_root_2": {
             "name": "list_source_2",
-            "data_type": "NamedList",
+            "data_type": "KeyedList",
             "sort_order": 1,
         },
         "source_root_2_nombre": {
@@ -281,11 +281,11 @@ def source_named_list_track() -> Track:
     return Track.build(spec, None, "Source")
 
 @pytest.fixture()
-def target_named_list_track(source_named_list_track) -> Track:
+def target_keyed_list_track(source_keyed_list_track) -> Track:
     spec: Dict = {
         "target_root": {
             "name": "People",
-            "data_type": "NamedList",
+            "data_type": "KeyedList",
             "sources": ["source_root_1", "source_root_2"],
             "sort_order": 0
         },
@@ -318,7 +318,7 @@ def target_named_list_track(source_named_list_track) -> Track:
             "sources": ["source_root_1_sport"]
         }
     }
-    return Track.build(spec, source_named_list_track, "Target")
+    return Track.build(spec, source_keyed_list_track, "Target")
 
 @pytest.fixture
 def source_nested_list_track():
@@ -392,16 +392,16 @@ def target_nested_list_track(source_nested_list_track):
     return Track.build(target_spec, source_nested_list_track, "Target")
 
 @pytest.fixture
-def source_nested_named_list_track():
+def source_nested_keyed_list_track():
     source_spec: Dict = {
         "outer_list_1_id": {
             "name": "outer_list_1",
             "data_type": "List",
             "sort_order": 0
         },
-        "inner_named_list_1_id": {
-            "name": "inner_named_list",
-            "data_type": "NamedList",
+        "inner_keyed_list_1_id": {
+            "name": "inner_keyed_list",
+            "data_type": "KeyedList",
             "parent": "outer_list_1_id",
             "sort_order": 0
         },
@@ -413,7 +413,7 @@ def source_nested_named_list_track():
         "name_1_id": {
             "name": "name",
             "data_type": "Text",
-            "parent": "inner_named_list_1_id",
+            "parent": "inner_keyed_list_1_id",
             "sort_order": 0
         },
         "outer_list_2_id": {
@@ -421,22 +421,22 @@ def source_nested_named_list_track():
             "data_type": "List",
             "sort_order": 0
         },
-        "inner_named_list_2_id": {
-            "name": "inner_named_list",
-            "data_type": "NamedList",
+        "inner_keyed_list_2_id": {
+            "name": "inner_keyed_list",
+            "data_type": "KeyedList",
             "parent": "outer_list_2_id",
             "sort_order": 0
         },
         "name_2_id": {
             "name": "name",
             "data_type": "Text",
-            "parent": "inner_named_list_2_id",
+            "parent": "inner_keyed_list_2_id",
             "sort_order": 0
         }
     }
     return Track.build(source_spec, None, "Source")
 
-def target_nested_named_list_track(source_nested_named_list_track):
+def target_nested_keyed_list_track(source_nested_keyed_list_track):
     target_spec: Dict = {
         "outer_list_id": {
             "name": "outer_list",
@@ -444,19 +444,19 @@ def target_nested_named_list_track(source_nested_named_list_track):
             "sort_order": 0,
             "sources": ["outer_list_1_id", "outer_list_2_id"]
         },
-        "inner_named_list_id": {
-            "name": "inner_named_list",
-            "data_type": "NamedList",
+        "inner_keyed_list_id": {
+            "name": "inner_keyed_list",
+            "data_type": "KeyedList",
             "parent": "outer_list_id",
             "sort_order": 0,
-            "sources": ["inner_named_list_1_id", "inner_named_list_2_id"]
+            "sources": ["inner_keyed_list_1_id", "inner_keyed_list_2_id"]
         },
         "name_id": {
             "name": "name",
             "data_type": "Text",
-            "parent": "inner_named_list_id",
+            "parent": "inner_keyed_list_id",
             "sort_order": 0,
             "sources": ["name_1_id", "name_2_id"]
         }
     }
-    return Track.build(target_spec, source_nested_named_list_track, "Target")
+    return Track.build(target_spec, source_nested_keyed_list_track, "Target")

@@ -127,8 +127,8 @@ class Composite:
                 ret[internal_key] = value
             yield ret
 
-    def encode_named_list(self, mappings: Dict[str, VariableId], content: Dict[str, Dict]) -> Dict:
-        """Create a schema-compliant version of a named list of dicts based on data structured in some other format.
+    def encode_keyed_list(self, mappings: Dict[str, VariableId], content: Dict[str, Dict]) -> Dict:
+        """Create a schema-compliant version of a keyed_list list of dicts based on data structured in some other format.
         :param mappings: A mapping between the internal list item names and the IDs of the list-item variables they
         correspond to.
         :param content: The content in the internal format."""
@@ -145,8 +145,8 @@ class Composite:
             ret[key] = encoded
         return ret
 
-    def decode_named_list(self, mappings: Dict[VariableId, str], content: Dict) -> Dict:
-        """Convert a schema-compliant version of a named list of dicts into some other format.
+    def decode_keyed_list(self, mappings: Dict[VariableId, str], content: Dict) -> Dict:
+        """Convert a schema-compliant version of a keyed list of dicts into some other format.
         :param mappings: A mapping between the variables and their string values.
         :param content: The content in the schema format.
         """

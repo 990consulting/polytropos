@@ -81,23 +81,23 @@ def list_in_list_schema(empty_track) -> Schema:
     return Schema(test_track, empty_track)
 
 @pytest.fixture
-def named_list_in_list_schema(empty_track) -> Schema:
+def keyed_list_in_list_schema(empty_track) -> Schema:
     spec: Dict = {
         "list_in_root": {
             "name": "the_list",
             "data_type": "List",
             "sort_order": 0
         },
-        "named_list_in_list": {
-            "name": "the_named_list",
-            "data_type": "NamedList",
+        "keyed_list_in_list": {
+            "name": "the_keyed_list",
+            "data_type": "KeyedList",
             "parent": "list_in_root",
             "sort_order": 0
         },
-        "text_in_named_list_in_list": {
+        "text_in_keyed_list_in_list": {
             "name": "some_text",
             "data_type": "Text",
-            "parent": "named_list_in_list",
+            "parent": "keyed_list_in_list",
             "sort_order": 0
         }
     }
@@ -638,17 +638,17 @@ def test_nested_list_extra_value_in_fixture(list_in_list_schema):
     compare: CompareComplexVariable = CompareComplexVariable(list_in_list_schema)
     assert compare(fixture, actual) is False
 
-def test_nested_named_list_identical(named_list_in_list_schema):
+def test_nested_keyed_list_identical(keyed_list_in_list_schema):
     fixture: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
             },
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "rick": {"some_text": "C"},
                     "charlene": {"some_text": "D"}
                 }
@@ -656,20 +656,20 @@ def test_nested_named_list_identical(named_list_in_list_schema):
         ]
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(keyed_list_in_list_schema)
     assert compare(fixture, actual) is True
 
-def test_nested_named_list_key_mismatch(named_list_in_list_schema):
+def test_nested_keyed_list_key_mismatch(keyed_list_in_list_schema):
     fixture: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
             },
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "rick": {"some_text": "C"},
                     "charlene": {"some_text": "D"}
                 }
@@ -679,33 +679,33 @@ def test_nested_named_list_key_mismatch(named_list_in_list_schema):
     actual: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
             },
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "steve": {"some_text": "C"},
                     "charlene": {"some_text": "D"}
                 }
             }
         ]
     }
-    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(keyed_list_in_list_schema)
     assert compare(fixture, actual) is False
 
-def test_nested_named_list_extra_value_in_actual_element(named_list_in_list_schema):
+def test_nested_keyed_list_extra_value_in_actual_element(keyed_list_in_list_schema):
     fixture: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
             },
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "charlene": {"some_text": "D"}
                 }
             }
@@ -714,68 +714,33 @@ def test_nested_named_list_extra_value_in_actual_element(named_list_in_list_sche
     actual: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
             },
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "steve": {"some_text": "C"},
                     "charlene": {"some_text": "D"}
                 }
             }
         ]
     }
-    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(keyed_list_in_list_schema)
     assert compare(fixture, actual) is False
 
-def test_nested_named_list_extra_value_in_fixture(named_list_in_list_schema):
+def test_nested_keyed_list_extra_value_in_fixture(keyed_list_in_list_schema):
     fixture: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
             },
             {
-                "the_named_list": {
-                    "steve": {"some_text": "C"},
-                    "charlene": {"some_text": "D"}
-                }
-            }
-        ]
-    }
-    actual: Dict = {
-        "the_list": [
-            {
-                "the_named_list": {
-                    "susan": {"some_text": "A"},
-                    "bob": {"some_text": "B"}
-                }
-            },
-            {
-                "the_named_list": {
-                    "charlene": {"some_text": "D"}
-                }
-            }
-        ]
-    }
-    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
-    assert compare(fixture, actual) is False
-
-def test_nested_named_list_only_in_fixture(named_list_in_list_schema):
-    fixture: Dict = {
-        "the_list": [
-            {
-                "the_named_list": {
-                    "susan": {"some_text": "A"},
-                    "bob": {"some_text": "B"}
-                }
-            },
-            {
-                "the_named_list": {
+                "the_keyed_list": {
                     "steve": {"some_text": "C"},
                     "charlene": {"some_text": "D"}
                 }
@@ -785,7 +750,42 @@ def test_nested_named_list_only_in_fixture(named_list_in_list_schema):
     actual: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
+                    "susan": {"some_text": "A"},
+                    "bob": {"some_text": "B"}
+                }
+            },
+            {
+                "the_keyed_list": {
+                    "charlene": {"some_text": "D"}
+                }
+            }
+        ]
+    }
+    compare: CompareComplexVariable = CompareComplexVariable(keyed_list_in_list_schema)
+    assert compare(fixture, actual) is False
+
+def test_nested_keyed_list_only_in_fixture(keyed_list_in_list_schema):
+    fixture: Dict = {
+        "the_list": [
+            {
+                "the_keyed_list": {
+                    "susan": {"some_text": "A"},
+                    "bob": {"some_text": "B"}
+                }
+            },
+            {
+                "the_keyed_list": {
+                    "steve": {"some_text": "C"},
+                    "charlene": {"some_text": "D"}
+                }
+            }
+        ]
+    }
+    actual: Dict = {
+        "the_list": [
+            {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
@@ -793,15 +793,15 @@ def test_nested_named_list_only_in_fixture(named_list_in_list_schema):
             {}
         ]
     }
-    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(keyed_list_in_list_schema)
     assert compare(fixture, actual) is False
 
-def test_nested_named_list_only_in_actual(named_list_in_list_schema):
+def test_nested_keyed_list_only_in_actual(keyed_list_in_list_schema):
     """See warnings above about missing data"""
     fixture: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
@@ -812,34 +812,34 @@ def test_nested_named_list_only_in_actual(named_list_in_list_schema):
     actual: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
             },
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "steve": {"some_text": "C"},
                     "charlene": {"some_text": "D"}
                 }
             }
         ]
     }
-    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(keyed_list_in_list_schema)
     assert compare(fixture, actual) is True
 
-def test_named_list_element_only_in_fixture(named_list_in_list_schema):
+def test_keyed_list_element_only_in_fixture(keyed_list_in_list_schema):
     """See warnings above about missing data"""
     fixture: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
             },
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "steve": {"some_text": "C"},
                     "charlene": {"some_text": "D"}
                 }
@@ -849,33 +849,33 @@ def test_named_list_element_only_in_fixture(named_list_in_list_schema):
     actual: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
             },
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "steve": {},
                     "charlene": {"some_text": "D"}
                 }
             }
         ]
     }
-    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(keyed_list_in_list_schema)
     assert compare(fixture, actual) is False
 
-def test_named_list_element_only_in_actual(named_list_in_list_schema):
+def test_keyed_list_element_only_in_actual(keyed_list_in_list_schema):
     fixture: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
             },
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "steve": {},
                     "charlene": {"some_text": "D"}
                 }
@@ -885,19 +885,19 @@ def test_named_list_element_only_in_actual(named_list_in_list_schema):
     actual: Dict = {
         "the_list": [
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "susan": {"some_text": "A"},
                     "bob": {"some_text": "B"}
                 }
             },
             {
-                "the_named_list": {
+                "the_keyed_list": {
                     "steve": {"some_text": "C"},
                     "charlene": {"some_text": "D"}
                 }
             }
         ]
     }
-    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_list_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(keyed_list_in_list_schema)
     assert compare(fixture, actual) is True
 

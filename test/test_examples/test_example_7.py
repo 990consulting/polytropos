@@ -32,7 +32,7 @@ def setup_and_teardown():
     "02_immutable_singleton_all_empty.csv",
     "03_immutable_singleton_custom_name.csv",
     "04_immutable_and_temporal_singletons.csv",
-    "05_temporal_list_and_immutable_named_list.csv",
+    "05_temporal_list_and_immutable_keyed_list.csv",
     "06_deep_nesting.csv"
 ])
 def test_all_fixtures(filename: str):

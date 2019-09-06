@@ -34,7 +34,7 @@
           },
           {
             "some_text": "bar",
-            "a_named_list": {
+            "a_keyed_list": {
               "black": {
                 "some_text": "white"
               },
@@ -46,7 +46,7 @@
         ]
       }
     ],
-    "simple_named_list": {
+    "simple_keyed_list": {
       "peter": {
         "some_text": "a"
       },
@@ -59,19 +59,19 @@
         "some_int": 3
       }
     },
-    "outer_named_list": {
+    "outer_keyed_list": {
       "peter": {
         "some_text": "a"
       },
       "paul": {
         "some_text": "b",
-        "inner_named_list": {
+        "inner_keyed_list": {
           "red": {}
         }
       },
       "mary": {
         "some_text": "c",
-        "inner_named_list": {
+        "inner_keyed_list": {
           "orange": {
             "some_text": "foo"
           },
@@ -83,7 +83,7 @@
               },
               {
                 "some_text": "white",
-                "yet_another_named_list": {
+                "yet_another_keyed_list": {
                   "this is extreme": {
                     "some_text": "but it works"
                   },

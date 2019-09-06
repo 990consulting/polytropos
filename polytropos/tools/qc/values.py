@@ -1,6 +1,6 @@
 # Atomic comparators for Polytropos variables. Note that the compare_folders method is all-or-nothing, unlike what
 # occurs inside CompareFixtureToActual. This all-or-nothing method is used only when comparing folders nested inside of
-# Lists and NamedLists.
+# Lists and KeyedLists.
 from typing import List as ListType, Dict, Optional, Any
 from collections.abc import Callable
 from polytropos.ontology.schema import Schema
@@ -36,7 +36,7 @@ class CompareComplexVariable:
             - The List is treated as an atomic object, so mismatches are all-or-nothing.
             - Does NOT require that all keys present in an element from the actual list are also present in the fixture
               list, as missing child fields in the fixture represent a lack of test coverage.
-            - If the List contains a List, Folder, or NamedList, a deep (recursive) comparison will be performed.
+            - If the List contains a List, Folder, or KeyedList, a deep (recursive) comparison will be performed.
         """
         assert fixture is not False and isinstance(fixture, list)
 
@@ -63,48 +63,48 @@ class CompareComplexVariable:
 
         return True
 
-    def compare_named_lists(self, fixture: Dict[str, Dict], actual: Optional[Dict[str, Dict]],
+    def compare_keyed_lists(self, fixture: Dict[str, Dict], actual: Optional[Dict[str, Dict]],
                             path: ListType[str]) -> bool:
-        """Compares within a Python dictionary that represents a Polytropos "NamedList" data type. Returns True if and
+        """Compares within a Python dictionary that represents a Polytropos "KeyedList" data type. Returns True if and
         only if:
 
-            (1) The actual NamedList exists.
-            (2) There is an equal number of elements in the fixture NamedList and the actual NamedList.
-            (3) Each key in the fixture NamedList exists in the actual NamedList.
-            (4) For the elements in the fixture and actual NamedLists corresponding to a given key, each of the values
+            (1) The actual KeyedList exists.
+            (2) There is an equal number of elements in the fixture KeyedList and the actual KeyedList.
+            (3) Each key in the fixture KeyedList exists in the actual KeyedList.
+            (4) For the elements in the fixture and actual KeyedLists corresponding to a given key, each of the values
                 in the fixture element either indicate explicit absence (and explicit absence is confirmed) or are
                 identical to the value corresponding to the same key from the actual element.
 
            Notes:
-            - The NamedList is treated as an atomic object, so mismatches are all-or-nothing.
-            - Does NOT require that all keys present in an element from the actual NamedList are also present in the
-              fixture NamedList, as missing child fields in the fixture represent a lack of test coverage.
-            - If the NamedList contains a List, Folder, or NamedList, a deep (recursive) comparison will be performed.
-            - The behavior of compare_folders and compare_named_lists are very different, even though both are comparing
-              the same kind of Python object, because Folders and NamedLists have very different meanings in Polytropos.
+            - The KeyedList is treated as an atomic object, so mismatches are all-or-nothing.
+            - Does NOT require that all keys present in an element from the actual KeyedList are also present in the
+              fixture KeyedList, as missing child fields in the fixture represent a lack of test coverage.
+            - If the KeyedList contains a List, Folder, or KeyedList, a deep (recursive) comparison will be performed.
+            - The behavior of compare_folders and compare_keyed_lists are very different, even though both are comparing
+              the same kind of Python object, because Folders and KeyedLists have very different meanings in Polytropos.
         """
         if fixture is False or not isinstance(fixture, dict):
             print("breakpoint")
         assert fixture is not False and isinstance(fixture, dict)
 
-        # (1) The actual NamedList exists.
+        # (1) The actual KeyedList exists.
         if actual is None or not isinstance(actual, dict):
             return False
 
-        # (2) There is an equal number of elements in the fixture NamedList and the actual NamedList.
+        # (2) There is an equal number of elements in the fixture KeyedList and the actual KeyedList.
         if len(fixture) != len(actual):
             return False
 
-        # (3) Each key in the fixture NamedList exists in the actual NamedList.
+        # (3) Each key in the fixture KeyedList exists in the actual KeyedList.
         if fixture.keys() != actual.keys():
             return False
 
-        # For the elements in the fixture and actual NamedLists corresponding to a given key...
+        # For the elements in the fixture and actual KeyedLists corresponding to a given key...
         for f_key in fixture.keys():
             e: Dict = fixture[f_key]
             a: Dict = actual[f_key]
 
-            # (4) For the elements in the fixture and actual NamedLists corresponding to a given key, each of the values
+            # (4) For the elements in the fixture and actual KeyedLists corresponding to a given key, each of the values
             # in the fixture element either indicate explicit absence (and explicit absence is confirmed) or are
             # identical to the value corresponding to the same key from the actual element.
             for e_key in e.keys():
@@ -125,13 +125,13 @@ class CompareComplexVariable:
             (2) For every key in the fixture Folder, there is a corresponding key in the actual Folder.
             (2) Every value in the fixture Folder compares True to the value corresponding to the same key in the actual
                 Folder, based on the appropriate comparator (compare_folders, compare_lists, compare_primitives,
-                compare_named_lists).
+                compare_keyed_lists).
 
            Notes:
-            - This comparator is used ONLY for compare_lists and compare_named_lists, as it returns False on the first
+            - This comparator is used ONLY for compare_lists and compare_keyed_lists, as it returns False on the first
             mismatch.
-            - The behavior of compare_folders and compare_named_lists are very different, even though both are comparing
-              the same kind of Python object, because Folders and NamedLists have very different meanings in Polytropos.
+            - The behavior of compare_folders and compare_keyed_lists are very different, even though both are comparing
+              the same kind of Python object, because Folders and KeyedLists have very different meanings in Polytropos.
         """
         assert fixture is not None
         if actual is None or not isinstance(actual, dict):
@@ -163,7 +163,7 @@ class CompareComplexVariable:
         if data_type == "List":
             return self.compare_lists(fixture, actual, path)
 
-        if data_type == "NamedList":
-            return self.compare_named_lists(fixture, actual, path)
+        if data_type == "KeyedList":
+            return self.compare_keyed_lists(fixture, actual, path)
 
         return compare_primitives(fixture, actual)

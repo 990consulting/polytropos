@@ -1,4 +1,4 @@
-id,period,/t_list/some_text,/simple_named_list,special name
+id,period,/t_list/some_text,/simple_keyed_list,special name
 composite_4,period_1,,nl_1,111
 composite_4,period_1,,nl_2,222
 composite_4,period_2,P2(list)(A),nl_1,111

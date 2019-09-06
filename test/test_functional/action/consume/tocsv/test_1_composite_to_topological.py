@@ -88,20 +88,20 @@ def test_list_with_no_columns(do_test):
     }
     do_test(block, expected)
 
-def test_named_list(do_test):
-    block: Tuple = (("i_named_list_in_root", "i_int_in_named_list", "i_text_in_named_list"),)
+def test_keyed_list(do_test):
+    block: Tuple = (("i_keyed_list_in_root", "i_int_in_keyed_list", "i_text_in_keyed_list"),)
     expected: Dict = {
-        "i_named_list_in_root": {
+        "i_keyed_list_in_root": {
             "peter": {
-                "i_text_in_named_list": "a"
+                "i_text_in_keyed_list": "a"
             },
             "paul": {
-                "i_text_in_named_list": "b",
-                "i_int_in_named_list": 2
+                "i_text_in_keyed_list": "b",
+                "i_int_in_keyed_list": 2
             },
             "mary": {
-                "i_text_in_named_list": "c",
-                "i_int_in_named_list": 3
+                "i_text_in_keyed_list": "c",
+                "i_int_in_keyed_list": 3
             }
         }
     }
@@ -110,52 +110,52 @@ def test_named_list(do_test):
 def test_quadruply_nested(do_test):
     block: Tuple = (
         (
-            "i_outer_nested_named_list",
+            "i_outer_nested_keyed_list",
             (
-                "i_inner_nested_named_list",
-                "i_text_in_inner_nested_named_list",
+                "i_inner_nested_keyed_list",
+                "i_text_in_inner_nested_keyed_list",
                 (
-                    "i_list_in_inner_nested_named_list",
-                    "i_text_in_list_in_inner_nested_named_list",
+                    "i_list_in_inner_nested_keyed_list",
+                    "i_text_in_list_in_inner_nested_keyed_list",
                     (
-                        "i_named_list_in_list_in_inner_nested_named_list",
-                        "i_text_in_named_list_in_list_in_inner_nested_named_list"
+                        "i_keyed_list_in_list_in_inner_nested_keyed_list",
+                        "i_text_in_keyed_list_in_list_in_inner_nested_keyed_list"
                     )
                 )
             ),
-            "i_text_in_outer_nested_named_list"
+            "i_text_in_outer_nested_keyed_list"
         ),
     )
     # noinspection DuplicatedCode
     expected: Dict = {
-        "i_outer_nested_named_list": {
+        "i_outer_nested_keyed_list": {
             "peter": {
-                "i_text_in_outer_nested_named_list": "a"
+                "i_text_in_outer_nested_keyed_list": "a"
             },
             "paul": {
-                "i_text_in_outer_nested_named_list": "b",
-                "i_inner_nested_named_list": {
+                "i_text_in_outer_nested_keyed_list": "b",
+                "i_inner_nested_keyed_list": {
                     "red": {}
                 }
             },
             "mary": {
-                "i_text_in_outer_nested_named_list": "c",
-                "i_inner_nested_named_list": {
+                "i_text_in_outer_nested_keyed_list": "c",
+                "i_inner_nested_keyed_list": {
                     "orange": {
-                        "i_text_in_inner_nested_named_list": "foo"
+                        "i_text_in_inner_nested_keyed_list": "foo"
                     },
                     "yellow": {
-                        "i_text_in_inner_nested_named_list": "bar",
-                        "i_list_in_inner_nested_named_list": [
-                            {"i_text_in_list_in_inner_nested_named_list": "black"},
+                        "i_text_in_inner_nested_keyed_list": "bar",
+                        "i_list_in_inner_nested_keyed_list": [
+                            {"i_text_in_list_in_inner_nested_keyed_list": "black"},
                             {
-                                "i_text_in_list_in_inner_nested_named_list": "white",
-                                "i_named_list_in_list_in_inner_nested_named_list": {
+                                "i_text_in_list_in_inner_nested_keyed_list": "white",
+                                "i_keyed_list_in_list_in_inner_nested_keyed_list": {
                                     "this is extreme": {
-                                        "i_text_in_named_list_in_list_in_inner_nested_named_list": "but it works"
+                                        "i_text_in_keyed_list_in_list_in_inner_nested_keyed_list": "but it works"
                                     },
                                     "another one": {
-                                        "i_text_in_named_list_in_list_in_inner_nested_named_list": "also ok"
+                                        "i_text_in_keyed_list_in_list_in_inner_nested_keyed_list": "also ok"
                                     }
                                 }
                             },

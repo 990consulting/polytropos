@@ -15,7 +15,7 @@ class _Crawl:
         for child in node:  # type: Dict
             self._crawl_folder(child, path, period)
 
-    def _crawl_named_list(self, node: Dict, path: List, period: Optional[str]) -> None:
+    def _crawl_keyed_list(self, node: Dict, path: List, period: Optional[str]) -> None:
         for child in node.values():  # type: Dict
             self._crawl_folder(child, path, period)
 
@@ -69,8 +69,8 @@ class _Crawl:
         if var.data_type == "List":
             self._crawl_list(node, path, period)
 
-        elif var.data_type == "NamedList":
-            self._crawl_named_list(node, path, period)
+        elif var.data_type == "KeyedList":
+            self._crawl_keyed_list(node, path, period)
 
         elif var.data_type == "Folder":
             self._crawl_folder(node, path, period)

@@ -25,7 +25,7 @@ class DescriptorBlockToColumnNames:
         if "type" not in content:
             raise ValueError("Expected type specification for nested columns")
         ctype: str = content["type"]
-        if ctype not in {"List", "NamedList"}:
+        if ctype not in {"List", "KeyedList"}:
             raise ValueError('Unexpected type specification "%s"' % ctype)
 
         variable: Variable = self.schema.get(var_id)
@@ -34,7 +34,7 @@ class DescriptorBlockToColumnNames:
         if variable.data_type != ctype:
             raise ValueError('%s root "%s" is actually a %s' % (ctype, var_id, variable.data_type))
 
-        if ctype == "NamedList":
+        if ctype == "KeyedList":
             if "key_column_name" in content:
                 yield content["key_column_name"]
             else:

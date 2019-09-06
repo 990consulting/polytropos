@@ -75,14 +75,14 @@ def test_track_roots(source_nested_dict_track):
     actual: Set[str] = {v.name for v in track.roots}
     assert expected == actual
 
-def test_absolute_path_named_list(target_list_track):
-    var: Variable = target_list_track["target_named_list_color"]
-    expected: List[str] = ["outer", "inner", "the_named_list", "color"]
+def test_absolute_path_keyed_list(target_list_track):
+    var: Variable = target_list_track["target_keyed_list_color"]
+    expected: List[str] = ["outer", "inner", "the_keyed_list", "color"]
     actual: List[str] = list(var.absolute_path)
     assert actual == expected
 
-def test_relative_path_named_list(target_list_track):
-    var: Variable = target_list_track["target_named_list_color"]
+def test_relative_path_keyed_list(target_list_track):
+    var: Variable = target_list_track["target_keyed_list_color"]
     expected: List[str] = ["color"]
     actual: List[str] = list(var.relative_path)
     assert actual == expected

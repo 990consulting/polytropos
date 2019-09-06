@@ -11,7 +11,7 @@
   },
   "outer_c": {
     "name": "adam",
-    "data_type": "NamedList",
+    "data_type": "KeyedList",
     "sort_order": 0
   },
   "outer_d": {

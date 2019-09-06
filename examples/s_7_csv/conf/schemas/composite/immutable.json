@@ -10,11 +10,11 @@
     "sort_order": 1,
     "parent": "i_outer_nested_list"
   },
-  "i_inner_nested_named_list": {
-    "name": "inner_named_list",
-    "data_type": "NamedList",
+  "i_inner_nested_keyed_list": {
+    "name": "inner_keyed_list",
+    "data_type": "KeyedList",
     "sort_order": 1,
-    "parent": "i_outer_nested_named_list"
+    "parent": "i_outer_nested_keyed_list"
   },
   "i_int_in_folder": {
     "name": "some_int",
@@ -28,11 +28,11 @@
     "sort_order": 0,
     "parent": "i_list_in_folder"
   },
-  "i_int_in_named_list": {
+  "i_int_in_keyed_list": {
     "name": "some_int",
     "data_type": "Integer",
     "sort_order": 1,
-    "parent": "i_named_list_in_root"
+    "parent": "i_keyed_list_in_root"
   },
   "i_list_in_folder": {
     "name": "simple_list",
@@ -40,32 +40,32 @@
     "sort_order": 1,
     "parent": "i_folder_in_root"
   },
-  "i_list_in_inner_nested_named_list": {
+  "i_list_in_inner_nested_keyed_list": {
     "name": "a_list",
     "data_type": "List",
     "sort_order": 1,
-    "parent": "i_inner_nested_named_list"
+    "parent": "i_inner_nested_keyed_list"
   },
   "i_list_in_root": {
     "name": "simple_list",
     "data_type": "List",
     "sort_order": 1
   },
-  "i_named_list_in_inner_nested_list": {
-    "name": "a_named_list",
-    "data_type": "NamedList",
+  "i_keyed_list_in_inner_nested_list": {
+    "name": "a_keyed_list",
+    "data_type": "KeyedList",
     "sort_order": 1,
     "parent": "i_inner_nested_list"
   },
-  "i_named_list_in_list_in_inner_nested_named_list": {
-    "name": "yet_another_named_list",
-    "data_type": "NamedList",
+  "i_keyed_list_in_list_in_inner_nested_keyed_list": {
+    "name": "yet_another_keyed_list",
+    "data_type": "KeyedList",
     "sort_order": 1,
-    "parent": "i_list_in_inner_nested_named_list"
+    "parent": "i_list_in_inner_nested_keyed_list"
   },
-  "i_named_list_in_root": {
-    "name": "simple_named_list",
-    "data_type": "NamedList",
+  "i_keyed_list_in_root": {
+    "name": "simple_keyed_list",
+    "data_type": "KeyedList",
     "sort_order": 3
   },
   "i_outer_nested_list": {
@@ -73,9 +73,9 @@
     "data_type": "List",
     "sort_order": 2
   },
-  "i_outer_nested_named_list": {
-    "name": "outer_named_list",
-    "data_type": "NamedList",
+  "i_outer_nested_keyed_list": {
+    "name": "outer_keyed_list",
+    "data_type": "KeyedList",
     "sort_order": 4
   },
   "i_text_in_folder": {
@@ -90,11 +90,11 @@
     "sort_order": 0,
     "parent": "i_inner_nested_list"
   },
-  "i_text_in_inner_nested_named_list": {
+  "i_text_in_inner_nested_keyed_list": {
     "name": "some_text",
     "data_type": "Text",
     "sort_order": 0,
-    "parent": "i_inner_nested_named_list"
+    "parent": "i_inner_nested_keyed_list"
   },
   "i_text_in_list": {
     "name": "some_text",
@@ -108,29 +108,29 @@
     "sort_order": 0,
     "parent": "i_list_in_folder"
   },
-  "i_text_in_list_in_inner_nested_named_list": {
+  "i_text_in_list_in_inner_nested_keyed_list": {
     "name": "some_text",
     "data_type": "Text",
     "sort_order": 0,
-    "parent": "i_list_in_inner_nested_named_list"
+    "parent": "i_list_in_inner_nested_keyed_list"
   },
-  "i_text_in_named_list": {
+  "i_text_in_keyed_list": {
     "name": "some_text",
     "data_type": "Text",
     "sort_order": 0,
-    "parent": "i_named_list_in_root"
+    "parent": "i_keyed_list_in_root"
   },
-  "i_text_in_named_list_in_inner_nested_list": {
+  "i_text_in_keyed_list_in_inner_nested_list": {
     "name": "some_text",
     "data_type": "Text",
     "sort_order": 0,
-    "parent": "i_named_list_in_inner_nested_list"
+    "parent": "i_keyed_list_in_inner_nested_list"
   },
-  "i_text_in_named_list_in_list_in_inner_nested_named_list": {
+  "i_text_in_keyed_list_in_list_in_inner_nested_keyed_list": {
     "name": "some_text",
     "data_type": "Text",
     "sort_order": 0,
-    "parent": "i_named_list_in_list_in_inner_nested_named_list"
+    "parent": "i_keyed_list_in_list_in_inner_nested_keyed_list"
   },
   "i_text_in_outer_nested_list": {
     "name": "some_text",
@@ -138,11 +138,11 @@
     "sort_order": 0,
     "parent": "i_outer_nested_list"
   },
-  "i_text_in_outer_nested_named_list": {
+  "i_text_in_outer_nested_keyed_list": {
     "name": "some_text",
     "data_type": "Text",
     "sort_order": 0,
-    "parent": "i_outer_nested_named_list"
+    "parent": "i_outer_nested_keyed_list"
   },
   "i_text_never_populated": {
     "name": "never_populated",

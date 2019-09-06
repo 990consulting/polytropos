@@ -130,7 +130,7 @@ class Crawl:
         if data_type == "Folder":
             assert isinstance(f_tree, dict)
             self._inspect_folder(f_tree, a_tree, child_path)
-        elif data_type in {"List", "NamedList"}:
+        elif data_type in {"List", "KeyedList"}:
             self._inspect_complex(data_type, f_tree, a_tree, child_path)
         else:
             self._inspect_primitive(data_type, f_tree, a_tree, child_path)

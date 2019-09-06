@@ -53,13 +53,13 @@ def immutable_list_schema() -> Schema:
     return Schema(temporal_track, immutable_track)
 
 @pytest.fixture
-def immutable_named_list_schema() -> Schema:
+def immutable_keyed_list_schema() -> Schema:
     temporal_track: Track = Track.build({}, None, "")
 
     immutable_spec: Dict = {
         "source_root_2": {
-            "name": "named_list_source_2",
-            "data_type": "NamedList",
+            "name": "keyed_list_source_2",
+            "data_type": "KeyedList",
             "sort_order": 0,
         },
         "the_folder": {

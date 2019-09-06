@@ -3,7 +3,7 @@ from unittest.mock import Mock
 import pytest
 
 from polytropos.actions.translate.__document import SourceNotFoundException
-from polytropos.actions.translate.type_translators import NamedListTranslator
+from polytropos.actions.translate.type_translators import KeyedListTranslator
 
 
 def test_no_sources(translator, document, variable):
@@ -11,7 +11,7 @@ def test_no_sources(translator, document, variable):
     variable.sources = []
     parent_id = None
 
-    type_translator = NamedListTranslator(translator, document, variable, parent_id)
+    type_translator = KeyedListTranslator(translator, document, variable, parent_id)
     with pytest.raises(SourceNotFoundException):
         _ = type_translator()
 
@@ -22,7 +22,7 @@ def test_two_sources_both_missing(translator, document, variable):
     document.variable_value.side_effect = SourceNotFoundException
     parent_id = None
 
-    type_translator = NamedListTranslator(translator, document, variable, parent_id)
+    type_translator = KeyedListTranslator(translator, document, variable, parent_id)
     with pytest.raises(SourceNotFoundException):
         _ = type_translator()
 
@@ -33,7 +33,7 @@ def test_two_sources_both_empty(translator, document, variable):
     document.variable_value.return_value = {}
     parent_id = None
 
-    type_translator = NamedListTranslator(translator, document, variable, parent_id)
+    type_translator = KeyedListTranslator(translator, document, variable, parent_id)
     assert type_translator() == {}
 
 
@@ -44,7 +44,7 @@ def test_one_source(translator, document, variable):
     translator.translate = lambda doc, _parent_id, _source_parent_id: 100 + doc
     parent_id = None
 
-    type_translator = NamedListTranslator(translator, document, variable, parent_id)
+    type_translator = KeyedListTranslator(translator, document, variable, parent_id)
     assert type_translator() == {"a": 101, "b": 102}
 
 
@@ -60,7 +60,7 @@ def test_two_sources_one_empty(translator, document, variable):
     translator.translate = lambda doc, _parent_id, _source_parent_id: 100 + doc
     parent_id = None
 
-    type_translator = NamedListTranslator(translator, document, variable, parent_id)
+    type_translator = KeyedListTranslator(translator, document, variable, parent_id)
     translated = type_translator()
     assert translated == {"a": 101, "b": 102}
 
@@ -77,7 +77,7 @@ def test_combine_lists(translator, document, variable):
     translator.translate = lambda doc, _parent_id, _source_parent_id: 100 + doc
     parent_id = None
 
-    type_translator = NamedListTranslator(translator, document, variable, parent_id)
+    type_translator = KeyedListTranslator(translator, document, variable, parent_id)
     translated = type_translator()
     assert translated == {"a": 101, "b": 102, "c": 103, "d": 104, "e": 105}
 
@@ -93,7 +93,7 @@ def test_duplicate_name_raises(translator, document, variable):
     translator.translate = lambda doc, _parent_id, _source_parent_id: 100 + doc
     parent_id = None
 
-    type_translator = NamedListTranslator(translator, document, variable, parent_id)
+    type_translator = KeyedListTranslator(translator, document, variable, parent_id)
     with pytest.raises(ValueError):
         _ = type_translator()
 
@@ -113,7 +113,7 @@ def test_translate_first_source_is_not_descendant(translator, document, variable
     document.variable_value = variable_value
     translator.translate = lambda doc, _parent_id, _source_parent_id: 100 + doc
 
-    type_translator = NamedListTranslator(translator, document, variable, parent_id)
+    type_translator = KeyedListTranslator(translator, document, variable, parent_id)
     translated = type_translator()
     assert translated == {"c": 103, "d": 104, "e": 105}
 
