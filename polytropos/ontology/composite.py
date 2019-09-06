@@ -1,3 +1,4 @@
+import copy
 from dataclasses import dataclass, field
 from typing import Dict, Iterator, Optional, Any, Tuple, List
 
@@ -169,3 +170,19 @@ class Composite:
                 decoded[internal_key] = value
             ret[key] = decoded
         return ret
+
+    def __copy__(self) -> "Composite":
+        # noinspection PyTypeChecker
+        return self.__class__(self.schema, copy.deepcopy(self.content))
+
+    def __deepcopy__(self) -> "Composite":
+        return self.__copy__()
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Composite):
+            return False
+        if other.schema is not self.schema:
+            return False
+        if other.content != self.content:
+            return False
+        return True
