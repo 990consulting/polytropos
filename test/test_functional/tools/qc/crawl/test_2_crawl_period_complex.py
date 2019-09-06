@@ -1,4 +1,4 @@
-"""Cursory tests of Crawl's integration with complex data type comparisons. Detailed tests for List and NamedList
+"""Cursory tests of Crawl's integration with complex data type comparisons. Detailed tests for List and KeyedList
 comparisons are found in test/test_functional/qc/values."""
 
 import copy

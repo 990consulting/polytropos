@@ -120,7 +120,7 @@ def list_in_nested_folder_schema(empty_track) -> Schema:
     return Schema(test_track, empty_track)
 
 @pytest.fixture
-def named_list_in_nested_folder_schema(empty_track) -> Schema:
+def keyed_list_in_nested_folder_schema(empty_track) -> Schema:
     spec: Dict = {
         "folder_in_root": {
             "name": "parent",
@@ -139,16 +139,16 @@ def named_list_in_nested_folder_schema(empty_track) -> Schema:
             "parent": "folder_in_folder",
             "sort_order": 0
         },
-        "nested_named_list": {
-            "name": "the_named_list",
-            "data_type": "NamedList",
+        "nested_keyed_list": {
+            "name": "the_keyed_list",
+            "data_type": "KeyedList",
             "parent": "folder_in_folder_in_folder",
             "sort_order": 0
         },
-        "named_list_text": {
+        "keyed_list_text": {
             "name": "some_text",
             "data_type": "Text",
-            "parent": "nested_named_list",
+            "parent": "nested_keyed_list",
             "sort_order": 0
         }
     }
@@ -514,12 +514,12 @@ def test_list_in_folder_identical(list_in_nested_folder_schema):
     compare: CompareComplexVariable = CompareComplexVariable(list_in_nested_folder_schema)
     assert compare(fixture, actual) is True
 
-def test_named_list_in_folder_mismatch(named_list_in_nested_folder_schema):
+def test_keyed_list_in_folder_mismatch(keyed_list_in_nested_folder_schema):
     fixture: Dict = {
         "parent": {
             "child": {
                 "grandchild": {
-                    "the_named_list": {
+                    "the_keyed_list": {
                         "Steve": {
                             "some_text": "Foo"
                         }
@@ -532,7 +532,7 @@ def test_named_list_in_folder_mismatch(named_list_in_nested_folder_schema):
         "parent": {
             "child": {
                 "grandchild": {
-                    "the_named_list": {
+                    "the_keyed_list": {
                         "Steve": {
                             "some_text": "Bar"
                         }
@@ -541,15 +541,15 @@ def test_named_list_in_folder_mismatch(named_list_in_nested_folder_schema):
             }
         }
     }
-    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(keyed_list_in_nested_folder_schema)
     assert compare(fixture, actual) is False
 
-def test_named_list_in_folder_identical(named_list_in_nested_folder_schema):
+def test_keyed_list_in_folder_identical(keyed_list_in_nested_folder_schema):
     fixture: Dict = {
         "parent": {
             "child": {
                 "grandchild": {
-                    "the_named_list": {
+                    "the_keyed_list": {
                         "Steve": {
                             "some_text": "Foo"
                         }
@@ -559,7 +559,7 @@ def test_named_list_in_folder_identical(named_list_in_nested_folder_schema):
         }
     }
     actual: Dict = copy.deepcopy(fixture)
-    compare: CompareComplexVariable = CompareComplexVariable(named_list_in_nested_folder_schema)
+    compare: CompareComplexVariable = CompareComplexVariable(keyed_list_in_nested_folder_schema)
     assert compare(fixture, actual) is True
 
 def test_unrecognized_folder_raises(simple_schema):

@@ -1,4 +1,5 @@
 from typing import List as ListType, Any, Dict
+import logging
 
 from polytropos.actions.translate.type_translators.__base import BaseTypeTranslator
 from polytropos.actions.translate.type_translators.__decorator import type_translator
@@ -20,7 +21,8 @@ class ListTranslator(BaseTypeTranslator[ListType[Dict[str, Any]]]):
         # source by source
 
         if source_value is None:
-            raise RuntimeError("I don't think this should be possible, because SourceNotFoundException replaced it")
+            logging.debug("Encountered null list element in variable %s", source_id)
+            return
         # sometimes lists with one element are represented as folders
         if isinstance(source_value, dict):
             source_value = [source_value]

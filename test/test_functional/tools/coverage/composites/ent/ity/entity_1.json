@@ -5,14 +5,14 @@
       "a_list": [
         {
           "some_text": "abc",
-          "a_named_list": {
+          "a_keyed_list": {
             "bob": {"some_text": "lorem"},
             "stacy": {"some_text":  "ipsum"}
           }
         },
         {
           "some_text": "xyz",
-          "a_named_list": {
+          "a_keyed_list": {
             "egbert": {"some_text": "ipsum"},
             "blanche": {"some_text":  "lorem"}
           }
@@ -40,7 +40,7 @@
     "first_immutable_folder": {
       "a_list": [
         {
-          "a_named_list": {
+          "a_keyed_list": {
             "martha": {"some_text": "flooble"},
             "jane": {"some_text": "beeble"}
           }

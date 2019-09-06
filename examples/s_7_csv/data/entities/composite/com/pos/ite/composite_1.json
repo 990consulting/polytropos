@@ -27,7 +27,7 @@
         "inner_list": [
           {
             "some_text": "dolor sic",
-            "a_named_list": {
+            "a_keyed_list": {
               "beatles": {
                 "some_text": "rolling stones"
               }
@@ -36,22 +36,22 @@
         ]
       }
     ],
-    "simple_named_list": {
+    "simple_keyed_list": {
       "billy": {
         "some_text": "bob",
         "some_int": 345
       }
     },
-    "outer_named_list": {
+    "outer_keyed_list": {
       "wakame": {
         "some_text": "hijiki",
-        "inner_named_list": {
+        "inner_keyed_list": {
           "baseball": {
             "some_text": "batting",
             "a_list": [
               {
                 "some_text": "mauve",
-                "yet_another_named_list": {
+                "yet_another_keyed_list": {
                   "poseidon": {
                     "some_text": "mnemosyne"
                   }

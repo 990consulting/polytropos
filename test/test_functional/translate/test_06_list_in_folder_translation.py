@@ -18,7 +18,7 @@ def source() -> Tuple[Dict, Dict]:
                     "color": "blue"
                 }
             ],
-            "source_inner_named_list": {
+            "source_inner_keyed_list": {
                 "Anne": {
                     "color": "orange"
                 },
@@ -53,16 +53,16 @@ def source() -> Tuple[Dict, Dict]:
             "parent": "source_list",
             "sort_order": 1
         },
-        "source_named_list": {
-            "name": "source_inner_named_list",
-            "data_type": "NamedList",
+        "source_keyed_list": {
+            "name": "source_inner_keyed_list",
+            "data_type": "KeyedList",
             "parent": "source_folder",
             "sort_order": 1
         },
-        "source_named_list_color": {
+        "source_keyed_list_color": {
             "name": "color",
             "data_type": "Text",
-            "parent": "source_named_list",
+            "parent": "source_keyed_list",
             "sort_order": 0
         }
     }
@@ -80,7 +80,7 @@ def target_flattened() -> Tuple[Dict, Dict]:
                 "color": "blue"
             }
         ],
-        "the_named_list": {
+        "the_keyed_list": {
             "Anne": {
                 "color": "orange"
             },
@@ -111,18 +111,18 @@ def target_flattened() -> Tuple[Dict, Dict]:
             "sort_order": 1,
             "sources": ["source_list_color"]
         },
-        "target_named_list": {
-            "name": "the_named_list",
-            "data_type": "NamedList",
+        "target_keyed_list": {
+            "name": "the_keyed_list",
+            "data_type": "KeyedList",
             "sort_order": 1,
-            "sources": ["source_named_list"],
+            "sources": ["source_keyed_list"],
         },
-        "target_named_list_color": {
+        "target_keyed_list_color": {
             "name": "color",
             "data_type": "Text",
-            "parent": "target_named_list",
+            "parent": "target_keyed_list",
             "sort_order": 0,
-            "sources": ["source_named_list_color"]
+            "sources": ["source_keyed_list_color"]
         }
     }
 
@@ -132,7 +132,7 @@ def target_nested() -> Tuple[Dict, Dict]:
     doc: Dict = {
         "outer": {
             "inner": {
-                "the_named_list": {
+                "the_keyed_list": {
                     "Anne": {
                         "color": "orange"
                     },
@@ -187,19 +187,19 @@ def target_nested() -> Tuple[Dict, Dict]:
             "sort_order": 1,
             "sources": ["source_list_color"]
         },
-        "target_named_list": {
-            "name": "the_named_list",
-            "data_type": "NamedList",
+        "target_keyed_list": {
+            "name": "the_keyed_list",
+            "data_type": "KeyedList",
             "parent": "target_folder_inner",
             "sort_order": 0,
-            "sources": ["source_named_list"],
+            "sources": ["source_keyed_list"],
         },
-        "target_named_list_color": {
+        "target_keyed_list_color": {
             "name": "color",
             "data_type": "Text",
-            "parent": "target_named_list",
+            "parent": "target_keyed_list",
             "sort_order": 0,
-            "sources": ["source_named_list_color"]
+            "sources": ["source_keyed_list_color"]
         }
     }
 

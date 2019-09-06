@@ -33,16 +33,16 @@ def half_spec() -> Callable:
                 "parent": "%s_list_%i" % (prefix, cardinal),
                 "sort_order": 0
             },
-            "%s_named_list_%i" % (prefix, cardinal): {
-                "name": "a_named_list",
-                "data_type": "NamedList",
+            "%s_keyed_list_%i" % (prefix, cardinal): {
+                "name": "a_keyed_list",
+                "data_type": "KeyedList",
                 "parent": "%s_list_%i" % (prefix, cardinal),
                 "sort_order": 1
             },
-            "%s_named_list_text_%i" % (prefix, cardinal): {
+            "%s_keyed_list_text_%i" % (prefix, cardinal): {
                 "name": "some_text",
                 "data_type": "Text",
-                "parent": "%s_named_list_%i" % (prefix, cardinal),
+                "parent": "%s_keyed_list_%i" % (prefix, cardinal),
                 "sort_order": 0
             }
         }
@@ -69,26 +69,26 @@ def schema(track) -> Schema:
     (["first_temporal_folder", "some_text"], "t_folder_text_1"),
     (["first_temporal_folder", "a_list"], "t_list_1"),
     (["first_temporal_folder", "a_list", "some_text"], "t_list_text_1"),
-    (["first_temporal_folder", "a_list", "a_named_list"], "t_named_list_1"),
-    (["first_temporal_folder", "a_list", "a_named_list", "some_text"], "t_named_list_text_1"),
+    (["first_temporal_folder", "a_list", "a_keyed_list"], "t_keyed_list_1"),
+    (["first_temporal_folder", "a_list", "a_keyed_list", "some_text"], "t_keyed_list_text_1"),
     (["second_temporal_folder"], "t_folder_2"),
     (["second_temporal_folder", "some_text"], "t_folder_text_2"),
     (["second_temporal_folder", "a_list"], "t_list_2"),
     (["second_temporal_folder", "a_list", "some_text"], "t_list_text_2"),
-    (["second_temporal_folder", "a_list", "a_named_list"], "t_named_list_2"),
-    (["second_temporal_folder", "a_list", "a_named_list", "some_text"], "t_named_list_text_2"),
+    (["second_temporal_folder", "a_list", "a_keyed_list"], "t_keyed_list_2"),
+    (["second_temporal_folder", "a_list", "a_keyed_list", "some_text"], "t_keyed_list_text_2"),
     (["first_immutable_folder"], "i_folder_1"),
     (["first_immutable_folder", "some_text"], "i_folder_text_1"),
     (["first_immutable_folder", "a_list"], "i_list_1"),
     (["first_immutable_folder", "a_list", "some_text"], "i_list_text_1"),
-    (["first_immutable_folder", "a_list", "a_named_list"], "i_named_list_1"),
-    (["first_immutable_folder", "a_list", "a_named_list", "some_text"], "i_named_list_text_1"),
+    (["first_immutable_folder", "a_list", "a_keyed_list"], "i_keyed_list_1"),
+    (["first_immutable_folder", "a_list", "a_keyed_list", "some_text"], "i_keyed_list_text_1"),
     (["second_immutable_folder"], "i_folder_2"),
     (["second_immutable_folder", "some_text"], "i_folder_text_2"),
     (["second_immutable_folder", "a_list"], "i_list_2"),
     (["second_immutable_folder", "a_list", "some_text"], "i_list_text_2"),
-    (["second_immutable_folder", "a_list", "a_named_list"], "i_named_list_2"),
-    (["second_immutable_folder", "a_list", "a_named_list", "some_text"], "i_named_list_text_2")
+    (["second_immutable_folder", "a_list", "a_keyed_list"], "i_keyed_list_2"),
+    (["second_immutable_folder", "a_list", "a_keyed_list", "some_text"], "i_keyed_list_text_2")
 ])
 def test_lookup_initial(schema: Schema, abs_path: ListType[str], var_id: str):
     """Verifying that lookup works as expected off the bat."""

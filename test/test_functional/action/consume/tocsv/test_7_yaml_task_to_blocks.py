@@ -64,10 +64,10 @@ def test_immutable_and_temporal_singletons(do_test, i_block, t_block):
     ]
     do_test(filename, expected)
 
-def test_temporal_list_and_immutable_named_list(do_test, i_block, t_block):
-    filename: str = "05_temporal_list_and_immutable_named_list.yaml"
+def test_temporal_list_and_immutable_keyed_list(do_test, i_block, t_block):
+    filename: str = "05_temporal_list_and_immutable_keyed_list.yaml"
     expected: List[Block] = [
         t_block((("t_list_in_root", "t_text_in_list"),)),
-        i_block((("i_named_list_in_root", "i_text_in_named_list"),))
+        i_block((("i_keyed_list_in_root", "i_text_in_keyed_list"),))
     ]
     do_test(filename, expected)

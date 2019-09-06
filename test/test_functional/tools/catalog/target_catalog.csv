@@ -1,13 +1,13 @@
 variable_id,absolute_path,data_type,temporality
 target_t_folder,/temporal_folder,Folder,temporal
 target_t_list,/temporal_folder/a_list,List,temporal
-target_t_named_list,/temporal_folder/a_list/a_named_list,NamedList,temporal
-target_t_named_list_text,/temporal_folder/a_list/a_named_list/some_text,Text,temporal
+target_t_keyed_list,/temporal_folder/a_list/a_keyed_list,KeyedList,temporal
+target_t_keyed_list_text,/temporal_folder/a_list/a_keyed_list/some_text,Text,temporal
 target_t_list_text,/temporal_folder/a_list/some_text,Text,temporal
 target_t_folder_text,/temporal_folder/some_text,Text,temporal
 target_i_folder,/immutable_folder,Folder,immutable
 target_i_list,/immutable_folder/a_list,List,immutable
-target_i_named_list,/immutable_folder/a_list/a_named_list,NamedList,immutable
-target_i_named_list_text,/immutable_folder/a_list/a_named_list/some_text,Text,immutable
+target_i_keyed_list,/immutable_folder/a_list/a_keyed_list,KeyedList,immutable
+target_i_keyed_list_text,/immutable_folder/a_list/a_keyed_list/some_text,Text,immutable
 target_i_list_text,/immutable_folder/a_list/some_text,Text,immutable
 target_i_folder_text,/immutable_folder/some_text,Text,immutable

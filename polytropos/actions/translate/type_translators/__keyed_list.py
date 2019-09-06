@@ -2,12 +2,12 @@ from typing import Dict, Any
 
 from polytropos.actions.translate.type_translators.__base import BaseTypeTranslator
 from polytropos.actions.translate.type_translators.__decorator import type_translator
-from polytropos.ontology.variable import VariableId, NamedList
+from polytropos.ontology.variable import VariableId, KeyedList
 
 
-@type_translator(NamedList)
-class NamedListTranslator(BaseTypeTranslator[Dict[str, Dict[str, Any]]]):
-    """Translate function for named lists (similar to python dicts), the
+@type_translator(KeyedList)
+class KeyedListTranslator(BaseTypeTranslator[Dict[str, Dict[str, Any]]]):
+    """Translate function for keyed lists (similar to python dicts), the
     logic is almost the same as for lists but taking care of the keys.
     Raises ValueError on duplicate keys"""
 

@@ -12,7 +12,7 @@ def _traverse(variables: Iterable[Variable]) -> Dict:
     sort_orders: Dict[str, int] = {}
 
     for var in variables:
-        if var.data_type in {"Folder", "List", "NamedList"}:
+        if var.data_type in {"Folder", "List", "KeyedList"}:
             value: Dict = _traverse(var.children)
         else:
             value = {}

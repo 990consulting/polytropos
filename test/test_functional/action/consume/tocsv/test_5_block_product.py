@@ -70,9 +70,9 @@ def test_temporal_list(do_test, abv):
     ]
     do_test(blocks, expected)
 
-def test_immutable_block_with_named_list(do_test, abv):
+def test_immutable_block_with_keyed_list(do_test, abv):
     blocks: List[Block] = [
-        ImmutableBlock((("i_named_list_in_root", "i_text_in_named_list"), "i_text_in_folder"), abv)
+        ImmutableBlock((("i_keyed_list_in_root", "i_text_in_keyed_list"), "i_text_in_folder"), abv)
     ]
     expected: List = [
         ["composite_4", "nl_1", "111", "I(folder)"],
@@ -82,7 +82,7 @@ def test_immutable_block_with_named_list(do_test, abv):
 
 def test_two_immutable_blocks(do_test, abv):
     blocks: List[Block] = [
-        ImmutableBlock((("i_named_list_in_root", "i_text_in_named_list"),), abv),
+        ImmutableBlock((("i_keyed_list_in_root", "i_text_in_keyed_list"),), abv),
         ImmutableBlock(("i_text_in_folder",), abv)
     ]
     expected: List = [
@@ -103,9 +103,9 @@ def test_immutable_singleton_and_temporal_list(do_test, abv):
     ]
     do_test(blocks, expected)
 
-def test_immutable_named_list_and_temporal_singleton(do_test, abv):
+def test_immutable_keyed_list_and_temporal_singleton(do_test, abv):
     blocks: List[Block] = [
-        ImmutableBlock((("i_named_list_in_root", "i_text_in_named_list"),), abv),
+        ImmutableBlock((("i_keyed_list_in_root", "i_text_in_keyed_list"),), abv),
         TemporalBlock(("t_text_in_folder",), abv)
     ]
     expected: List = [
@@ -116,9 +116,9 @@ def test_immutable_named_list_and_temporal_singleton(do_test, abv):
     ]
     do_test(blocks, expected)
 
-def test_temporal_list_and_immutable_named_list(do_test, abv):
+def test_temporal_list_and_immutable_keyed_list(do_test, abv):
     blocks: List[Block] = [
-        ImmutableBlock((("i_named_list_in_root", "i_text_in_named_list"),), abv),
+        ImmutableBlock((("i_keyed_list_in_root", "i_text_in_keyed_list"),), abv),
         TemporalBlock((("t_list_in_root", "t_text_in_list"),), abv)
     ]
     expected: List = [
@@ -133,7 +133,7 @@ def test_temporal_list_and_immutable_named_list(do_test, abv):
 
 def test_alternating(do_test, abv):
     blocks: List[Block] = [
-        ImmutableBlock((("i_named_list_in_root", "i_text_in_named_list"),), abv),
+        ImmutableBlock((("i_keyed_list_in_root", "i_text_in_keyed_list"),), abv),
         TemporalBlock(("t_text_in_folder",), abv),
         ImmutableBlock(("i_text_in_folder",), abv),
         TemporalBlock((("t_list_in_root", "t_text_in_list"),), abv)

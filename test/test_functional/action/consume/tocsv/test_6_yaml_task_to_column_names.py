@@ -40,7 +40,7 @@ def test_immutable_and_temporal_singletons(do_test):
     expected: List = ["id", "period", "/i_folder/some_text", "/t_folder/some_text"]
     do_test(filename, expected)
 
-def test_temporal_list_and_immutable_named_list(do_test):
-    filename: str = "05_temporal_list_and_immutable_named_list.yaml"
-    expected: List = ["id", "period", "/t_list/some_text", "/simple_named_list", "special name"]
+def test_temporal_list_and_immutable_keyed_list(do_test):
+    filename: str = "05_temporal_list_and_immutable_keyed_list.yaml"
+    expected: List = ["id", "period", "/t_list/some_text", "/simple_keyed_list", "special name"]
     do_test(filename, expected)

@@ -1,1 +1,0 @@
-"""Cases 1, 2, and 3 together cover every case I can think of for named lists, so no tests are found here."""

@@ -39,11 +39,11 @@ class DescriptorBlockToColumnBlocks:
                                  + type(inner_item).__name__)
 
     def _handle_nested(self, inner_item: Dict, inner_key: str) -> Iterator[Union[str, Tuple]]:
-        if 'type' in inner_item and inner_item['type'] in ('List', 'NamedList'):
+        if 'type' in inner_item and inner_item['type'] in ('List', 'KeyedList'):
             if 'children' in inner_item:
                 yield tuple(self._convert_list(inner_item['children'], inner_key))
             else:
                 yield (inner_key,)
         else:
             raise ValueError('Unrecognized structure of the descriptor: a dict must be marked with '
-                             'type List or NamedList')
+                             'type List or KeyedList')

@@ -205,7 +205,7 @@ class Variable:
 
     @property
     def descends_from_list(self) -> bool:
-        """True iff this or any upstream variable is a list or named list."""
+        """True iff this or any upstream variable is a list or keyed list."""
         if not self.parent:
             return False
         parent = self.track[self.parent]
@@ -464,7 +464,7 @@ class List(GenericList):
     pass
 
 
-class NamedList(GenericList):
+class KeyedList(GenericList):
     pass
 
 def _incompatible_type(source_var: Variable, variable: Variable) -> bool:

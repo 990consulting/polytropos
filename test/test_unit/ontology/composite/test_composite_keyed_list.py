@@ -1,4 +1,4 @@
-"""Test methods that encode and decode named lists. These methods do not actually care about the content of the
+"""Test methods that encode and decode keyed lists. These methods do not actually care about the content of the
 composite itself, but only its schema; they take content as an argument and return the same content in a different
 representation. """
 import copy
@@ -27,30 +27,30 @@ def decode_mapping() -> Dict:
 def test_encode_list_trivial(trivial_schema):
     """No mappings, no content"""
     composite = Composite(trivial_schema)
-    actual: Dict = composite.encode_named_list({}, {})
+    actual: Dict = composite.encode_keyed_list({}, {})
     assert actual == {}
 
-def test_encode_named_list_zero_length(immutable_named_list_schema, encode_mapping):
+def test_encode_keyed_list_zero_length(immutable_keyed_list_schema, encode_mapping):
     """Mappings present, no content."""
-    composite = Composite(immutable_named_list_schema)
-    actual: Dict = composite.encode_named_list(encode_mapping, {})
+    composite = Composite(immutable_keyed_list_schema)
+    actual: Dict = composite.encode_keyed_list(encode_mapping, {})
     assert actual == {}
 
-def test_encode_named_list_multiple_empty(immutable_named_list_schema, encode_mapping):
+def test_encode_keyed_list_multiple_empty(immutable_keyed_list_schema, encode_mapping):
     """Mappings present, no content."""
-    composite = Composite(immutable_named_list_schema)
+    composite = Composite(immutable_keyed_list_schema)
     content: Dict = {
         "tom": {},
         "dick": {},
         "harry": {}
     }
     expected: Dict = copy.deepcopy(content)
-    actual: Dict = composite.encode_named_list(encode_mapping, content)
+    actual: Dict = composite.encode_keyed_list(encode_mapping, content)
     assert actual == expected
 
-def test_encode_named_list(immutable_named_list_schema, encode_mapping):
+def test_encode_keyed_list(immutable_keyed_list_schema, encode_mapping):
     """Both mappings and content present."""
-    composite = Composite(immutable_named_list_schema)
+    composite = Composite(immutable_keyed_list_schema)
     content: Dict = {
         "al": {
             "name": "Al",
@@ -79,19 +79,19 @@ def test_encode_named_list(immutable_named_list_schema, encode_mapping):
             "helado": "Clam chowder"
         }
     }
-    actual: Dict = composite.encode_named_list(encode_mapping, content)
+    actual: Dict = composite.encode_keyed_list(encode_mapping, content)
     assert actual == expected
 
-def test_encode_unmapped_content_raises(immutable_named_list_schema, encode_mapping):
+def test_encode_unmapped_content_raises(immutable_keyed_list_schema, encode_mapping):
     """If a content list item contains a field without a mapping, raise."""
-    composite = Composite(immutable_named_list_schema)
+    composite = Composite(immutable_keyed_list_schema)
     content: Dict = {"x": {"unknown_field": "foo"}}
     with pytest.raises(ValueError):
-        composite.encode_named_list(encode_mapping, content)
+        composite.encode_keyed_list(encode_mapping, content)
 
-def test_encode_missing_content_skips(immutable_named_list_schema, encode_mapping):
+def test_encode_missing_content_skips(immutable_keyed_list_schema, encode_mapping):
     """If something isn't present in a content list item that is defined in the mappings, skip it."""
-    composite = Composite(immutable_named_list_schema)
+    composite = Composite(immutable_keyed_list_schema)
     content: Dict = {
         "al": {
             "ice cream": "Rocky road"
@@ -110,12 +110,12 @@ def test_encode_missing_content_skips(immutable_named_list_schema, encode_mappin
             }
         }
     }
-    actual: Dict = composite.encode_named_list(encode_mapping, content)
+    actual: Dict = composite.encode_keyed_list(encode_mapping, content)
     assert actual == expected
 
-def test_encode_null_content(immutable_named_list_schema, encode_mapping):
+def test_encode_null_content(immutable_keyed_list_schema, encode_mapping):
     """Content that is explicitly null is encoded."""
-    composite = Composite(immutable_named_list_schema)
+    composite = Composite(immutable_keyed_list_schema)
     content: Dict = {"x": {"name": None}}
     expected: Dict = {
         "x": {
@@ -124,36 +124,36 @@ def test_encode_null_content(immutable_named_list_schema, encode_mapping):
             }
         }
     }
-    actual: Dict = composite.encode_named_list(encode_mapping, content)
+    actual: Dict = composite.encode_keyed_list(encode_mapping, content)
     assert actual == expected
 
-def test_decode_named_list_trivial(trivial_schema):
+def test_decode_keyed_list_trivial(trivial_schema):
     """No mappings, no content"""
     composite = Composite(trivial_schema)
-    actual: Dict = composite.decode_named_list({}, {})
+    actual: Dict = composite.decode_keyed_list({}, {})
     assert actual == {}
 
-def test_decode_named_list_zero_length(immutable_named_list_schema, decode_mapping):
+def test_decode_keyed_list_zero_length(immutable_keyed_list_schema, decode_mapping):
     """Mappings present, no content."""
-    composite = Composite(immutable_named_list_schema)
-    actual: Dict = composite.decode_named_list(decode_mapping, {})
+    composite = Composite(immutable_keyed_list_schema)
+    actual: Dict = composite.decode_keyed_list(decode_mapping, {})
     assert actual == {}
 
-def test_decode_named_list_multiple_empty(immutable_named_list_schema, decode_mapping):
+def test_decode_keyed_list_multiple_empty(immutable_keyed_list_schema, decode_mapping):
     """Mappings present, no content."""
-    composite = Composite(immutable_named_list_schema)
+    composite = Composite(immutable_keyed_list_schema)
     content: Dict = {
         "x": {},
         "y": {},
         "z": {}
     }
     expected: Dict = content.copy()
-    actual: Dict = composite.decode_named_list(decode_mapping, content)
+    actual: Dict = composite.decode_keyed_list(decode_mapping, content)
     assert actual == expected
 
-def test_decode_named_list(immutable_named_list_schema, decode_mapping):
+def test_decode_keyed_list(immutable_keyed_list_schema, decode_mapping):
     """Both mappings and content present."""
-    composite = Composite(immutable_named_list_schema)
+    composite = Composite(immutable_keyed_list_schema)
     content: Dict = {
         "al": {
             "inner_folder": {
@@ -182,12 +182,12 @@ def test_decode_named_list(immutable_named_list_schema, decode_mapping):
             "ice cream": "Clam chowder"   # https://now.tufts.edu/articles/dish-we-all-scream-for-ice-cream
         }
     }
-    actual: Dict = composite.decode_named_list(decode_mapping, content)
+    actual: Dict = composite.decode_keyed_list(decode_mapping, content)
     assert actual == expected
 
-def test_decode_missing_content_skips(immutable_named_list_schema, decode_mapping):
+def test_decode_missing_content_skips(immutable_keyed_list_schema, decode_mapping):
     """If something isn't present in a content list item that is defined in the mappings, skip it."""
-    composite = Composite(immutable_named_list_schema)
+    composite = Composite(immutable_keyed_list_schema)
     content: Dict = {
         "al": {
             "helado": "Rocky road"
@@ -206,12 +206,12 @@ def test_decode_missing_content_skips(immutable_named_list_schema, decode_mappin
             "name": "Joe",
         }
     }
-    actual: Dict = composite.decode_named_list(decode_mapping, content)
+    actual: Dict = composite.decode_keyed_list(decode_mapping, content)
     assert actual == expected
 
-def test_decode_null_content(immutable_named_list_schema, decode_mapping):
+def test_decode_null_content(immutable_keyed_list_schema, decode_mapping):
     """Content that is explicitly null is decoded."""
-    composite = Composite(immutable_named_list_schema)
+    composite = Composite(immutable_keyed_list_schema)
     content: Dict = {
         "x": {
             "inner_folder": {
@@ -220,6 +220,6 @@ def test_decode_null_content(immutable_named_list_schema, decode_mapping):
         }
     }
     expected: Dict = {"x": {"name": None}}
-    actual: Dict = composite.decode_named_list(decode_mapping, content)
+    actual: Dict = composite.decode_keyed_list(decode_mapping, content)
     assert actual == expected
 

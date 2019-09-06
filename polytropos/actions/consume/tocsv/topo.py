@@ -30,7 +30,7 @@ class Topological:
         assert isinstance(root_var, GenericList)
         return root_var
 
-    def _handle_named_list(self, content: Dict, child_elements: Iterable[Union[str, Tuple]]) \
+    def _handle_keyed_list(self, content: Dict, child_elements: Iterable[Union[str, Tuple]]) \
             -> Optional[Dict]:
         ret: OrderedDict = OrderedDict()
         for key, value in content.items():
@@ -53,9 +53,9 @@ class Topological:
         if root_var.data_type == "List":
             subtree = cast(ListType, subtree)
             ret[root_var.var_id] = list(self._handle_list(subtree, block[1:]))
-        elif root_var.data_type == "NamedList":
+        elif root_var.data_type == "KeyedList":
             subtree = cast(Dict, subtree)
-            ret[root_var.var_id] = self._handle_named_list(subtree, block[1:])
+            ret[root_var.var_id] = self._handle_keyed_list(subtree, block[1:])
         else:
             raise ValueError('Unexpected data type "{}" for putative root variable {}'
                              .format(root_var.data_type, root_var.var_id))
