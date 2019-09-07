@@ -23,7 +23,7 @@ class HasAllSpecificValues(Filter):
     narrows: bool = field(default=True)
     filters: bool = field(default=True)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         immutable_vars: Deque[VariableId] = deque()
         temporal_vars: Deque[VariableId] = deque()
 

@@ -88,7 +88,7 @@ class Track(MutableMapping):
     def __iter__(self) -> Iterator[VariableId]:
         return self._variables.__iter__()
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Optional[Any]) -> bool:
         if not isinstance(other, Track):
             return False
         if other.name != self.name:

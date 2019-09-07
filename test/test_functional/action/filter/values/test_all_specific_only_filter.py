@@ -1,8 +1,6 @@
 import copy
 from typing import Dict, List
 
-import pytest
-
 from polytropos.actions.filter import Filter
 from polytropos.actions.filter.mem import InMemoryFilterIterator
 from polytropos.actions.filter.values.has_all import HasAllSpecificValues
@@ -41,8 +39,9 @@ def test_two_temporal_match(schema, composites):
 
 def test_two_temporal_no_match(schema, composites):
     composite_list = list(composites)
+    # Both values occur in Composite 3, but not in the same period
     criteria: Dict = {
-        "t_text_in_folder": "cccc",
+        "t_text_in_folder": "1111",
         "t_text_in_root": "bbbb"
     }
     the_filter: Filter = HasAllSpecificValues(schema, criteria, narrows=False)

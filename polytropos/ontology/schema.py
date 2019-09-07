@@ -2,7 +2,7 @@ import logging
 import os
 import json
 from enum import Enum
-from typing import Optional, Dict, TYPE_CHECKING, Iterable, Tuple, Iterator
+from typing import Optional, Dict, TYPE_CHECKING, Iterable, Tuple, Iterator, Any
 from dataclasses import dataclass, field
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -182,7 +182,7 @@ class Schema:
         for track in [self.temporal, self.immutable]:
             yield from track.values()
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Optional[Any]) -> bool:
         if not isinstance(other, Schema):
             return False
         if other.name != self.name:
