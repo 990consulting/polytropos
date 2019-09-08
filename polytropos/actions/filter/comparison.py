@@ -36,17 +36,6 @@ class ComparisonFilter(Filter, ABC):  # type: ignore
         self.variable = cast(Primitive, self.variable)
         self.threshold = self.variable.cast(self.threshold)
 
-        """
-        if self.variable.data_type in {"Decimal", "Currency"}:
-            self.threshold = float(self.threshold)
-
-        if self.variable.data_type == "Date":
-            self.threshold = datetime.strftime(self.threshold, "%Y-%m-%d")
-
-        if self.variable.data_type == "Integer":
-            self.threshold = int(self.threshold)
-        """
-
     @abstractmethod
     def compares_true(self, value: Any) -> bool:
         pass
