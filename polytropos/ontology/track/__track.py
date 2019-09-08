@@ -51,15 +51,13 @@ class Track(MutableMapping):
 
         logging.info('Performing post-load validation on variables for track "%s".' % name)
         n = 0
-        logging.error("UNCOMMENT ME!")
-        """
         for variable in self.values():
             Validator.validate(variable, init=True)
             n += 1
             if n % 100 == 0:
                 logging.info("Validated %i variables.", n)
         logging.info('All variables valid "%s".' % name)
-        """
+
     def build_variable(self, data: Dict, var_id: VariableId) -> Variable:
         data_type = data['data_type']
         try:
@@ -89,6 +87,15 @@ class Track(MutableMapping):
 
     def __iter__(self) -> Iterator[VariableId]:
         return self._variables.__iter__()
+
+    def __eq__(self, other: Optional[Any]) -> bool:
+        if not isinstance(other, Track):
+            return False
+        if other.name != self.name:
+            return False
+        if other._variables != self._variables:
+            return False
+        return True
 
     ###########################################
 

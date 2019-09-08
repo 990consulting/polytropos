@@ -2,7 +2,7 @@ import logging
 import os
 import json
 from enum import Enum
-from typing import Optional, Dict, TYPE_CHECKING, Iterable, Tuple, Iterator
+from typing import Optional, Dict, TYPE_CHECKING, Iterable, Tuple, Iterator, Any
 from dataclasses import dataclass, field
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -38,7 +38,7 @@ def _resolve_path(path_locator: Optional["PathLocator"], schemas_dir: Optional[s
     assert schemas_dir is not None
     return os.path.join(schemas_dir, path, filename)
 
-@dataclass
+@dataclass(eq=False)
 class Schema:
     """A schema identifies all of the temporal and immutable properties that a particular entity can have."""
     temporal: Track
@@ -181,3 +181,16 @@ class Schema:
     def __iter__(self) -> Iterator["Variable"]:
         for track in [self.temporal, self.immutable]:
             yield from track.values()
+
+    def __eq__(self, other: Optional[Any]) -> bool:
+        if not isinstance(other, Schema):
+            return False
+        if other.name != self.name:
+            return False
+        if other.temporal != self.temporal:
+            return False
+        if other.immutable != self.immutable:
+            return False
+        if other.source != self.source:
+            return False
+        return True

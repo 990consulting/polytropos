@@ -1,3 +1,4 @@
+import copy
 from dataclasses import dataclass, field
 from typing import Dict, Iterator, Optional, Any, Tuple, List
 
@@ -9,7 +10,7 @@ from polytropos.ontology.schema import Schema, TrackType
 from polytropos.ontology.variable import Variable, VariableId
 
 
-@dataclass
+@dataclass(eq=False)
 class Composite:
     schema: Schema
     content: Dict = field(default_factory=dict)
@@ -169,3 +170,21 @@ class Composite:
                 decoded[internal_key] = value
             ret[key] = decoded
         return ret
+
+    def __copy__(self) -> "Composite":
+        # noinspection PyTypeChecker
+        return self.__class__(self.schema, copy.deepcopy(self.content), composite_id=self.composite_id)
+
+    def __deepcopy__(self) -> "Composite":
+        return self.__copy__()
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Composite):
+            return False
+        if other.schema != self.schema:
+            return False
+        if other.composite_id != self.composite_id:
+            return False
+        if other.content != self.content:
+            return False
+        return True

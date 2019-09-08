@@ -1,0 +1,2 @@
+Even though there are many comparison filters, they differ only in the comparison operator, so the tests are aimed at
+only one of them.
