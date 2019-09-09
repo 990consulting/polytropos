@@ -1,9 +1,12 @@
 import csv
 import os
-from typing import Iterable, Tuple, Any, Optional, List, Dict, TextIO, Callable, Iterator
+from collections import deque
+from typing import Iterable, Tuple, Any, Optional, List, Dict, TextIO, Callable, Iterator, Type, Deque, TYPE_CHECKING
+
 
 from polytropos.actions.consume.tocsv.blocks.blockvalue import AsBlockValue
 from polytropos.actions.consume.tocsv.descriptors.colnames import DescriptorBlockToColumnNames
+from polytropos.actions.filter import Filter
 from polytropos.ontology.schema import Schema
 
 from polytropos.ontology.paths import PathLocator
@@ -12,6 +15,9 @@ from polytropos.actions.consume import Consume
 from polytropos.actions.consume.tocsv.blocks import Block, BlockProduct
 from polytropos.actions.consume.tocsv.descriptors import fromraw
 from polytropos.ontology.composite import Composite
+
+if TYPE_CHECKING:
+    from polytropos.actions.step import Step
 
 def _get_all_blocks(schema: Schema, columns: List[Dict]) -> List[Block]:
     as_block_value: AsBlockValue = AsBlockValue(schema)
@@ -29,17 +35,41 @@ def _open_file(path_locator: Optional[PathLocator], filename: str) -> TextIO:
     return fh
 
 class ExportToCSV(Consume):
-    def __init__(self, path_locator: Optional[PathLocator], schema: Schema, filename: str, columns: List):
+    def __init__(self, path_locator: Optional[PathLocator], schema: Schema, filename: str, columns: List,
+                 filters: Optional[List]=None):
         super(ExportToCSV, self).__init__(path_locator, schema)
         self.blocks: List[Block] = _get_all_blocks(schema, columns)
         self.column_names: List[str] = _get_all_column_names(schema, columns)
         self.fh: TextIO = _open_file(path_locator, filename)
         self.writer: Any = csv.writer(self.fh)
+        self.filters: List[Filter] = self._make_filters(filters)
+
+    def _make_filters(self, filter_specs: Optional[List]) -> List[Filter]:
+        if filter_specs is None:
+            return []
+
+        ret: List = []
+        for filter_spec in filter_specs:  # type: Dict
+            assert len(filter_spec) == 1
+            for class_name, kwargs in filter_spec.items():  # type: str, Dict
+                try:
+                    the_filter: Step = Filter.build(path_locator=self.path_locator, schema=self.schema, name=class_name,
+                                                    **kwargs)
+                except Exception as e:
+                    print("breakpoint")
+                    raise e
+                ret.append(the_filter)
+        return ret
 
     def before(self) -> None:
         self.writer.writerow(self.column_names)
 
     def extract(self, composite: Composite) -> Iterator[List[Optional[Any]]]:
+        for f in self.filters:
+            if not f.passes(composite):
+                return
+            f.narrow(composite)
+
         render: BlockProduct = BlockProduct(composite, self.blocks)
         yield from render()
 

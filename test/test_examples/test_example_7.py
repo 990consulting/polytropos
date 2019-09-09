@@ -6,6 +6,7 @@ import polytropos.actions
 import pytest
 import shutil
 
+import polytropos.actions
 from polytropos.ontology.task import Task
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
@@ -13,6 +14,7 @@ WORKING_PATH: str = os.path.join("/tmp/polytropos_csv_test")
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_and_teardown():
+    polytropos.actions.register_all()
     fixture_path: str = os.path.join(BASEPATH, "..", "..", "examples", "s_7_csv")
     shutil.rmtree(WORKING_PATH, ignore_errors=True)
     shutil.copytree(fixture_path, WORKING_PATH)
@@ -33,7 +35,8 @@ def setup_and_teardown():
     "03_immutable_singleton_custom_name.csv",
     "04_immutable_and_temporal_singletons.csv",
     "05_temporal_list_and_immutable_keyed_list.csv",
-    "06_deep_nesting.csv"
+    "06_deep_nesting.csv",
+    "07_temporal_singleton_filter.csv"
 ])
 def test_all_fixtures(filename: str):
     actual_path: str = os.path.join(WORKING_PATH, filename)
@@ -42,4 +45,6 @@ def test_all_fixtures(filename: str):
         # The exporter writes composites as they are processed, which means order is essentially random
         actual: List[str] = sorted(line for line in csv.reader(actual_fh))
         expected: List[str] = sorted(line for line in csv.reader(expected_fh))
+    if actual != expected:
+        print("breakpoint")
     assert actual == expected
