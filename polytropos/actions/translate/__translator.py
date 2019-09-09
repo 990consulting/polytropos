@@ -42,7 +42,7 @@ class Translator:
         if document is None:
             logging.error("Empty document encountered. Returning empty translation.")
             return {}
-        if parent_id is None and source_parent_id is None:
+        if parent_id is None and source_parent_id is not None:
             logging.error("parent_id is None and source_parent_id is None. Returning empty translation.")
             return {}
 
