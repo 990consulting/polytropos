@@ -1,0 +1,18 @@
+---
+
+starting_with:
+  data: composite
+  schema: composite
+
+steps:
+  - Consume:
+      name: ExportToCSV
+      filename: 07_temporal_singleton_filter.csv
+      filters:
+        - AtLeast:
+            mappings:
+              var_id: t_text_in_folder
+              threshold: b
+      columns:
+        - temporal_block:
+            - t_text_in_folder

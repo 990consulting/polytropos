@@ -35,10 +35,11 @@ class Filter(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
         return filters[name](schema=schema, **mappings)
 
     def passes(self, composite: Composite) -> bool:
-        """Evaluate whether the """
+        """Evaluate whether the entire Composite should be included at the next Step or not."""
         return True
 
     def narrow(self, composite: Composite) -> None:
+        """Remove or retain specific periods."""
         pass
 
     def process_composite(self, origin_dir: str, target_base_dir: str, composite_id: str) -> Optional[ExceptionWrapper]:
