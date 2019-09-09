@@ -39,8 +39,12 @@ class Translator:
         return self.translate(document, parent_id, source_parent_id)
 
     def translate(self, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> Dict[str, Any]:
-        assert document is not None, "Unexpected situation occurred -- study"
-        assert not (parent_id is None and source_parent_id is not None)
+        if document is None:
+            logging.error("Empty document encountered. Returning empty translation.")
+            return {}
+        if parent_id is None and source_parent_id is None:
+            logging.error("parent_id is None and source_parent_id is None. Returning empty translation.")
+            return {}
 
         document_value_provider: DocumentValueProvider = DocumentValueProvider(document)
         output_document: Dict[str, Any] = {}

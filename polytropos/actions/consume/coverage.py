@@ -204,16 +204,16 @@ class CoverageFileExtract:
     def _handle_keyed_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
         for child_value in value.values():
             if child_value is None:
-                logging.warning("Encountered empty keyed list item in composite %s (path %s).", composite_id,
-                                nesteddicts.path_to_str(child_path))
+                logging.debug("Encountered empty keyed list item in composite %s (path %s).", composite_id,
+                              nesteddicts.path_to_str(child_path))
                 continue
             self._crawl(composite_id, child_value, observed, child_path)
 
     def _handle_list(self, composite_id: str, child_path: Tuple[str, ...], value: Any, observed: Set) -> None:
         for child_value in value:
             if child_value is None:
-                logging.warning("Encountered empty list item in composite %s (path %s).", composite_id,
-                                nesteddicts.path_to_str(child_path))
+                logging.debug("Encountered empty list item in composite %s (path %s).", composite_id,
+                              nesteddicts.path_to_str(child_path))
                 continue
             self._crawl(composite_id, child_value, observed, child_path)
 
