@@ -84,4 +84,7 @@ def test_files_match(module_basepath, output_basepath, filename):
         actual: csv.DictReader = csv.DictReader(actual_fh)
         e_rows = [row for row in expected]
         a_rows = [row for row in actual]
+        for a_row, e_row in zip(a_rows, e_rows):
+            if a_row != e_row:
+                print("breakpoint")
         assert a_rows == e_rows

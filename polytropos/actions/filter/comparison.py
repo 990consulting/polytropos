@@ -20,18 +20,14 @@ class ComparisonFilter(Filter, ABC):  # type: ignore
         self.variable: Variable = self.schema.get(self.var_id)
         if self.variable is None:
             raise ValueError('Unrecognized variable ID "%s"' % self.var_id)
-        if self.variable.data_type not in {"Text", "Integer", "Decimal", "Currency", "Date"}:
-            raise ValueError('Data type %s cannot be compared' % self.variable.data_type)
+        if not isinstance(self.variable, Primitive):
+            raise ValueError('Non-primitive data type %s cannot be compared' % self.variable.data_type)
         if self.threshold is None:
             raise ValueError('Must specify threshold value for comparison filters.')
 
         # If narrowing is disabled, the comparison variable should not be immutable
         if self.narrows and not self.variable.temporal:
             raise ValueError("Narrowing by comparison cannot be performed on an immutable variable.")
-
-        if self.variable.data_type == "Text":
-            if not isinstance(self.threshold, str) or not self.threshold.islower():
-                raise ValueError("Text comparison thresholds should be lowercase strings")
 
         self.variable = cast(Primitive, self.variable)
         self.threshold = self.variable.cast(self.threshold)

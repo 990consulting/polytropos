@@ -15,3 +15,5 @@ variable,in_schema,var_id,data_type,None
 /second_temporal_folder/a_list/a_keyed_list/some_text,TRUE,source_t_keyed_list_text_2,Text,0.17
 /second_temporal_folder/a_list/some_text,TRUE,source_t_list_text_2,Text,0.17
 /second_temporal_folder/some_text,TRUE,source_t_folder_text_2,Text,0.00
+/temporal_root_text_1,TRUE,source_t_root_text_1,Text,0.00
+/temporal_root_text_2,TRUE,source_t_root_text_2,Text,0.00
