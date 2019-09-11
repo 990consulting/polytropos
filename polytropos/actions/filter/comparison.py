@@ -23,7 +23,7 @@ class ComparisonFilter(Filter, ABC):  # type: ignore
         if self.variable.data_type not in {"Text", "Integer", "Decimal", "Currency", "Date"}:
             raise ValueError('Data type %s cannot be compared' % self.variable.data_type)
         if self.threshold is None:
-            raise ValueError('Must specify threshold value for AtLeast filter.')
+            raise ValueError('Must specify threshold value for comparison filters.')
 
         # If narrowing is disabled, the comparison variable should not be immutable
         if self.narrows and not self.variable.temporal:
@@ -100,4 +100,6 @@ class NotEqualTo(ComparisonFilter):
     def compares_true(self, value: Any) -> bool:
         return value != self.threshold
 
-# No need for "EqualTo" filter -- more robust capabilities in has_all/has_any
+class EqualTo(ComparisonFilter):
+    def compares_true(self, value: Any) -> bool:
+        return value == self.threshold

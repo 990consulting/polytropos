@@ -7,10 +7,13 @@ from polytropos.ontology.task import Task
 from polytropos.ontology.variable import VariableId
 from polytropos.tools.schema import treeview
 from polytropos.tools.schema.catalog import variable_catalog
-from polytropos.tools.schema.linkage import ExportLinkages#, ImportLinkages
+from polytropos.tools.schema.linkage import ExportLinkages
 from polytropos.tools.schema.repair_sort import repair_sort_order
+from polytropos.actions import register_all
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+
+register_all()
 
 @click.group()
 def cli() -> None:

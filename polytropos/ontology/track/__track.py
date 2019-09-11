@@ -59,7 +59,11 @@ class Track(MutableMapping):
         logging.info('All variables valid "%s".' % name)
 
     def build_variable(self, data: Dict, var_id: VariableId) -> Variable:
-        data_type = data['data_type']
+        try:
+            data_type = data['data_type']
+        except Exception as e:
+            print("breakpoint")
+            raise e
         try:
             del data['data_type']
             cls = getattr(polytropos.ontology.variable, data_type)
