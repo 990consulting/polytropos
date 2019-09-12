@@ -136,7 +136,7 @@ def do_test(s_doc, s_spec, t_doc, t_spec):
     source_track: Track = Track.build(s_spec, None, "Source")
     target_track: Track = Track.build(t_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: OrderedDict[str, Any] = translate(s_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", s_doc)
     assert actual == t_doc
 
 def test_no_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):

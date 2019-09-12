@@ -10,7 +10,7 @@ def test_translate_no_sources_listed(translator, document, variable):
     """If a variable is supposed to be translated but it has no sources, an exception should be raised."""
     variable.sources = []
 
-    type_translator = GenericTypeTranslator(translator, document, variable, None)
+    type_translator = GenericTypeTranslator(translator, "composite_id", "period", document, variable, None)
     with pytest.raises(SourceNotFoundException):
         _ = type_translator()
 
@@ -20,7 +20,7 @@ def test_translate_neither_source_has_values(translator, document, variable):
     variable.sources = ["source1"]
     document.variable_value.side_effect = SourceNotFoundException
 
-    type_translator = GenericTypeTranslator(translator, document, variable, None)
+    type_translator = GenericTypeTranslator(translator, "composite_id", "period", document, variable, None)
     with pytest.raises(SourceNotFoundException):
         _ = type_translator()
 
@@ -30,7 +30,7 @@ def test_translate_first_source_has_value(translator, document, variable):
     variable.sources = ["source1"]
     document.variable_value.return_value = "source1_value"
 
-    type_translator = GenericTypeTranslator(translator, document, variable, None)
+    type_translator = GenericTypeTranslator(translator, "composite_id", "period", document, variable, None)
     translated = type_translator()
     assert translated == "source1_value"
 
@@ -40,7 +40,7 @@ def test_source_has_null_value(translator, document, variable):
     variable.sources = ["source1"]
     document.variable_value.return_value = None
 
-    type_translator = GenericTypeTranslator(translator, document, variable, None)
+    type_translator = GenericTypeTranslator(translator, "composite_id", "period", document, variable, None)
     translated = type_translator()
     assert translated is None
 
@@ -55,7 +55,7 @@ def test_first_null_second_non_null(translator, document, variable):
     variable.sources = ["source1", "source2"]
     document.variable_value = variable_value
 
-    type_translator = GenericTypeTranslator(translator, document, variable, None)
+    type_translator = GenericTypeTranslator(translator, "composite_id", "period", document, variable, None)
     translated = type_translator()
     assert translated is None
 
@@ -70,7 +70,7 @@ def test_translate_second_source_has_value(translator, document, variable):
     variable.sources = ["source1", "source2"]
     document.variable_value = variable_value
 
-    type_translator = GenericTypeTranslator(translator, document, variable, None)
+    type_translator = GenericTypeTranslator(translator, "composite_id", "period", document, variable, None)
     translated = type_translator()
     assert translated == "source2_value"
 
@@ -83,7 +83,7 @@ def test_translate_both_sources_have_values(translator, document, variable):
     variable.sources = ["source1", "source2"]
     document.variable_value = variable_value
 
-    type_translator = GenericTypeTranslator(translator, document, variable, None)
+    type_translator = GenericTypeTranslator(translator, "composite_id", "period", document, variable, None)
     translated = type_translator()
     assert translated == "source1_value"
 
@@ -100,6 +100,6 @@ def test_translate_first_source_is_not_descendant(translator, document, variable
     variable.track.source = {parent_id: parent_source}
     document.variable_value = variable_value
 
-    type_translator = GenericTypeTranslator(translator, document, variable, parent_id)
+    type_translator = GenericTypeTranslator(translator, "composite_id", "period", document, variable, parent_id)
     translated = type_translator()
     assert translated == "source2_value"

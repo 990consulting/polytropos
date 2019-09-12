@@ -12,6 +12,8 @@ T = TypeVar('T')
 @dataclass
 class BaseTypeTranslator(Generic[T]):  # type: ignore # https://github.com/python/mypy/issues/5374
     translator: Translator
+    composite_id: str
+    period: str
     document: DocumentValueProvider
     variable: Variable
     parent_id: Optional[VariableId]

@@ -143,5 +143,5 @@ def test_keyed_list_in_list(source, target):
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: OrderedDict[str, Any] = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     assert actual == target_doc

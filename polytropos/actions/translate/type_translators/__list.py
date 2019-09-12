@@ -33,5 +33,5 @@ class ListTranslator(BaseTypeTranslator[ListType[typing.OrderedDict[str, Any]]])
             # translate the values in the list one by one and add them to
             # the result
             # noinspection PyTypeChecker
-            translated: OrderedDict[str, Any] = self.translator.translate(item, self.variable.var_id, source_id)
+            translated: OrderedDict[str, Any] = self.translator.translate(self.composite_id, self.period, item, self.variable.var_id, source_id)
             self.result.append(translated)

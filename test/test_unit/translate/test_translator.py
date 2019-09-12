@@ -22,7 +22,7 @@ def target_track(source_track) -> Mock:
 
 @pytest.fixture()
 def type_translator_class() -> Mock:
-    def translator(_translator, document, variable, _parent_id):
+    def translator(_translator, _composite_id, _period, document, variable, _parent_id):
         translated = Mock()
         try:
             source_value = document.value([variable.name])
@@ -58,7 +58,7 @@ def test_translate_no_target_variables(source_track, target_track):
     document = {"a": 1}
     translator = Translator(target_track)
 
-    translated = translator(document)
+    translated = translator("composite_id", "period", document)
     assert translated == OrderedDict()
 
 
@@ -69,7 +69,7 @@ def test_translate_one_target_variable(monkeypatch, source_track, target_track, 
     document = {"a": 1, "b": 2}
     translator = Translator(target_track)
 
-    translated = translator(document)
+    translated = translator("composite_id", "period", document)
     assert translated == OrderedDict([("a", 101)])
 
 
@@ -80,7 +80,7 @@ def test_translate_two_target_variables(monkeypatch, source_track, target_track,
     document = {"a": 1, "b": 2}
     translator = Translator(target_track)
 
-    translated = translator(document)
+    translated = translator("composite_id", "period", document)
     assert translated == OrderedDict([("a", 101), ("b", 102)])
 
 
@@ -91,7 +91,7 @@ def test_translate_missing_source(monkeypatch, source_track, target_track, type_
     document = {"a": 1, "b": 2}
     translator = Translator(target_track)
 
-    translated = translator(document)
+    translated = translator("composite_id", "period", document)
     assert translated == OrderedDict([("a", 101), ("b", 102)])
 
 
@@ -103,7 +103,7 @@ def test_translate_exception(monkeypatch, source_track, target_track, type_trans
     translator = Translator(target_track)
 
     with pytest.raises(AttributeError):
-        _ = translator(document)
+        _ = translator("composite_id", "period", document)
 
 
 def shuffle(to_shuffle: Dict) -> Dict:
@@ -129,5 +129,5 @@ def test_translate_sort_order(monkeypatch, source_track, target_track, type_tran
     document = shuffle({"a": 1, "b": 2, "c": 3})
     translator = Translator(target_track)
 
-    translated = translator(document)
+    translated = translator("composite_id", "period", document)
     assert translated == OrderedDict([("b", 102), ("c", 103), ("a", 101)])

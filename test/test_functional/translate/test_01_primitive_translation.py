@@ -54,7 +54,7 @@ def test_translate_no_sources_listed(target_spec: Dict, source_spec: Dict, sourc
 
     translate: Translator = Translator(target_track)
 
-    actual: OrderedDict[str, Any] = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     expected: OrderedDict[str, Any] = OrderedDict()
 
     assert actual == expected
@@ -62,14 +62,14 @@ def test_translate_no_sources_listed(target_spec: Dict, source_spec: Dict, sourc
 def test_translate_neither_source_has_values(translate: Translator):
     """If a primitive has sources but none have a value, it is not translated."""
     empty_doc: Dict = {}
-    actual: OrderedDict[str, Any] = translate(empty_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", empty_doc)
     expected: OrderedDict[str, Any] = OrderedDict()
     assert actual == expected
 
 def test_translate_first_source_has_value(translate: Translator, source_doc: Dict):
     """If a primitive has two sources and the first one has a value, that value is captured."""
     del source_doc["second_source"]
-    actual: OrderedDict[str, Any] = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     expected: OrderedDict[str, Any] = OrderedDict([
         ("the_target", 75)
     ])
@@ -80,7 +80,7 @@ def test_source_has_null_value(translate: Translator):
     doc: Dict = {
         "first_source": None
     }
-    actual: OrderedDict[str, Any] = translate(doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", doc)
     expected: OrderedDict[str, Any] = OrderedDict([
         ("the_target", None)
     ])
@@ -92,7 +92,7 @@ def test_first_null_second_non_null(translate: Translator):
         "first_source": None,
         "second_source": 5
     }
-    actual: OrderedDict[str, Any] = translate(doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", doc)
     expected: OrderedDict[str, Any] = OrderedDict([
         ("the_target", None)
     ])
@@ -101,7 +101,7 @@ def test_first_null_second_non_null(translate: Translator):
 def test_translate_second_source_has_value(translate: Translator, source_doc: Dict):
     """If a primitive has two sources and the second one has a value, that value is captured."""
     del source_doc["first_source"]
-    actual: OrderedDict[str, Any] = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     expected: OrderedDict[str, Any] = OrderedDict([
         ("the_target", 102)
     ])
@@ -110,7 +110,7 @@ def test_translate_second_source_has_value(translate: Translator, source_doc: Di
 def test_translate_both_sources_have_values(translate: Translator, source_doc: Dict):
     """If a primitive has multiple sources and more than one has a value, the first source with a value is used. (This
     implies that source order matters.)"""
-    actual: OrderedDict[str, Any] = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     expected: OrderedDict[str, Any] = OrderedDict([
         ("the_target", 75)
     ])
@@ -136,7 +136,7 @@ def test_use_same_source_twice(source_spec: Dict, source_doc: Dict):
     target_track: Track = Track.build(target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
 
-    actual: OrderedDict[str, Any] = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     expected: OrderedDict[str, Any] = OrderedDict([
         ("first_target", 75),
         ("second_target", 75),

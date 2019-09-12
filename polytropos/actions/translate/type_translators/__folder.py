@@ -18,7 +18,7 @@ class FolderTranslator(BaseTypeTranslator[typing.OrderedDict[str, Any]]):
 
     def __call__(self) -> typing.OrderedDict[str, Any]:
         # Just translate all variables in the folder
-        translated: OrderedDict[str, Any] = self.translator.translate(self.document.document, self.variable.var_id, self.parent_id)
+        translated: OrderedDict[str, Any] = self.translator.translate(self.composite_id, self.period, self.document.document, self.variable.var_id, self.parent_id)
 
         # If the resulting dictionary is empty, none of the children were found, so don't include the folder at all.
         if len(translated) == 0:

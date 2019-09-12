@@ -29,5 +29,5 @@ class KeyedListTranslator(BaseTypeTranslator[typing.OrderedDict[str, typing.Orde
             if key in self.result:
                 # No duplicate keys
                 raise ValueError
-            self.result[key] = self.translator.translate(item, self.variable.var_id, source_id)
+            self.result[key] = self.translator.translate(self.composite_id, self.period, item, self.variable.var_id, source_id)
             self.has_result = True

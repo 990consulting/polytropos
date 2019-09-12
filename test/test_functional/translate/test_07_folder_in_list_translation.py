@@ -243,7 +243,7 @@ def _do_test(source_spec, source_doc, target_spec, expected):
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: OrderedDict[str, Any] = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     assert actual == expected
 
 # TODO Used in two files -- should be a pytest.fixture

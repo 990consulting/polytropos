@@ -284,7 +284,7 @@ def test_translate_all_children_missing(source: Callable, target: Callable):
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: OrderedDict[str, Any] = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     assert actual == expected
 
 
@@ -306,7 +306,7 @@ def test_translate_all_children_none():
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: OrderedDict[str, Any] = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     assert actual == expected
 
 
@@ -323,5 +323,5 @@ def test_translate_with_folders(source: Callable, target: Callable):
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: OrderedDict[str, Any] = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     assert actual == expected

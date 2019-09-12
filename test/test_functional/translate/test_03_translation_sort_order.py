@@ -182,5 +182,5 @@ def test_rearrange(source_doc: Dict, source_spec: Dict, target_doc: Dict, target
     source_track: Track = Track.build(shuffled_source_spec, None, "Source")
     target_track: Track = Track.build(shuffled_target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: OrderedDict[str, Any] = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     assert actual == target_doc

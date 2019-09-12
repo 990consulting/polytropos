@@ -10,7 +10,7 @@ def test_no_sources(translator, document, variable):
     """No sources defined - raises an exception."""
     variable.sources = []
 
-    type_translator = ListTranslator(translator, document, variable, None)
+    type_translator = ListTranslator(translator, "composite_id", "period", document, variable, None)
     with pytest.raises(SourceNotFoundException):
         _ = type_translator()
 
@@ -20,7 +20,7 @@ def test_two_sources_both_missing(translator, document, variable):
     variable.sources = ["source1", "source2"]
     document.variable_value.side_effect = SourceNotFoundException
 
-    type_translator = ListTranslator(translator, document, variable, None)
+    type_translator = ListTranslator(translator, "composite_id", "period", document, variable, None)
     assert type_translator() == []
 
 
@@ -29,7 +29,7 @@ def test_two_sources_both_empty(translator, document, variable):
     variable.sources = ["source1", "source2"]
     document.variable_value.return_value = []
 
-    type_translator = ListTranslator(translator, document, variable, None)
+    type_translator = ListTranslator(translator, "composite_id", "period", document, variable, None)
     assert type_translator() == []
 
 
@@ -37,9 +37,9 @@ def test_one_source(translator, document, variable):
     """One source is specified; a result list is made from that source."""
     variable.sources = ["source1"]
     document.variable_value.return_value = [1, 2, 3]
-    translator.translate = lambda doc, _parent_id, _source_parent_id: 100 + doc
+    translator.translate = lambda _composite_id, _period, doc, _parent_id, _source_parent_id: 100 + doc
 
-    type_translator = ListTranslator(translator, document, variable, None)
+    type_translator = ListTranslator(translator, "composite_id", "period", document, variable, None)
     assert type_translator() == [101, 102, 103]
 
 
@@ -52,9 +52,9 @@ def test_two_sources_one_empty(translator, document, variable):
 
     variable.sources = ["source1", "source2"]
     document.variable_value = variable_value
-    translator.translate = lambda doc, _parent_id, _source_parent_id: 100 + doc
+    translator.translate = lambda _composite_id, _period, doc, _parent_id, _source_parent_id: 100 + doc
 
-    type_translator = ListTranslator(translator, document, variable, None)
+    type_translator = ListTranslator(translator, "composite_id", "period", document, variable, None)
     translated = type_translator()
     assert translated == [101, 102, 103]
 
@@ -68,9 +68,9 @@ def test_combine_lists(translator, document, variable):
 
     variable.sources = ["source1", "source2"]
     document.variable_value = variable_value
-    translator.translate = lambda doc, _parent_id, _source_parent_id: 100 + doc
+    translator.translate = lambda _composite_id, _period, doc, _parent_id, _source_parent_id: 100 + doc
 
-    type_translator = ListTranslator(translator, document, variable, None)
+    type_translator = ListTranslator(translator, "composite_id", "period", document, variable, None)
     translated = type_translator()
     assert translated == [101, 102, 103, 104, 105]
 
@@ -85,9 +85,9 @@ def test_source_order_matters(translator, document, variable):
 
     variable.sources = ["source2", "source1"]
     document.variable_value = variable_value
-    translator.translate = lambda doc, _parent_id, _source_parent_id: 100 + doc
+    translator.translate = lambda _composite_id, _period, doc, _parent_id, _source_parent_id: 100 + doc
 
-    type_translator = ListTranslator(translator, document, variable, None)
+    type_translator = ListTranslator(translator, "composite_id", "period", document, variable, None)
     translated = type_translator()
     assert translated == [104, 105, 101, 102, 103]
 
@@ -95,9 +95,9 @@ def test_source_order_matters(translator, document, variable):
 def test_source_is_dict(translator, document, variable):
     variable.sources = ["source1"]
     document.variable_value.return_value = {"a": 1}
-    translator.translate = lambda doc, _parent_id, _source_parent_id: {"aa": doc["a"] + 100}
+    translator.translate = lambda _composite_id, _period, doc, _parent_id, _source_parent_id: {"aa": doc["a"] + 100}
 
-    type_translator = ListTranslator(translator, document, variable, None)
+    type_translator = ListTranslator(translator, "composite_id", "period", document, variable, None)
     assert type_translator() == [{"aa": 101}]
 
 
@@ -114,9 +114,9 @@ def test_translate_first_source_is_not_descendant(translator, document, variable
     variable.sources = ["source1", "source2"]
     variable.track.source = {parent_id: parent_source}
     document.variable_value = variable_value
-    translator.translate = lambda doc, _parent_id, _source_parent_id: 100 + doc
+    translator.translate = lambda _composite_id, _period, doc, _parent_id, _source_parent_id: 100 + doc
 
-    type_translator = ListTranslator(translator, document, variable, parent_id)
+    type_translator = ListTranslator(translator, "composite_id", "period", document, variable, parent_id)
     translated = type_translator()
     assert translated == [104, 105]
 
