@@ -1,7 +1,6 @@
 from collections import OrderedDict
 import pytest
 from typing import Dict, Tuple, Any
-import typing
 
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
@@ -70,7 +69,7 @@ def source() -> Tuple[Dict, Dict]:
     }
     return spec, doc
 
-def target_flattened() -> Tuple[Dict, typing.OrderedDict[str, Any]]:
+def target_flattened() -> Tuple[Dict, "OrderedDict[str, Any]"]:
     doc: OrderedDict[str, Any] = OrderedDict([
         ("the_list", [
             OrderedDict([
@@ -130,7 +129,7 @@ def target_flattened() -> Tuple[Dict, typing.OrderedDict[str, Any]]:
 
     return spec, doc
 
-def target_nested() -> Tuple[Dict, typing.OrderedDict[str, Any]]:
+def target_nested() -> Tuple[Dict, "OrderedDict[str, Any]"]:
     doc: OrderedDict[str, Any] = OrderedDict([
         ("outer", OrderedDict([
             ("inner", OrderedDict([

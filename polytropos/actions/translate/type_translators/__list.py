@@ -2,24 +2,22 @@ from collections import OrderedDict
 from typing import List as ListType, Any, Dict
 import logging
 
-import typing
-
 from polytropos.actions.translate.type_translators.__base import BaseTypeTranslator
 from polytropos.actions.translate.type_translators.__decorator import type_translator
 from polytropos.ontology.variable import VariableId, List
 
 
 @type_translator(List)
-class ListTranslator(BaseTypeTranslator[ListType[typing.OrderedDict[str, Any]]]):
+class ListTranslator(BaseTypeTranslator[ListType["OrderedDict[str, Any]"]]):
     """Translate for lists"""
 
-    def initial_result(self) -> ListType[typing.OrderedDict[str, Any]]:
+    def initial_result(self) -> ListType["OrderedDict[str, Any]"]:
         return []
 
     def initialize(self) -> None:
         self.has_result = True
 
-    def process_source_value(self, source_value: ListType[Dict[str, Any]], source_id: VariableId) -> None:
+    def process_source_value(self, source_value: ListType["OrderedDict[str, Any]"], source_id: VariableId) -> None:
         # The resulting list is the concatenation of all the translations,
         # source by source
 

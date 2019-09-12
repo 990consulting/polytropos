@@ -1,7 +1,5 @@
 from collections import OrderedDict
-
 import pytest
-import typing
 from typing import Dict, Tuple, Callable, Iterable, Any
 import itertools
 
@@ -137,7 +135,7 @@ def source_nested() -> Tuple[Dict, Dict]:
     return source, spec
 
 
-def target_flat() -> Tuple[typing.OrderedDict[str, Any], Dict]:
+def target_flat() -> Tuple["OrderedDict[str, Any]", Dict]:
     target: OrderedDict[str, Any] = OrderedDict([
         ("first_target", 75),
         ("second_target", 102)
@@ -160,7 +158,7 @@ def target_flat() -> Tuple[typing.OrderedDict[str, Any], Dict]:
     return target, spec
 
 
-def target_one_folder() -> Tuple[typing.OrderedDict[str, Any], Dict]:
+def target_one_folder() -> Tuple["OrderedDict[str, Any]", Dict]:
     target: OrderedDict[str, Any] = OrderedDict([
         ("the_folder", OrderedDict([
             ("first_target", 75),
@@ -192,7 +190,7 @@ def target_one_folder() -> Tuple[typing.OrderedDict[str, Any], Dict]:
     return target, spec
 
 
-def target_two_folders() -> Tuple[typing.OrderedDict[str, Any], Dict]:
+def target_two_folders() -> Tuple["OrderedDict[str, Any]", Dict]:
     target: OrderedDict[str, Any] = OrderedDict([
         ("first_folder", OrderedDict([
             ("first_target", 75)
@@ -231,7 +229,7 @@ def target_two_folders() -> Tuple[typing.OrderedDict[str, Any], Dict]:
     return target, spec
 
 
-def target_nested() -> Tuple[typing.OrderedDict[str, Any], Dict]:
+def target_nested() -> Tuple["OrderedDict[str, Any]", Dict]:
     target: OrderedDict[str, Any] = OrderedDict([
         ("outer_s", OrderedDict([
             ("first_target", 75),

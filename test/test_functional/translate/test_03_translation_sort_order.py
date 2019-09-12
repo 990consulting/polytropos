@@ -1,10 +1,7 @@
 from collections import OrderedDict
-
 import pytest
 from typing import Dict, List, Any
 import random
-
-import typing
 
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
@@ -147,7 +144,7 @@ def target_spec() -> Dict:
     }
 
 @pytest.fixture()
-def target_doc() -> typing.OrderedDict[str, Any]:
+def target_doc() -> "OrderedDict[str, Any]":
     return OrderedDict([
         ("orange_folder", OrderedDict([
             ("papaya", None),

@@ -1,27 +1,25 @@
 from collections import OrderedDict
 from typing import Dict, Any
 
-import typing
-
 from polytropos.actions.translate.type_translators.__base import BaseTypeTranslator
 from polytropos.actions.translate.type_translators.__decorator import type_translator
 from polytropos.ontology.variable import VariableId, KeyedList
 
 
 @type_translator(KeyedList)
-class KeyedListTranslator(BaseTypeTranslator[typing.OrderedDict[str, typing.OrderedDict[str, Any]]]):
+class KeyedListTranslator(BaseTypeTranslator["OrderedDict[str, OrderedDict[str, Any]]"]):
     """Translate function for keyed lists (similar to python dicts), the
     logic is almost the same as for lists but taking care of the keys.
     Raises ValueError on duplicate keys"""
 
-    def initial_result(self) -> typing.OrderedDict[str, typing.OrderedDict[str, Any]]:
+    def initial_result(self) -> "OrderedDict[str, OrderedDict[str, Any]]":
         return OrderedDict()
 
     def initialize(self) -> None:
         self.has_result = True
         self.skip_source_not_found = False
 
-    def process_source_value(self, source_value: Dict[str, typing.OrderedDict[str, Any]], source_id: VariableId) -> None:
+    def process_source_value(self, source_value: Dict[str, "OrderedDict[str, Any]"], source_id: VariableId) -> None:
         if source_value is None:
             raise RuntimeError("I don't think this should be possible, because SourceNotFoundException replaced it")
 

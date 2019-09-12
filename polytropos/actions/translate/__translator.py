@@ -3,8 +3,6 @@ from collections import defaultdict, OrderedDict
 from collections.abc import Callable
 from typing import Dict, Optional, Any, Type, List
 
-import typing
-
 from polytropos.actions.translate.__document import SourceNotFoundException, DocumentValueProvider
 from polytropos.actions.translate.__type_translator_registry import TypeTranslatorRegistry
 from polytropos.ontology.track import Track
@@ -41,10 +39,10 @@ class Translator:
         type_translator_class: Type = TypeTranslatorRegistry.get_translator_class(variable.__class__)
         return type_translator_class(self, composite_id, period, document, variable, parent_id)
 
-    def __call__(self, composite_id: str, period: str, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> typing.OrderedDict[str, Any]:
+    def __call__(self, composite_id: str, period: str, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> "OrderedDict[str, Any]":
         return self.translate(composite_id, period, document, parent_id, source_parent_id)
 
-    def translate(self, composite_id: str, period: str, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> typing.OrderedDict[str, Any]:
+    def translate(self, composite_id: str, period: str, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> "OrderedDict[str, Any]":
         if document is None:
             logging.error("Empty document encountered. Returning empty translation.")
             return OrderedDict()

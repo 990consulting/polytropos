@@ -1,10 +1,7 @@
 import random
 from collections import OrderedDict
-
 import pytest
 from typing import Dict, Tuple, List, Any
-
-import typing
 
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
@@ -118,7 +115,7 @@ def source_flat() -> Tuple[Dict, Dict]:
     }
     return source_spec, source_doc
 
-def target_nested() -> Tuple[Dict, typing.OrderedDict[str, Any]]:
+def target_nested() -> Tuple[Dict, "OrderedDict[str, Any]"]:
     target_doc: OrderedDict[str, Any] = OrderedDict([
         ("the_list", [
             OrderedDict([
@@ -182,7 +179,7 @@ def target_nested() -> Tuple[Dict, typing.OrderedDict[str, Any]]:
     }
     return target_spec, target_doc
 
-def target_flat() -> Tuple[Dict, typing.OrderedDict[str, Any]]:
+def target_flat() -> Tuple[Dict, "OrderedDict[str, Any]"]:
     target_doc: OrderedDict[str, Any] = OrderedDict([
         ("the_list", [
             OrderedDict([

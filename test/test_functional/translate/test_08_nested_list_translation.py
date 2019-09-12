@@ -1,9 +1,6 @@
 from collections import OrderedDict
-
 import pytest
 from typing import Dict, Tuple, Any
-
-import typing
 
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
@@ -80,7 +77,7 @@ def source() -> Tuple[Dict, Dict]:
     return source_spec, source_doc
 
 @pytest.fixture
-def target() -> Tuple[Dict, typing.OrderedDict[str, Any]]:
+def target() -> Tuple[Dict, "OrderedDict[str, Any]"]:
     target_doc: Dict = {
         "outer_list": [
             OrderedDict([
