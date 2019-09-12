@@ -7,6 +7,8 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Iterable, Tuple, Any, Optional, Dict, Set, List
 
+from polytropos.tools.qc import POLYTROPOS_NA
+
 from polytropos.ontology.schema import Schema
 
 from polytropos.ontology.track import Track
@@ -221,6 +223,13 @@ class CoverageFileExtract:
         for key, value in content.items():  # type: str, Any
             # Ignore system variables
             if key[0] == "_":
+                continue
+
+            # Ignore explicit NAs (which occur in "expected value" test fixtures), but not None. The former is used to
+            # indicate explicitly that a variable was not included at all in the actual values, and so does not
+            # contribute to test coverage. In order for a None value to appear, it had to be explicitly supplied in the
+            # source, which means that it *is* a meaningful value.
+            if value == POLYTROPOS_NA:
                 continue
 
             # Record that we saw this path

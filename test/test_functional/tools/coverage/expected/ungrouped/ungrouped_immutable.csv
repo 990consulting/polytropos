@@ -6,6 +6,8 @@ variable,in_schema,var_id,data_type,None
 /first_immutable_folder/a_list/a_keyed_list/some_text,TRUE,source_i_keyed_list_text_1,Text,0.50
 /first_immutable_folder/a_list/some_text,TRUE,source_i_list_text_1,Text,0.00
 /first_immutable_folder/some_text,TRUE,source_i_folder_text_1,Text,0.00
+/immutable_root_text_1,TRUE,source_i_root_text_1,Text,0.00
+/immutable_root_text_2,TRUE,source_i_root_text_2,Text,0.00
 /second_immutable_folder,TRUE,source_i_folder_2,Folder,1.00
 /second_immutable_folder/a_list,TRUE,source_i_list_2,List,0.50
 /second_immutable_folder/a_list/a_keyed_list,TRUE,source_i_keyed_list_2,KeyedList,0.50

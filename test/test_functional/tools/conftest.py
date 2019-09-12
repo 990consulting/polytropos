@@ -43,6 +43,11 @@ def half_source_spec() -> Callable:
                 "data_type": "Text",
                 "parent": "source_%s_keyed_list_%i" % (prefix, cardinal),
                 "sort_order": 0
+            },
+            "source_%s_root_text_%i" % (prefix, cardinal): {
+                "name": "%s_root_text_%i" % (track_name, cardinal),
+                "data_type": "Text",
+                "sort_order": 1
             }
         }
     return _half_source_spec

@@ -11,12 +11,16 @@ source_t_keyed_list_2,/second_temporal_folder/a_list/a_keyed_list,KeyedList,temp
 source_t_keyed_list_text_2,/second_temporal_folder/a_list/a_keyed_list/some_text,Text,temporal
 source_t_list_text_2,/second_temporal_folder/a_list/some_text,Text,temporal
 source_t_folder_text_2,/second_temporal_folder/some_text,Text,temporal
+source_t_root_text_1,/temporal_root_text_1,Text,temporal
+source_t_root_text_2,/temporal_root_text_2,Text,temporal
 source_i_folder_1,/first_immutable_folder,Folder,immutable
 source_i_list_1,/first_immutable_folder/a_list,List,immutable
 source_i_keyed_list_1,/first_immutable_folder/a_list/a_keyed_list,KeyedList,immutable
 source_i_keyed_list_text_1,/first_immutable_folder/a_list/a_keyed_list/some_text,Text,immutable
 source_i_list_text_1,/first_immutable_folder/a_list/some_text,Text,immutable
 source_i_folder_text_1,/first_immutable_folder/some_text,Text,immutable
+source_i_root_text_1,/immutable_root_text_1,Text,immutable
+source_i_root_text_2,/immutable_root_text_2,Text,immutable
 source_i_folder_2,/second_immutable_folder,Folder,immutable
 source_i_list_2,/second_immutable_folder/a_list,List,immutable
 source_i_keyed_list_2,/second_immutable_folder/a_list/a_keyed_list,KeyedList,immutable

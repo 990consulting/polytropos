@@ -57,6 +57,7 @@ class Validator:
 
     @staticmethod
     def validate_sort_order(variable: "Variable", sort_order: int, adding: bool = False) -> None:
+        # TODO Add a validation that every sort order value is unique among siblings
         if sort_order < 0:
             raise ValueError
         # This line is very slow. Consider adding a cache for variable.siblings.

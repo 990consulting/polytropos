@@ -13,6 +13,7 @@ def do_test(basepath: str) -> Callable:
     def _do_test(schema: Schema, expected_fn: str):
         expected_path: str = os.path.join(basepath, 'test_functional', 'tools', 'catalog', expected_fn)
         output_file: tempfile.NamedTemporaryFile = tempfile.NamedTemporaryFile(mode="w", delete=False)
+        print(output_file.name)
         write_catalog(schema, output_file)
         output_file.close()
 

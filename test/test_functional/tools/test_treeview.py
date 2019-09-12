@@ -3,6 +3,7 @@ import pytest
 from polytropos.tools.schema import treeview
 from textwrap import dedent
 
+# TODO Why don't these fail the sort order uniqueness validation?
 def test_source_schema(source_schema):
     expected: str = dedent("""
     temporal
@@ -12,12 +13,14 @@ def test_source_schema(source_schema):
      ║     ╠═ 0 some_text (Text | source_t_list_text_1)
      ║     ╚═ 1 a_keyed_list (KeyedList | source_t_keyed_list_1)
      ║        ╚═ 0 some_text (Text | source_t_keyed_list_text_1)
-     ╚═ 0 second_temporal_folder (Folder | source_t_folder_2)
-        ╠═ 0 some_text (Text | source_t_folder_text_2)
-        ╚═ 1 a_list (List | source_t_list_2)
-           ╠═ 0 some_text (Text | source_t_list_text_2)
-           ╚═ 1 a_keyed_list (KeyedList | source_t_keyed_list_2)
-              ╚═ 0 some_text (Text | source_t_keyed_list_text_2)
+     ╠═ 0 second_temporal_folder (Folder | source_t_folder_2)
+     ║  ╠═ 0 some_text (Text | source_t_folder_text_2)
+     ║  ╚═ 1 a_list (List | source_t_list_2)
+     ║     ╠═ 0 some_text (Text | source_t_list_text_2)
+     ║     ╚═ 1 a_keyed_list (KeyedList | source_t_keyed_list_2)
+     ║        ╚═ 0 some_text (Text | source_t_keyed_list_text_2)
+     ╠═ 1 temporal_root_text_1 (Text | source_t_root_text_1)
+     ╚═ 1 temporal_root_text_2 (Text | source_t_root_text_2)
 
     immutable
      ╠═ 0 first_immutable_folder (Folder | source_i_folder_1)
@@ -26,12 +29,14 @@ def test_source_schema(source_schema):
      ║     ╠═ 0 some_text (Text | source_i_list_text_1)
      ║     ╚═ 1 a_keyed_list (KeyedList | source_i_keyed_list_1)
      ║        ╚═ 0 some_text (Text | source_i_keyed_list_text_1)
-     ╚═ 0 second_immutable_folder (Folder | source_i_folder_2)
-        ╠═ 0 some_text (Text | source_i_folder_text_2)
-        ╚═ 1 a_list (List | source_i_list_2)
-           ╠═ 0 some_text (Text | source_i_list_text_2)
-           ╚═ 1 a_keyed_list (KeyedList | source_i_keyed_list_2)
-              ╚═ 0 some_text (Text | source_i_keyed_list_text_2)
+     ╠═ 0 second_immutable_folder (Folder | source_i_folder_2)
+     ║  ╠═ 0 some_text (Text | source_i_folder_text_2)
+     ║  ╚═ 1 a_list (List | source_i_list_2)
+     ║     ╠═ 0 some_text (Text | source_i_list_text_2)
+     ║     ╚═ 1 a_keyed_list (KeyedList | source_i_keyed_list_2)
+     ║        ╚═ 0 some_text (Text | source_i_keyed_list_text_2)
+     ╠═ 1 immutable_root_text_1 (Text | source_i_root_text_1)
+     ╚═ 1 immutable_root_text_2 (Text | source_i_root_text_2)
     """).strip()
     actual: str = treeview.as_ascii(source_schema)
     assert actual == expected
