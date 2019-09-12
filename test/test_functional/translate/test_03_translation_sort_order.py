@@ -1,6 +1,10 @@
+from collections import OrderedDict
+
 import pytest
-from typing import Dict, List
+from typing import Dict, List, Any
 import random
+
+import typing
 
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
@@ -143,21 +147,21 @@ def target_spec() -> Dict:
     }
 
 @pytest.fixture()
-def target_doc() -> Dict:
-    return {
-        "orange_folder": {
-            "papaya": None,
-            "grape": -4,
-            "mango": 1
-        },
-        "blue_folder": {
-            "green_folder": {
-                "strawberry": 102,
-                "lemon": 41
-            },
-            "apple": 75
-        }
-    }
+def target_doc() -> typing.OrderedDict[str, Any]:
+    return OrderedDict([
+        ("orange_folder", OrderedDict([
+            ("papaya", None),
+            ("grape", -4),
+            ("mango", 1)
+        ])),
+        ("blue_folder", OrderedDict([
+            ("green_folder", OrderedDict([
+                ("strawberry", 102),
+                ("lemon", 41)
+            ])),
+            ("apple", 75)
+        ]))
+    ])
 
 def shuffle(to_shuffle: Dict) -> Dict:
     """Return the provided dictionary with the keys in a different order. (Since Python 3.7, key insertion order is
@@ -178,5 +182,5 @@ def test_rearrange(source_doc: Dict, source_spec: Dict, target_doc: Dict, target
     source_track: Track = Track.build(shuffled_source_spec, None, "Source")
     target_track: Track = Track.build(shuffled_target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: Dict = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate(source_doc)
     assert actual == target_doc

@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from typing import Any, Dict
 import pytest
 
@@ -53,25 +54,25 @@ def test_translate_no_sources_listed(target_spec: Dict, source_spec: Dict, sourc
 
     translate: Translator = Translator(target_track)
 
-    actual: Dict[str, Any] = translate(source_doc)
-    expected: Dict[str, Any] = {}
+    actual: OrderedDict[str, Any] = translate(source_doc)
+    expected: OrderedDict[str, Any] = OrderedDict()
 
     assert actual == expected
 
 def test_translate_neither_source_has_values(translate: Translator):
     """If a primitive has sources but none have a value, it is not translated."""
     empty_doc: Dict = {}
-    actual: Dict[str, Any] = translate(empty_doc)
-    expected: Dict[str, Any] = {}
+    actual: OrderedDict[str, Any] = translate(empty_doc)
+    expected: OrderedDict[str, Any] = OrderedDict()
     assert actual == expected
 
 def test_translate_first_source_has_value(translate: Translator, source_doc: Dict):
     """If a primitive has two sources and the first one has a value, that value is captured."""
     del source_doc["second_source"]
-    actual: Dict[str, Any] = translate(source_doc)
-    expected: Dict[str, Any] = {
-        "the_target": 75
-    }
+    actual: OrderedDict[str, Any] = translate(source_doc)
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("the_target", 75)
+    ])
     assert actual == expected
 
 def test_source_has_null_value(translate: Translator):
@@ -79,10 +80,10 @@ def test_source_has_null_value(translate: Translator):
     doc: Dict = {
         "first_source": None
     }
-    actual: Dict[str, Any] = translate(doc)
-    expected: Dict[str, Any] = {
-        "the_target": None
-    }
+    actual: OrderedDict[str, Any] = translate(doc)
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("the_target", None)
+    ])
     assert actual == expected
 
 def test_first_null_second_non_null(translate: Translator):
@@ -91,28 +92,28 @@ def test_first_null_second_non_null(translate: Translator):
         "first_source": None,
         "second_source": 5
     }
-    actual: Dict[str, Any] = translate(doc)
-    expected: Dict[str, Any] = {
-        "the_target": None
-    }
+    actual: OrderedDict[str, Any] = translate(doc)
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("the_target", None)
+    ])
     assert actual == expected
 
 def test_translate_second_source_has_value(translate: Translator, source_doc: Dict):
     """If a primitive has two sources and the second one has a value, that value is captured."""
     del source_doc["first_source"]
-    actual: Dict[str, Any] = translate(source_doc)
-    expected: Dict[str, Any] = {
-        "the_target": 102
-    }
+    actual: OrderedDict[str, Any] = translate(source_doc)
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("the_target", 102)
+    ])
     assert actual == expected
 
 def test_translate_both_sources_have_values(translate: Translator, source_doc: Dict):
     """If a primitive has multiple sources and more than one has a value, the first source with a value is used. (This
     implies that source order matters.)"""
-    actual: Dict[str, Any] = translate(source_doc)
-    expected: Dict[str, Any] = {
-        "the_target": 75
-    }
+    actual: OrderedDict[str, Any] = translate(source_doc)
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("the_target", 75)
+    ])
     assert actual == expected
 
 def test_use_same_source_twice(source_spec: Dict, source_doc: Dict):
@@ -135,10 +136,10 @@ def test_use_same_source_twice(source_spec: Dict, source_doc: Dict):
     target_track: Track = Track.build(target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
 
-    actual: Dict[str, Any] = translate(source_doc)
-    expected: Dict[str, Any] = {
-        "first_target": 75,
-        "second_target": 75
-    }
+    actual: OrderedDict[str, Any] = translate(source_doc)
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("first_target", 75),
+        ("second_target", 75),
+    ])
 
     assert actual == expected

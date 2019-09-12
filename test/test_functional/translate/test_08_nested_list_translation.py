@@ -1,5 +1,10 @@
+from collections import OrderedDict
+
 import pytest
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Any
+
+import typing
+
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
 
@@ -75,33 +80,33 @@ def source() -> Tuple[Dict, Dict]:
     return source_spec, source_doc
 
 @pytest.fixture
-def target() -> Tuple[Dict, Dict]:
+def target() -> Tuple[Dict, typing.OrderedDict[str, Any]]:
     target_doc: Dict = {
         "outer_list": [
-            {
-                "inner_list": [
-                    {"name": "inner_1_1_1"},
-                    {"name": "inner_1_1_2"}
-                ]
-            },
-            {
-                "inner_list": [
-                    {"name": "inner_1_2_1"},
-                    {"name": "inner_1_2_2"}
-                ]
-            },
-            {
-                "inner_list": [
-                    {"name": "inner_2_1_1"},
-                    {"name": "inner_2_1_2"}
-                ]
-            },
-            {
-                "inner_list": [
-                    {"name": "inner_2_2_1"},
-                    {"name": "inner_2_2_2"}
-                ]
-            }
+            OrderedDict([
+                ("inner_list", [
+                    OrderedDict([("name", "inner_1_1_1")]),
+                    OrderedDict([("name", "inner_1_1_2")]),
+                ])
+            ]),
+            OrderedDict([
+                ("inner_list", [
+                    OrderedDict([("name", "inner_1_2_1")]),
+                    OrderedDict([("name", "inner_1_2_2")]),
+                ])
+            ]),
+            OrderedDict([
+                ("inner_list", [
+                    OrderedDict([("name", "inner_2_1_1")]),
+                    OrderedDict([("name", "inner_2_1_2")]),
+                ])
+            ]),
+            OrderedDict([
+                ("inner_list", [
+                    OrderedDict([("name", "inner_2_2_1")]),
+                    OrderedDict([("name", "inner_2_2_2")]),
+                ])
+            ])
         ]
     }
 
@@ -138,5 +143,5 @@ def test_nested_list(source, target):
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: Dict = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate(source_doc)
     assert actual == target_doc

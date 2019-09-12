@@ -1,5 +1,8 @@
+from collections import OrderedDict
 from typing import List as ListType, Any, Dict
 import logging
+
+import typing
 
 from polytropos.actions.translate.type_translators.__base import BaseTypeTranslator
 from polytropos.actions.translate.type_translators.__decorator import type_translator
@@ -7,10 +10,10 @@ from polytropos.ontology.variable import VariableId, List
 
 
 @type_translator(List)
-class ListTranslator(BaseTypeTranslator[ListType[Dict[str, Any]]]):
+class ListTranslator(BaseTypeTranslator[ListType[typing.OrderedDict[str, Any]]]):
     """Translate for lists"""
 
-    def initial_result(self) -> ListType[Dict[str, Any]]:
+    def initial_result(self) -> ListType[typing.OrderedDict[str, Any]]:
         return []
 
     def initialize(self) -> None:
@@ -30,5 +33,5 @@ class ListTranslator(BaseTypeTranslator[ListType[Dict[str, Any]]]):
             # translate the values in the list one by one and add them to
             # the result
             # noinspection PyTypeChecker
-            translated: Dict[str, Any] = self.translator.translate(item, self.variable.var_id, source_id)
+            translated: OrderedDict[str, Any] = self.translator.translate(item, self.variable.var_id, source_id)
             self.result.append(translated)

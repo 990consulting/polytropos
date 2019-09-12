@@ -1,7 +1,9 @@
 import logging
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from collections.abc import Callable
 from typing import Dict, Optional, Any, Type, List
+
+import typing
 
 from polytropos.actions.translate.__document import SourceNotFoundException, DocumentValueProvider
 from polytropos.actions.translate.__type_translator_registry import TypeTranslatorRegistry
@@ -28,6 +30,10 @@ class Translator:
         for variable in target.values():  # type: Variable
             self.target_variables_by_parent[variable.parent].append(variable)
 
+        # Sort children by sort order.
+        for parent_id, children in self.target_variables_by_parent.items():
+            children.sort(key=lambda child: child.sort_order)
+
         # when failsafe is true exceptions are caught and ignored
         self.failsafe = failsafe
 
@@ -35,19 +41,19 @@ class Translator:
         type_translator_class: Type = TypeTranslatorRegistry.get_translator_class(variable.__class__)
         return type_translator_class(self, document, variable, parent_id)
 
-    def __call__(self, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> Dict[str, Any]:
+    def __call__(self, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> typing.OrderedDict[str, Any]:
         return self.translate(document, parent_id, source_parent_id)
 
-    def translate(self, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> Dict[str, Any]:
+    def translate(self, document: Dict[str, Any], parent_id: Optional[VariableId] = None, source_parent_id: Optional[VariableId] = None) -> typing.OrderedDict[str, Any]:
         if document is None:
             logging.error("Empty document encountered. Returning empty translation.")
-            return {}
+            return OrderedDict()
         if parent_id is None and source_parent_id is not None:
             logging.error("parent_id is None and source_parent_id is None. Returning empty translation.")
-            return {}
+            return OrderedDict()
 
         document_value_provider: DocumentValueProvider = DocumentValueProvider(document)
-        output_document: Dict[str, Any] = {}
+        output_document: OrderedDict[str, Any] = OrderedDict()
         # Translate all variables with the same parent
         children: List[Variable] = self.target_variables_by_parent[parent_id]
         for variable in children:  # type: Variable

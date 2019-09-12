@@ -1,5 +1,7 @@
+from collections import OrderedDict
 import pytest
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Any
+import typing
 
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
@@ -68,27 +70,27 @@ def source() -> Tuple[Dict, Dict]:
     }
     return spec, doc
 
-def target_flattened() -> Tuple[Dict, Dict]:
-    doc: Dict = {
-        "the_list": [
-            {
-                "name": "Steve",
-                "color": "red"
-            },
-            {
-                "name": "Samantha",
-                "color": "blue"
-            }
-        ],
-        "the_keyed_list": {
-            "Anne": {
-                "color": "orange"
-            },
-            "Janet": {
-                "color": "green"
-            }
-        }
-    }
+def target_flattened() -> Tuple[Dict, typing.OrderedDict[str, Any]]:
+    doc: OrderedDict[str, Any] = OrderedDict([
+        ("the_list", [
+            OrderedDict([
+                ("name", "Steve"),
+                ("color", "red")
+            ]),
+            OrderedDict([
+                ("name", "Samantha"),
+                ("color", "blue")
+            ])
+        ]),
+        ("the_keyed_list", OrderedDict([
+            ("Anne", OrderedDict([
+                ("color", "orange")
+            ])),
+            ("Janet", OrderedDict([
+                ("color", "green")
+            ]))
+        ]))
+    ])
 
     spec: Dict = {
         "target_list": {
@@ -128,31 +130,31 @@ def target_flattened() -> Tuple[Dict, Dict]:
 
     return spec, doc
 
-def target_nested() -> Tuple[Dict, Dict]:
-    doc: Dict = {
-        "outer": {
-            "inner": {
-                "the_keyed_list": {
-                    "Anne": {
-                        "color": "orange"
-                    },
-                    "Janet": {
-                        "color": "green"
-                    }
-                }
-            },
-            "the_list": [
-                {
-                    "name": "Steve",
-                    "color": "red"
-                },
-                {
-                    "name": "Samantha",
-                    "color": "blue"
-                }
-            ]
-        }
-    }
+def target_nested() -> Tuple[Dict, typing.OrderedDict[str, Any]]:
+    doc: OrderedDict[str, Any] = OrderedDict([
+        ("outer", OrderedDict([
+            ("inner", OrderedDict([
+                ("the_keyed_list", OrderedDict([
+                    ("Anne", OrderedDict([
+                        ("color", "orange")
+                    ])),
+                    ("Janet", OrderedDict([
+                        ("color", "green")
+                    ]))
+                ]))
+            ])),
+            ("the_list", [
+                OrderedDict([
+                    ("name", "Steve"),
+                    ("color", "red")
+                ]),
+                OrderedDict([
+                    ("name", "Samantha"),
+                    ("color", "blue")
+                ])
+            ])
+        ]))
+    ])
 
     spec: Dict = {
         "target_folder_outer": {
@@ -212,5 +214,5 @@ def test_list_in_folder(source, target):
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: Dict = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate(source_doc)
     assert actual == expected

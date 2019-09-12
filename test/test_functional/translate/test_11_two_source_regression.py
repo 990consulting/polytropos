@@ -1,7 +1,7 @@
 """This is a regression test for a bug in which lists that had two sources, only one of which existed in the data,
 returned empty."""
-
-from typing import Tuple, Dict
+from collections import OrderedDict
+from typing import Tuple, Dict, Any
 
 import pytest
 
@@ -267,33 +267,33 @@ def source() -> Tuple[Dict, Dict]:
     return spec, doc
 
 @pytest.fixture()
-def target() -> Tuple[Dict, Dict]:
-    doc: Dict = {
-        'Tax return': {
-            'IRS 990': {
-                'Part VII': {
-                    'Section A Chart': [
-                        {
-                            'Column F': '0',
-                            'Column E': '0',
-                            'Column D': '0',
-                            'Column B, sub-row 1': '1.00',
-                            'Column C': {'Sub-column 1': 'X'},
-                            'Column A, First element, Person name': 'JOHN DOE',
-                            'Column A, Second element': 'BOARD MEMBER'
-                        }, {
-                            'Column F': '50000',
-                            'Column E': '10000',
-                            'Column D': '100000',
-                            'Column B, sub-row 1': '40.00',
-                            'Column A, First element, Person name': 'JANE SMITH',
-                            'Column A, Second element': 'DIRECTOR OF ENGINEERING'
-                        }
-                    ]
-                }
-            }
-        }
-    }
+def target() -> Tuple[Dict, OrderedDict]:
+    doc: OrderedDict = OrderedDict([
+        ('Tax return', OrderedDict([
+            ('IRS 990', OrderedDict([
+                ('Part VII', OrderedDict([
+                    ('Section A Chart', [
+                        OrderedDict([
+                            ('Column F', '0'),
+                            ('Column E', '0'),
+                            ('Column D', '0'),
+                            ('Column B, sub-row 1', '1.00'),
+                            ('Column C', OrderedDict([('Sub-column 1', 'X')])),
+                            ('Column A, First element, Person name', 'JOHN DOE'),
+                            ('Column A, Second element', 'BOARD MEMBER')
+                        ]), OrderedDict([
+                            ('Column F', '50000'),
+                            ('Column E', '10000'),
+                            ('Column D', '100000'),
+                            ('Column B, sub-row 1', '40.00'),
+                            ('Column A, First element, Person name', 'JANE SMITH'),
+                            ('Column A, Second element', 'DIRECTOR OF ENGINEERING')
+                        ])
+                    ])
+                ]))
+            ]))
+        ]))
+    ])
 
     spec: Dict = {
         "logical_temporal_000001": {
@@ -487,5 +487,5 @@ def test_two_list_sources_one_exists(source, target):
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: Dict = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate(source_doc)
     assert actual == expected

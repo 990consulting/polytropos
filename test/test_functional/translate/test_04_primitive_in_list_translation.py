@@ -1,5 +1,7 @@
+from collections import OrderedDict
+
 import pytest
-from typing import Dict
+from typing import Dict, Any
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
 
@@ -134,7 +136,7 @@ def do_test(s_doc, s_spec, t_doc, t_spec):
     source_track: Track = Track.build(s_spec, None, "Source")
     target_track: Track = Track.build(t_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: Dict = translate(s_doc)
+    actual: OrderedDict[str, Any] = translate(s_doc)
     assert actual == t_doc
 
 def test_no_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):
@@ -142,15 +144,15 @@ def test_no_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     for key in target_spec.keys():
         target_spec[key]["sources"] = []
 
-    expected: Dict = {}
+    expected: OrderedDict[str, Any] = OrderedDict()
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_two_sources_both_missing(source_spec: Dict, target_spec: Dict):
     """Two sources defined, but both are missing from the source document; an empty list is created."""
     source_doc = {}
-    expected: Dict = {
-        "People": []
-    }
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("People", [])
+    ])
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_two_sources_both_empty(source_spec: Dict, target_spec: Dict):
@@ -159,9 +161,9 @@ def test_two_sources_both_empty(source_spec: Dict, target_spec: Dict):
         "list_source_1": [],
         "list_source_2": []
     }
-    expected: Dict = {
-        "People": []
-    }
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("People", [])
+    ])
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_one_source(source_doc: Dict, source_spec: Dict, target_spec: Dict):
@@ -172,76 +174,76 @@ def test_one_source(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     target_spec["target_root_ice_cream"]["sources"] = ["source_root_2_helado"]
     target_spec["target_root_sport"]["sources"] = []
 
-    expected: Dict = {
-        "People": [
-            {
-                "Name": "Stacy",
-                "Age": 26,
-                "Ice cream": "chocolate"
-            }
-        ]
-    }
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("People", [
+            OrderedDict([
+                ("Name", "Stacy"),
+                ("Age", 26),
+                ("Ice cream", "chocolate")
+            ])
+        ])
+    ])
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_two_sources_one_empty(source_doc: Dict, source_spec: Dict, target_spec: Dict):
     """Two sources are defined, but one is empty."""
     source_doc["list_source_1"] = []
-    expected: Dict = {
-        "People": [
-            {
-                "Name": "Stacy",
-                "Age": 26,
-                "Ice cream": "chocolate"
-            }
-        ]
-    }
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("People", [
+            OrderedDict([
+                ("Name", "Stacy"),
+                ("Age", 26),
+                ("Ice cream", "chocolate")
+            ])
+        ])
+    ])
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_combine_lists(source_doc, source_spec, target_spec):
     """Verify that, when two sources both have items, they get combined into one list. Remember that list source 1 has
     two name fields, which are checked in order (see test_1_primitive_translation.py)."""
-    expected: Dict = {
-        "People": [
-            {
-                "Name": "Steve",
-                "Age": 32,
-                "Ice cream": "strawberry",
-                "Sport": "tennis"
-            },
-            {
-                "Name": "Hannah",
-                "Ice cream": "rocky road"
-            },
-            {
-                "Name": "Stacy",
-                "Age": 26,
-                "Ice cream": "chocolate"
-            }
-        ]
-    }
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("People", [
+            OrderedDict([
+                ("Name", "Steve"),
+                ("Age", 32),
+                ("Ice cream", "strawberry"),
+                ("Sport", "tennis")
+            ]),
+            OrderedDict([
+                ("Name", "Hannah"),
+                ("Ice cream", "rocky road")
+            ]),
+            OrderedDict([
+                ("Name", "Stacy"),
+                ("Age", 26),
+                ("Ice cream", "chocolate")
+            ])
+        ])
+    ])
     do_test(source_doc, source_spec, expected, target_spec)
 
 def test_source_order_matters(source_doc, source_spec, target_spec):
     """Reversing the order of the sources in the target list spec results in an equivalent change in the order of the
     resulting list."""
     target_spec["target_root"]["sources"] = ["source_root_2", "source_root_1"]
-    expected: Dict = {
-        "People": [
-            {
-                "Name": "Stacy",
-                "Age": 26,
-                "Ice cream": "chocolate"
-            },
-            {
-                "Name": "Steve",
-                "Age": 32,
-                "Ice cream": "strawberry",
-                "Sport": "tennis"
-            },
-            {
-                "Name": "Hannah",
-                "Ice cream": "rocky road"
-            }
-        ]
-    }
+    expected: OrderedDict[str, Any] = OrderedDict([
+        ("People", [
+            OrderedDict([
+                ("Name", "Stacy"),
+                ("Age", 26),
+                ("Ice cream", "chocolate")
+            ]),
+            OrderedDict([
+                ("Name", "Steve"),
+                ("Age", 32),
+                ("Ice cream", "strawberry"),
+                ("Sport", "tennis")
+            ]),
+            OrderedDict([
+                ("Name", "Hannah"),
+                ("Ice cream", "rocky road")
+            ])
+        ])
+    ])
     do_test(source_doc, source_spec, expected, target_spec)
