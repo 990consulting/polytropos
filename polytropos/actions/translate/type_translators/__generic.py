@@ -6,7 +6,7 @@ from polytropos.ontology.variable import Variable
 
 
 @type_translator(Variable)
-class GenericTypeTranslator(BaseTypeTranslator[Any]):
+class GenericTypeTranslator(BaseTypeTranslator[Any, Any]):
     """Translate for primitive (non-container) variables"""
 
     def initial_result(self) -> Any:

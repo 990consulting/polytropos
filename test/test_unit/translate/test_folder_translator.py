@@ -7,7 +7,7 @@ from polytropos.actions.translate.type_translators import FolderTranslator
 def test_translate_all_children_missing(translator, document, variable):
     translator.translate.return_value = {}
 
-    type_translator = FolderTranslator(translator, document, variable, None)
+    type_translator = FolderTranslator(translator, "composite_id", "period", document, variable, None)
     with pytest.raises(SourceNotFoundException):
         _ = type_translator()
 
@@ -20,7 +20,7 @@ def test_translate_all_children_none(translator, document, variable):
         }
     }
 
-    type_translator = FolderTranslator(translator, document, variable, None)
+    type_translator = FolderTranslator(translator, "composite_id", "period", document, variable, None)
     assert type_translator() == {
         "folder": {
             "a": None,
@@ -42,7 +42,7 @@ def test_translate_with_folders(translator, document, variable):
         },
     }
 
-    type_translator = FolderTranslator(translator, document, variable, None)
+    type_translator = FolderTranslator(translator, "composite_id", "period", document, variable, None)
     assert type_translator() == {
         "folder1": {
             "a": 1,

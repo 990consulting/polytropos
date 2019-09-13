@@ -51,9 +51,9 @@ class Translate(Step):
                 composite = json.load(origin_file)
                 for key, value in composite.items():
                     if key.isdigit():
-                        translated[key] = self.translate_temporal(value)
+                        translated[key] = self.translate_temporal(composite_id, key, value)
                     elif key == 'immutable':
-                        translated[key] = self.translate_immutable(value)
+                        translated[key] = self.translate_immutable(composite_id, key, value)
                     else:
                         pass
             target_dir: str = os.path.join(target_base_dir, relpath)
