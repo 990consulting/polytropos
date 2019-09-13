@@ -40,3 +40,9 @@ def test_temporal_yes(schema):
 def test_temporal_no(schema):
     var: Variable = schema.get("the_immutable_var")
     assert not var.temporal
+
+def test_nearest_list_parent():
+    pytest.fail()
+
+def test_nearest_list_grandparent():
+    pytest.fail()

@@ -223,6 +223,16 @@ class Variable:
         parent = self.track[self.parent]
         return isinstance(parent, GenericList) or parent.descends_from_list
 
+    @property
+    def nearest_list(self) -> VariableId:
+        if not self.descends_from_list:
+            raise AttributeError
+        parent = self.track[self.parent]
+        if isinstance(parent, GenericList):
+            return self.parent
+        else:
+            return parent.nearest_list
+
     @property  # type: ignore # Decorated property not supported
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'relative_path'))
     def relative_path(self) -> ListType[str]:

@@ -48,3 +48,6 @@ def test_t_date(schema, do_test, composites):
     var_id: str = "t_date"
     expected: List[Composite] = [composites[0]]
     do_test(var_id, threshold, expected)
+
+def test_t_text_ignores_threshold_case(schema, do_test, composites):
+    pytest.fail()
