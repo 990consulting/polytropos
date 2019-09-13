@@ -6,11 +6,12 @@ from polytropos.actions.translate import Translator
 from polytropos.actions.translate.__document import DocumentValueProvider, SourceNotFoundException
 from polytropos.ontology.variable import Variable, VariableId
 
-T = TypeVar('T')
+TSource = TypeVar('TSource')
+TResult = TypeVar('TResult')
 
 
 @dataclass
-class BaseTypeTranslator(Generic[T]):  # type: ignore # https://github.com/python/mypy/issues/5374
+class BaseTypeTranslator(Generic[TSource, TResult]):  # type: ignore # https://github.com/python/mypy/issues/5374
     translator: Translator
     composite_id: str
     period: str
@@ -19,7 +20,7 @@ class BaseTypeTranslator(Generic[T]):  # type: ignore # https://github.com/pytho
     parent_id: Optional[VariableId]
 
     parent_source: Optional[Variable] = field(default=None, init=False)
-    result: T = field(default=cast(T, None), init=False)
+    result: TResult = field(default=cast(TResult, None), init=False)
     has_result: bool = field(default=False, init=False)
     result_is_ready: bool = field(default=False, init=False)
     skip_source_not_found: bool = field(default=True, init=False)
@@ -32,7 +33,7 @@ class BaseTypeTranslator(Generic[T]):  # type: ignore # https://github.com/pytho
         self.result = self.initial_result()
         self.initialize()
 
-    def __call__(self) -> T:
+    def __call__(self) -> TResult:
         if len(self.variable.sources) == 0:
             raise SourceNotFoundException
 
@@ -50,23 +51,23 @@ class BaseTypeTranslator(Generic[T]):  # type: ignore # https://github.com/pytho
         return self.result
 
     @abstractmethod
-    def initial_result(self) -> T:
+    def initial_result(self) -> TResult:
         pass
 
     def initialize(self) -> None:
         pass
 
-    def process_source_value(self, source_value: T, source_id: VariableId) -> None:
+    def process_source_value(self, source_value: TSource, source_id: VariableId) -> None:
         pass
 
-    def variable_value(self, variable_id: VariableId) -> T:
+    def variable_value(self, variable_id: VariableId) -> TSource:
         """Function that finds a variable (given its id) in a document."""
         variable: Variable = self.translator.source[variable_id]
         return self.document.variable_value(variable, self.parent_id)
 
     def process_source_variable(self, source_id: VariableId) -> None:
         try:
-            source_value: T = self.variable_value(source_id)
+            source_value: TSource = self.variable_value(source_id)
         # If we get a SourceNotFoundError, the source variable simply did not exist
         except SourceNotFoundException:
             if self.skip_source_not_found:

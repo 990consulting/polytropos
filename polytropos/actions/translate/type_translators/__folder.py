@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Any
+from typing import Any, Dict
 
 from polytropos.actions.translate.__document import SourceNotFoundException
 from polytropos.actions.translate.type_translators.__base import BaseTypeTranslator
@@ -8,7 +8,7 @@ from polytropos.ontology.variable import Folder
 
 
 @type_translator(Folder)
-class FolderTranslator(BaseTypeTranslator["OrderedDict[str, Any]"]):
+class FolderTranslator(BaseTypeTranslator[Dict[str, Any], "OrderedDict[str, Any]"]):
     """Translate for folders"""
 
     def initial_result(self) -> "OrderedDict[str, Any]":

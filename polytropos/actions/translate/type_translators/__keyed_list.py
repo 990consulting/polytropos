@@ -7,7 +7,7 @@ from polytropos.ontology.variable import VariableId, KeyedList
 
 
 @type_translator(KeyedList)
-class KeyedListTranslator(BaseTypeTranslator["OrderedDict[str, OrderedDict[str, Any]]"]):
+class KeyedListTranslator(BaseTypeTranslator[Dict[str, Dict[str, Any]], "OrderedDict[str, OrderedDict[str, Any]]"]):
     """Translate function for keyed lists (similar to python dicts), the
     logic is almost the same as for lists but taking care of the keys.
     Raises ValueError on duplicate keys"""
@@ -19,7 +19,7 @@ class KeyedListTranslator(BaseTypeTranslator["OrderedDict[str, OrderedDict[str, 
         self.has_result = True
         self.skip_source_not_found = False
 
-    def process_source_value(self, source_value: Dict[str, "OrderedDict[str, Any]"], source_id: VariableId) -> None:
+    def process_source_value(self, source_value: Dict[str, Dict[str, Any]], source_id: VariableId) -> None:
         if source_value is None:
             raise RuntimeError("I don't think this should be possible, because SourceNotFoundException replaced it")
 

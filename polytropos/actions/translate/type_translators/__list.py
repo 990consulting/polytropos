@@ -8,7 +8,7 @@ from polytropos.ontology.variable import VariableId, List
 
 
 @type_translator(List)
-class ListTranslator(BaseTypeTranslator[ListType["OrderedDict[str, Any]"]]):
+class ListTranslator(BaseTypeTranslator[ListType[Dict[str, Any]], ListType["OrderedDict[str, Any]"]]):
     """Translate for lists"""
 
     def initial_result(self) -> ListType["OrderedDict[str, Any]"]:
@@ -17,7 +17,7 @@ class ListTranslator(BaseTypeTranslator[ListType["OrderedDict[str, Any]"]]):
     def initialize(self) -> None:
         self.has_result = True
 
-    def process_source_value(self, source_value: ListType["OrderedDict[str, Any]"], source_id: VariableId) -> None:
+    def process_source_value(self, source_value: ListType[Dict[str, Any]], source_id: VariableId) -> None:
         # The resulting list is the concatenation of all the translations,
         # source by source
 
