@@ -1,7 +1,8 @@
 import random
-
+from collections import OrderedDict
 import pytest
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Any
+
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
 import itertools
@@ -114,26 +115,26 @@ def source_flat() -> Tuple[Dict, Dict]:
     }
     return source_spec, source_doc
 
-def target_nested() -> Tuple[Dict, Dict]:
-    target_doc: Dict = {
-        "the_list": [
-            {
-                "day": "Tuesday",
-                "the_folder": {
-                    "name": "Steve",
-                    "color": "orange"
-                }
-            },
-            {
-                "day": "Monday",
-                "the_folder": {
-                    "name": "Susan",
-                    "color": "mauve"
-                }
-            }
-        ],
-        "meaning_of_life": 42
-    }
+def target_nested() -> Tuple[Dict, "OrderedDict[str, Any]"]:
+    target_doc: OrderedDict[str, Any] = OrderedDict([
+        ("the_list", [
+            OrderedDict([
+                ("day", "Tuesday"),
+                ("the_folder", OrderedDict([
+                    ("name", "Steve"),
+                    ("color", "orange")
+                ]))
+            ]),
+            OrderedDict([
+                ("day", "Monday"),
+                ("the_folder", OrderedDict([
+                    ("name", "Susan"),
+                    ("color", "mauve")
+                ]))
+            ])
+        ]),
+        ("meaning_of_life", 42)
+    ])
 
     target_spec: Dict = {
         "target_list": {
@@ -178,22 +179,22 @@ def target_nested() -> Tuple[Dict, Dict]:
     }
     return target_spec, target_doc
 
-def target_flat() -> Tuple[Dict, Dict]:
-    target_doc: Dict = {
-        "the_list": [
-            {
-                "day": "Tuesday",
-                "name": "Steve",
-                "color": "orange"
-            },
-            {
-                "day": "Monday",
-                "name": "Susan",
-                "color": "mauve"
-            }
-        ],
-        "meaning_of_life": 42
-    }
+def target_flat() -> Tuple[Dict, "OrderedDict[str, Any]"]:
+    target_doc: OrderedDict[str, Any] = OrderedDict([
+        ("the_list", [
+            OrderedDict([
+                ("day", "Tuesday"),
+                ("name", "Steve"),
+                ("color", "orange")
+            ]),
+            OrderedDict([
+                ("day", "Monday"),
+                ("name", "Susan"),
+                ("color", "mauve")
+            ])
+        ]),
+        ("meaning_of_life", 42)
+    ])
 
     target_spec: Dict = {
         "target_list": {
@@ -239,7 +240,7 @@ def _do_test(source_spec, source_doc, target_spec, expected):
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
     translate: Translator = Translator(target_track)
-    actual: Dict = translate(source_doc)
+    actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     assert actual == expected
 
 # TODO Used in two files -- should be a pytest.fixture

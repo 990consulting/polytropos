@@ -107,3 +107,7 @@ def coverage(schema_basepath: str, schema_name: str, data_path: str, output_pref
     """Produce a coverage report consisting of four files: coverage and groups for each of immutable and temporal
     tracks."""
     CoverageFile.standalone(schema_basepath, schema_name, data_path, output_prefix, cast(Optional[VariableId], t_group), cast(Optional[VariableId], i_group))
+
+
+if __name__ == "__main__":
+    cli()
