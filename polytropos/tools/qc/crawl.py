@@ -120,7 +120,8 @@ class Crawl:
         child_path: ListType[str] = path + [key]
         var: Optional[Variable] = self.schema.lookup(child_path)
         if var is None:
-            raise ValueError("No variable called %s" % nesteddicts.path_to_str(path + [key]))
+            raise ValueError("No variable called %s (record %s). Value: %s" % (nesteddicts.path_to_str(path + [key]),
+                                                                               self.entity_id, f_tree.__repr__()))
         data_type: str = var.data_type
 
         if f_tree == POLYTROPOS_NA:
