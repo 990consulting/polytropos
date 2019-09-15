@@ -11,7 +11,7 @@ from polytropos.ontology.schema import Schema
 @pytest.fixture()
 def schema(basepath) -> Schema:
     path: str = os.path.join(basepath, "..", "examples", "s_7_csv", "conf", "schemas")
-    return Schema.load("composite", base_path=path)
+    return Schema.load("composite", path)
 
 @pytest.fixture()
 def read_composite(schema, basepath) -> Callable:

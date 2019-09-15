@@ -9,7 +9,7 @@ from functools import partial
 from polytropos.ontology.composite import Composite
 
 from polytropos.actions.step import Step
-from polytropos.ontology.paths import PathLocator
+from polytropos.ontology.context import Context
 from polytropos.util.loader import load
 from polytropos.ontology.schema import Schema
 from polytropos.util.paths import find_all_composites, relpath_for
@@ -33,10 +33,10 @@ class Aggregate(Step):  # type: ignore # https://github.com/python/mypy/issues/5
     # noinspection PyMethodOverriding
     @classmethod
     def build(  # type: ignore # Signature of "build" incompatible with supertype "Step"
-            cls, path_locator: PathLocator, schema: Schema, name: str, target_schema: str, id_var: str,
+            cls, context: Context, schema: Schema, name: str, target_schema: str, id_var: str,
             input_mappings: Dict, output_mappings: Dict
     ):
-        target_schema_instance: Optional[Schema] = Schema.load(target_schema, path_locator=path_locator)
+        target_schema_instance: Optional[Schema] = Schema.load(target_schema, context.schemas_dir)
         aggregations: Dict[str, Type] = load(cls)
         return aggregations[name](origin_schema=schema, target_schema=target_schema_instance, id_var=id_var,
                                   **input_mappings, **output_mappings)
