@@ -30,7 +30,7 @@ def write_catalog(schema: Schema, fh: TextIO) -> None:
     _process_track(schema.immutable, "immutable", writer)
 
 def variable_catalog(schema_basepath: str, schema_name: str, fh: TextIO) -> None:
-    schema: Optional[Schema] = Schema.load(schema_name, base_path=schema_basepath)
+    schema: Optional[Schema] = Schema.load(schema_name, schema_basepath)
     assert schema is not None
     write_catalog(schema, fh)
     fh.close()

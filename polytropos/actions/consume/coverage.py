@@ -1,5 +1,4 @@
 import csv
-import itertools
 import json
 import logging
 import os
@@ -7,6 +6,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Iterable, Tuple, Any, Optional, Dict, Set, List
 
+from polytropos.ontology.context import Context
 from polytropos.tools.qc import POLYTROPOS_NA
 
 from polytropos.ontology.schema import Schema
@@ -76,14 +76,14 @@ class CoverageFile(Consume):
 
     # noinspection PyTypeChecker
     @classmethod
-    def standalone(cls, schema_basepath: str, schema_name: str, data_path: str, output_prefix: str,
+    def standalone(cls, context: Context, schema_name: str, output_prefix: str,
                    t_group: Optional[VariableId], i_group: Optional[VariableId]) -> None:
 
-        schema: Optional[Schema] = Schema.load(schema_name, base_path=schema_basepath)
+        schema: Optional[Schema] = Schema.load(schema_name, context.schemas_dir)
         assert schema is not None
         # TODO Refactor so unnecessary arguments aren't required.
-        coverage: "CoverageFile" = cls(None, schema, output_prefix, t_group, i_group)
-        coverage(data_path, None)
+        coverage: "CoverageFile" = cls(context, schema, output_prefix, t_group, i_group)
+        coverage(context.entities_input_dir, None)
 
     def before(self) -> None:
         logging.info("Validating grouping variables (if any).")
@@ -183,7 +183,7 @@ class CoverageFile(Consume):
 
     def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Tuple[str, Optional[Any]]]:
         extract = CoverageFileExtract(self.schema, origin_dir, self.temporal_grouping_var, self.immutable_grouping_var)
-        return run_on_process_pool(extract.extract, list(composite_ids), chunk_size=1000)
+        return run_on_process_pool(extract.extract, list(composite_ids), chunk_size=self.context.process_pool_chunk_size)
 
 
 class CoverageFileExtract:

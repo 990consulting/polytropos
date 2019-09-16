@@ -13,7 +13,7 @@ from polytropos.util.loader import load
 from polytropos.util.paths import find_all_composites, relpath_for
 
 if TYPE_CHECKING:
-    from polytropos.ontology.paths import PathLocator
+    from polytropos.ontology.context import Context
     from polytropos.ontology.schema import Schema
 
 @dataclass
@@ -27,7 +27,7 @@ class Scan(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, path_locator: "PathLocator", schema: "Schema", name: str, mappings: Dict):  # type: ignore # Signature of "build" incompatible with supertype "Step"
+    def build(cls, context: "Context", schema: "Schema", name: str, mappings: Dict):  # type: ignore # Signature of "build" incompatible with supertype "Step"
         scan_subclasses: Dict[str, Type] = load(cls)
         instance_subclass: Type = scan_subclasses[name]
         return instance_subclass(**mappings, schema=schema)

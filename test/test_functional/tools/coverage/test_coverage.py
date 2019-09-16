@@ -7,7 +7,7 @@ from typing import Callable, Optional, Dict
 import pytest
 
 from polytropos.actions.consume.coverage import CoverageFile
-from polytropos.ontology.paths import PathLocator
+from polytropos.ontology.context import Context
 
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.track import Track
@@ -34,8 +34,8 @@ def module_basepath():
     return os.path.dirname(os.path.abspath(__file__))
 
 @pytest.fixture(scope="module")
-def path_locator() -> PathLocator:
-    ret: PathLocator = PathLocator("dummy", "dummy")
+def context() -> Context:
+    ret: Context = Context.build(conf_dir="dummy", data_dir="dummy")
     return ret
 
 @pytest.fixture(scope="module")
@@ -45,11 +45,11 @@ def output_basepath() -> str:
 
 
 @pytest.fixture(scope="module")
-def do_run(module_basepath: str, module_source_schema: Schema, path_locator, output_basepath) -> Callable:
+def do_run(module_basepath: str, module_source_schema: Schema, context, output_basepath) -> Callable:
     def _do_run(test_name: str, t_group_var: Optional[str], i_group_var: Optional[str]):
         composite_path: str = os.path.join(module_basepath, "composites")
         output_path: str = os.path.join(output_basepath, test_name + "/" + test_name)
-        coverage: CoverageFile = CoverageFile(path_locator, module_source_schema, output_path, t_group_var, i_group_var)
+        coverage: CoverageFile = CoverageFile(context, module_source_schema, output_path, t_group_var, i_group_var)
         coverage(composite_path, "dummy")
     return _do_run
 

@@ -29,9 +29,8 @@ class ExportLinkages:
 
     @classmethod
     def from_files(cls, schema_basepath: str, source_schema: str, target_schema: str, output_file: TextIO) -> None:
-        source_schema_instance: Optional[Schema] = Schema.load(source_schema, base_path=schema_basepath)
-        target_schema_instance: Optional[Schema] = Schema.load(target_schema, source_schema=source_schema_instance,
-                                                     base_path=schema_basepath)
+        source_schema_instance: Optional[Schema] = Schema.load(source_schema, schema_basepath)
+        target_schema_instance: Optional[Schema] = Schema.load(target_schema, schema_basepath, source_schema=source_schema_instance)
         assert target_schema_instance is not None
         export: "ExportLinkages" = cls(target_schema_instance, output_file)
         export()

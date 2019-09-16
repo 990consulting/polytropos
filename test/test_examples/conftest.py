@@ -2,9 +2,11 @@ from collections.abc import Callable
 from difflib import Differ
 import json
 import os
-from typing import List
+from typing import List, Optional
 
 import pytest
+
+from polytropos.ontology.context import Context
 from polytropos.ontology.task import Task
 from polytropos.util.compare import compare
 import polytropos.actions
@@ -13,17 +15,17 @@ from polytropos.util.paths import find_all_composites, relpath_for
 @pytest.fixture
 def run_task(basepath) -> Callable:
     # noinspection DuplicatedCode
-    def _run_task(scenario, task_name, expected_location):
+    def _run_task(scenario, task_name, expected_location, output_dir: Optional[str] = None):
         polytropos.actions.register_all()
         conf = os.path.join(basepath, '../examples', scenario, 'conf')
         data = os.path.join(basepath, '../examples', scenario, 'data')
-        task = Task.build(conf, data, task_name)
+        task = Task.build(Context.build(conf, data, output_dir=output_dir), task_name)
         task.run()
         actual_path = os.path.join(
-            task.path_locator.entities_dir, task.target_data
+            task.context.entities_output_dir, task.target_data
         )
         expected_path = os.path.join(
-            task.path_locator.entities_dir, expected_location
+            task.context.entities_input_dir, expected_location
         )
         composite_ids: List = list(find_all_composites(expected_path))
         assert list(find_all_composites(expected_path)) == composite_ids

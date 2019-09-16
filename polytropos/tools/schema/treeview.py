@@ -44,7 +44,7 @@ def as_ascii(schema: Schema) -> str:
     return "\n\n".join([temporal, immutable])
 
 def print_from_files(schema_basepath: str, schema_name: str) -> None:
-    schema: Optional[Schema] = Schema.load(schema_name, base_path=schema_basepath)
+    schema: Optional[Schema] = Schema.load(schema_name, schema_basepath)
     assert schema is not None
     tree: str = as_ascii(schema)
     print(tree)

@@ -14,9 +14,9 @@ class ExportToJSON(Consume):
     first: bool = field(default=True, init=False)
 
     def before(self) -> None:
-        assert self.path_locator is not None
+        assert self.context is not None
         self.fobj = open(
-            os.path.join(self.path_locator.conf, '../', self.filename), 'w'
+            os.path.join(self.context.output_dir, self.filename), 'w'
         )
         self.fobj.write('{\n')
 

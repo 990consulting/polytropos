@@ -15,7 +15,7 @@ def example_path() -> str:
 
 @pytest.fixture(scope="session")
 def outcomes(example_path) -> FixtureOutcomes:
-    schema: Schema = Schema.load("conf/schemas/simple", base_path=example_path)
+    schema: Schema = Schema.load("conf/schemas/simple", example_path)
 
     fixture_path: str = os.path.join(example_path, "data", "fixtures")
     obs_path: str = os.path.join(example_path, "data", "observations")
