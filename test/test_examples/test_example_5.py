@@ -3,6 +3,8 @@ from typing import Tuple
 
 import pytest
 import os
+
+from polytropos.ontology.context import Context
 from polytropos.ontology.task import Task
 import polytropos.actions
 import json
@@ -31,11 +33,11 @@ def do_export() -> Callable:
         polytropos.actions.register_all()
         conf = os.path.join(BASEPATH, '../../examples', "s_5_tr_export", 'conf')
         data = os.path.join(BASEPATH, '../../examples', "s_5_tr_export", 'data')
-        task = Task.build(conf, data, task_name)
+        task = Task.build(Context.build(conf, data), task_name)
         task.run()
-        actual_path: str = os.path.join(task.path_locator.conf_dir, '../')
+        actual_path: str = os.path.join(task.context.conf_dir, '../')
         expected_path: str = os.path.join(
-            task.path_locator.conf_dir, '../', "expected"
+            task.context.conf_dir, '../', "expected"
         )
         filename: str = task.steps[-1].filename
         actual_fn: str = os.path.join(actual_path, filename)

@@ -10,21 +10,21 @@ from polytropos.ontology.composite import Composite
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.util.loader import load
-from polytropos.ontology.paths import PathLocator
+from polytropos.ontology.context import Context
 from polytropos.util.paths import find_all_composites, relpath_for
 from multiprocessing import cpu_count
 
 @dataclass
 class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
-    path_locator: Optional[PathLocator]
+    context: Context
     schema: Schema
 
     """Export data from a set of composites to a single file."""
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, path_locator: PathLocator, schema: Schema, name: str, **kwargs):  # type: ignore # Signature of "build" incompatible with supertype "Step"
+    def build(cls, context: Context, schema: Schema, name: str, **kwargs):  # type: ignore # Signature of "build" incompatible with supertype "Step"
         consumes = load(cls)
-        return consumes[name](path_locator, schema, **kwargs)
+        return consumes[name](context, schema, **kwargs)
 
     @abstractmethod
     def before(self) -> None:

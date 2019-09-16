@@ -2,7 +2,7 @@ import logging
 import os
 import json
 from enum import Enum
-from typing import Optional, Dict, TYPE_CHECKING, Iterable, Tuple, Iterator, Any
+from typing import Optional, Dict, Iterable, Tuple, Iterator, Any
 from dataclasses import dataclass, field
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -12,8 +12,6 @@ from polytropos.ontology.track import Track
 
 from polytropos.ontology.variable import Variable, VariableId
 
-if TYPE_CHECKING:
-    from polytropos.ontology.paths import PathLocator
 
 SCHEMAS_DIR = 'fixtures/conf/schemas/'
 
@@ -31,12 +29,6 @@ class DuplicatePathError(ValueError):
         template: str = 'Variables %s and %s have the same absolute path (%s)'
         return template % (self.var1.var_id, self.var2.var_id, self.var1.absolute_path)
 
-def _resolve_path(path_locator: Optional["PathLocator"], schemas_dir: Optional[str], path: str, filename: str) -> str:
-    if path_locator:
-        assert schemas_dir is None, "Cannot provide both a PathLocator object and an explicit base path"
-        schemas_dir = path_locator.schemas_dir
-    assert schemas_dir is not None
-    return os.path.join(schemas_dir, path, filename)
 
 @dataclass(eq=False)
 class Schema:
@@ -91,17 +83,15 @@ class Schema:
             json.dump(immutable_json, i_fn, indent=2)
 
     @classmethod
-    def load(cls, path: str, source_schema: "Schema"=None, path_locator: "PathLocator"=None, base_path: str = None) -> Optional["Schema"]:
+    def load(cls, path: str, schemas_dir: str, source_schema: "Schema"=None) -> Optional["Schema"]:
         """
         Constructs a schema.
 
         :param path: The path to the schema that is to be loaded, relative to schemas base path.
+        :param schemas_dir: Directly supply the base schemas path.
         :param source_schema: An already-loaded schema from which this schema can be translated, if applicable.
-        :param path_locator: Utility class that resolves file paths based on Polytropos' configuration base path.
-        :param base_path: Directly supply the base path. Cannot be used with `path_locator`.
         :return:
         """
-        assert (path_locator or base_path) and not (path_locator and base_path)
         schema_name: str = "UNSPECIFIED"
         if path is not None:
             schema_name = path.replace("/", "_")
@@ -120,8 +110,8 @@ class Schema:
         source_immutable: Optional[Track] = source_schema.immutable if source_schema else None
         source_temporal: Optional[Track] = source_schema.temporal if source_schema else None
 
-        temporal_path = _resolve_path(path_locator, base_path, path, 'temporal.json')
-        immutable_path = _resolve_path(path_locator, base_path, path, 'immutable.json')
+        temporal_path = os.path.join(schemas_dir, path, 'temporal.json')
+        immutable_path = os.path.join(schemas_dir, path, 'immutable.json')
 
         logging.debug('Temporal path for schema "%s": %s' % (schema_name, temporal_path))
         logging.debug('Immutable path for schema "%s": %s' % (schema_name, temporal_path))

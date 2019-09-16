@@ -3,6 +3,7 @@ import click
 import logging
 
 from polytropos.actions.consume.coverage import CoverageFile
+from polytropos.ontology.context import Context
 from polytropos.ontology.task import Task
 from polytropos.ontology.variable import VariableId
 from polytropos.tools.schema import treeview
@@ -24,10 +25,16 @@ def cli() -> None:
 @click.argument('data_path', type=click.Path(exists=True))
 @click.argument('config_path', type=click.Path(exists=True))
 @click.argument('task_name', type=str)
-def task(data_path: str, config_path: str, task_name: str) -> None:
+@click.option('--input_path', type=click.Path(exists=True))
+@click.option('--output_path', type=click.Path(exists=False))
+@click.option('--temp_path', type=click.Path(exists=False))
+@click.option('--no_cleanup', is_flag=True)
+@click.option('--chunk_size', type=click.INT)
+def task(data_path: str, config_path: str, task_name: str, input_path: Optional[str], output_path: Optional[str], temp_path: Optional[str], no_cleanup: bool, chunk_size: Optional[int]) -> None:
     """Perform a Polytropos task."""
-    task = Task.build(config_path, data_path, task_name)
-    task.run()
+    with Context.build(config_path, data_path, input_dir=input_path, output_dir=output_path, temp_dir=temp_path, no_cleanup=no_cleanup, process_pool_chunk_size=chunk_size) as context:
+        task = Task.build(context, task_name)
+        task.run()
 
 @cli.group()
 def schema() -> None:
@@ -93,7 +100,8 @@ def coverage(schema_basepath: str, schema_name: str, data_path: str, output_pref
              i_group: Optional[str]) -> None:
     """Produce a coverage report consisting of four files: coverage and groups for each of immutable and temporal
     tracks."""
-    CoverageFile.standalone(schema_basepath, schema_name, data_path, output_prefix, cast(Optional[VariableId], t_group), cast(Optional[VariableId], i_group))
+    with Context.build("", data_path, schemas_dir=schema_basepath) as context:
+        CoverageFile.standalone(context, schema_name, output_prefix, cast(Optional[VariableId], t_group), cast(Optional[VariableId], i_group))
 
 
 if __name__ == "__main__":

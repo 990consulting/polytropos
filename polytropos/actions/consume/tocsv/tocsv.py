@@ -9,7 +9,7 @@ from polytropos.actions.consume.tocsv.descriptors.colnames import DescriptorBloc
 from polytropos.actions.filter import Filter
 from polytropos.ontology.schema import Schema
 
-from polytropos.ontology.paths import PathLocator
+from polytropos.ontology.context import Context
 
 from polytropos.actions.consume import Consume
 from polytropos.actions.consume.tocsv.blocks import Block, BlockProduct
@@ -29,18 +29,17 @@ def _get_all_column_names(schema: Schema, columns: List[Dict]) -> List[str]:
     get_all_column_names: Callable = fromraw.GetAllColumnNames(spec_to_names)
     return get_all_column_names(columns)
 
-def _open_file(path_locator: Optional[PathLocator], filename: str) -> TextIO:
-    assert path_locator is not None
-    fh: TextIO = open(os.path.join(path_locator.conf, '../', filename), 'w')
+def _open_file(context: Context, filename: str) -> TextIO:
+    fh: TextIO = open(os.path.join(context.output_dir, filename), 'w')
     return fh
 
 class ExportToCSV(Consume):
-    def __init__(self, path_locator: Optional[PathLocator], schema: Schema, filename: str, columns: List,
+    def __init__(self, context: Context, schema: Schema, filename: str, columns: List,
                  filters: Optional[List]=None):
-        super(ExportToCSV, self).__init__(path_locator, schema)
+        super(ExportToCSV, self).__init__(context, schema)
         self.blocks: List[Block] = _get_all_blocks(schema, columns)
         self.column_names: List[str] = _get_all_column_names(schema, columns)
-        self.fh: TextIO = _open_file(path_locator, filename)
+        self.fh: TextIO = _open_file(context, filename)
         self.writer: Any = csv.writer(self.fh)
         self.filters: List[Filter] = self._make_filters(filters)
 
@@ -53,7 +52,7 @@ class ExportToCSV(Consume):
             assert len(filter_spec) == 1
             for class_name, kwargs in filter_spec.items():  # type: str, Dict
                 try:
-                    the_filter: Step = Filter.build(path_locator=self.path_locator, schema=self.schema, name=class_name,
+                    the_filter: Step = Filter.build(context=self.context, schema=self.schema, name=class_name,
                                                     **kwargs)
                 except Exception as e:
                     print("breakpoint")
