@@ -100,7 +100,7 @@ def coverage(schema_basepath: str, schema_name: str, data_path: str, output_pref
              i_group: Optional[str]) -> None:
     """Produce a coverage report consisting of four files: coverage and groups for each of immutable and temporal
     tracks."""
-    with Context.build("", data_path, schemas_dir=schema_basepath) as context:
+    with Context.build("", "", input_dir=data_path, schemas_dir=schema_basepath) as context:
         CoverageFile.standalone(context, schema_name, output_prefix, cast(Optional[VariableId], t_group), cast(Optional[VariableId], i_group))
 
 
