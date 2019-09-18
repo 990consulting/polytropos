@@ -5,7 +5,7 @@ from shutil import rmtree
 from typing import Optional, Any, List, Dict
 
 import yaml
-from tempfile import TemporaryDirectory
+from tempfile import mkdtemp
 from polytropos.actions.consume import Consume
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
@@ -91,12 +91,12 @@ class Task:
     def run(self) -> None:
         """Run the task: run steps one by one handling intermediate outputs in
         temporary folders"""
-        origin_path = os.path.join(self.context.entities_input_dir, self.origin_data)
+        origin_path = os.path.join(self.context.entities_input_dir, self.origin_data) if self.context.legacy_mode else self.context.entities_input_dir
         logging.info("Running task with origin data in %s." % origin_path)
         if self.target_data is not None:
             task_output_path = os.path.join(
                 self.context.entities_output_dir, self.target_data
-            )
+            ) if self.context.legacy_mode else self.context.entities_output_dir
             try:
                 logging.debug("Attempting to remove old task output directory, if it exists.")
                 rmtree(task_output_path)
@@ -104,33 +104,30 @@ class Task:
             except FileNotFoundError:
                 logging.debug("No old task output directory.")
                 pass
-            logging.debug("Creating task output directory.")
         # There are always two paths in play, current and next, each step
         # will read from current and write to next, after the step is done we
         # can delete the current_path folder because it's not used anymore
-        current_path = origin_path
-        current_path_obj = None
-        next_path = None
+        current_path: str = origin_path
+        next_path: Optional[str] = None
         for i, step in enumerate(self.steps):
             logging.info("Beginning a %s step (%d)." % (step.__class__.__name__, i))
-            next_path = TemporaryDirectory(dir=self.context.temp_dir, prefix=str(i).zfill(3) + '-')
+            next_path = mkdtemp(dir=self.context.temp_dir, prefix=str(i).zfill(3) + '-')
             logging.debug("Output for this step will be recorded in %s." % next_path)
-            step(current_path, next_path.name)
-            if current_path_obj and not self.context.no_cleanup:
-                current_path_obj.cleanup()
-            current_path = next_path.name
-            current_path_obj = next_path
+            step(current_path, next_path)
+            if i > 0 and not self.context.no_cleanup:
+                shutil.rmtree(current_path, ignore_errors=True)
+            current_path = next_path
         assert next_path is not None
         if self.target_data is not None:
             if not self.context.no_cleanup:
                 # Move the last temporary folder to destination
-                logging.info("Renaming %s to %s" % (next_path.name, task_output_path))
-                shutil.move(next_path.name, task_output_path)
+                logging.info("Renaming %s to %s" % (next_path, task_output_path))
+                shutil.move(next_path, task_output_path)
                 # Hack to avoid leaving unfinished objects
-                os.mkdir(next_path.name)
+                os.mkdir(next_path)
             else:
                 # Copy the last temporary folder to destination
-                logging.info("Copying %s to %s" % (next_path.name, task_output_path))
-                shutil.copytree(next_path.name, task_output_path)
+                logging.info("Copying %s to %s" % (next_path, task_output_path))
+                shutil.copytree(next_path, task_output_path)
         if not self.context.no_cleanup:
-            next_path.cleanup()
+            shutil.rmtree(next_path, ignore_errors=True)
