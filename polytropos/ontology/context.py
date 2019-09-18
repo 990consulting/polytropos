@@ -16,6 +16,7 @@ class Context:
     temp_dir: str
     no_cleanup: bool
     process_pool_chunk_size: int
+    legacy_mode: bool
 
     @classmethod
     def build(cls, conf_dir: str, data_dir: str, input_dir: Optional[str] = None, output_dir: Optional[str] = None, schemas_dir: Optional[str] = None,
@@ -43,7 +44,8 @@ class Context:
                    output_dir=output_dir,
                    temp_dir=temp_dir,
                    no_cleanup=no_cleanup,
-                   process_pool_chunk_size=process_pool_chunk_size if process_pool_chunk_size is not None else 1000)
+                   process_pool_chunk_size=process_pool_chunk_size if process_pool_chunk_size is not None else 1000,
+                   legacy_mode=input_dir is None)
 
     def __enter__(self) -> Any:
         return self

@@ -91,12 +91,12 @@ class Task:
     def run(self) -> None:
         """Run the task: run steps one by one handling intermediate outputs in
         temporary folders"""
-        origin_path = os.path.join(self.context.entities_input_dir, self.origin_data)
+        origin_path = os.path.join(self.context.entities_input_dir, self.origin_data) if self.context.legacy_mode else self.context.entities_input_dir
         logging.info("Running task with origin data in %s." % origin_path)
         if self.target_data is not None:
             task_output_path = os.path.join(
                 self.context.entities_output_dir, self.target_data
-            )
+            ) if self.context.legacy_mode else self.context.entities_output_dir
             try:
                 logging.debug("Attempting to remove old task output directory, if it exists.")
                 rmtree(task_output_path)
