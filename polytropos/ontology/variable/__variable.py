@@ -2,7 +2,7 @@ import logging
 import json
 from abc import abstractmethod
 from collections import defaultdict, deque
-from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType, Iterable, Deque
+from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType, Iterable, Deque, cast
 from functools import partial
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -227,9 +227,10 @@ class Variable:
     def nearest_list(self) -> VariableId:
         if not self.descends_from_list:
             raise AttributeError
-        parent = self.track[self.parent]
+        parent_id: VariableId = cast(VariableId, self.parent)
+        parent = self.track[parent_id]
         if isinstance(parent, GenericList):
-            return self.parent
+            return parent_id
         else:
             return parent.nearest_list
 

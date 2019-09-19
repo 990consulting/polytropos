@@ -95,12 +95,12 @@ def schema_repair(schema_path: str) -> None:
 @click.argument('schema_basepath', type=click.Path(exists=True))
 @click.argument('schema_name', type=str)
 @click.option('--schema_source_name', type=str, default=None)
-def schema_validate(schema_basepath: str, schema_name: str, schema_source_name=Optional[str]):
+def schema_validate(schema_basepath: str, schema_name: str, schema_source_name: Optional[str]) -> None:
     """Validates a schema without doing any other work."""
     source: Optional[Schema] = None
     if schema_source_name is not None:
-        source = Schema.load(schema_source_name, base_path=schema_basepath)
-    Schema.load(schema_name, source_schema=source, base_path=schema_basepath)
+        source = Schema.load(schema_source_name, schema_basepath)
+    Schema.load(schema_name, schema_basepath, source_schema=source)
 
 @cli.command()
 @click.argument('schema_basepath', type=click.Path(exists=True))
