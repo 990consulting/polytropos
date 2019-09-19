@@ -2,6 +2,7 @@ import logging
 import os
 import json
 import time
+import traceback
 from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
@@ -99,6 +100,8 @@ class Evolve(Step):
             with open(target_filepath, 'w') as target_file:
                 json.dump(composite.content, target_file, indent=2)
         except Exception as e:
+            logging.error("Error processing composite %s during evolve step.")
+            traceback.print_exc()
             return ExceptionWrapper(e)
         return None
 

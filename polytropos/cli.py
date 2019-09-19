@@ -2,6 +2,8 @@ from typing import TextIO, Optional, cast
 import click
 import logging
 
+from polytropos.ontology.schema import Schema
+
 from polytropos.actions.consume.coverage import CoverageFile
 from polytropos.ontology.context import Context
 from polytropos.ontology.task import Task
@@ -88,6 +90,17 @@ def schema_repair(schema_path: str) -> None:
     """Replaces the existing sort order in a schema (if any) with an arbitrary, but valid, sort order. No aspect of the
     old sort order will be preserved; the new order will be alphabetized by variable name."""
     repair_sort_order(schema_path)
+
+@schema.command(name="validate")
+@click.argument('schema_basepath', type=click.Path(exists=True))
+@click.argument('schema_name', type=str)
+@click.option('--schema_source_name', type=str, default=None)
+def schema_validate(schema_basepath: str, schema_name: str, schema_source_name: Optional[str]) -> None:
+    """Validates a schema without doing any other work."""
+    source: Optional[Schema] = None
+    if schema_source_name is not None:
+        source = Schema.load(schema_source_name, schema_basepath)
+    Schema.load(schema_name, schema_basepath, source_schema=source)
 
 @cli.command()
 @click.argument('schema_basepath', type=click.Path(exists=True))

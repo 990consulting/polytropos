@@ -2,7 +2,7 @@ import logging
 import json
 from abc import abstractmethod
 from collections import defaultdict, deque
-from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType, Iterable, Deque
+from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType, Iterable, Deque, cast
 from functools import partial
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
@@ -30,18 +30,20 @@ class Validator:
         if parent is None:
             return
         if parent == "":
-            raise ValueError("Parent id is an empty string")
+            raise ValueError('Variable "%s" lists its parent as an empty string.' % variable.var_id)
         if parent not in variable.track:
             # invalid parent
-            raise ValueError('Nonexistent parent')
+            raise ValueError('Variable "%s" lists "%s" as its parent, but variable doesn\'t exist.' % (
+                variable.var_id, parent))
         if not isinstance(variable.track[parent], Container):
             # parent not container
-            raise ValueError('Parent is not a container')
+            raise ValueError('Variable "%s" lists "%s" as its parent, but that variable isn\'t a container.' % (
+                variable.var_id, parent))
         if (
                 isinstance(variable, GenericList) and
                 variable.descends_from_list
         ):
-            logging.debug('Nested list: %s', variable)
+            logging.debug('Nested list: %s', variable.var_id)
 
     @staticmethod
     def validate_name(variable: "Variable", name: str) -> None:
@@ -53,16 +55,25 @@ class Validator:
             if sibling != variable.var_id
         )
         if name in sibling_names:
-            raise ValueError('Duplicate name with siblings')
+            conflicting_sibling = None
+            for sibling in variable.siblings:
+                if variable.track[sibling].name == name:
+                    conflicting_sibling = sibling
+                    break
+            assert conflicting_sibling is not None
+            raise ValueError('Variable "%s" has a name conflict with sibling "%s".' % (variable.var_id,
+                                                                                       conflicting_sibling))
 
     @staticmethod
     def validate_sort_order(variable: "Variable", sort_order: int, adding: bool = False) -> None:
         # TODO Add a validation that every sort order value is unique among siblings
         if sort_order < 0:
-            raise ValueError
+            raise ValueError('Variable "%s" has a sort order less than zero.')
         # This line is very slow. Consider adding a cache for variable.siblings.
-        if sort_order >= len(list(variable.siblings)) + (1 if adding else 0):
-            raise ValueError('Invalid sort order')
+        max_sort_order = len(list(variable.siblings)) + (1 if adding else 0)
+        if sort_order >= max_sort_order:
+            raise ValueError('Variable "%s" has a sort order of %i, which exceeds the total number of variables at its '
+                             'level in the hierarchy (%i)' % (variable.var_id, variable.sort_order, max_sort_order))
 
     @staticmethod
     def validate_var_id(var_id: VariableId) -> None:
@@ -211,6 +222,17 @@ class Variable:
             return False
         parent = self.track[self.parent]
         return isinstance(parent, GenericList) or parent.descends_from_list
+
+    @property
+    def nearest_list(self) -> VariableId:
+        if not self.descends_from_list:
+            raise AttributeError
+        parent_id: VariableId = cast(VariableId, self.parent)
+        parent = self.track[parent_id]
+        if isinstance(parent, GenericList):
+            return parent_id
+        else:
+            return parent.nearest_list
 
     @property  # type: ignore # Decorated property not supported
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'relative_path'))

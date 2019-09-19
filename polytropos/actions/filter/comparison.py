@@ -32,6 +32,9 @@ class ComparisonFilter(Filter, ABC):  # type: ignore
         self.variable = cast(Primitive, self.variable)
         self.threshold = self.variable.cast(self.threshold)
 
+        if self.variable.data_type == "Text":
+            self.threshold = self.threshold.lower()
+
     @abstractmethod
     def compares_true(self, value: Any) -> bool:
         pass
