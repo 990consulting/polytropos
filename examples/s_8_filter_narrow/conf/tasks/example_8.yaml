@@ -10,6 +10,6 @@ steps:
       name: LatestFilter
   - Filter:
       name: ImmutableValueThreshold
-      mappings:
-        threshold_var: immutable_var
-        threshold: 7
+
+      threshold_var: immutable_var
+      threshold: 7
