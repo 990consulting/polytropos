@@ -183,7 +183,7 @@ class CoverageFile(Consume):
 
     def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Tuple[str, Optional[Any]]]:
         extract = CoverageFileExtract(self.schema, origin_dir, self.temporal_grouping_var, self.immutable_grouping_var)
-        return run_on_process_pool(extract.extract, list(composite_ids), chunk_size=self.context.process_pool_chunk_size)
+        return self.context.run_on_process_pool(extract.extract, list(composite_ids))
 
 
 class CoverageFileExtract:

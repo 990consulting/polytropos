@@ -10,6 +10,10 @@ MAX_PROCESS_POOL_CHUNK_SIZE = 10000
 
 
 def run_on_process_pool(func: Callable, items: List[Any], *args: Any, chunk_size: Optional[int] = None, workers_count: Optional[int] = None) -> Iterable[Any]:
+    if workers_count == 0:
+        yield from run_sequentially(func, items, *args, chunk_size=chunk_size)
+        return
+
     if len(items) == 0:
         return
 
@@ -26,6 +30,10 @@ def run_on_process_pool(func: Callable, items: List[Any], *args: Any, chunk_size
 
 
 def run_on_thread_pool(func: Callable, items: List[Any], *args: Any, chunk_size: Optional[int] = None, workers_count: Optional[int] = None) -> Iterable[Any]:
+    if workers_count == 0:
+        yield from run_sequentially(func, items, *args, chunk_size=chunk_size)
+        return
+
     if len(items) == 0:
         return
 
@@ -58,6 +66,21 @@ def run_on_pool(executor: Executor, func: Callable, items: List[Any], *args: Any
                     yield future.result()
     if len(exceptions) > 0:
         raise exceptions[0]
+
+
+def run_sequentially(func: Callable, items: List[Any], *args: Any, chunk_size: Optional[int] = None) -> Iterable[Any]:
+    if len(items) == 0:
+        return
+
+    if chunk_size is None:
+        chunk_size = 1
+
+    chunks: Iterable[List[Any]] = split_to_chunks(list(items), chunk_size)
+    with tqdm(total=len(items)) as pbar:
+        for chunk in chunks:
+            result = func(chunk, *args)
+            pbar.update(len(chunk))
+            yield result
 
 
 # https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
