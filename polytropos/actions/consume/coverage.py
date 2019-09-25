@@ -17,7 +17,6 @@ from polytropos.util import nesteddicts
 from polytropos.actions.consume import Consume
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import Variable, VariableId
-from polytropos.util.futures import run_on_process_pool
 from polytropos.util.paths import relpath_for
 
 
@@ -244,15 +243,13 @@ class CoverageFileExtract:
             child_var: Optional[Variable] = self.schema._var_path_cache.get(child_path)
             if child_var is not None and child_var.data_type == "KeyedList":
                 self._handle_keyed_list(composite_id, child_path, value, observed)
-                return
 
             # For lists (except string lists), crawl each list item -- exclude string lists
-            if isinstance(value, list) and not (len(value) > 0 and isinstance(value[0], str)):
+            elif isinstance(value, list) and not (len(value) > 0 and isinstance(value[0], str)):
                 self._handle_list(composite_id, child_path, value, observed)
-                return
 
             # If the value is a dict, and we do not it to be a keyed list, then we assume that it is a real folder.
-            if isinstance(value, dict):
+            elif isinstance(value, dict):
                 self._crawl(composite_id, value, observed, child_path)
 
             # In all other cases, the variable is a leaf node (primitive), so no further action needed.
