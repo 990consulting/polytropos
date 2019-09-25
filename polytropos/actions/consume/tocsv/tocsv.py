@@ -74,7 +74,7 @@ class ExportToCSV(Consume):
 
     def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Tuple[str, Optional[Any]]]:
         extract = ExportToCSVExtract(self.schema, origin_dir, self.context.temp_dir, self.filters, self.blocks)
-        return run_on_process_pool(extract.extract, list(composite_ids), chunk_size=self.context.process_pool_chunk_size)
+        return self.context.run_on_process_pool(extract.extract, list(composite_ids))
 
 
 class ExportToCSVExtract:
