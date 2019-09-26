@@ -27,10 +27,10 @@ class Scan(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, context: "Context", schema: "Schema", name: str, mappings: Dict):  # type: ignore # Signature of "build" incompatible with supertype "Step"
+    def build(cls, context: "Context", schema: "Schema", name: str, **kwargs):  # type: ignore # Signature of "build" incompatible with supertype "Step"
         scan_subclasses: Dict[str, Type] = load(cls)
         instance_subclass: Type = scan_subclasses[name]
-        return instance_subclass(**mappings, schema=schema)
+        return instance_subclass(**kwargs, schema=schema)
 
     @abstractmethod
     def extract(self, composite: Composite) -> Optional[Any]:
