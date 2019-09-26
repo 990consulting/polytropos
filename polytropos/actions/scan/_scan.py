@@ -16,8 +16,8 @@ if TYPE_CHECKING:
     from polytropos.ontology.schema import Schema
 
 
-@dataclass
-class Scan(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
+@dataclass  # type: ignore # https://github.com/python/mypy/issues/5374
+class Scan(Step):
     context: "Context"
     schema: "Schema"
 

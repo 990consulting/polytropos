@@ -13,8 +13,8 @@ from polytropos.ontology.context import Context
 from polytropos.util.paths import find_all_composites, relpath_for
 
 
-@dataclass
-class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
+@dataclass  # type: ignore # https://github.com/python/mypy/issues/5374
+class Consume(Step):
     context: Context
     schema: Schema
 
