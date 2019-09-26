@@ -3,16 +3,13 @@ import time
 from dataclasses import dataclass
 import os
 import json
-from typing import Optional, List, Callable, Iterable
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from typing import Optional, List, Callable
 from functools import partial
 import traceback
 
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.actions.translate import Translator
-from polytropos.util.exceptions import ExceptionWrapper
-from polytropos.util.futures import split_to_chunks
 from polytropos.util.paths import find_all_composites, relpath_for
 from polytropos.ontology.context import Context
 
@@ -41,7 +38,7 @@ class Translate(Step):
         translate_temporal: Translator = Translator(target_schema_instance.temporal)
         return cls(context, target_schema_instance, translate_immutable, translate_temporal)
 
-    def process_composite(self, origin_dir: str, target_base_dir: str, composite_id: str) -> Optional[ExceptionWrapper]:
+    def process_composite(self, origin_dir: str, target_base_dir: str, composite_id: str) -> None:
         logging.debug('Translating composite "%s".' % composite_id)
         relpath: str = relpath_for(composite_id)
         try:
@@ -62,8 +59,7 @@ class Translate(Step):
         except Exception as e:
             logging.error("Error translating composite %s." % composite_id)
             traceback.print_exc()
-            return ExceptionWrapper(e)
-        return None
+            raise
 
     def process_composites(self, origin_dir: str, target_dir: str, chunk: List[str]) -> None:
         start: float = time.time()
@@ -74,7 +70,6 @@ class Translate(Step):
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
         composites: List[str] = list(find_all_composites(origin_dir))
-        chunks: Iterable[List[str]] = split_to_chunks(composites, self.context.process_pool_chunk_size)
         action: Callable = partial(self.process_composites, origin_dir, target_dir)
-        with ProcessPoolExecutor() as executor:
-            executor.map(action, chunks)
+        for _ in self.context.run_in_process_pool(action, composites):
+            pass

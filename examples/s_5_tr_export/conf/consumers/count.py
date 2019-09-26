@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Iterable, Tuple, Any
+from typing import Dict, Iterable, Any
 import os
 
 from polytropos.actions.consume import Consume
@@ -14,7 +14,7 @@ class Count(Consume):
     def before(self):
         pass
 
-    def consume(self, extracts: Iterable[Tuple[str, Any]]) -> None:
+    def consume(self, extracts: Iterable[Any]) -> None:
         for _ in extracts:
             self.n += 1
 

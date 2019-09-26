@@ -21,35 +21,35 @@ def purge_all_periods(original: List[Composite]) -> List[Composite]:
             del composite.content[period]
     return expected
 
-def test_one_temporal(schema, composites):
+def test_one_temporal(schema, composites, context):
     composite_list = list(composites)
     criteria: Dict = {"t_text_in_root": "bbbb"}
-    the_filter: Filter = HasAllSpecificValues(schema, criteria, filters=False)
+    the_filter: Filter = HasAllSpecificValues(context, schema, criteria, filters=False)
     expected: List[Composite] = make_c3_expected(composite_list)
     f_iter: InMemoryFilterIterator = InMemoryFilterIterator([the_filter])
     actual: List[Composite] = list(f_iter(composite_list))
     assert actual == expected
 
-def test_two_temporal_match(schema, composites):
+def test_two_temporal_match(schema, composites, context):
     composite_list = list(composites)
     criteria: Dict = {
         "t_text_in_folder": "aaaa",
         "t_text_in_root": "bbbb"
     }
-    the_filter: Filter = HasAllSpecificValues(schema, criteria, filters=False)
+    the_filter: Filter = HasAllSpecificValues(context, schema, criteria, filters=False)
     expected: List[Composite] = make_c3_expected(composite_list)
     f_iter: InMemoryFilterIterator = InMemoryFilterIterator([the_filter])
     actual: List[Composite] = list(f_iter(composite_list))
     assert actual == expected
 
-def test_two_temporal_no_match(schema, composites):
+def test_two_temporal_no_match(schema, composites, context):
     composite_list = list(composites)
 
     criteria: Dict = {
         "t_text_in_folder": "cccc",
         "t_text_in_root": "bbbb"
     }
-    the_filter: Filter = HasAllSpecificValues(schema, criteria, filters=False)
+    the_filter: Filter = HasAllSpecificValues(context, schema, criteria, filters=False)
     f_iter: InMemoryFilterIterator = InMemoryFilterIterator([the_filter])
 
     # Because the criteria contain no immutable variables, only temporal periods are purged
@@ -58,7 +58,7 @@ def test_two_temporal_no_match(schema, composites):
     actual: List[Composite] = list(f_iter(composite_list))
     assert actual == expected
 
-def test_immutable(schema, composites):
+def test_immutable(schema, composites, context):
     composite_list = list(composites)
     expected: List[Composite] = [copy.copy(c) for c in composite_list]
 
@@ -69,12 +69,12 @@ def test_immutable(schema, composites):
     criteria: Dict = {
         "i_text_in_folder": "I(folder)"
     }
-    the_filter: Filter = HasAllSpecificValues(schema, criteria, filters=False)
+    the_filter: Filter = HasAllSpecificValues(context, schema, criteria, filters=False)
     f_iter: InMemoryFilterIterator = InMemoryFilterIterator([the_filter])
     actual: List[Composite] = list(f_iter(composite_list))
     assert actual == expected
 
-def test_temporal_and_immutable_match(schema, composites):
+def test_temporal_and_immutable_match(schema, composites, context):
     composite_list = list(composites)
     criteria: Dict = {
         "i_text_in_folder": "I(folder)",
@@ -88,12 +88,12 @@ def test_temporal_and_immutable_match(schema, composites):
         composite.content = {}
     del expected[3].content["period_2"]
 
-    the_filter: Filter = HasAllSpecificValues(schema, criteria, filters=False)
+    the_filter: Filter = HasAllSpecificValues(context, schema, criteria, filters=False)
     f_iter: InMemoryFilterIterator = InMemoryFilterIterator([the_filter])
     actual: List[Composite] = list(f_iter(composite_list))
     assert actual == expected
 
-def test_t_and_i_immutable_wrong(schema, composites):
+def test_t_and_i_immutable_wrong(schema, composites, context):
     composite_list = list(composites)
     criteria: Dict = {
         "i_text_in_folder": "Not the real value",
@@ -105,12 +105,12 @@ def test_t_and_i_immutable_wrong(schema, composites):
     for composite in expected:
         composite.content = {}
 
-    the_filter: Filter = HasAllSpecificValues(schema, criteria, filters=False)
+    the_filter: Filter = HasAllSpecificValues(context, schema, criteria, filters=False)
     f_iter: InMemoryFilterIterator = InMemoryFilterIterator([the_filter])
     actual: List[Composite] = list(f_iter(composite_list))
     assert actual == expected
 
-def test_t_and_i_temporal_wrong(schema, composites):
+def test_t_and_i_temporal_wrong(schema, composites, context):
     composite_list = list(composites)
     criteria: Dict = {
         "i_text_in_folder": "I(folder)",
@@ -125,7 +125,7 @@ def test_t_and_i_temporal_wrong(schema, composites):
     for period in expected[-1].periods:
         del expected[-1].content[period]
 
-    the_filter: Filter = HasAllSpecificValues(schema, criteria, filters=False)
+    the_filter: Filter = HasAllSpecificValues(context, schema, criteria, filters=False)
     f_iter: InMemoryFilterIterator = InMemoryFilterIterator([the_filter])
     actual: List[Composite] = list(f_iter(composite_list))
     assert actual == expected

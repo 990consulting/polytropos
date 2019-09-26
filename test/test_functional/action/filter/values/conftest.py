@@ -5,8 +5,13 @@ from typing import Dict, Callable, Iterable
 
 import pytest
 from polytropos.ontology.composite import Composite
+from polytropos.ontology.context import Context
 
 from polytropos.ontology.schema import Schema
+
+@pytest.fixture()
+def context() -> Context:
+    return Context.build(conf_dir="dummy", data_dir="dummy")
 
 @pytest.fixture()
 def schema(basepath) -> Schema:

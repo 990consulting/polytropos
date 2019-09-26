@@ -9,9 +9,14 @@ from polytropos.actions.filter.mem import InMemoryFilterIterator
 from polytropos.ontology.composite import Composite
 
 import polytropos.ontology.schema
+from polytropos.ontology.context import Context
 from polytropos.ontology.track import Track
 from examples.s_8_filter_narrow.conf.filters.threshold import ImmutableValueThreshold
 from polytropos.ontology.variable import VariableId
+
+@pytest.fixture()
+def context() -> Context:
+    return Context.build(conf_dir="dummy", data_dir="dummy")
 
 @pytest.fixture()
 def schema() -> polytropos.ontology.schema.Schema:
@@ -57,10 +62,10 @@ def composites(composite_1, composite_2) -> List[Composite]:
     return [composite_1, composite_2]
 
 @pytest.fixture()
-def subject(schema) -> InMemoryFilterIterator:
+def subject(schema, context) -> InMemoryFilterIterator:
     filters: List[Filter] = [
-        ImmutableValueThreshold(schema, cast(VariableId, "immutable_var"), 7),
-        EarliestFilter(schema)
+        ImmutableValueThreshold(context, schema, cast(VariableId, "immutable_var"), 7),
+        EarliestFilter(context, schema)
     ]
     return InMemoryFilterIterator(filters)
 

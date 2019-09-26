@@ -30,7 +30,7 @@ class EconomicOverview(Aggregate):
         # Internal variable used for reduce/analyze step
         self.city_data: Dict[str, Dict] = {}
 
-    def extract(self, composite: Dict) -> Optional[Any]:
+    def extract(self, composite: Dict) -> Any:
         """In this case, the source document is very small and the analysis uses every variable in it, so we just return
         the composite. In real-world cases, only a few variables are likely to be used."""
         return composite
