@@ -10,8 +10,8 @@ TSource = TypeVar('TSource')
 TResult = TypeVar('TResult')
 
 
-@dataclass
-class BaseTypeTranslator(Generic[TSource, TResult]):  # type: ignore # https://github.com/python/mypy/issues/5374
+@dataclass  # type: ignore # https://github.com/python/mypy/issues/5374
+class BaseTypeTranslator(Generic[TSource, TResult]):
     translator: Translator
     composite_id: str
     period: str
