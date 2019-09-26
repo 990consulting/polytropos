@@ -60,13 +60,14 @@ class Consume(Step):  # type: ignore # https://github.com/python/mypy/issues/537
         return result
 
     def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Any]:
-        return itertools.chain.from_iterable(self.context.run_in_thread_pool(self.process_composites_chunk, list(composite_ids), origin_dir))
+        results: Iterable[List[Any]] = self.context.run_in_thread_pool(self.process_composites_chunk, list(composite_ids), origin_dir)
+        return itertools.chain.from_iterable(results)
 
     def __call__(self, origin_dir: str, target_dir: Optional[str]) -> None:
         """Generate the export file."""
         self.before()
         composite_ids: Iterable[str] = find_all_composites(origin_dir)
-        per_composite_results: Iterable[Tuple[str, Any]] = self.process_composites(composite_ids, origin_dir)
+        per_composite_results: Iterable[Any] = self.process_composites(composite_ids, origin_dir)
 
         self.consume(per_composite_results)
         self.after()

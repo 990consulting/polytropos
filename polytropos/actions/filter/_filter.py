@@ -52,5 +52,6 @@ class Filter(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
                         json.dump(composite.content, target_file)
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
-        for _ in self.context.run_in_thread_pool(self.process_composites, list(find_all_composites(origin_dir)), origin_dir, target_dir):
+        composites_ids = list(find_all_composites(origin_dir))
+        for _ in self.context.run_in_thread_pool(self.process_composites, composites_ids, origin_dir, target_dir):
             pass
