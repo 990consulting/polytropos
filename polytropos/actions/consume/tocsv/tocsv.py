@@ -15,7 +15,6 @@ from polytropos.actions.consume import Consume
 from polytropos.actions.consume.tocsv.blocks import Block, BlockProduct
 from polytropos.actions.consume.tocsv.descriptors import fromraw
 from polytropos.ontology.composite import Composite
-from polytropos.util.futures import run_on_process_pool
 from polytropos.util.paths import relpath_for
 
 if TYPE_CHECKING:
@@ -62,19 +61,19 @@ class ExportToCSV(Consume):
     def before(self) -> None:
         self.writer.writerow(self.column_names)
 
-    def extract(self, composite: Composite) -> Iterator[List[Optional[Any]]]:
+    def extract(self, composite: Composite) -> Any:
         raise NotImplementedError
 
-    def consume(self, extracts: Iterable[Tuple[str, Iterator[List[Optional[Any]]]]]) -> None:
-        for composite_id, rows in extracts:
+    def consume(self, extracts: Iterable[List[Any]]) -> None:
+        for rows in extracts:
             self.writer.writerows(rows)
 
     def after(self) -> None:
         self.fh.close()
 
-    def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Tuple[str, Optional[Any]]]:
+    def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Any]:
         extract = ExportToCSVExtract(self.schema, origin_dir, self.context.temp_dir, self.filters, self.blocks)
-        return self.context.run_on_process_pool(extract.extract, list(composite_ids))
+        return self.context.run_in_process_pool(extract.extract, list(composite_ids))
 
 
 class ExportToCSVExtract:
@@ -85,7 +84,7 @@ class ExportToCSVExtract:
         self.filters = filters
         self.blocks = blocks
 
-    def extract(self, composite_ids: List[str]) -> Tuple[str, List[List[Any]]]:
+    def extract(self, composite_ids: List[str]) -> List[List[Any]]:
         result: List[List[Any]] = []
 
         for composite_id in composite_ids:
@@ -95,7 +94,7 @@ class ExportToCSVExtract:
             composite: Composite = Composite(self.schema, content, composite_id=composite_id)
             result.extend(self._process_composite(composite))
 
-        return "dummy", result
+        return result
 
     def _process_composite(self, composite: Composite) -> Iterator[List[Any]]:
         for f in self.filters:

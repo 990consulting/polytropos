@@ -1,7 +1,7 @@
 import json
 import os
 from dataclasses import dataclass, field
-from typing import Optional, Any, Iterable, Tuple, TextIO
+from typing import Optional, Any, Iterable, TextIO
 
 from polytropos.actions.consume import Consume
 from polytropos.ontology.composite import Composite
@@ -20,15 +20,15 @@ class ExportToJSON(Consume):
         )
         self.fobj.write('{\n')
 
-    def extract(self, composite: Composite) -> Optional[Any]:
+    def extract(self, composite: Composite) -> Any:
         return composite
 
-    def _to_json(self, composite_id: str, composite: Composite) -> None:
+    def _to_json(self, composite: Composite) -> None:
         assert self.fobj is not None
         if not self.first:
             self.fobj.write(',\n')
         self.first = False
-        self.fobj.write(' ' * self.indent + f'"{composite_id}": ')
+        self.fobj.write(' ' * self.indent + f'"{composite.composite_id}": ')
         data = json.dumps(composite.content, indent=self.indent).split('\n')
         for i, line in enumerate(data):
             if i:
@@ -36,10 +36,9 @@ class ExportToJSON(Consume):
                 self.fobj.write(' ' * self.indent)
             self.fobj.write(line)
 
-    def consume(self, extracts: Iterable[Tuple[str, Composite]]) -> None:
-        for composite_id, composite in extracts:  # type: str, Composite
-            composite_id = composite_id
-            self._to_json(composite_id, composite)
+    def consume(self, extracts: Iterable[Composite]) -> None:
+        for composite in extracts:  # type: Composite
+            self._to_json(composite)
 
     def after(self) -> None:
         assert self.fobj is not None

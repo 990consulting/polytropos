@@ -1,10 +1,12 @@
 import os
 import shutil
 from dataclasses import dataclass
-from typing import Optional, Any, Type, Callable, List, Iterable
+from typing import Optional, Any, Type, List, Iterable, TypeVar, Callable
 
-from polytropos.util.futures import run_on_process_pool, run_on_thread_pool
+from polytropos.util.futures import run_in_process_pool, run_in_thread_pool, run_in_loop, Func
 
+T = TypeVar('T')  # element type
+R = TypeVar('R', covariant=True)  # result type
 
 @dataclass
 class Context:
@@ -57,19 +59,17 @@ class Context:
         if not self.no_cleanup:
             shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def run_on_process_pool(self, func: Callable, items: List[Any], *args: Any, chunk_size: Optional[int] = None, workers_count: Optional[int] = None) -> Iterable[Any]:
+    def run_in_process_pool(self, func: Callable[..., R], items: List[T], *args: Any, chunk_size: Optional[int] = None, workers_count: Optional[int] = None) -> Iterable[R]:  # func: Func[T,R] doesn't work currently (MyPy issue)
         if self.steppable_mode:
-            workers_count = 0
+            return run_in_loop(func, items, *args, chunk_size=chunk_size)
+
         if chunk_size is None:
             chunk_size = self.process_pool_chunk_size
 
-        return run_on_process_pool(func, items, *args, chunk_size=chunk_size, workers_count=workers_count)
+        return run_in_process_pool(func, items, *args, chunk_size=chunk_size, workers_count=workers_count)
 
-    def run_on_thread_pool(self, func: Callable, items: List[Any], *args: Any, chunk_size: Optional[int] = None, workers_count: Optional[int] = None) -> Iterable[Any]:
+    def run_in_thread_pool(self, func: Callable[..., R], items: List[T], *args: Any, chunk_size: Optional[int] = None, workers_count: Optional[int] = None) -> Iterable[R]:  # func: Func[T,R] doesn't work currently (MyPy issue)
         if self.steppable_mode:
-            workers_count = 0
-        if chunk_size is None:
-            chunk_size = self.process_pool_chunk_size
+            return run_in_loop(func, items, *args, chunk_size=chunk_size)
 
-        return run_on_thread_pool(func, items, *args, chunk_size=chunk_size, workers_count=workers_count)
-
+        return run_in_thread_pool(func, items, *args, chunk_size=chunk_size, workers_count=workers_count)

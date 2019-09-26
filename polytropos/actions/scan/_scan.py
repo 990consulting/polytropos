@@ -1,10 +1,9 @@
+import itertools
 import os
 import json
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Dict, Optional, Any, Iterable, Tuple, TYPE_CHECKING, Type
-from concurrent.futures import ThreadPoolExecutor
-from functools import partial
+from typing import Dict, Any, Iterable, Tuple, TYPE_CHECKING, Type, List
 
 from polytropos.ontology.composite import Composite
 
@@ -16,8 +15,10 @@ if TYPE_CHECKING:
     from polytropos.ontology.context import Context
     from polytropos.ontology.schema import Schema
 
+
 @dataclass
 class Scan(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
+    context: "Context"
     schema: "Schema"
 
     """Scan iterates through all of the composites in the task pipeline twice: once to gather global information, and
@@ -30,10 +31,10 @@ class Scan(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
     def build(cls, context: "Context", schema: "Schema", name: str, **kwargs):  # type: ignore # Signature of "build" incompatible with supertype "Step"
         scan_subclasses: Dict[str, Type] = load(cls)
         instance_subclass: Type = scan_subclasses[name]
-        return instance_subclass(**kwargs, schema=schema)
+        return instance_subclass(**kwargs, schema=schema, context=context)
 
     @abstractmethod
-    def extract(self, composite: Composite) -> Optional[Any]:
+    def extract(self, composite: Composite) -> Any:
         """Gather the information to be used in the analysis."""
         pass
 
@@ -49,34 +50,32 @@ class Scan(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
         the alteration."""
         pass
 
-    def process_composite(self, origin_dir: str, composite_id: str) -> Tuple[str, Optional[Any]]:
-        relpath: str = relpath_for(composite_id)
-        with open(os.path.join(origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
-            content: Dict = json.load(origin_file)
-            composite: Composite = Composite(self.schema, content, composite_id=composite_id)
-            return composite_id, self.extract(composite)
+    def process_composites(self, composite_ids: List[str], origin_dir: str) -> List[Tuple[str, Any]]:
+        result: List[Tuple[str, Any]] = []
+        for composite_id in composite_ids:
+            relpath: str = relpath_for(composite_id)
+            with open(os.path.join(origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
+                content: Dict = json.load(origin_file)
+                composite: Composite = Composite(self.schema, content, composite_id=composite_id)
+                result.append((composite_id, self.extract(composite)))
+        return result
 
-    def alter_and_write_composite(self, origin_dir: str, target_base_dir: str, composite_id: str) -> None:
-        relpath: str = relpath_for(composite_id)
-        with open(os.path.join(origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
-            content: Dict = json.load(origin_file)
-            composite: Composite = Composite(self.schema, content, composite_id=composite_id)
-            self.alter(composite_id, composite)
-        target_dir: str = os.path.join(target_base_dir, relpath)
-        os.makedirs(target_dir, exist_ok=True)
-        with open(os.path.join(target_dir, "%s.json" % composite_id), 'w') as target_file:
-            json.dump(composite.content, target_file, indent=2)
+    def alter_and_write_composites(self, composite_ids: List[str], origin_dir: str, target_base_dir: str) -> None:
+        for composite_id in composite_ids:
+            relpath: str = relpath_for(composite_id)
+            with open(os.path.join(origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
+                content: Dict = json.load(origin_file)
+                composite: Composite = Composite(self.schema, content, composite_id=composite_id)
+                self.alter(composite_id, composite)
+            target_dir: str = os.path.join(target_base_dir, relpath)
+            os.makedirs(target_dir, exist_ok=True)
+            with open(os.path.join(target_dir, "%s.json" % composite_id), 'w') as target_file:
+                json.dump(composite.content, target_file, indent=2)
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
-        with ThreadPoolExecutor() as executor:
-            self.analyze(
-                executor.map(
-                    partial(self.process_composite, origin_dir),
-                    find_all_composites(origin_dir)
-                )
-            )
-        with ThreadPoolExecutor() as executor:
-            executor.map(
-                partial(self.alter_and_write_composite, origin_dir, target_dir),
-                find_all_composites(origin_dir)
-            )
+        composite_ids: List[str] = list(find_all_composites(origin_dir))
+        self.analyze(
+            itertools.chain.from_iterable(self.context.run_in_thread_pool(self.process_composites, composite_ids, origin_dir))
+        )
+        for _ in self.context.run_in_thread_pool(self.alter_and_write_composites, composite_ids, origin_dir, target_dir):
+            pass
