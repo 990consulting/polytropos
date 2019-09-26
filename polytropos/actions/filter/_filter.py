@@ -25,12 +25,10 @@ class Filter(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, context: Context, schema: Schema, name: str, mappings: Optional[Dict] = None):  # type: ignore
-        if mappings is None:
-            mappings = {}
+    def build(cls, context: Context, schema: Schema, name: str, **kwargs):  # type: ignore
         logging.info('Building instance of filter class "%s"' % name)
         filters = load(cls)
-        return filters[name](context=context, schema=schema, **mappings)
+        return filters[name](context=context, schema=schema, **kwargs)
 
     def passes(self, composite: Composite) -> bool:
         """Evaluate whether the entire Composite should be included at the next Step or not."""
