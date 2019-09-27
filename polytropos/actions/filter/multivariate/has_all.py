@@ -1,6 +1,6 @@
 from typing import Optional, Any
 
-from polytropos.actions.filter.multivariate.__values import SpecificValuesFilter
+from polytropos.actions.filter.multivariate.__multivariate import SpecificValuesFilter
 from polytropos.ontology.composite import Composite
 from polytropos.util.nesteddicts import MissingDataError
 
