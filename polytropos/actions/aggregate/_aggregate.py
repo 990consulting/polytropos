@@ -22,8 +22,8 @@ def write_composites(emissions: List[Tuple[str, Composite]], target_base_dir: st
         with open(os.path.join(target_dir, composite_id + '.json'), 'w') as target_file:
             json.dump(composite.content, target_file, indent=2)
 
-@dataclass
-class Aggregate(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
+@dataclass  # type: ignore # https://github.com/python/mypy/issues/5374
+class Aggregate(Step):
     """Iterates over all composites following one schema, and produces a new set of composites, representing a different
     kind of entity, and following a different schema."""
     context: Context
