@@ -89,7 +89,7 @@ def composite_1(schema) -> Composite:
         },
         "immutable": {}
     }
-    return Composite(schema, content)
+    return Composite(schema, content, composite_id="composite_1")
 
 @pytest.fixture()
 def composite_2(schema) -> Composite:
@@ -99,7 +99,7 @@ def composite_2(schema) -> Composite:
             "i_Text": "",
         }
     }
-    return Composite(schema, content)
+    return Composite(schema, content, composite_id="composite_2")
 
 @pytest.fixture()
 def composite_3(schema) -> Composite:
@@ -117,7 +117,7 @@ def composite_3(schema) -> Composite:
             }
         }
     }
-    return Composite(schema, content)
+    return Composite(schema, content, composite_id="composite_3")
 
 @pytest.fixture()
 def composites(composite_1, composite_2, composite_3) -> List[Composite]:
