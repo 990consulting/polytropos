@@ -3,13 +3,12 @@ starting_with:
   schema: generic
 
 resulting_in:
-  data: generic/actual
+  data: generic/sequential
 
 steps:
   - Filter:
       name: LatestFilter
   - Filter:
       name: ImmutableValueThreshold
-
       threshold_var: immutable_var
       threshold: 7

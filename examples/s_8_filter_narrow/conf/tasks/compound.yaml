@@ -1,0 +1,13 @@
+starting_with:
+  data: generic/origin
+  schema: generic
+
+resulting_in:
+  data: generic/compound
+
+steps:
+  - CompoundFilter:
+    - LatestFilter: {}
+    - ImmutableValueThreshold:
+        threshold_var: immutable_var
+        threshold: 7
