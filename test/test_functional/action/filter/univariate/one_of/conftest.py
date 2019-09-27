@@ -53,7 +53,7 @@ def composite_2(schema) -> Composite:
             "t_text": "345"
         },
         "immutable": {
-            "t_text": "678"
+            "i_text": "678"
         }
     }
     return Composite(schema, content)
