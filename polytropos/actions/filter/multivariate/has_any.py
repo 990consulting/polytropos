@@ -2,7 +2,7 @@ from typing import Optional, Any
 
 from polytropos.util.nesteddicts import MissingDataError
 
-from polytropos.actions.filter.values.__values import SpecificValuesFilter
+from polytropos.actions.filter.multivariate.__values import SpecificValuesFilter
 from polytropos.ontology.composite import Composite
 
 class HasAnySpecificValues(SpecificValuesFilter):

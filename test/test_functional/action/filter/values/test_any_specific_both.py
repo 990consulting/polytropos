@@ -1,9 +1,8 @@
-import copy
 from typing import Dict, List
 
 from polytropos.actions.filter import Filter
 from polytropos.actions.filter.mem import InMemoryFilterIterator
-from polytropos.actions.filter.values.has_any import HasAnySpecificValues
+from polytropos.actions.filter.multivariate.has_any import HasAnySpecificValues
 from polytropos.ontology.composite import Composite
 
 def test_one_temporal(schema, composites, context):
