@@ -1,7 +1,7 @@
 import json
 import os
 
-from typing import Dict, Callable, Iterable
+from typing import Dict, Callable, Iterable, Collection
 
 import pytest
 from polytropos.ontology.composite import Composite
@@ -30,5 +30,5 @@ def read_composite(schema, basepath) -> Callable:
     return _read_composite
 
 @pytest.fixture()
-def composites(read_composite) -> Iterable[Composite]:
-    return (read_composite(i + 1) for i in range(4))
+def composites(read_composite) -> Collection[Composite]:
+    return [read_composite(i + 1) for i in range(4)]
