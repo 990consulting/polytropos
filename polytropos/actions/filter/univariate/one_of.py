@@ -19,7 +19,6 @@ class OneOfFilter(UnivariateFilter, ABC):
 
         if self.variable.data_type == "Text":
             self.values = {value.lower() for value in self.values}
-            self.threshold = self.threshold.lower()
 
     def _validate(self):
         """Check for any class-specific parameter requirements."""
