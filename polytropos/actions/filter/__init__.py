@@ -7,3 +7,4 @@ def register_filter_subclasses() -> None:
     from polytropos.actions.filter.values.has_any import HasAnySpecificValues
     from polytropos.actions.filter.comparison import AtLeast, AtMost, GreaterThan, LessThan, NotEqualTo
     from polytropos.actions.filter.exists import Exists
+    from polytropos.actions.filter.compound import CompoundFilter

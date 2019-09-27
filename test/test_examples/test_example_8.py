@@ -16,8 +16,14 @@ def setup_and_teardown():
     shutil.rmtree(WORKING_PATH, ignore_errors=True)
 
 # noinspection PyUnresolvedReferences
-def test(run_task):
+def test_sequential(run_task):
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.DEBUG)
     register_all()
     import examples.s_8_filter_narrow.conf.filters.threshold
-    run_task('s_8_filter_narrow', 'example_8', 'generic/expected', output_dir=WORKING_PATH)
+    run_task('s_8_filter_narrow', 'sequential', 'generic/expected', output_dir=WORKING_PATH)
+
+def test_compound(run_task):
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.DEBUG)
+    register_all()
+    import examples.s_8_filter_narrow.conf.filters.threshold
+    run_task('s_8_filter_narrow', 'compound', 'generic/expected', output_dir=WORKING_PATH)

@@ -17,6 +17,7 @@ from polytropos.actions.scan import Scan
 from polytropos.actions.filter import Filter
 from polytropos.actions.aggregate import Aggregate
 from polytropos.actions.translate import Translate
+from polytropos.actions.filter.compound import CompoundFilter  # This is a subclass of Step, not of Filter
 
 # Step class name deserialization
 STEP_TYPES = {
@@ -71,15 +72,14 @@ class Task:
             assert len(step) == 1, (
                 'Step description can have only one key, value pair'
             )
-            for class_name, kwargs in step.items():
-                step_type = STEP_TYPES[class_name]
-                try:
-                    step_instance: Step = step_type.build(
-                        context=self.context, schema=current_schema, **kwargs
-                    )
-                except Exception as e:
-                    print("breakpoint")
-                    raise e
+            for class_name, args in step.items():
+                # Compound filters have a list of arguments
+                if class_name == "CompoundFilter":
+                    step_instance: Step = CompoundFilter.build(self.context, current_schema, *args)  # type: ignore
+                # Everything else takes a dict of arguments
+                else:
+                    step_instance: Step = self.append_normal_step(class_name, current_schema, args)  # type: ignore
+
                 self.steps.append(step_instance)
 
                 # Aggregation changes schema
@@ -87,6 +87,17 @@ class Task:
                     assert isinstance(step_instance, Aggregate) or isinstance(step_instance, Translate)
                     # noinspection PyUnresolvedReferences
                     current_schema = step_instance.target_schema
+
+    def append_normal_step(self, class_name: str, current_schema: Schema, kwargs: Dict) -> Step:
+        step_type = STEP_TYPES[class_name]
+        try:
+            step_instance: Step = step_type.build(
+                context=self.context, schema=current_schema, **kwargs
+            )
+        except Exception as e:
+            print("breakpoint")
+            raise e
+        return step_instance
 
     def run(self) -> None:
         """Run the task: run steps one by one handling intermediate outputs in
