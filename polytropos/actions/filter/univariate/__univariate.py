@@ -1,39 +1,35 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
 from dataclasses import dataclass, field
 from typing import Any, cast
 
+from polytropos.ontology.context import Context
+from polytropos.ontology.schema import Schema
 from polytropos.util.nesteddicts import MissingDataError
 
 from polytropos.actions.filter import Filter
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import VariableId, Variable, Primitive
 
-@dataclass  # type: ignore
-class ComparisonFilter(Filter, ABC):
-    var_id: VariableId
-    threshold: Any
-    narrows: bool = field(default=True)
-    filters: bool = field(default=True)
+class UnivariateFilter(Filter, ABC):
+    """A filter that involves checking values against only one variable."""
 
-    def __post_init__(self) -> None:
-        self.variable: Variable = self.schema.get(self.var_id)
-        if self.variable is None:
+    def __init__(self, context: Context, schema: Schema, var_id: str, narrows: bool=True, filters: bool=True):
+        super(UnivariateFilter, self).__init__(context, schema)
+        self.var_id: VariableId = cast(VariableId, var_id)
+        self.narrows: bool = narrows
+        self.filters: bool = filters
+
+        variable: Variable = self.schema.get(self.var_id)
+        if variable is None:
             raise ValueError('Unrecognized variable ID "%s"' % self.var_id)
-        if not isinstance(self.variable, Primitive):
+        if not isinstance(variable, Primitive):
             raise ValueError('Non-primitive data type %s cannot be compared' % self.variable.data_type)
-        if self.threshold is None:
-            raise ValueError('Must specify threshold value for comparison filters.')
 
         # If narrowing is disabled, the comparison variable should not be immutable
-        if self.narrows and not self.variable.temporal:
+        if self.narrows and not variable.temporal:
             raise ValueError("Narrowing by comparison cannot be performed on an immutable variable.")
 
-        self.variable = cast(Primitive, self.variable)
-        self.threshold = self.variable.cast(self.threshold)
-
-        if self.variable.data_type == "Text":
-            self.threshold = self.threshold.lower()
+        self.variable: Primitive = cast(Primitive, variable)
 
     @abstractmethod
     def compares_true(self, value: Any) -> bool:
@@ -78,27 +74,3 @@ class ComparisonFilter(Filter, ABC):
                 return True
 
         return False
-
-class AtLeast(ComparisonFilter):
-    def compares_true(self, value: Any) -> bool:
-        return value >= self.threshold
-
-class AtMost(ComparisonFilter):
-    def compares_true(self, value: Any) -> bool:
-        return value <= self.threshold
-
-class GreaterThan(ComparisonFilter):
-    def compares_true(self, value: Any) -> bool:
-        return value > self.threshold
-
-class LessThan(ComparisonFilter):
-    def compares_true(self, value: Any) -> bool:
-        return value < self.threshold
-
-class NotEqualTo(ComparisonFilter):
-    def compares_true(self, value: Any) -> bool:
-        return value != self.threshold
-
-class EqualTo(ComparisonFilter):
-    def compares_true(self, value: Any) -> bool:
-        return value == self.threshold

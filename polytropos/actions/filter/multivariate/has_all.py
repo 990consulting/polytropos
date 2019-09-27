@@ -1,11 +1,7 @@
-from collections import deque
-from dataclasses import dataclass, field
-from typing import Dict, Optional, Any, Deque, List
+from typing import Optional, Any
 
-from polytropos.actions.filter import Filter
-from polytropos.actions.filter.values.__values import SpecificValuesFilter
+from polytropos.actions.filter.multivariate.__multivariate import SpecificValuesFilter
 from polytropos.ontology.composite import Composite
-from polytropos.ontology.variable import VariableId, Variable
 from polytropos.util.nesteddicts import MissingDataError
 
 class HasAllSpecificValues(SpecificValuesFilter):

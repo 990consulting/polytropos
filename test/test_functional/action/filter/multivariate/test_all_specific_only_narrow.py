@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from polytropos.actions.filter import Filter
 from polytropos.actions.filter.mem import InMemoryFilterIterator
-from polytropos.actions.filter.values.has_all import HasAllSpecificValues
+from polytropos.actions.filter.multivariate.has_all import HasAllSpecificValues
 from polytropos.ontology.composite import Composite
 
 def make_c3_expected(original: List[Composite]) -> List[Composite]:

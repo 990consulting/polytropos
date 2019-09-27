@@ -5,7 +5,7 @@ from typing import List
 import pytest
 
 from polytropos.actions.filter import Filter
-from polytropos.actions.filter.comparison import GreaterThan
+from polytropos.actions.filter.univariate.comparison import GreaterThan
 from polytropos.actions.filter.mem import InMemoryFilterIterator
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import VariableId
@@ -13,7 +13,7 @@ from polytropos.ontology.variable import VariableId
 @pytest.fixture()
 def do_test(schema, composites) -> Callable:
     def _do_test(var_id: VariableId, threshold, expected: List[Composite]):
-        the_filter: Filter = GreaterThan(schema, var_id, threshold)
+        the_filter: Filter = GreaterThan(None, schema, var_id, threshold)
         f_iter: Callable = InMemoryFilterIterator([the_filter])
         actual: List[Composite] = list(f_iter(composites))
         assert actual == expected
