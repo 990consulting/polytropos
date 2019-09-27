@@ -9,8 +9,8 @@ from polytropos.actions.filter import Filter
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import VariableId, Variable, Primitive
 
-@dataclass
-class ComparisonFilter(Filter, ABC):  # type: ignore
+@dataclass  # type: ignore
+class ComparisonFilter(Filter, ABC):
     var_id: VariableId
     threshold: Any
     narrows: bool = field(default=True)

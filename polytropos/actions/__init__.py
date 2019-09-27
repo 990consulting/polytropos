@@ -10,3 +10,4 @@ def register_all() -> None:
     register_change_subclasses()
     register_filter_subclasses()
     register_scan_subclasses()
+

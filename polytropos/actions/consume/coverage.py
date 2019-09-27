@@ -94,8 +94,8 @@ class CoverageFile(Consume):
     def extract(self, composite: Composite) -> CoverageFileExtractResult:
         raise NotImplementedError
 
-    def consume(self, extracts: Iterable[Tuple[str, Any]]) -> None:
-        for _, extract in extracts:
+    def consume(self, extracts: Iterable[Any]) -> None:
+        for extract in extracts:
             self.coverage_result.update(extract)
 
     def _init_row(self, var_path: Tuple) -> Dict:
@@ -180,9 +180,9 @@ class CoverageFile(Consume):
         self._write_temporal()
         self._write_immutable()
 
-    def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Tuple[str, Optional[Any]]]:
+    def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Any]:
         extract = CoverageFileExtract(self.schema, origin_dir, self.temporal_grouping_var, self.immutable_grouping_var)
-        return self.context.run_on_process_pool(extract.extract, list(composite_ids))
+        return self.context.run_in_process_pool(extract.extract, list(composite_ids))
 
 
 class CoverageFileExtract:
@@ -283,7 +283,7 @@ class CoverageFileExtract:
         for path in observed:
             result.immutable_var_counts.setdefault(group, defaultdict(int))[path] += 1
 
-    def extract(self, composite_ids: List[str]) -> Tuple[str, CoverageFileExtractResult]:
+    def extract(self, composite_ids: List[str]) -> CoverageFileExtractResult:
         extract_result = CoverageFileExtractResult()
         for composite_id in composite_ids:
             logging.debug("Extracting data from composite %s", composite_id)
@@ -295,4 +295,4 @@ class CoverageFileExtract:
 
             self._extract_temporal(composite, extract_result)
             self._extract_immutable(composite, extract_result)
-        return "dummy", extract_result
+        return extract_result

@@ -3,9 +3,14 @@ from typing import Dict
 import pytest
 from polytropos.ontology.composite import Composite
 from polytropos.actions.filter.firstlast import EarliestFilter, LatestFilter
+from polytropos.ontology.context import Context
 
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.track import Track
+
+@pytest.fixture()
+def context() -> Context:
+    return Context.build(conf_dir="dummy", data_dir="dummy")
 
 @pytest.fixture()
 def schema() -> Schema:
@@ -30,12 +35,12 @@ def composite(schema) -> Composite:
     }
     return Composite(schema, content)
 
-def test_filter_earliest_passes(composite, schema):
-    earliest_filter: EarliestFilter = EarliestFilter(schema)
+def test_filter_earliest_passes(composite, schema, context):
+    earliest_filter: EarliestFilter = EarliestFilter(context, schema)
     assert earliest_filter.passes(composite)
 
-def test_filter_earliest(composite, schema):
-    earliest_filter: EarliestFilter = EarliestFilter(schema)
+def test_filter_earliest(composite, schema, context):
+    earliest_filter: EarliestFilter = EarliestFilter(context, schema)
     earliest_filter.narrow(composite)
 
     expected: Dict = {
@@ -45,12 +50,12 @@ def test_filter_earliest(composite, schema):
 
     assert composite.content == expected
 
-def test_filter_latest_passes(composite, schema):
-    latest_filter: LatestFilter = LatestFilter(schema)
+def test_filter_latest_passes(composite, schema, context):
+    latest_filter: LatestFilter = LatestFilter(context, schema)
     assert latest_filter.passes(composite)
 
-def test_filter_latest(composite, schema):
-    latest_filter: LatestFilter = LatestFilter(schema)
+def test_filter_latest(composite, schema, context):
+    latest_filter: LatestFilter = LatestFilter(context, schema)
     latest_filter.narrow(composite)
 
     expected: Dict = {

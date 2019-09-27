@@ -11,9 +11,9 @@ from polytropos.actions.filter.exists import Exists
 from polytropos.ontology.variable import VariableId
 
 @pytest.fixture()
-def do_test(schema, composites) -> Callable:
+def do_test(schema, composites, context) -> Callable:
     def _do_test(var_id: VariableId, expected: List[Composite]):
-        the_filter: Filter = Exists(schema, var_id, filters=False)
+        the_filter: Filter = Exists(context, schema, var_id, filters=False)
         f_iter: Callable = InMemoryFilterIterator([the_filter])
         actual: List[Composite] = list(f_iter(composites))
         assert actual == expected

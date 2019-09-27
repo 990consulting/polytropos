@@ -1,12 +1,17 @@
 from collections import Callable
-from typing import Dict, Iterable, List
+from typing import Dict, List
 
 import pytest
 
 from polytropos.ontology.composite import Composite
+from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
 
 from polytropos.ontology.track import Track
+
+@pytest.fixture()
+def context() -> Context:
+    return Context.build(conf_dir="dummy", data_dir="dummy")
 
 @pytest.fixture()
 def make_track() -> Callable:

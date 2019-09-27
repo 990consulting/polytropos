@@ -4,13 +4,9 @@ import json
 import time
 import traceback
 from collections.abc import Callable
-from concurrent.futures import ProcessPoolExecutor
-from functools import partial
-from typing import Dict, List, Optional, TYPE_CHECKING, Type, Iterator, Iterable
+from typing import Dict, List, Optional, TYPE_CHECKING, Type, Iterator
 
 from polytropos.ontology.composite import Composite
-from polytropos.util.exceptions import ExceptionWrapper
-from polytropos.util.futures import split_to_chunks
 
 from polytropos.util.loader import load
 from polytropos.actions.evolve import Change
@@ -72,7 +68,7 @@ class Evolve(Step):
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, *, context: "Context", schema: "Schema", changes: List[Dict], lookups: List[str]=None) -> "Evolve":  # type: ignore # Signature of "build" incompatible with supertype "Step"
+    def build(cls, *, context: "Context", schema: "Schema", changes: List[Dict], lookups: List[str] = None) -> "Evolve":  # type: ignore # Signature of "build" incompatible with supertype "Step"
         """Loads in the specified lookup tables, constructs the specified Changes, and passes these Changes to the
         constructor.
         :param context: Helper class that finds requested files in a configuration path.
@@ -83,7 +79,7 @@ class Evolve(Step):
         do_build: Callable = _EvolveFactory(context, changes, schema, lookups)
         return do_build(cls)
 
-    def process_composite(self, origin_dir: str, base_target_dir: str, composite_id: str) -> Optional[ExceptionWrapper]:
+    def process_composite(self, origin_dir: str, base_target_dir: str, composite_id: str) -> None:
         try:
             relpath: str = relpath_for(composite_id)
             origin_filename: str = os.path.join(origin_dir, relpath, "%s.json" % composite_id)
@@ -102,10 +98,9 @@ class Evolve(Step):
         except Exception as e:
             logging.error("Error processing composite %s during evolve step.")
             traceback.print_exc()
-            return ExceptionWrapper(e)
-        return None
+            raise
 
-    def process_composites(self, origin_dir: str, target_dir: str, chunk: List[str]) -> None:
+    def process_composites(self, chunk: List[str], origin_dir: str, target_dir: str) -> None:
         start: float = time.time()
         for composite_id in chunk:
             self.process_composite(origin_dir, target_dir, composite_id)
@@ -114,7 +109,5 @@ class Evolve(Step):
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
         composites: List[str] = list(find_all_composites(origin_dir))
-        chunks: Iterable[List[str]] = split_to_chunks(composites, self.context.process_pool_chunk_size)
-        action: Callable = partial(self.process_composites, origin_dir, target_dir)
-        with ProcessPoolExecutor() as executor:
-            executor.map(action, chunks)
+        for _ in self.context.run_in_process_pool(self.process_composites, composites, origin_dir, target_dir):
+            pass

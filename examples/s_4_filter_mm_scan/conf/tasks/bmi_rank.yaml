@@ -16,7 +16,6 @@ resulting_in:
 steps:
   - Filter:
       name: RetainOnlyFemales
-
       male_flag: the_maleness_var
   - Evolve:
       changes:
