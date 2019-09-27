@@ -18,9 +18,9 @@ class OneOfFilter(UnivariateFilter, ABC):
         self.values = {self.variable.cast(value) for value in values}
 
         if self.variable.data_type == "Text":
-            self.values = {value.lower() for value in self.values}
+            self.values = {cast(str, value).lower() for value in self.values}
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Check for any class-specific parameter requirements."""
         pass
 
@@ -29,11 +29,12 @@ class MatchesOneOf(OneOfFilter):
         return candidate in self.values
 
 class ContainsOneOf(OneOfFilter):
-    def _validate(self):
+    def _validate(self) -> None:
         pass
 
     def compares_true(self, candidate: str) -> bool:
         for value in self.values:
-            if value in candidate:
+            v: str = cast(str, value)
+            if v in candidate:
                 return True
         return False

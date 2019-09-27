@@ -16,7 +16,8 @@ class ComparisonFilter(UnivariateFilter, ABC):
         self.threshold = self.variable.cast(threshold)
 
         if self.variable.data_type == "Text":
-            self.threshold = self.threshold.lower()
+            t: str = cast(str, self.threshold).lower()
+            self.threshold = t
 
 class AtLeast(ComparisonFilter):
     def compares_true(self, value: Any) -> bool:
