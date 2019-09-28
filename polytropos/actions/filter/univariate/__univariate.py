@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, cast
+from typing import Any, cast, List
 
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
@@ -9,6 +9,11 @@ from polytropos.util.nesteddicts import MissingDataError
 from polytropos.actions.filter import Filter
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import VariableId, Variable, Primitive
+
+class MissingValue:
+    pass
+
+MISSING_VALUE: MissingValue = MissingValue()
 
 class UnivariateFilter(Filter, ABC):
     """A filter that involves checking values against only one variable."""
@@ -22,8 +27,6 @@ class UnivariateFilter(Filter, ABC):
         variable: Variable = self.schema.get(self.var_id)
         if variable is None:
             raise ValueError('Unrecognized variable ID "%s"' % self.var_id)
-        if not isinstance(variable, Primitive):
-            raise ValueError('Non-primitive data type %s cannot be compared' % self.variable.data_type)
 
         # If narrowing is disabled, the comparison variable should not be immutable
         if self.narrows and not variable.temporal:
@@ -35,8 +38,15 @@ class UnivariateFilter(Filter, ABC):
     def compares_true(self, value: Any) -> bool:
         pass
 
+    @abstractmethod
+    def _missing_value_passes(self) -> bool:
+        pass
+
     def compares_case_insensitive(self, value: Any) -> bool:
-        if self.variable.data_type == "Text":
+        if value is MISSING_VALUE:
+            return self._missing_value_passes()
+
+        if self.variable.data_type == "Text" and value is not None:
             value = value.lower()
         return self.compares_true(value)
 
@@ -49,8 +59,8 @@ class UnivariateFilter(Filter, ABC):
             try:
                 value: Any = composite.get_observation(self.var_id, period)
             except MissingDataError:
-                del composite.content[period]
-                continue
+                value = MISSING_VALUE
+
             if not self.compares_case_insensitive(value):
                 del composite.content[period]
 
@@ -62,14 +72,18 @@ class UnivariateFilter(Filter, ABC):
             try:
                 value: Any = composite.get_immutable(self.var_id)
             except MissingDataError:
-                return False
+                value = MISSING_VALUE
             return self.compares_case_insensitive(value)
 
-        for period in composite.periods:
+        periods: List = list(composite.periods)
+        if len(periods) == 0 and self._missing_value_passes():
+            return True
+
+        for period in periods:
             try:
                 value = composite.get_observation(self.var_id, period)
             except MissingDataError:
-                continue
+                value = MISSING_VALUE
             if self.compares_case_insensitive(value):
                 return True
 
