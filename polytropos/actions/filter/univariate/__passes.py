@@ -9,8 +9,8 @@ from polytropos.util.nesteddicts import MissingDataError, MISSING_VALUE
 if TYPE_CHECKING:
     from polytropos.actions.filter.univariate.__univariate import UnivariateFilter
 
-@dataclass
-class UnivariateCompositeTester(ABC):  # type: ignore
+@dataclass  # type: ignore
+class UnivariateCompositeTester(ABC):
     """Tests whether a Composite should be passed by a UnivariateFilter. The behavior is always the same for immutable
     variables: the Composite passes if and only if the immutable variable passes the filter criterion."""
 
