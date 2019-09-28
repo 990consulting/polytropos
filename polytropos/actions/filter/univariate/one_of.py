@@ -24,7 +24,7 @@ class OneOfFilter(UnivariateFilter, ABC):
         """Check for any class-specific parameter requirements."""
         pass
 
-    def _missing_value_passes(self) -> bool:
+    def missing_value_passes(self) -> bool:
         return False
 
 class MatchesOneOf(OneOfFilter):

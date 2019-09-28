@@ -22,7 +22,7 @@ class Exists(UnivariateFilter):
     """Requires that a variable have a non-trivial value in order to pass. For primitives, that means non-null; for
     Folders, Lists, or NamedLists, that means non-empty."""
 
-    def _missing_value_passes(self) -> bool:
+    def missing_value_passes(self) -> bool:
         return False
 
     def compares_true(self, value: Any) -> bool:
@@ -31,7 +31,7 @@ class Exists(UnivariateFilter):
 class DoesNotExist(UnivariateFilter):
     """Requires that a variable either be absent or have a trivial value in at least one period in order to pass."""
 
-    def _missing_value_passes(self) -> bool:
+    def missing_value_passes(self) -> bool:
         return True
 
     def compares_true(self, value: Any) -> bool:

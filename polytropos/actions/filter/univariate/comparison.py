@@ -22,7 +22,7 @@ class ComparisonFilter(UnivariateFilter, ABC):
             t: str = cast(str, self.threshold).lower()
             self.threshold = t
 
-    def _missing_value_passes(self) -> bool:
+    def missing_value_passes(self) -> bool:
         return False
 
 class AtLeast(ComparisonFilter):
