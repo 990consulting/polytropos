@@ -6,7 +6,7 @@ from polytropos.actions.filter import Filter
 from polytropos.actions.filter.mem import InMemoryFilterIterator
 from polytropos.ontology.composite import Composite
 
-from polytropos.actions.filter.exists import DoesNotExist
+from polytropos.actions.filter.univariate.exists import DoesNotExist
 from polytropos.ontology.variable import VariableId
 
 @pytest.fixture()
