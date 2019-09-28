@@ -7,9 +7,11 @@ from polytropos.ontology.schema import Schema
 
 class OneOfFilter(UnivariateFilter, ABC):
     def __init__(self, context: Context, schema: Schema, var_id: str, values: List, narrows: bool = True,
-                 filters: bool = True):
+                 filters: bool = True, pass_condition: str = "any"):
 
-        super(OneOfFilter, self).__init__(context, schema, var_id, narrows=narrows, filters=filters)
+        super(OneOfFilter, self).__init__(context, schema, var_id, narrows=narrows, filters=filters,
+                                          pass_condition=pass_condition)
+
         if values is None or len(values) == 0:
             raise ValueError('Must provide at least one matching value for "one-of" filters.')
 

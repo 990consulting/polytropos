@@ -46,7 +46,7 @@ class AllPeriodsCompareTrue(UnivariateCompositeTester):
             try:
                 value = composite.get_observation(self.parent.var_id, period)
             except MissingDataError:
-                return False
+                value = MISSING_VALUE
             if not self.parent.compares_case_insensitive(value):
                 return False
 
