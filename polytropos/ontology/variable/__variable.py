@@ -353,6 +353,23 @@ class Variable:
             ret.append(current)
         return list(ret)
 
+    @property
+    def transient(self) -> bool:
+        """Transient if a variable has the key "transient" in its metadata dictionary
+        and the value of "transient" does not represent false
+        (i.e., anything except null, empty string, "false", "no", 0, or boolean false)"""
+        return "transient" in self.metadata and self.metadata["transient"] not in [None, "", 0, False, "false", "no"]
+
+    @property
+    def has_transient_ancestor(self) -> bool:
+        current: Variable = self
+        while current.parent is not None:
+            current = self.track[current.parent]
+            if current.transient:
+                return True
+        return False
+
+
 class Container(Variable):
     pass
 

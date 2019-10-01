@@ -109,12 +109,13 @@ def schema_validate(schema_basepath: str, schema_name: str, schema_source_name: 
 @click.argument('output_prefix', type=str)
 @click.option('--t-group', type=str, default=None, help="Variable ID of temporal grouping variable, if any.")
 @click.option('--i-group', type=str, default=None, help="Variable ID of immutable grouping variable, if any.")
+@click.option('--exclude_trivial', is_flag=True)
 def coverage(schema_basepath: str, schema_name: str, data_path: str, output_prefix: str, t_group: Optional[str],
-             i_group: Optional[str]) -> None:
+             i_group: Optional[str], exclude_trivial: bool) -> None:
     """Produce a coverage report consisting of four files: coverage and groups for each of immutable and temporal
     tracks."""
     with Context.build("", "", input_dir=data_path, schemas_dir=schema_basepath) as context:
-        CoverageFile.standalone(context, schema_name, output_prefix, cast(Optional[VariableId], t_group), cast(Optional[VariableId], i_group))
+        CoverageFile.standalone(context, schema_name, output_prefix, cast(Optional[VariableId], t_group), cast(Optional[VariableId], i_group), exclude_trivial)
 
 
 if __name__ == "__main__":
