@@ -1,5 +1,6 @@
 from collections import Callable
 from typing import Dict, List
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -11,7 +12,7 @@ from polytropos.ontology.track import Track
 
 @pytest.fixture()
 def context() -> Context:
-    return Context.build(conf_dir="dummy", data_dir="dummy")
+    return MagicMock(spec=Context)
 
 @pytest.fixture()
 def make_track() -> Callable:

@@ -95,3 +95,8 @@ def path_to_str(path: Iterable[str]) -> str:
 def str_to_path(path_str: str) -> Iterator[str]:
     assert path_str.startswith("/")
     yield from path_str[1:].split("/")
+
+class MissingValue:
+    pass
+
+MISSING_VALUE: MissingValue = MissingValue()
