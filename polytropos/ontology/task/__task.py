@@ -104,6 +104,7 @@ class Task:
         temporary folders"""
         origin_path = os.path.join(self.context.entities_input_dir, self.origin_data) if self.context.legacy_mode else self.context.entities_input_dir
         logging.info("Running task with origin data in %s." % origin_path)
+        task_output_path: Optional[str] = None
         if self.target_data is not None:
             task_output_path = os.path.join(
                 self.context.entities_output_dir, self.target_data
@@ -122,23 +123,20 @@ class Task:
         next_path: Optional[str] = None
         for i, step in enumerate(self.steps):
             logging.info("Beginning a %s step (%d)." % (step.__class__.__name__, i))
-            next_path = mkdtemp(dir=self.context.temp_dir, prefix=str(i).zfill(3) + '-')
+
+            is_last_step = i == len(self.steps) - 1
+            if is_last_step and task_output_path is not None:
+                next_path = task_output_path
+            else:
+                next_path = mkdtemp(dir=self.context.temp_dir, prefix=str(i).zfill(3) + '-')
+
             logging.debug("Output for this step will be recorded in %s." % next_path)
             step(current_path, next_path)
+
             if i > 0 and not self.context.no_cleanup:
                 shutil.rmtree(current_path, ignore_errors=True)
             current_path = next_path
+
         assert next_path is not None
-        if self.target_data is not None:
-            if not self.context.no_cleanup:
-                # Move the last temporary folder to destination
-                logging.info("Renaming %s to %s" % (next_path, task_output_path))
-                shutil.move(next_path, task_output_path)
-                # Hack to avoid leaving unfinished objects
-                os.mkdir(next_path)
-            else:
-                # Copy the last temporary folder to destination
-                logging.info("Copying %s to %s" % (next_path, task_output_path))
-                shutil.copytree(next_path, task_output_path)
-        if not self.context.no_cleanup:
+        if task_output_path is None and not self.context.no_cleanup:
             shutil.rmtree(next_path, ignore_errors=True)
