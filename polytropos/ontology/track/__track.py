@@ -1,7 +1,6 @@
 import logging
-from copy import deepcopy
 import json
-from typing import Iterator, Dict, TYPE_CHECKING, Any, Optional, List as ListType
+from typing import Iterator, Dict, TYPE_CHECKING, Any, Optional, List as ListType, Set
 from collections.abc import MutableMapping
 
 from polytropos.ontology.variable import (
@@ -22,6 +21,8 @@ class Track(MutableMapping):
     that have the same temporality. That is, for every entity type, there is a temporal track and an immutable track,
     which are structured identically. The two tracks interact during the Analysis step in the generation of this entity
     type's data."""
+
+    ALLOWED_VAR_SPEC_FIELDS: Set[str] = {"name", "data_type", "sort_order", "parent", "sources", "metadata"}
 
     def __init__(self, specs: Dict, source: Optional["Track"], name: str):
         """Do not call directly; use Track.build()."""
@@ -59,6 +60,10 @@ class Track(MutableMapping):
         logging.info('All variables valid "%s".' % name)
 
     def build_variable(self, data: Dict, var_id: VariableId) -> Variable:
+        unexpected_fields = set(data.keys()).difference(Track.ALLOWED_VAR_SPEC_FIELDS)
+        if len(unexpected_fields) > 0:
+            raise ValueError("unexpected variable fields: %s" % sorted(unexpected_fields))
+
         try:
             data_type = data['data_type']
         except Exception as e:

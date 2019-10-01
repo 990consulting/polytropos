@@ -102,8 +102,7 @@ class Validator:
 
 class Variable:
     def __init__(self, track: "Track", var_id: VariableId, name: str, sort_order: int,
-                 notes: Optional[str] = None, earliest_epoch: Optional[str] = None, latest_epoch: Optional[str] = None,
-                 short_description: Optional[str] = None, long_description: Optional[str] = None,
+                 metadata: Optional[Dict[str, Any]] = None,
                  sources: Optional[ListType[VariableId]] = None, parent: Optional[VariableId] = None):
 
         self.initialized = False
@@ -127,17 +126,7 @@ class Variable:
         self.sort_order: int = sort_order
 
         # Metadata: any information about the variable that the operator chooses to include.
-        self.notes: Optional[str] = notes
-
-        # An alphabetically sortable indicator of when this field first came into use.
-        self.earliest_epoch: Optional[str] = earliest_epoch
-
-        # An alphabetically sortable indicator of when this field ceased to be used.
-        self.latest_epoch: Optional[str] = latest_epoch
-
-        # Descriptions of the variable -- used in various situations
-        self.short_description: Optional[str] = short_description
-        self.long_description: Optional[str] = long_description
+        self.metadata: Dict[str, Any] = metadata if metadata is not None else {}
 
         # The variable IDs (not names!) from the preceding stage from which to derive values for this variable, if any.
         self.sources: ListType[VariableId] = sources if sources is not None else []
@@ -188,9 +177,6 @@ class Variable:
             Validator.validate_parent(self, value)
         elif attribute == 'sort_order':
             Validator.validate_sort_order(self, value)
-        elif attribute in {'notes', 'earliest_epoch', 'latest_epoch', 'short_description', 'long_description'}:
-            if value is not None:
-                return value.strip()
         elif attribute == 'data_type':
             raise AttributeError
 
@@ -366,6 +352,23 @@ class Variable:
             current = self.track[current.parent]
             ret.append(current)
         return list(ret)
+
+    @property
+    def transient(self) -> bool:
+        """Transient if a variable has the key "transient" in its metadata dictionary
+        and the value of "transient" does not represent false
+        (i.e., anything except null, empty string, "false", "no", 0, or boolean false)"""
+        return "transient" in self.metadata and self.metadata["transient"] not in [None, "", 0, False, "false", "no"]
+
+    @property
+    def has_transient_ancestor(self) -> bool:
+        current: Variable = self
+        while current.parent is not None:
+            current = self.track[current.parent]
+            if current.transient:
+                return True
+        return False
+
 
 class Container(Variable):
     pass

@@ -7,7 +7,7 @@ from polytropos.ontology.track import Track
 
 @pytest.fixture(scope="module")
 def half_source_spec() -> Callable:
-    def _half_source_spec(cardinal: int, ordinal: str, prefix: str, track_name: str) -> Dict:
+    def _half_source_spec(cardinal: int, ordinal: str, prefix: str, track_name: str, data_type: str = "Text") -> Dict:
         return {
             "source_%s_folder_%i" % (prefix, cardinal): {
                 "name": "%s_%s_folder" % (ordinal, track_name),
@@ -26,9 +26,9 @@ def half_source_spec() -> Callable:
                 "parent": "source_%s_folder_%i" % (prefix, cardinal),
                 "sort_order": 1
             },
-            "source_%s_list_text_%i" % (prefix, cardinal): {
-                "name": "some_text",
-                "data_type": "Text",
+            "source_%s_list_%s_%i" % (prefix, data_type.lower(), cardinal): {
+                "name": "some_%s" % data_type.lower(),
+                "data_type": data_type,
                 "parent": "source_%s_list_%i" % (prefix, cardinal),
                 "sort_order": 0
             },
@@ -38,15 +38,15 @@ def half_source_spec() -> Callable:
                 "parent": "source_%s_list_%i" % (prefix, cardinal),
                 "sort_order": 1
             },
-            "source_%s_keyed_list_text_%i" % (prefix, cardinal): {
-                "name": "some_text",
-                "data_type": "Text",
+            "source_%s_keyed_list_%s_%i" % (prefix, data_type.lower(), cardinal): {
+                "name": "some_%s" % data_type.lower(),
+                "data_type": data_type,
                 "parent": "source_%s_keyed_list_%i" % (prefix, cardinal),
                 "sort_order": 0
             },
-            "source_%s_root_text_%i" % (prefix, cardinal): {
-                "name": "%s_root_text_%i" % (track_name, cardinal),
-                "data_type": "Text",
+            "source_%s_root_%s_%i" % (prefix, data_type.lower(), cardinal): {
+                "name": "%s_root_%s_%i" % (track_name, data_type.lower(), cardinal),
+                "data_type": data_type,
                 "sort_order": 1
             }
         }

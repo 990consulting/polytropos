@@ -27,8 +27,10 @@ def _get_sorted_vars(group_var_counts: Dict[Optional[str], Dict[Tuple[str, ...],
         for key in counter:
             all_known_vars.add(key)
     for variable in track.values():
-        path: Tuple[str, ...] = tuple(variable.absolute_path)
-        all_known_vars.add(path)
+        # Exclude transient variable from the coverage report
+        if not (variable.transient or variable.has_transient_ancestor):
+            path: Tuple[str, ...] = tuple(variable.absolute_path)
+            all_known_vars.add(path)
     sorted_vars: List[Tuple[str, ...]] = sorted(all_known_vars)
     return sorted_vars
 
@@ -70,18 +72,19 @@ class CoverageFile(Consume):
     file_prefix: str
     temporal_grouping_var: Optional[VariableId] = field(default=None)
     immutable_grouping_var: Optional[VariableId] = field(default=None)
+    exclude_trivial: bool = False
 
     coverage_result: CoverageFileExtractResult = field(default_factory=CoverageFileExtractResult, init=False)
 
     # noinspection PyTypeChecker
     @classmethod
     def standalone(cls, context: Context, schema_name: str, output_prefix: str,
-                   t_group: Optional[VariableId], i_group: Optional[VariableId]) -> None:
+                   t_group: Optional[VariableId], i_group: Optional[VariableId], exclude_trivial: bool = False) -> None:
 
         schema: Optional[Schema] = Schema.load(schema_name, context.schemas_dir)
         assert schema is not None
         # TODO Refactor so unnecessary arguments aren't required.
-        coverage: "CoverageFile" = cls(context, schema, output_prefix, t_group, i_group)
+        coverage: "CoverageFile" = cls(context, schema, output_prefix, t_group, i_group, exclude_trivial)
         coverage(context.entities_input_dir, None)
 
     def before(self) -> None:
@@ -141,7 +144,7 @@ class CoverageFile(Consume):
         fn: str = self.file_prefix + "_" + infix + ".csv"
         logging.info("Writing coverage file to %s.", fn)
 
-        groups: List[str] = sorted([str(x) for x in group_var_counts.keys()])
+        groups: List[str] = sorted([str(x) for x in group_obs_counts.keys()])
         columns: List[str] = ["variable", "in_schema", "var_id", "data_type"] + groups
         sorted_vars = _get_sorted_vars(group_var_counts, track)
 
@@ -153,7 +156,7 @@ class CoverageFile(Consume):
                 row: Dict = self._init_row(var_path)
                 for group in group_obs_counts.keys():
                     n_in_group: int = group_obs_counts[group]
-                    times_var_observed: int = group_var_counts[group][var_path]
+                    times_var_observed: int = group_var_counts[group].get(var_path, 0)
                     frac: float = times_var_observed / n_in_group
                     if frac > 1.0:
                         logging.warning("Observed coverage of {:.5f} (>1) for variable {:}."
@@ -181,16 +184,17 @@ class CoverageFile(Consume):
         self._write_immutable()
 
     def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Any]:
-        extract = CoverageFileExtract(self.schema, origin_dir, self.temporal_grouping_var, self.immutable_grouping_var)
+        extract = CoverageFileExtract(self.schema, origin_dir, self.temporal_grouping_var, self.immutable_grouping_var, self.exclude_trivial)
         return self.context.run_in_process_pool(extract.extract, list(composite_ids))
 
 
 class CoverageFileExtract:
-    def __init__(self, schema: Schema, origin_dir: str, temporal_grouping_var: Optional[VariableId], immutable_grouping_var: Optional[VariableId]):
+    def __init__(self, schema: Schema, origin_dir: str, temporal_grouping_var: Optional[VariableId], immutable_grouping_var: Optional[VariableId], exclude_trivial: bool):
         self.schema = schema
         self.origin_dir = origin_dir
         self.temporal_grouping_var = temporal_grouping_var
         self.immutable_grouping_var = immutable_grouping_var
+        self.exclude_trivial = exclude_trivial
 
     def _get_temporal_group(self, composite: Composite, period: str) -> Optional[str]:
         if self.temporal_grouping_var is None:
@@ -231,16 +235,28 @@ class CoverageFileExtract:
             if value == POLYTROPOS_NA:
                 continue
 
-            # Record that we saw this path
+            if self.exclude_trivial:
+                # Not count empty dictionary, empty list, empty string, zero, or null as having been "observed."
+                # The boolean value `False` should still be counted.
+                if not value and value is not False:
+                    continue
+
             child_path: Tuple[str, ...] = path + (key,)
+
+            # Micro-optimization - direct access to a protected member
+            # noinspection PyProtectedMember
+            child_var: Optional[Variable] = self.schema._var_path_cache.get(child_path)
+
+            # Exclude transient variable from the coverage report
+            if child_var is not None and child_var.transient:
+                continue
+
+            # Record that we saw this path
             observed.add(child_path)
 
             # For known keyed lists, skip over the particular key names. Beyond this, we don't worry at this stage
             # whether the variable is known or not.
 
-            # Micro-optimization - direct access to a protected member
-            # noinspection PyProtectedMember
-            child_var: Optional[Variable] = self.schema._var_path_cache.get(child_path)
             if child_var is not None and child_var.data_type == "KeyedList":
                 self._handle_keyed_list(composite_id, child_path, value, observed)
 
