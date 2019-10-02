@@ -50,7 +50,7 @@ class CompoundFilter(Step):  # type: ignore # https://github.com/python/mypy/iss
             target_dir: str = os.path.join(target_base_dir, relpath)
             os.makedirs(target_dir, exist_ok=True)
             with open(os.path.join(target_dir, "%s.json" % c_id), 'w') as target_file:
-                json.dump(filtered_composite.content, target_file)
+                json.dump(filtered_composite.content, target_file, indent=2)
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
         composites_ids = list(find_all_composites(origin_dir))
