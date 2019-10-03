@@ -19,8 +19,9 @@ def run_task(basepath) -> Callable:
         polytropos.actions.register_all()
         conf = os.path.join(basepath, '../examples', scenario, 'conf')
         data = os.path.join(basepath, '../examples', scenario, 'data')
-        task = Task.build(Context.build(conf, data, output_dir=output_dir), task_name)
-        task.run()
+        with Context.build(conf, data, output_dir=output_dir) as context:
+            task = Task.build(context, task_name)
+            task.run()
         actual_path = os.path.join(
             task.context.entities_output_dir, task.target_data
         )

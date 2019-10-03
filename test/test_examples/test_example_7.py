@@ -22,10 +22,11 @@ def setup_and_teardown():
     data_dir: str = os.path.join(FIXTURE_PATH, "data")
     conf_dir: str = os.path.join(FIXTURE_PATH, "conf")
     task_dir: str = os.path.join(conf_dir, "tasks")
-    for file in os.scandir(task_dir):
-        task_name: str = file.name[:-5]
-        task = Task.build(Context.build(conf_dir, data_dir, output_dir=WORKING_PATH), task_name)
-        task.run()
+    with Context.build(conf_dir, data_dir, output_dir=WORKING_PATH) as context:
+        for file in os.scandir(task_dir):
+            task_name: str = file.name[:-5]
+            task = Task.build(context, task_name)
+            task.run()
     yield
     shutil.rmtree(WORKING_PATH, ignore_errors=True)
 
