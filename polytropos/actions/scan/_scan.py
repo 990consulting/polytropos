@@ -1,4 +1,5 @@
 import itertools
+import logging
 import os
 import json
 from abc import abstractmethod
@@ -73,9 +74,11 @@ class Scan(Step):
                 json.dump(composite.content, target_file, indent=2)
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
+        logging.info("Spawning parallel processes to extract data from each composite for global application.")
         composite_ids: List[str] = list(find_all_composites(origin_dir))
         self.analyze(
-            itertools.chain.from_iterable(self.context.run_in_thread_pool(self.process_composites, composite_ids, origin_dir))
+            itertools.chain.from_iterable(self.context.run_in_process_pool(self.process_composites, composite_ids, origin_dir))
         )
-        for _ in self.context.run_in_thread_pool(self.alter_and_write_composites, composite_ids, origin_dir, target_dir):
+        logging.info("Spawning parallel processes to apply global information to each composite.")
+        for _ in self.context.run_in_process_pool(self.alter_and_write_composites, composite_ids, origin_dir, target_dir):
             pass

@@ -1,4 +1,5 @@
 import itertools
+import logging
 import os
 import json
 from abc import abstractmethod
@@ -60,6 +61,7 @@ class Consume(Step):
         return result
 
     def process_composites(self, composite_ids: Iterable[str], origin_dir: str) -> Iterable[Any]:
+        logging.info("Spawning parallel processes to consume composites.")
         results: Iterable[List[Any]] = self.context.run_in_thread_pool(self.process_composites_chunk, list(composite_ids), origin_dir)
         return itertools.chain.from_iterable(results)
 

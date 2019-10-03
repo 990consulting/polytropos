@@ -1,4 +1,5 @@
 import itertools
+import logging
 import os
 import json
 from dataclasses import dataclass
@@ -74,11 +75,13 @@ class Aggregate(Step):
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
         composite_ids: List[str] = list(find_all_composites(origin_dir))
+        logging.info("Spawning parallel processes to extract data from each composite for aggregation.")
         per_composite_results: Iterable[Tuple[str, Optional[Any]]] = itertools.chain.from_iterable(
-            self.context.run_in_thread_pool(self.process_composites, composite_ids, origin_dir)
+            self.context.run_in_process_pool(self.process_composites, composite_ids, origin_dir)
         )
 
         self.analyze(per_composite_results)
 
-        for _ in self.context.run_in_thread_pool(write_composites, list(self.emit()), target_dir):
+        logging.info("Spawning parallel processes to aggregate extracted data from each composite.")
+        for _ in self.context.run_in_process_pool(write_composites, list(self.emit()), target_dir):
             pass

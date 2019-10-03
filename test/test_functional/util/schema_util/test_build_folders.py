@@ -50,12 +50,12 @@ def test_three_levels(do_test):
         "the_prefix_x_y": {
             "name": "y",
             "data_type": "Folder",
-            "parent_id": "the_prefix_x"
+            "parent": "the_prefix_x"
         },
         "the_prefix_x_y_z": {
             "name": "z",
             "data_type": "Folder",
-            "parent_id": "the_prefix_x_y"
+            "parent": "the_prefix_x_y"
         }
     }
     do_test(existing, path, expected_spec, expected_var_id)
@@ -69,7 +69,7 @@ def test_three_levels_two_exist_one_is_a_list(do_test):
         "the_prefix_x_y": {
             "name": "y",
             "data_type": "List",
-            "parent_id": "the_prefix_x"
+            "parent": "the_prefix_x"
         }
     }
     expected_spec: Dict = {
@@ -80,12 +80,12 @@ def test_three_levels_two_exist_one_is_a_list(do_test):
         "the_prefix_x_y": {
             "name": "y",
             "data_type": "List",
-            "parent_id": "the_prefix_x"
+            "parent": "the_prefix_x"
         },
         "the_prefix_x_y_z": {
             "name": "z",
             "data_type": "Folder",
-            "parent_id": "the_prefix_x_y"
+            "parent": "the_prefix_x_y"
         }
     }
     path: List[str] = ["x", "y", "z"]
@@ -101,7 +101,7 @@ def test_illegal_ancestor_raises(do_test):
         "the_prefix_x_y": {
             "name": "y",
             "data_type": "Text",
-            "parent_id": "the_prefix_x"
+            "parent": "the_prefix_x"
         }
     }
     path: List[str] = ["x", "y", "z"]
