@@ -1,7 +1,6 @@
 import logging
 import os
 import shutil
-from shutil import rmtree
 from typing import Optional, Any, List, Dict
 
 import yaml
@@ -109,13 +108,6 @@ class Task:
             task_output_path = os.path.join(
                 self.context.entities_output_dir, self.target_data
             ) if self.context.legacy_mode else self.context.entities_output_dir
-            try:
-                logging.debug("Attempting to remove old task output directory, if it exists.")
-                rmtree(task_output_path)
-                logging.debug("Old output directory removed.")
-            except FileNotFoundError:
-                logging.debug("No old task output directory.")
-                pass
         # There are always two paths in play, current and next, each step
         # will read from current and write to next, after the step is done we
         # can delete the current_path folder because it's not used anymore

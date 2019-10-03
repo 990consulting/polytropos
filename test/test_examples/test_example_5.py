@@ -33,8 +33,9 @@ def do_export() -> Callable:
         polytropos.actions.register_all()
         conf = os.path.join(BASEPATH, '../../examples', "s_5_tr_export", 'conf')
         data = os.path.join(BASEPATH, '../../examples', "s_5_tr_export", 'data')
-        task = Task.build(Context.build(conf, data), task_name)
-        task.run()
+        with Context.build(conf, data) as context:
+            task = Task.build(context, task_name)
+            task.run()
         actual_path: str = os.path.join(task.context.conf_dir, '../')
         expected_path: str = os.path.join(
             task.context.conf_dir, '../', "expected"

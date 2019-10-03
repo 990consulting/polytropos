@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 from dataclasses import dataclass
@@ -32,7 +33,14 @@ class Context:
         entities_output_dir = output_dir or entities_input_dir
 
         if output_dir:
-            os.makedirs(output_dir, exist_ok=True)
+            try:
+                logging.debug("Attempting to remove old output directory, if it exists.")
+                shutil.rmtree(output_dir)
+                logging.debug("Old output directory removed.")
+            except FileNotFoundError:
+                logging.debug("No old output directory.")
+
+            os.makedirs(output_dir)
             temp_dir = temp_dir or os.path.join(output_dir, '_tmp')
         else:
             output_dir = os.path.join(conf_dir, "..") if conf_dir else "."

@@ -62,14 +62,14 @@ def test_nested_does_not_short_circuit_crawl():
     immutable: Track = Track.build({}, None, "immutable")
     schema: Schema = Schema(temporal, immutable, name="semantic")
 
-    context: Context = Context.build(conf_dir="dummy", data_dir="dummy")
     basepath: str = os.path.dirname(os.path.abspath(__file__))
     composite_path: str = os.path.join(basepath, "data")
 
     shutil.rmtree(output_path, ignore_errors=True)
     os.makedirs(output_path)
-    coverage: CoverageFile = CoverageFile(context, schema, output_path + "/semantic", None, None)
-    coverage(composite_path, "dummy")
+    with Context.build(conf_dir="dummy", data_dir="dummy") as context:
+        coverage: CoverageFile = CoverageFile(context, schema, output_path + "/semantic", None, None)
+        coverage(composite_path, "dummy")
 
     expected_path: str = os.path.join(basepath, "expected.csv")
     actual_path: str = os.path.join(output_path, "semantic_temporal.csv")
