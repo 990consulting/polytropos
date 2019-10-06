@@ -373,6 +373,10 @@ class Variable:
 class Container(Variable):
     pass
 
+class MultipleText(Variable):
+    """TODO This is not yet handled anywhere, but exists in the wild"""
+    pass
+
 class Primitive(Variable):
     @abstractmethod
     def cast(self, value: Optional[Any]) -> Optional[Any]:
@@ -399,6 +403,8 @@ class Decimal(Primitive):
             return None
         return float(value)
 
+class Ratio(Decimal):
+    pass
 
 class Unary(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[bool]:
