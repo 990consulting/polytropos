@@ -167,7 +167,7 @@ class Variable:
                 for source_id in value:
                     source_var = self.track.source[source_id]
                     for child_source in child_sources:
-                        if source_var.check_ancestor(child_source):
+                        if source_var.is_ancestor_of(child_source):
                             safe.add(child_source)
                 for child_source, children in child_sources.items():
                     if child_source not in safe:
@@ -279,7 +279,7 @@ class Variable:
         return json.dumps(self.dump(), indent=4)
 
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'check_ancestor'))
-    def check_ancestor(self, child_id: VariableId, stop_at_list: bool = False) -> bool:
+    def is_ancestor_of(self, child_id: VariableId, stop_at_list: bool = False) -> bool:
         variable = self.track[child_id]
         if variable.parent is None:
             return False
@@ -290,7 +290,7 @@ class Variable:
             return False
         if variable.parent == self.var_id:
             return True
-        return self.check_ancestor(variable.parent)
+        return self.is_ancestor_of(variable.parent)
 
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'first_list_ancestor'))
     def get_first_list_ancestor(self) -> Optional["Variable"]:
@@ -315,7 +315,7 @@ class Variable:
         for variable_id in self.track.descendants_that(
             data_type, targets, container, inside_list
         ):
-            if self.check_ancestor(variable_id, stop_at_list=True):
+            if self.is_ancestor_of(variable_id, stop_at_list=True):
                 ret.append(variable_id)
         return list(ret)
 

@@ -39,7 +39,7 @@ class BaseTypeTranslator(Generic[TSource, TResult]):
 
         for source_id in self.variable.sources:  # type: VariableId
             # We have to restrict the sources to the descendants of parent
-            if self.parent_source and not self.parent_source.check_ancestor(source_id):
+            if self.parent_source and not self.parent_source.is_ancestor_of(source_id):
                 continue
 
             self.process_source_variable(source_id)
