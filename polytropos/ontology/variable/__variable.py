@@ -435,8 +435,14 @@ class Currency(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[float]:
         if value is None or value == "":
             return None
-        return float(value)
-
+        try:
+            return int(value)
+        except ValueError:
+            as_currency: int = int(float(value))
+            logging.warning("Encountered fractional currency value (%s). Rounding down to nearest dollar (%s)." % (
+                value, as_currency
+            ))
+            return as_currency
 
 class Phone(Primitive):
     def cast(self, value: Optional[Any]) -> Optional[str]:
