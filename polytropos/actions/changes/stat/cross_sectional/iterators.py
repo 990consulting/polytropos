@@ -84,12 +84,12 @@ class AdHocIterator(ValueIterator):
             if subject_data_type != data_type:
                 raise ValueError('Attempting to compare different data types (%s and %s)' %
                                  (data_type, subject_data_type))
-            if identifier in subjects:
+            if identifier in self.subjects:
                 raise ValueError('Identifier "%s" supplied twice in ad-hoc cross sectional subjects.' % identifier)
             self.subjects[identifier] = subject.absolute_path
 
     def __call__(self, content: Dict) -> Iterator[Tuple[Optional[Any], Optional[str]]]:
-        for identifier, argument_path in self.subjects:
+        for identifier, argument_path in self.subjects.items():
             try:
                 value: Optional[Any] = nesteddicts.get(content, argument_path)
             except MissingDataError:
@@ -122,11 +122,14 @@ def value_iterator(schema: Schema, subjects: Any, argument_id: Optional[Variable
     if isinstance(subjects_var, KeyedList) and identifier_id is not None:
         raise ValueError("Explicit identifier specified for a KeyedList, which have built-in identifiers.")
 
+    # Sometimes I hate MyPy
+    not_optional_arg_id: VariableId = cast(VariableId, argument_id)
+
     if isinstance(subjects_var, List):
-        return ListIterator(schema, subjects_var_id, argument_id, identifier_id)
+        return ListIterator(schema, subjects_var_id, not_optional_arg_id, identifier_id)
 
     if isinstance(subjects_var, KeyedList):
-        return KeyedListIterator(schema, subjects_var_id, argument_id)
+        return KeyedListIterator(schema, subjects_var_id, not_optional_arg_id)
 
     raise ValueError('The "subject" parameter must either be a list of primitive variables or the id of a List or '
                      'KeyedList.')

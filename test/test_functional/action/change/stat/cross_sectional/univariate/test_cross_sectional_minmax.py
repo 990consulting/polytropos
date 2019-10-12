@@ -1,5 +1,5 @@
 import copy
-from typing import Dict, cast
+from typing import Dict, cast, List
 
 import pytest
 
@@ -16,6 +16,7 @@ kl_in_root: VariableId = cast(VariableId, "keyed_list_in_root")
 text_in_kl: VariableId = cast(VariableId, "text_in_keyed_list")
 decimal_in_kl: VariableId = cast(VariableId, "decimal_in_keyed_list")
 target_decimal: VariableId = cast(VariableId, "target_decimal")
+target_date: VariableId = cast(VariableId, "target_date")
 
 def test_list_max(schema, composite):
     change: Change = CrossSectionalMaximum(schema, {}, list_in_root, target_int, argument=int_in_list,
@@ -205,3 +206,49 @@ def test_keyed_list_min(schema, composite):
     }
     change(composite)
     assert composite.content == expected
+
+def test_ad_hoc_subjects_min(schema, composite):
+    subjects: List[VariableId] = [cast(VariableId, "ah_source_%i" % (i + 1)) for i in range(3)]
+    change: Change = CrossSectionalMinimum(schema, {}, subjects, target_date, identifier_target=target_text)
+    expected: Dict = copy.deepcopy(composite.content)
+    expected["populated"]["targets"] = {
+        "target_date": "1893-07-16",
+        "target_text": "ah_source_2"
+    }
+    change(composite)
+    assert composite.content == expected
+
+def test_ad_hoc_no_identifier_target(schema, composite):
+    subjects: List[VariableId] = [cast(VariableId, "ah_source_%i" % (i + 1)) for i in range(3)]
+    change: Change = CrossSectionalMinimum(schema, {}, subjects, target_date)
+    expected: Dict = copy.deepcopy(composite.content)
+    expected["populated"]["targets"] = {
+        "target_date": "1893-07-16"
+    }
+    change(composite)
+    assert composite.content == expected
+
+def test_ad_hoc_subjects_min_custom_ids(schema, composite):
+    subjects: Dict[VariableId, str] = {
+        cast(VariableId, "ah_source_%i" % (i + 1)): "new_name_%i" % (i + 1) for i in range(3)
+    }
+    change: Change = CrossSectionalMinimum(schema, {}, subjects, target_date, identifier_target=target_text)
+    expected: Dict = copy.deepcopy(composite.content)
+    expected["populated"]["targets"] = {
+        "target_date": "1893-07-16",
+        "target_text": "new_name_2"
+    }
+    change(composite)
+    assert composite.content == expected
+
+def test_ad_hoc_supplying_argument_raises(schema):
+    # Admittedly an imperfect test, but I couldn't think of a better one
+    subjects: List[VariableId] = [cast(VariableId, "ah_source_%i" % (i + 1)) for i in range(3)]
+    with pytest.raises(ValueError):
+        CrossSectionalMinimum(schema, {}, subjects, target_date, argument=text_in_list)
+
+def test_ad_hoc_supplying_identifier_raises(schema):
+    # Admittedly an imperfect test, but I couldn't think of a better one
+    subjects: List[VariableId] = [cast(VariableId, "ah_source_%i" % (i + 1)) for i in range(3)]
+    with pytest.raises(ValueError):
+        CrossSectionalMinimum(schema, {}, subjects, target_date, identifier=text_in_list)

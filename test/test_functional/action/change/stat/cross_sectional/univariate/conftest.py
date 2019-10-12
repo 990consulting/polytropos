@@ -65,6 +65,35 @@ def schema() -> Schema:
             "name": "target_decimal",
             "parent": "target_folder",
             "sort_order": 2
+        },
+        "target_date": {
+            "data_type": "Date",
+            "name": "target_date",
+            "parent": "target_folder",
+            "sort_order": 3
+        },
+        "ad_hoc_sources": {
+            "data_type": "Folder",
+            "name": "ad_hoc",
+            "sort_order": 3
+        },
+        "ah_source_1": {
+            "data_type": "Date",
+            "name": "ah_source_1",
+            "parent": "ad_hoc_sources",
+            "sort_order": 0
+        },
+        "ah_source_2": {
+            "data_type": "Date",
+            "name": "ah_source_2",
+            "parent": "ad_hoc_sources",
+            "sort_order": 1
+        },
+        "ah_source_3": {
+            "data_type": "Date",
+            "name": "ah_source_3",
+            "parent": "ad_hoc_sources",
+            "sort_order": 2
         }
     }
     temporal: Track = Track.build(temporal_spec, None, "temporal")
@@ -100,6 +129,11 @@ def composite(schema) -> Composite:
                 "green": {
                     "the_decimal": 100.6
                 }
+            },
+            "ad_hoc": {
+                "ah_source_1": "2001-01-01",
+                "ah_source_2": "1893-07-16",
+                "ah_source_3": "2019-10-12"
             }
 
         },
