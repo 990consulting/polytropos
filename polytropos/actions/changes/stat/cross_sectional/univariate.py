@@ -147,10 +147,10 @@ class _CrossSectionalMinMax(CrossSectionalUnivariateStatistic, ABC):  # type: ig
 
             self._assign(content, limit, arg_limit)
 
-class CrossSectionalMinimum(_CrossSectionalMinMax):
+class CrossSectionalMinimum(_CrossSectionalMinMax):  # type: ignore
     def _cmp(self, argument: Any, limit: Any) -> bool:
         return argument < limit
 
-class CrossSectionalMaximum(_CrossSectionalMinMax):
+class CrossSectionalMaximum(_CrossSectionalMinMax):  # type: ignore
     def _cmp(self, argument: Any, limit: Any) -> bool:
         return argument > limit
