@@ -10,7 +10,7 @@ from polytropos.ontology.variable import VariableId, Variable, Container, KeyedL
 from polytropos.util import nesteddicts
 from polytropos.util.nesteddicts import MissingDataError
 
-@dataclass
+@dataclass  # type: ignore
 class CrossSectionalUnivariateStatistic(Change, ABC):  # type: ignore
     """Calculate a univariate statistic based on all observations in a List or KeyedList."""
 
@@ -39,7 +39,7 @@ class CrossSectionalMedian(CrossSectionalUnivariateStatistic):
     def __call__(self, composite: Composite) -> None:
         assert False, "Not yet implemented!"
 
-@dataclass
+@dataclass  # type: ignore
 class _CrossSectionalMinMax(CrossSectionalUnivariateStatistic, ABC):  # type: ignore
 
     # A field by means of which to identify each subject. If the subjects are in a KeyedList, this must be left blank.
