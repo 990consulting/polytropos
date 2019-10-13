@@ -6,7 +6,7 @@ from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import VariableId
 from polytropos.util.nesteddicts import MissingDataError
 
-@dataclass
+@dataclass  # type: ignore
 class BestAvailable(Change):
     """Used for consolidating multiple values into an immutable, "preferred" value. If an immutable source is specified
     and it exists, this is used. Otherwise, the newest nontrivial value for the temporal source is used."""
@@ -27,7 +27,7 @@ class BestAvailable(Change):
 
         for period in sorted(composite.periods, reverse=True):
             try:
-                value: Optional[Any] = composite.get_observation(self.temporal_source, period)
+                value = composite.get_observation(self.temporal_source, period)
                 if value is not None:
                     composite.put_immutable(self.target, value)
             except MissingDataError:
