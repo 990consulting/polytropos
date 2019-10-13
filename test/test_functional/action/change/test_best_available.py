@@ -43,6 +43,7 @@ def schema() -> Schema:
 @pytest.fixture()
 def composite(schema) -> Composite:
     contents: Dict = {
+        "2016": {"t_source": "wrong"},
         "2017": {"t_source": "temporal_expected"},
         "2018": {"t_source": None},
         "2019": {},
@@ -59,6 +60,7 @@ def test_both_sources_immutable_available(schema, composite):
 
 def test_both_sources_no_temporal_values(schema, composite):
     change: Change = BestAvailable(schema, {}, t_source, target, immutable_source=i_source)
+    del composite.content["2016"]
     del composite.content["2017"]
     expected: Dict = copy.deepcopy(composite.content)
     expected["immutable"]["target"] = "immutable_expected"
@@ -98,6 +100,7 @@ def test_only_temporal(schema, composite):
 
 def test_only_temporal_no_valid_values(schema, composite):
     change: Change = BestAvailable(schema, {}, t_source, target)
+    del composite.content["2016"]
     del composite.content["2017"]
     expected: Dict = copy.deepcopy(composite.content)
     change(composite)

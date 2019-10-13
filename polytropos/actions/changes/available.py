@@ -30,5 +30,6 @@ class BestAvailable(Change):
                 value = composite.get_observation(self.temporal_source, period)
                 if value is not None:
                     composite.put_immutable(self.target, value)
+                    return
             except MissingDataError:
                 continue
