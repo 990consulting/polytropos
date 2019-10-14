@@ -18,7 +18,7 @@ class LongitudinalUnivariateStatistic(Change, ABC):
     target: VariableId
     period_id_target: Optional[VariableId] = field(default=None)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         subject_var: Variable = self.schema.get(self.subject)
         if not isinstance(subject_var, Primitive):
             raise ValueError("Longitudinal subject variable must be a Primitive data type.")
