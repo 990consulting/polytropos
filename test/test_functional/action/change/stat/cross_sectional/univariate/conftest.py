@@ -1,14 +1,45 @@
 from typing import Dict
 
 import pytest
-from polytropos.ontology.composite import Composite
-
-from polytropos.ontology.schema import Schema
-from polytropos.ontology.track import Track
 
 @pytest.fixture()
-def schema() -> Schema:
-    temporal_spec: Dict = {
+def content_body() -> Dict:
+    return {
+        "the_list": [
+            {
+                "the_text": "a",
+                "the_integer": 75
+            },
+            {
+                "the_text": "b",
+                "the_integer": 0
+            },
+            {
+                "the_text": "c",
+                "the_integer": -75
+            }
+        ],
+        "the_keyed_list": {
+            "red": {
+                "the_decimal": 0.7
+            },
+            "blue": {
+                "the_decimal": -24.3
+            },
+            "green": {
+                "the_decimal": 100.6
+            }
+        },
+        "ad_hoc": {
+            "ah_source_1": "2001-01-01",
+            "ah_source_2": "1893-07-16",
+            "ah_source_3": "2019-10-12"
+        }
+    }
+
+@pytest.fixture()
+def spec_body() -> Dict:
+    return {
         "list_in_root": {
             "data_type": "List",
             "name": "the_list",
@@ -96,47 +127,3 @@ def schema() -> Schema:
             "sort_order": 2
         }
     }
-    temporal: Track = Track.build(temporal_spec, None, "temporal")
-    immutable: Track = Track.build({}, None, "immutable")
-    schema: Schema = Schema(temporal, immutable)
-    return schema
-
-@pytest.fixture()
-def composite(schema) -> Composite:
-    content: Dict = {
-        "populated": {
-            "the_list": [
-                {
-                    "the_text": "a",
-                    "the_integer": 75
-                },
-                {
-                    "the_text": "b",
-                    "the_integer": 0
-                },
-                {
-                    "the_text": "c",
-                    "the_integer": -75
-                }
-            ],
-            "the_keyed_list": {
-                "red": {
-                    "the_decimal": 0.7
-                },
-                "blue": {
-                    "the_decimal": -24.3
-                },
-                "green": {
-                    "the_decimal": 100.6
-                }
-            },
-            "ad_hoc": {
-                "ah_source_1": "2001-01-01",
-                "ah_source_2": "1893-07-16",
-                "ah_source_3": "2019-10-12"
-            }
-
-        },
-        "unpopulated": {}
-    }
-    return Composite(schema, content)

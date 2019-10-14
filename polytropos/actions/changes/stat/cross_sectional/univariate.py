@@ -9,7 +9,7 @@ from polytropos.tools.qc import POLYTROPOS_NA
 
 from polytropos.actions.evolve import Change
 from polytropos.ontology.composite import Composite
-from polytropos.ontology.variable import VariableId
+from polytropos.ontology.variable import VariableId, Variable
 from polytropos.util import nesteddicts
 
 class CrossSectionalUnivariateStatistic(Change, ABC):  # type: ignore
@@ -22,6 +22,7 @@ class CrossSectionalUnivariateStatistic(Change, ABC):  # type: ignore
         self.iterate_over: ValueIterator = value_iterator(schema, subjects, argument, identifier, identifier_target)
         self.identifier_target: Optional[VariableId] = identifier_target
         self.value_target: Optional[VariableId] = value_target
+        self.temporal = self._check_class_temporality(subjects, value_target, argument, identifier, identifier_target)
 
     def _assign(self, content: Dict, limit: Optional[Any], arg_limit: Optional[str]) -> None:
         if limit is None:
@@ -32,6 +33,40 @@ class CrossSectionalUnivariateStatistic(Change, ABC):  # type: ignore
         if self.identifier_target is not None and arg_limit != POLYTROPOS_NA:
             id_target_path: ListType[str] = self.schema.get(self.identifier_target).absolute_path
             nesteddicts.put(content, id_target_path, arg_limit)
+
+    def _check_var_temporal(self, var_id: VariableId, status: Optional[bool]) -> bool:
+        variable: Variable = self.schema.get(var_id)
+        var_temporal = variable.temporal
+        if status is not None:
+            assert var_temporal == status, "Cannot mix temporal and immutable parameters in %s" % \
+                                           self.__class__.__name__
+        return var_temporal
+
+    def _check_class_temporality(self, subjects: Any, value_target: VariableId, argument: Optional[VariableId],
+                                 identifier: Optional[VariableId], identifier_target: Optional[VariableId]) -> bool:
+        temporal: Optional[bool] = None
+
+        if isinstance(subjects, list):
+            for subject in subjects:
+                temporal = self._check_var_temporal(subject, temporal)
+        elif isinstance(subjects, dict):
+            for subject in subjects.keys():
+                temporal = self._check_var_temporal(subject, temporal)
+
+        temporal = self._check_var_temporal(value_target, temporal)
+
+        if argument:
+            temporal = self._check_var_temporal(argument, temporal)
+
+        if identifier:
+            temporal = self._check_var_temporal(identifier, temporal)
+
+        if identifier_target:
+            temporal = self._check_var_temporal(identifier_target, temporal)
+
+        assert temporal is not None
+
+        return temporal
 
 class CrossSectionalMean(CrossSectionalUnivariateStatistic):
     def __call__(self, composite: Composite) -> None:
@@ -66,9 +101,13 @@ class _CrossSectionalMinMax(CrossSectionalUnivariateStatistic, ABC):
         return limit, arg_limit
 
     def __call__(self, composite: Composite) -> None:
-        # Will be trivial to implement immutable support when needed
-        for period in composite.periods:
-            content: Dict = composite.content[period]
+        if self.temporal:
+            for period in composite.periods:
+                content: Dict = composite.content[period]
+                limit, arg_limit = self._handle(content)
+                self._assign(content, limit, arg_limit)
+        else:
+            content = composite.content["immutable"]
             limit, arg_limit = self._handle(content)
             self._assign(content, limit, arg_limit)
 

@@ -2,9 +2,13 @@ import copy
 from typing import Dict, cast, List
 
 import pytest
+from polytropos.ontology.composite import Composite
+
+from polytropos.ontology.schema import Schema
 
 from polytropos.actions.changes.stat.cross_sectional.univariate import CrossSectionalMaximum, CrossSectionalMinimum
 from polytropos.actions.evolve import Change
+from polytropos.ontology.track import Track
 from polytropos.ontology.variable import VariableId
 
 list_in_root: VariableId = cast(VariableId, "list_in_root")
@@ -17,6 +21,21 @@ text_in_kl: VariableId = cast(VariableId, "text_in_keyed_list")
 decimal_in_kl: VariableId = cast(VariableId, "decimal_in_keyed_list")
 target_decimal: VariableId = cast(VariableId, "target_decimal")
 target_date: VariableId = cast(VariableId, "target_date")
+
+@pytest.fixture()
+def schema(spec_body) -> Schema:
+    temporal: Track = Track.build(spec_body, None, "temporal")
+    immutable: Track = Track.build({}, None, "immutable")
+    schema: Schema = Schema(temporal, immutable)
+    return schema
+
+@pytest.fixture()
+def composite(schema, content_body) -> Composite:
+    content: Dict = {
+        "populated": content_body,
+        "unpopulated": {}
+    }
+    return Composite(schema, content)
 
 def test_list_max(schema, composite):
     change: Change = CrossSectionalMaximum(schema, {}, list_in_root, target_int, argument=int_in_list,
