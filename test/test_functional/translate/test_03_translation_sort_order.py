@@ -3,8 +3,11 @@ import pytest
 from typing import Dict, List, Any
 import random
 
+from polytropos.actions.translate.__document import DocumentValueProvider
+from polytropos.actions.translate.trace.__trace_document import TraceDocumentValueProvider
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
+
 
 @pytest.fixture()
 def source_doc() -> Dict:
@@ -23,62 +26,64 @@ def source_doc() -> Dict:
         }
     }
 
+
 @pytest.fixture()
 def source_spec() -> Dict:
     return {
-        "blue_folder": {
+        "blue_folder_source": {
             "name": "blue_folder",
             "data_type": "Folder",
             "sort_order": 0
         },
-        "apple": {
+        "apple_source": {
             "name": "apple",
             "data_type": "Integer",
-            "parent": "blue_folder",
+            "parent": "blue_folder_source",
             "sort_order": 0
         },
-        "green_folder": {
+        "green_folder_source": {
             "name": "green_folder",
             "data_type": "Folder",
-            "parent": "blue_folder",
+            "parent": "blue_folder_source",
             "sort_order": 1
         },
-        "strawberry": {
+        "strawberry_source": {
             "name": "strawberry",
             "data_type": "Integer",
-            "parent": "green_folder",
+            "parent": "green_folder_source",
             "sort_order": 0
         },
-        "lemon": {
+        "lemon_source": {
             "name": "lemon",
             "data_type": "Integer",
-            "parent": "green_folder",
+            "parent": "green_folder_source",
             "sort_order": 1
         },
-        "orange_folder": {
+        "orange_folder_source": {
             "name": "orange_folder",
             "data_type": "Folder",
             "sort_order": 1
         },
-        "grape": {
+        "grape_source": {
             "name": "grape",
             "data_type": "Integer",
-            "parent": "orange_folder",
+            "parent": "orange_folder_source",
             "sort_order": 0,
         },
-        "mango": {
+        "mango_source": {
             "name": "mango",
             "data_type": "Integer",
-            "parent": "orange_folder",
+            "parent": "orange_folder_source",
             "sort_order": 1
         },
-        "papaya": {
+        "papaya_source": {
             "name": "papaya",
             "data_type": "Integer",
-            "parent": "orange_folder",
+            "parent": "orange_folder_source",
             "sort_order": 2
         }
     }
+
 
 @pytest.fixture()
 def target_spec() -> Dict:
@@ -91,7 +96,7 @@ def target_spec() -> Dict:
         "apple": {
             "name": "apple",
             "data_type": "Integer",
-            "sources": ["apple"],
+            "sources": ["apple_source"],
             "parent": "blue_folder",
             "sort_order": 1
         },
@@ -104,14 +109,14 @@ def target_spec() -> Dict:
         "strawberry": {
             "name": "strawberry",
             "data_type": "Integer",
-            "sources": ["strawberry"],
+            "sources": ["strawberry_source"],
             "parent": "green_folder",
             "sort_order": 0
         },
         "lemon": {
             "name": "lemon",
             "data_type": "Integer",
-            "sources": ["lemon"],
+            "sources": ["lemon_source"],
             "parent": "green_folder",
             "sort_order": 1
         },
@@ -123,42 +128,60 @@ def target_spec() -> Dict:
         "grape": {
             "name": "grape",
             "data_type": "Integer",
-            "sources": ["grape"],
+            "sources": ["grape_source"],
             "parent": "orange_folder",
             "sort_order": 1,
         },
         "mango": {
             "name": "mango",
             "data_type": "Integer",
-            "sources": ["mango"],
+            "sources": ["mango_source"],
             "parent": "orange_folder",
             "sort_order": 2
         },
         "papaya": {
             "name": "papaya",
             "data_type": "Integer",
-            "sources": ["papaya"],
+            "sources": ["papaya_source"],
             "parent": "orange_folder",
             "sort_order": 0
         }
     }
 
+
 @pytest.fixture()
-def target_doc() -> "OrderedDict[str, Any]":
-    return OrderedDict([
-        ("orange_folder", OrderedDict([
-            ("papaya", None),
-            ("grape", -4),
-            ("mango", 1)
-        ])),
-        ("blue_folder", OrderedDict([
-            ("green_folder", OrderedDict([
-                ("strawberry", 102),
-                ("lemon", 41)
+def target_docs() -> List["OrderedDict[str, Any]"]:
+    return [
+        OrderedDict([
+            ("orange_folder", OrderedDict([
+                ("papaya", None),
+                ("grape", -4),
+                ("mango", 1)
             ])),
-            ("apple", 75)
-        ]))
-    ])
+            ("blue_folder", OrderedDict([
+                ("green_folder", OrderedDict([
+                    ("strawberry", 102),
+                    ("lemon", 41)
+                ])),
+                ("apple", 75)
+            ]))
+        ]),
+        OrderedDict([
+            ("orange_folder", OrderedDict([
+                ("papaya", "papaya_source"),
+                ("grape", "grape_source"),
+                ("mango", "mango_source")
+            ])),
+            ("blue_folder", OrderedDict([
+                ("green_folder", OrderedDict([
+                    ("strawberry", "strawberry_source"),
+                    ("lemon", "lemon_source")
+                ])),
+                ("apple", "apple_source")
+            ]))
+        ]),
+    ]
+
 
 def shuffle(to_shuffle: Dict) -> Dict:
     """Return the provided dictionary with the keys in a different order. (Since Python 3.7, key insertion order is
@@ -170,14 +193,18 @@ def shuffle(to_shuffle: Dict) -> Dict:
         ret[key] = to_shuffle[key]
     return ret
 
+
+@pytest.mark.parametrize(
+    "index, create_document_value_provider", enumerate([DocumentValueProvider, TraceDocumentValueProvider])
+)
 @pytest.mark.repeat(5)
-def test_rearrange(source_doc: Dict, source_spec: Dict, target_doc: Dict, target_spec: Dict):
+def test_rearrange(source_doc: Dict, source_spec: Dict, target_docs: List[Dict], target_spec: Dict, index, create_document_value_provider):
     """Verify that translate respects the sort order property of the variables in the target spec, and ignores the
     order in which the variables happen to be defined in the spec. """
     shuffled_source_spec = shuffle(source_spec)
     shuffled_target_spec = shuffle(target_spec)
     source_track: Track = Track.build(shuffled_source_spec, None, "Source")
     target_track: Track = Track.build(shuffled_target_spec, source_track, "Target")
-    translate: Translator = Translator(target_track)
+    translate: Translator = Translator(target_track, create_document_value_provider)
     actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
-    assert actual == target_doc
+    assert actual == target_docs[index]

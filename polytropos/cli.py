@@ -2,6 +2,7 @@ from typing import TextIO, Optional, cast
 import click
 import logging
 
+from polytropos.actions.translate.trace import Trace
 from polytropos.ontology.schema import Schema
 
 from polytropos.actions.consume.coverage import CoverageFile
@@ -116,6 +117,16 @@ def coverage(schema_basepath: str, schema_name: str, data_path: str, output_pref
     tracks."""
     with Context.build("", "", input_dir=data_path, schemas_dir=schema_basepath) as context:
         CoverageFile.standalone(context, schema_name, output_prefix, cast(Optional[VariableId], t_group), cast(Optional[VariableId], i_group), exclude_trivial)
+
+@cli.command()
+@click.argument('schemas_dir', type=click.Path(exists=True))
+@click.argument('source_schema', type=str)
+@click.argument('target_schema', type=str)
+@click.argument('input_dir', type=click.Path(exists=True))
+@click.argument('output_dir', type=click.Path(exists=False))
+def trace(schemas_dir: str, source_schema: str, target_schema: str, input_dir: str, output_dir: str) -> None:
+    with Context.build("", "", input_dir=input_dir, output_dir=output_dir, schemas_dir=schemas_dir) as context:
+        Trace.standalone(context, source_schema, target_schema)
 
 
 if __name__ == "__main__":

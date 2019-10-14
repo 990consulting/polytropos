@@ -1,7 +1,8 @@
 import pytest
-from typing import Dict
+from typing import Dict, Callable
 
 from polytropos.actions.translate.__document import DocumentValueProvider
+from polytropos.actions.translate.trace.__trace_document import TraceDocumentValueProvider
 from polytropos.ontology.track import Track
 from polytropos.actions.translate.__translator import Translator, SourceNotFoundException
 
@@ -77,45 +78,77 @@ def target_spec() -> Dict:
 
 
 @pytest.fixture()
-def translate(source_spec: Dict, target_spec: Dict) -> Translator:
-    source_track: Track = Track.build(source_spec, None, "Source")
-    target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translator = Translator(target_track)
-    return translate
+def create_translator(source_spec: Dict, target_spec: Dict) -> Callable:
+    def _create_translator(create_document_value_provider: Callable):
+        source_track: Track = Track.build(source_spec, None, "Source")
+        target_track: Track = Track.build(target_spec, source_track, "Target")
+        return Translator(target_track, create_document_value_provider)
+    return _create_translator
 
 
-def test_base(source_doc, translate):
-    actual = DocumentValueProvider(source_doc).variable_value(translate.source['source_meaning_of_life'])
-    expected = 42
+@pytest.mark.parametrize(
+    "create_document_value_provider, expected", [
+        (DocumentValueProvider, 42),
+        (TraceDocumentValueProvider, "source_meaning_of_life"),
+    ]
+)
+def test_base(source_doc, create_translator, create_document_value_provider, expected):
+    translate = create_translator(create_document_value_provider)
+    actual = create_document_value_provider(source_doc).variable_value(translate.source['source_meaning_of_life'])
     assert actual == expected
 
 
-def test_deep(source_doc, translate):
-    actual = DocumentValueProvider(source_doc).variable_value(translate.source['source_deeper'])
-    expected = 'nothing'
+@pytest.mark.parametrize(
+    "create_document_value_provider, expected", [
+        (DocumentValueProvider, ['nothing', 'orange']),
+        (TraceDocumentValueProvider, ['source_deeper', 'source_folder_color']),
+    ]
+)
+def test_deep(source_doc, create_translator, create_document_value_provider, expected):
+    translate = create_translator(create_document_value_provider)
+    actual = create_document_value_provider(source_doc).variable_value(translate.source['source_deeper'])
+    assert actual == expected[0]
+    actual = create_document_value_provider(source_doc).variable_value(translate.source['source_folder_color'])
+    assert actual == expected[1]
+
+
+@pytest.mark.parametrize(
+    "create_document_value_provider, expected", [
+        (DocumentValueProvider, 'orange'),
+        (TraceDocumentValueProvider, 'source_folder_color'),
+    ]
+)
+def test_parent(source_doc, create_translator, create_document_value_provider, expected):
+    translate = create_translator(create_document_value_provider)
+    actual = create_document_value_provider(source_doc['my_folder']).variable_value(translate.source['source_folder_color'], 'source_folder')
     assert actual == expected
-    actual = DocumentValueProvider(source_doc).variable_value(translate.source['source_folder_color'])
-    expected = 'orange'
-    assert actual == expected
 
 
-def test_parent(source_doc, translate):
-    actual = DocumentValueProvider(source_doc['my_folder']).variable_value(translate.source['source_folder_color'], 'source_folder')
-    expected = 'orange'
-    assert actual == expected
-
-
-def test_parent_no_parent(source_doc, translate):
+@pytest.mark.parametrize(
+    "create_document_value_provider", [DocumentValueProvider, TraceDocumentValueProvider]
+)
+def test_parent_no_parent(source_doc, create_translator, create_document_value_provider):
+    translate = create_translator(create_document_value_provider)
     with pytest.raises(SourceNotFoundException):
-        DocumentValueProvider(source_doc['my_folder']).variable_value(translate.source['source_folder_color'])
+        create_document_value_provider(source_doc['my_folder']).variable_value(translate.source['source_folder_color'])
 
 
-def test_parent_immediate(source_doc, translate):
-    actual = DocumentValueProvider(source_doc['my_folder']['the_folder']).variable_value(translate.source['source_folder_color'], 'source_folder_folder')
-    expected = 'orange'
+@pytest.mark.parametrize(
+    "create_document_value_provider, expected", [
+        (DocumentValueProvider, 'orange'),
+        (TraceDocumentValueProvider, 'source_folder_color'),
+    ]
+)
+def test_parent_immediate(source_doc, create_translator, create_document_value_provider, expected):
+    translate = create_translator(create_document_value_provider)
+    actual = create_document_value_provider(source_doc['my_folder']['the_folder']).variable_value(translate.source['source_folder_color'], 'source_folder_folder')
     assert actual == expected
 
 
-def test_parent_immediate_no_parent(source_doc, translate):
+@pytest.mark.parametrize(
+    "create_document_value_provider", [DocumentValueProvider, TraceDocumentValueProvider]
+)
+def test_parent_immediate_no_parent(source_doc, create_translator, create_document_value_provider):
+    translate = create_translator(create_document_value_provider)
     with pytest.raises(SourceNotFoundException):
-        DocumentValueProvider(source_doc['my_folder']['the_folder']).variable_value(translate.source['source_folder_color'])
+        create_document_value_provider(source_doc['my_folder']['the_folder']).variable_value(translate.source['source_folder_color'])
