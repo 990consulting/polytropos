@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, Any
+from typing import Optional, Any, List
 
 from polytropos.actions.evolve import Change
 from polytropos.ontology.composite import Composite
@@ -14,6 +14,7 @@ class BestAvailable(Change):
     temporal_source: VariableId
     target: VariableId
     immutable_source: Optional[VariableId] = field(default=None)
+    use_older_periods: bool = field(default=True)
 
     def __call__(self, composite: Composite) -> None:
         if self.immutable_source is not None:
@@ -25,7 +26,11 @@ class BestAvailable(Change):
             except MissingDataError:
                 pass
 
-        for period in sorted(composite.periods, reverse=True):
+        to_consider: List[str] = sorted(composite.periods, reverse=True)
+        if not self.use_older_periods and len(to_consider) > 0:
+            to_consider = [to_consider[0]]
+
+        for period in to_consider:
             try:
                 value = composite.get_observation(self.temporal_source, period)
                 if value is not None:

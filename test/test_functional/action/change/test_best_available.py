@@ -98,6 +98,12 @@ def test_only_temporal(schema, composite):
     change(composite)
     assert composite.content == expected
 
+def test_only_temporal_no_older_periods(schema, composite):
+    change: Change = BestAvailable(schema, {}, t_source, target, use_older_periods=False)
+    expected: Dict = copy.deepcopy(composite.content)
+    change(composite)
+    assert composite.content == expected
+
 def test_only_temporal_no_valid_values(schema, composite):
     change: Change = BestAvailable(schema, {}, t_source, target)
     del composite.content["2016"]
