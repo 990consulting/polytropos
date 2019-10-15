@@ -12,13 +12,14 @@ from polytropos.ontology.variable import Variable, VariableId
 class Translator:
     """Class in charge of translating documents given a source track and a
     target track"""
-    def __init__(self, target: Track, failsafe: bool=False):
+    def __init__(self, target: Track, create_document_value_provider: "Callable[[Dict[str, Any]], DocumentValueProvider]", failsafe: bool = False):
         logging.info('Initializing translator for track "%s".' % target.name)
         if failsafe:
             logging.warning("Translation errors will be ignored! Use at your own risk!")
 
         assert target.source is not None
         self.source: Track = target.source
+        self.create_document_value_provider = create_document_value_provider
 
         # We need to group by variables by parent to be able to efficiently do
         # a recursion in the translate function
@@ -50,7 +51,7 @@ class Translator:
             logging.error("parent_id is None and source_parent_id is None. Returning empty translation.")
             return OrderedDict()
 
-        document_value_provider: DocumentValueProvider = DocumentValueProvider(document)
+        document_value_provider: DocumentValueProvider = self.create_document_value_provider(document)
         output_document: OrderedDict[str, Any] = OrderedDict()
         # Translate all variables with the same parent
         children: List[Variable] = self.target_variables_by_parent[parent_id]

@@ -2,6 +2,8 @@ from collections import OrderedDict
 import pytest
 from typing import Dict, Tuple, Any
 
+from polytropos.actions.translate.__document import DocumentValueProvider
+from polytropos.actions.translate.trace.__trace_document import TraceDocumentValueProvider
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
 
@@ -69,8 +71,8 @@ def source() -> Tuple[Dict, Dict]:
     }
     return spec, doc
 
-def target_flattened() -> Tuple[Dict, "OrderedDict[str, Any]"]:
-    doc: OrderedDict[str, Any] = OrderedDict([
+def target_flattened() -> Tuple[Dict, Tuple["OrderedDict[str, Any]", "OrderedDict[str, Any]"]]:
+    translate_doc: OrderedDict[str, Any] = OrderedDict([
         ("the_list", [
             OrderedDict([
                 ("name", "Steve"),
@@ -87,6 +89,27 @@ def target_flattened() -> Tuple[Dict, "OrderedDict[str, Any]"]:
             ])),
             ("Janet", OrderedDict([
                 ("color", "green")
+            ]))
+        ]))
+    ])
+
+    trace_doc: OrderedDict[str, Any] = OrderedDict([
+        ("the_list", [
+            OrderedDict([
+                ("name", "source_list_name"),
+                ("color", "source_list_color")
+            ]),
+            OrderedDict([
+                ("name", "source_list_name"),
+                ("color", "source_list_color")
+            ])
+        ]),
+        ("the_keyed_list", OrderedDict([
+            ("Anne", OrderedDict([
+                ("color", "source_keyed_list_color")
+            ])),
+            ("Janet", OrderedDict([
+                ("color", "source_keyed_list_color")
             ]))
         ]))
     ])
@@ -127,10 +150,11 @@ def target_flattened() -> Tuple[Dict, "OrderedDict[str, Any]"]:
         }
     }
 
-    return spec, doc
+    return spec, (translate_doc, trace_doc)
 
-def target_nested() -> Tuple[Dict, "OrderedDict[str, Any]"]:
-    doc: OrderedDict[str, Any] = OrderedDict([
+
+def target_nested() -> Tuple[Dict, Tuple["OrderedDict[str, Any]", "OrderedDict[str, Any]"]]:
+    translate_doc: OrderedDict[str, Any] = OrderedDict([
         ("outer", OrderedDict([
             ("inner", OrderedDict([
                 ("the_keyed_list", OrderedDict([
@@ -150,6 +174,31 @@ def target_nested() -> Tuple[Dict, "OrderedDict[str, Any]"]:
                 OrderedDict([
                     ("name", "Samantha"),
                     ("color", "blue")
+                ])
+            ])
+        ]))
+    ])
+
+    trace_doc: OrderedDict[str, Any] = OrderedDict([
+        ("outer", OrderedDict([
+            ("inner", OrderedDict([
+                ("the_keyed_list", OrderedDict([
+                    ("Anne", OrderedDict([
+                        ("color", "source_keyed_list_color")
+                    ])),
+                    ("Janet", OrderedDict([
+                        ("color", "source_keyed_list_color")
+                    ]))
+                ]))
+            ])),
+            ("the_list", [
+                OrderedDict([
+                    ("name", "source_list_name"),
+                    ("color", "source_list_color")
+                ]),
+                OrderedDict([
+                    ("name", "source_list_name"),
+                    ("color", "source_list_color")
                 ])
             ])
         ]))
@@ -204,14 +253,18 @@ def target_nested() -> Tuple[Dict, "OrderedDict[str, Any]"]:
         }
     }
 
-    return spec, doc
+    return spec, (translate_doc, trace_doc)
 
+
+@pytest.mark.parametrize(
+    "index, create_document_value_provider", enumerate([DocumentValueProvider, TraceDocumentValueProvider])
+)
 @pytest.mark.parametrize("target", [target_nested, target_flattened])
-def test_list_in_folder(source, target):
+def test_list_in_folder(source, target, index, create_document_value_provider):
     source_spec, source_doc = source
     target_spec, expected = target()
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translator = Translator(target_track)
+    translate: Translator = Translator(target_track, create_document_value_provider)
     actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
-    assert actual == expected
+    assert actual == expected[index]

@@ -4,11 +4,13 @@ from unittest.mock import Mock
 import pytest
 
 from polytropos.actions.translate.__document import DocumentValueProvider, SourceNotFoundException
+from polytropos.actions.translate.trace.__trace_document import TraceDocumentValueProvider
 
 
 def create_variable(ancestor_names: List[str]) -> Any:
     def create_variable_mock(name: str) -> Any:
         m = Mock()
+        m.var_id = "id_" + name
         m.name = name
         return m
 
@@ -17,6 +19,7 @@ def create_variable(ancestor_names: List[str]) -> Any:
     return ancestors[0]
 
 
+@pytest.mark.parametrize("create_document_value_provider", [DocumentValueProvider, TraceDocumentValueProvider])
 @pytest.mark.parametrize("path, expected", [
     (["a"], 1),
     (["b"], 2),
@@ -24,7 +27,7 @@ def create_variable(ancestor_names: List[str]) -> Any:
     (["c", "e"], {"f": "2"}),
     (["c", "e", "f"], "2"),
 ])
-def test_value(path, expected):
+def test_value(create_document_value_provider, path, expected):
     doc: Dict[str, Any] = {
         "a": 1,
         "b": 2,
@@ -36,17 +39,18 @@ def test_value(path, expected):
         }
     }
 
-    provider = DocumentValueProvider(doc)
+    provider = create_document_value_provider(doc)
     assert provider.value(path) == expected
 
 
+@pytest.mark.parametrize("create_document_value_provider", [DocumentValueProvider, TraceDocumentValueProvider])
 @pytest.mark.parametrize("path", [
     ["b"],
     ["c", "f"],
     ["c", "e", "z"],
     ["c", "e", "f", "a"],
 ])
-def test_missing_value(path):
+def test_missing_value(create_document_value_provider, path):
     doc: Dict[str, Any] = {
         "a": 1,
         "c": {
@@ -56,20 +60,21 @@ def test_missing_value(path):
         }
     }
 
-    provider = DocumentValueProvider(doc)
+    provider = create_document_value_provider(doc)
 
     with pytest.raises(KeyError):
         _ = provider.value(path)
 
 
+@pytest.mark.parametrize("index, create_document_value_provider", enumerate([DocumentValueProvider, TraceDocumentValueProvider]))
 @pytest.mark.parametrize("ancestor_names, expected", [
-    (["a"], 1),
-    (["b"], 2),
-    (["d", "c"], "1"),
-    (["e", "c"], {"f": "2"}),
-    (["f", "e", "c"], "2"),
+    (["a"], (1, "id_a")),
+    (["b"], (2, "id_b")),
+    (["d", "c"], ("1", "id_d")),
+    (["e", "c"], ({"f": "2"}, "id_e")),
+    (["f", "e", "c"], ("2", "id_f")),
 ])
-def test_variable_value(ancestor_names, expected):
+def test_variable_value(index, create_document_value_provider, ancestor_names, expected):
     doc: Dict[str, Any] = {
         "a": 1,
         "b": 2,
@@ -81,17 +86,18 @@ def test_variable_value(ancestor_names, expected):
         }
     }
 
-    provider = DocumentValueProvider(doc)
-    assert provider.variable_value(create_variable(ancestor_names)) == expected
+    provider = create_document_value_provider(doc)
+    assert provider.variable_value(create_variable(ancestor_names)) == expected[index]
 
 
+@pytest.mark.parametrize("create_document_value_provider", [DocumentValueProvider, TraceDocumentValueProvider])
 @pytest.mark.parametrize("ancestor_names", [
     ["b"],
     ["f", "c"],
     ["z", "e", "c"],
     ["a", "f", "e", "c"],
 ])
-def test_missing_variable_value(ancestor_names):
+def test_missing_variable_value(create_document_value_provider, ancestor_names):
     doc: Dict[str, Any] = {
         "a": 1,
         "c": {
@@ -101,15 +107,16 @@ def test_missing_variable_value(ancestor_names):
         }
     }
 
-    provider = DocumentValueProvider(doc)
+    provider = create_document_value_provider(doc)
     with pytest.raises(SourceNotFoundException):
         _ = provider.variable_value(create_variable(ancestor_names))
 
 
-def test_empty_doc():
+@pytest.mark.parametrize("create_document_value_provider", [DocumentValueProvider, TraceDocumentValueProvider])
+def test_empty_doc(create_document_value_provider):
     doc: Dict[str, Any] = {}
 
-    provider = DocumentValueProvider(doc)
+    provider = create_document_value_provider(doc)
 
     with pytest.raises(KeyError):
         _ = provider.value(["a"])

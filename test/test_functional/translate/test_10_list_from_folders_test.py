@@ -2,6 +2,8 @@ from collections import OrderedDict
 import pytest
 from typing import Dict, Tuple, Any
 
+from polytropos.actions.translate.__document import DocumentValueProvider
+from polytropos.actions.translate.trace.__trace_document import TraceDocumentValueProvider
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
 
@@ -59,8 +61,8 @@ def source() -> Tuple[Dict, Dict]:
     return spec, doc
 
 @pytest.fixture
-def target() -> Tuple[Dict, "OrderedDict[str, Any]"]:
-    doc: OrderedDict[str, Any] = OrderedDict([
+def target() -> Tuple[Dict, Tuple["OrderedDict[str, Any]", "OrderedDict[str, Any]"]]:
+    translate_doc: OrderedDict[str, Any] = OrderedDict([
         ("the_list", [
             OrderedDict([
                 ("name", "Steve"),
@@ -69,6 +71,19 @@ def target() -> Tuple[Dict, "OrderedDict[str, Any]"]:
             OrderedDict([
                 ("name", "Bob"),
                 ("color", "blue")
+            ])
+        ])
+    ])
+
+    trace_doc: OrderedDict[str, Any] = OrderedDict([
+        ("the_list", [
+            OrderedDict([
+                ("name", "source_name_1"),
+                ("color", "source_color_1")
+            ]),
+            OrderedDict([
+                ("name", "source_name_2"),
+                ("color", "source_color_2")
             ])
         ])
     ])
@@ -96,33 +111,49 @@ def target() -> Tuple[Dict, "OrderedDict[str, Any]"]:
         }
     }
 
-    return spec, doc
+    return spec, (translate_doc, trace_doc)
 
-def test_list_from_folders(source, target):
+
+@pytest.mark.parametrize(
+    "index, create_document_value_provider", enumerate([DocumentValueProvider, TraceDocumentValueProvider])
+)
+def test_list_from_folders(source, target, index, create_document_value_provider):
     source_spec, source_doc = source
     target_spec, expected = target
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translator = Translator(target_track)
+    translate: Translator = Translator(target_track, create_document_value_provider)
     actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
-    assert actual == expected
+    assert actual == expected[index]
 
-def test_folder_null_skipped(source, target):
+
+@pytest.mark.parametrize(
+    "create_document_value_provider, expected", [
+        (DocumentValueProvider, OrderedDict([
+            ("the_list", [
+                OrderedDict([
+                    ("name", "Steve"),
+                    ("color", "red")
+                ])
+            ])
+        ])),
+        (TraceDocumentValueProvider, OrderedDict([
+            ("the_list", [
+                OrderedDict([
+                    ("name", "source_name_1"),
+                    ("color", "source_color_1")
+                ])
+            ])
+        ]))]
+)
+def test_folder_null_skipped(source, target, create_document_value_provider, expected):
     """On occasion, e-files contain <EmptyElements/> that would normally contain list items. These are converted to
     JSON as {"EmptyElement": null} and are not included as list items during translation."""
     source_spec, source_doc = source
     source_doc["second_source_folder"] = None
     target_spec, _ = target
-    expected: OrderedDict[str, Any] = OrderedDict([
-        ("the_list", [
-            OrderedDict([
-                ("name", "Steve"),
-                ("color", "red")
-            ])
-        ])
-    ])
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translator = Translator(target_track)
+    translate: Translator = Translator(target_track, create_document_value_provider)
     actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     assert actual == expected

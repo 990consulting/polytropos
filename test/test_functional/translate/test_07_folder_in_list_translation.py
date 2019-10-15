@@ -3,6 +3,8 @@ from collections import OrderedDict
 import pytest
 from typing import Dict, Tuple, List, Any
 
+from polytropos.actions.translate.__document import DocumentValueProvider
+from polytropos.actions.translate.trace.__trace_document import TraceDocumentValueProvider
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
 import itertools
@@ -115,8 +117,8 @@ def source_flat() -> Tuple[Dict, Dict]:
     }
     return source_spec, source_doc
 
-def target_nested() -> Tuple[Dict, "OrderedDict[str, Any]"]:
-    target_doc: OrderedDict[str, Any] = OrderedDict([
+def target_nested() -> Tuple[Dict, Tuple["OrderedDict[str, Any]", "OrderedDict[str, Any]"]]:
+    translate_doc: OrderedDict[str, Any] = OrderedDict([
         ("the_list", [
             OrderedDict([
                 ("day", "Tuesday"),
@@ -134,6 +136,26 @@ def target_nested() -> Tuple[Dict, "OrderedDict[str, Any]"]:
             ])
         ]),
         ("meaning_of_life", 42)
+    ])
+
+    trace_doc: OrderedDict[str, Any] = OrderedDict([
+        ("the_list", [
+            OrderedDict([
+                ("day", "source_list_day"),
+                ("the_folder", OrderedDict([
+                    ("name", "source_list_name"),
+                    ("color", "source_list_color")
+                ]))
+            ]),
+            OrderedDict([
+                ("day", "source_list_day"),
+                ("the_folder", OrderedDict([
+                    ("name", "source_list_name"),
+                    ("color", "source_list_color")
+                ]))
+            ])
+        ]),
+        ("meaning_of_life", "source_meaning_of_life")
     ])
 
     target_spec: Dict = {
@@ -177,10 +199,11 @@ def target_nested() -> Tuple[Dict, "OrderedDict[str, Any]"]:
             "sources": ["source_meaning_of_life"]
         }
     }
-    return target_spec, target_doc
+    return target_spec, (translate_doc, trace_doc)
 
-def target_flat() -> Tuple[Dict, "OrderedDict[str, Any]"]:
-    target_doc: OrderedDict[str, Any] = OrderedDict([
+
+def target_flat() -> Tuple[Dict, Tuple["OrderedDict[str, Any]", "OrderedDict[str, Any]"]]:
+    translate_doc: OrderedDict[str, Any] = OrderedDict([
         ("the_list", [
             OrderedDict([
                 ("day", "Tuesday"),
@@ -194,6 +217,22 @@ def target_flat() -> Tuple[Dict, "OrderedDict[str, Any]"]:
             ])
         ]),
         ("meaning_of_life", 42)
+    ])
+
+    trace_doc: OrderedDict[str, Any] = OrderedDict([
+        ("the_list", [
+            OrderedDict([
+                ("day", "source_list_day"),
+                ("name", "source_list_name"),
+                ("color", "source_list_color")
+            ]),
+            OrderedDict([
+                ("day", "source_list_day"),
+                ("name", "source_list_name"),
+                ("color", "source_list_color")
+            ])
+        ]),
+        ("meaning_of_life", "source_meaning_of_life")
     ])
 
     target_spec: Dict = {
@@ -231,15 +270,15 @@ def target_flat() -> Tuple[Dict, "OrderedDict[str, Any]"]:
             "sources": ["source_meaning_of_life"]
         }
     }
-    return target_spec, target_doc
+    return target_spec, (translate_doc, trace_doc)
 
 sources = [source_nested, source_flat]
 targets = [target_nested, target_flat]
 
-def _do_test(source_spec, source_doc, target_spec, expected):
+def _do_test(source_spec, source_doc, target_spec, expected, create_document_value_provider):
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translator = Translator(target_track)
+    translate: Translator = Translator(target_track, create_document_value_provider)
     actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
     assert actual == expected
 
@@ -254,17 +293,25 @@ def shuffle(to_shuffle: Dict) -> Dict:
         ret[key] = to_shuffle[key]
     return ret
 
+
+@pytest.mark.parametrize(
+    "index, create_document_value_provider", enumerate([DocumentValueProvider, TraceDocumentValueProvider])
+)
 @pytest.mark.parametrize("source, target", itertools.product(sources, targets))
-def test_folder_in_list(source, target):
+def test_folder_in_list(source, target, index, create_document_value_provider):
     source_spec, source_doc = source()
     target_spec, expected = target()
-    _do_test(source_spec, source_doc, target_spec, expected)
+    _do_test(source_spec, source_doc, target_spec, expected[index], create_document_value_provider)
 
+
+@pytest.mark.parametrize(
+    "index, create_document_value_provider", enumerate([DocumentValueProvider, TraceDocumentValueProvider])
+)
 @pytest.mark.parametrize("source, target", itertools.product(sources, targets))
-def test_folder_in_list_shuffle(source, target):
+def test_folder_in_list_shuffle(source, target, index, create_document_value_provider):
     """Verify that the folder-in-list case works even when the specs have been shuffled."""
     source_spec, source_doc = source()
     target_spec, expected = target()
     source_spec_shuffled = shuffle(source_spec)
     target_spec_shuffled = shuffle(target_spec)
-    _do_test(source_spec_shuffled, source_doc, target_spec_shuffled, expected)
+    _do_test(source_spec_shuffled, source_doc, target_spec_shuffled, expected[index], create_document_value_provider)
