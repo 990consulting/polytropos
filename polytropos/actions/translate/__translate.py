@@ -3,11 +3,12 @@ import time
 from dataclasses import dataclass
 import os
 import json
-from typing import Optional, List, Callable
+from typing import Optional, List, Callable, Dict, Any
 from functools import partial
 import traceback
 
 from polytropos.actions.step import Step
+from polytropos.actions.translate.__document import DocumentValueProvider
 from polytropos.ontology.schema import Schema
 from polytropos.actions.translate import Translator
 from polytropos.util.paths import find_all_composites, relpath_for
@@ -34,8 +35,8 @@ class Translate(Step):
         logging.info("Initializing Translate step.")
         target_schema_instance: Optional[Schema] = Schema.load(target_schema, context.schemas_dir, source_schema=schema)
         assert target_schema_instance is not None
-        translate_immutable: Translator = Translator(target_schema_instance.immutable)
-        translate_temporal: Translator = Translator(target_schema_instance.temporal)
+        translate_immutable: Translator = Translator(target_schema_instance.immutable, cls.create_document_value_provider)
+        translate_temporal: Translator = Translator(target_schema_instance.temporal, cls.create_document_value_provider)
         return cls(context, target_schema_instance, translate_immutable, translate_temporal)
 
     def process_composite(self, origin_dir: str, target_base_dir: str, composite_id: str) -> None:
@@ -73,3 +74,14 @@ class Translate(Step):
         action: Callable = partial(self.process_composites, origin_dir, target_dir)
         for _ in self.context.run_in_process_pool(action, composites):
             pass
+
+    @staticmethod
+    def create_document_value_provider(doc: Dict[str, Any]) -> DocumentValueProvider:
+        return DocumentValueProvider(doc)
+
+    @classmethod
+    def standalone(cls, context: Context, source_schema_name: str, target_schema_name: str) -> None:
+        source_schema: Optional[Schema] = Schema.load(source_schema_name, context.schemas_dir)
+        assert source_schema is not None
+        translate: "Translate" = cls.build(context, source_schema, target_schema_name)
+        translate(context.entities_input_dir, context.output_dir)

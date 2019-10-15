@@ -2,6 +2,8 @@ from collections import OrderedDict
 import pytest
 from typing import Dict, Tuple, Any
 
+from polytropos.actions.translate.__document import DocumentValueProvider
+from polytropos.actions.translate.trace.__trace_document import TraceDocumentValueProvider
 from polytropos.ontology.track import Track
 from polytropos.actions.translate import Translator
 
@@ -77,9 +79,9 @@ def source() -> Tuple[Dict, Dict]:
     return source_spec, source_doc
 
 @pytest.fixture
-def target() -> Tuple[Dict, "OrderedDict[str, Any]"]:
-    target_doc: Dict = {
-        "outer_list": [
+def target() -> Tuple[Dict, Tuple["OrderedDict[str, Any]", "OrderedDict[str, Any]"]]:
+    translate_doc: OrderedDict[str, Any] = OrderedDict([
+        ("outer_list", [
             OrderedDict([
                 ("inner_list", [
                     OrderedDict([("name", "inner_1_1_1")]),
@@ -104,8 +106,37 @@ def target() -> Tuple[Dict, "OrderedDict[str, Any]"]:
                     OrderedDict([("name", "inner_2_2_2")]),
                 ])
             ])
-        ]
-    }
+        ])
+    ])
+
+    trace_doc: OrderedDict[str, Any] = OrderedDict([
+        ("outer_list", [
+            OrderedDict([
+                ("inner_list", [
+                    OrderedDict([("name", "name_1_id")]),
+                    OrderedDict([("name", "name_1_id")]),
+                ])
+            ]),
+            OrderedDict([
+                ("inner_list", [
+                    OrderedDict([("name", "name_1_id")]),
+                    OrderedDict([("name", "name_1_id")]),
+                ])
+            ]),
+            OrderedDict([
+                ("inner_list", [
+                    OrderedDict([("name", "name_2_id")]),
+                    OrderedDict([("name", "name_2_id")]),
+                ])
+            ]),
+            OrderedDict([
+                ("inner_list", [
+                    OrderedDict([("name", "name_2_id")]),
+                    OrderedDict([("name", "name_2_id")]),
+                ])
+            ])
+        ])
+    ])
 
     target_spec: Dict = {
         "outer_list_id": {
@@ -130,15 +161,19 @@ def target() -> Tuple[Dict, "OrderedDict[str, Any]"]:
         }
     }
 
-    return target_spec, target_doc
+    return target_spec, (translate_doc, trace_doc)
 
-def test_nested_list(source, target):
+
+@pytest.mark.parametrize(
+    "index, create_document_value_provider", enumerate([DocumentValueProvider, TraceDocumentValueProvider])
+)
+def test_nested_list(source, target, index, create_document_value_provider):
     """Reversing the order of the sources in the target list spec results in an equivalent change in the order of the
     resulting list."""
     source_spec, source_doc = source
     target_spec, target_doc = target
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translator = Translator(target_track)
+    translate: Translator = Translator(target_track, create_document_value_provider)
     actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
-    assert actual == target_doc
+    assert actual == target_doc[index]

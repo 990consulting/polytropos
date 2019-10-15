@@ -6,6 +6,8 @@ from typing import Tuple, Dict, Any
 import pytest
 
 from polytropos.actions.translate import Translator
+from polytropos.actions.translate.__document import DocumentValueProvider
+from polytropos.actions.translate.trace.__trace_document import TraceDocumentValueProvider
 from polytropos.ontology.track import Track
 
 @pytest.fixture()
@@ -267,8 +269,8 @@ def source() -> Tuple[Dict, Dict]:
     return spec, doc
 
 @pytest.fixture()
-def target() -> Tuple[Dict, OrderedDict]:
-    doc: OrderedDict = OrderedDict([
+def target() -> Tuple[Dict, Tuple[OrderedDict, OrderedDict]]:
+    translate_doc: OrderedDict = OrderedDict([
         ('Tax return', OrderedDict([
             ('IRS 990', OrderedDict([
                 ('Part VII', OrderedDict([
@@ -288,6 +290,33 @@ def target() -> Tuple[Dict, OrderedDict]:
                             ('Column B, sub-row 1', '40.00'),
                             ('Column A, First element, Person name', 'JANE SMITH'),
                             ('Column A, Second element', 'DIRECTOR OF ENGINEERING')
+                        ])
+                    ])
+                ]))
+            ]))
+        ]))
+    ])
+
+    trace_doc: OrderedDict = OrderedDict([
+        ('Tax return', OrderedDict([
+            ('IRS 990', OrderedDict([
+                ('Part VII', OrderedDict([
+                    ('Section A Chart', [
+                        OrderedDict([
+                            ('Column F', 'origin_temporal_001233'),
+                            ('Column E', 'origin_temporal_001236'),
+                            ('Column D', 'origin_temporal_001235'),
+                            ('Column B, sub-row 1', 'origin_temporal_001231'),
+                            ('Column C', OrderedDict([('Sub-column 1', 'origin_temporal_001238')])),
+                            ('Column A, First element, Person name', 'origin_temporal_001234'),
+                            ('Column A, Second element', 'origin_temporal_001237')
+                        ]), OrderedDict([
+                            ('Column F', 'origin_temporal_001233'),
+                            ('Column E', 'origin_temporal_001236'),
+                            ('Column D', 'origin_temporal_001235'),
+                            ('Column B, sub-row 1', 'origin_temporal_001231'),
+                            ('Column A, First element, Person name', 'origin_temporal_001234'),
+                            ('Column A, Second element', 'origin_temporal_001237')
                         ])
                     ])
                 ]))
@@ -479,13 +508,17 @@ def target() -> Tuple[Dict, OrderedDict]:
             ]
         }
     }
-    return spec, doc
+    return spec, (translate_doc, trace_doc)
 
-def test_two_list_sources_one_exists(source, target):
+
+@pytest.mark.parametrize(
+    "index, create_document_value_provider", enumerate([DocumentValueProvider, TraceDocumentValueProvider])
+)
+def test_two_list_sources_one_exists(source, target, index, create_document_value_provider):
     source_spec, source_doc = source
     target_spec, expected = target
     source_track: Track = Track.build(source_spec, None, "Source")
     target_track: Track = Track.build(target_spec, source_track, "Target")
-    translate: Translator = Translator(target_track)
+    translate: Translator = Translator(target_track, create_document_value_provider)
     actual: OrderedDict[str, Any] = translate("composite_id", "period", source_doc)
-    assert actual == expected
+    assert actual == expected[index]
