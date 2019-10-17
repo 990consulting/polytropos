@@ -149,9 +149,9 @@ def trace(schemas_dir: str, source_schema: str, target_schema: str, input_dir: s
 @click.argument('translate_dir', type=click.Path(exists=True))
 @click.argument('trace_dir', type=click.Path(exists=True))
 @click.argument('output_dir', type=click.Path(exists=False))
-def source_coverage(schema_basepath: str, source_schema_name: str, target_schema_name: str, translate_dir: str, trace_dir: str, output_dir: str) -> None:
+def source_coverage(schemas_dir: str, source_schema_name: str, target_schema_name: str, translate_dir: str, trace_dir: str, output_dir: str) -> None:
     """Produce a source coverage report."""
-    with Context.build("", "", output_dir=output_dir, schemas_dir=schema_basepath) as context:
+    with Context.build("", "", output_dir=output_dir, schemas_dir=schemas_dir) as context:
         SourceCoverageFile.standalone(context, translate_dir, trace_dir, source_schema_name, target_schema_name)
 
 
