@@ -3,6 +3,7 @@ import click
 import logging
 
 from polytropos.actions.consume.source_coverage import SourceCoverageFile
+from polytropos.actions.translate import Translate
 from polytropos.actions.translate.trace import Trace
 from polytropos.ontology.schema import Schema
 
@@ -144,6 +145,17 @@ def trace(schemas_dir: str, source_schema: str, target_schema: str, input_dir: s
 
 @cli.command()
 @click.argument('schemas_dir', type=click.Path(exists=True))
+@click.argument('source_schema', type=str)
+@click.argument('target_schema', type=str)
+@click.argument('input_dir', type=click.Path(exists=True))
+@click.argument('output_dir', type=click.Path(exists=False))
+def translate(schemas_dir: str, source_schema: str, target_schema: str, input_dir: str, output_dir: str) -> None:
+    with Context.build("", "", input_dir=input_dir, output_dir=output_dir, schemas_dir=schemas_dir) as context:
+        Translate.standalone(context, source_schema, target_schema)
+
+
+@cli.command()
+@click.argument('schemas_dir', type=click.Path(exists=True))
 @click.argument('source_schema_name', type=str)
 @click.argument('target_schema_name', type=str)
 @click.argument('translate_dir', type=click.Path(exists=True))
@@ -151,7 +163,7 @@ def trace(schemas_dir: str, source_schema: str, target_schema: str, input_dir: s
 @click.argument('output_dir', type=click.Path(exists=False))
 def source_coverage(schemas_dir: str, source_schema_name: str, target_schema_name: str, translate_dir: str, trace_dir: str, output_dir: str) -> None:
     """Produce a source coverage report."""
-    with Context.build("", "", output_dir=output_dir, schemas_dir=schemas_dir) as context:
+    with Context.build("", "", output_dir=output_dir, schemas_dir=schemas_dir, clean_output_directory=False) as context:
         SourceCoverageFile.standalone(context, translate_dir, trace_dir, source_schema_name, target_schema_name)
 
 

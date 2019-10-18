@@ -97,12 +97,12 @@ class SourceCoverageFile(Consume):
     def __call__(self, _origin_dir: str, _target_dir: Optional[str]) -> None:
         self.before()
 
-        translate_composite_ids = list(sorted(find_all_composites(self.translate_dir)))
-        trace_composite_ids = list(sorted(find_all_composites(self.trace_dir)))
-        assert trace_composite_ids == trace_composite_ids
+        translate_composite_ids = set(find_all_composites(self.translate_dir))
+        trace_composite_ids = set(find_all_composites(self.trace_dir))
+        assert translate_composite_ids.issubset(trace_composite_ids)
 
         extract = SourceCoverageFileExtract(self.schema, self.translate_dir, self.trace_dir)
-        per_composite_results: Iterable[SourceCoverageFileExtractResult] = self.context.run_in_process_pool(extract.extract, translate_composite_ids)
+        per_composite_results: Iterable[SourceCoverageFileExtractResult] = self.context.run_in_process_pool(extract.extract, list(translate_composite_ids))
 
         self.consume(per_composite_results)
         self.after()
@@ -187,7 +187,7 @@ class SourceCoverageFileExtract:
                 observed[VarInfo(source_var_id=trace_value, target_var_id=child_var.var_id)].add(child_path)
 
     def _extract(self, translate_composite: Composite, trace_composite: Composite, result: SourceCoverageFileExtractResult) -> None:
-        assert set(translate_composite.periods) == set(trace_composite.periods)
+        assert set(translate_composite.content.keys()).issubset(set(trace_composite.content.keys()))
 
         for period in translate_composite.content.keys():  # periods + "immutable"
             observed: Dict[VarInfo, Set[Tuple[str, ...]]] = defaultdict(set)
