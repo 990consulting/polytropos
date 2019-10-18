@@ -136,7 +136,8 @@ class SourceCoverageFileExtract:
 
     def _crawl(self, composite_id: str, translate_content: Dict, trace_content: Dict, path: Tuple[str, ...], observed: Dict[VarInfo, Set[Tuple[str, ...]]]) -> None:
         for key, translate_value in translate_content.items():  # type: str, Any
-            assert key in trace_content
+            if key not in trace_content:
+                continue
 
             # Ignore system variables
             if key[0] == "_":
