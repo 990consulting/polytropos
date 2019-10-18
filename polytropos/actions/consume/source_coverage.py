@@ -24,10 +24,12 @@ class VarInfo(NamedTuple):
 class SourceCoverageFileExtractResult:
     def __init__(self) -> None:
         self.var_counts: Dict[VarInfo, int] = defaultdict(int)
+        self.all_vars: Set[VarInfo] = set()
 
     def update(self, other: "SourceCoverageFileExtractResult") -> None:
         for var_info, count in other.var_counts.items():  # types: VarInfo, int
             self.var_counts[var_info] += count
+        self.all_vars.update(other.all_vars)
 
 
 @dataclass  # type: ignore # https://github.com/python/mypy/issues/5374
@@ -69,7 +71,7 @@ class SourceCoverageFile(Consume):
         with open(fn, "w") as fh:
             writer: csv.DictWriter = csv.DictWriter(fh, columns)
             writer.writeheader()
-            for var_info in sorted(self.coverage_result.var_counts):
+            for var_info in sorted(self.coverage_result.all_vars):
                 source_var_id = var_info.source_var_id
                 target_var_id = var_info.target_var_id
 
@@ -84,7 +86,7 @@ class SourceCoverageFile(Consume):
                     "target_var_id": target_var_id,
                     "target_var_path": "/".join(target_var.absolute_path),
                     "data_type": source_var.data_type,
-                    "n": self.coverage_result.var_counts[var_info]
+                    "n": self.coverage_result.var_counts.get(var_info, 0)
                 }
                 writer.writerow(row)
 
@@ -102,7 +104,7 @@ class SourceCoverageFile(Consume):
         assert translate_composite_ids.issubset(trace_composite_ids)
 
         extract = SourceCoverageFileExtract(self.schema, self.translate_dir, self.trace_dir)
-        per_composite_results: Iterable[SourceCoverageFileExtractResult] = self.context.run_in_process_pool(extract.extract, list(translate_composite_ids))
+        per_composite_results: Iterable[SourceCoverageFileExtractResult] = self.context.run_in_process_pool(extract.extract, list(trace_composite_ids))
 
         self.consume(per_composite_results)
         self.after()
@@ -114,45 +116,30 @@ class SourceCoverageFileExtract:
         self.translate_dir = translate_dir
         self.trace_dir = trace_dir
 
-    def _handle_keyed_list(self, composite_id: str, child_path: Tuple[str, ...], translate_value: Dict, trace_value: Dict, observed: Dict[VarInfo, Set[Tuple[str, ...]]]) -> None:
-        assert set(translate_value.keys()) == set(trace_value.keys())
-        for key, translate_child_value in translate_value.items():
-            if translate_child_value is None:
-                logging.debug("Encountered empty keyed list item in composite %s (path %s).", composite_id,
-                              nesteddicts.path_to_str(child_path))
-                continue
-            trace_child_value = trace_value[key]
-            self._crawl(composite_id, translate_child_value, trace_child_value, child_path, observed)
+    def _handle_keyed_list(self, composite_id: str, child_path: Tuple[str, ...], translate_value: Dict, trace_value: Dict, observed: Dict[VarInfo, Set[Tuple[str, ...]]], all_vars: Set[VarInfo]) -> None:
+        for key, trace_child_value in trace_value.items():
+            translate_child_value = translate_value.get(key, {})
+            self._crawl(composite_id, translate_child_value, trace_child_value, child_path, observed, all_vars)
 
-    def _handle_list(self, composite_id: str, child_path: Tuple[str, ...], translate_value: List, trace_value: List, observed: Dict[VarInfo, Set[Tuple[str, ...]]]) -> None:
-        assert len(translate_value) == len(trace_value)
-        for index, translate_child_value in enumerate(translate_value):
-            if translate_child_value is None:
-                logging.debug("Encountered empty list item in composite %s (path %s).", composite_id,
-                              nesteddicts.path_to_str(child_path))
-                continue
-            trace_child_value = trace_value[index]
-            self._crawl(composite_id, translate_child_value, trace_child_value, child_path, observed)
+    def _handle_list(self, composite_id: str, child_path: Tuple[str, ...], translate_value: List, trace_value: List, observed: Dict[VarInfo, Set[Tuple[str, ...]]], all_vars: Set[VarInfo]) -> None:
+        assert len(translate_value) == 0 or len(translate_value) == len(trace_value)
+        for index, trace_child_value in enumerate(trace_value):
+            translate_child_value = translate_value[index] if len(translate_value) > 0 else {}
+            self._crawl(composite_id, translate_child_value, trace_child_value, child_path, observed, all_vars)
 
-    def _crawl(self, composite_id: str, translate_content: Dict, trace_content: Dict, path: Tuple[str, ...], observed: Dict[VarInfo, Set[Tuple[str, ...]]]) -> None:
-        for key, translate_value in translate_content.items():  # type: str, Any
-            if key not in trace_content:
-                continue
-
+    def _crawl(self, composite_id: str, translate_content: Dict, trace_content: Dict, path: Tuple[str, ...], observed: Dict[VarInfo, Set[Tuple[str, ...]]], all_vars: Set[VarInfo]) -> None:
+        for key, trace_value in trace_content.items():  # type: str, Any
             # Ignore system variables
             if key[0] == "_":
                 continue
+
+            translate_value = translate_content.get(key, Ellipsis)
 
             # Ignore explicit NAs (which occur in "expected value" test fixtures), but not None. The former is used to
             # indicate explicitly that a variable was not included at all in the actual values, and so does not
             # contribute to test coverage. In order for a None value to appear, it had to be explicitly supplied in the
             # source, which means that it *is* a meaningful value.
             if translate_value == POLYTROPOS_NA:
-                continue
-
-            # Not count empty dictionary, empty list, empty string, zero, or null as having been "observed."
-            # The boolean value `False` should still be counted.
-            if not translate_value and translate_value is not False:
                 continue
 
             child_path: Tuple[str, ...] = path + (key,)
@@ -165,36 +152,55 @@ class SourceCoverageFileExtract:
             if child_var is None or child_var.transient:
                 continue
 
-            trace_value = trace_content[key]
-
             # For known keyed lists, skip over the particular key names. Beyond this, we don't worry at this stage
             # whether the variable is known or not.
             if child_var.data_type == "KeyedList":
-                assert isinstance(translate_value, dict) and isinstance(trace_value, dict)
-                self._handle_keyed_list(composite_id, child_path, translate_value, trace_value, observed)
+                assert isinstance(trace_value, dict)
+                if translate_value is Ellipsis:
+                    translate_value = {}
+                else:
+                    assert isinstance(translate_value, dict)
+
+                self._handle_keyed_list(composite_id, child_path, translate_value, trace_value, observed, all_vars)
 
             # For lists (except string lists), crawl each list item -- exclude string lists
-            elif isinstance(translate_value, list) and not (len(translate_value) > 0 and isinstance(translate_value[0], str)):
-                assert isinstance(trace_value, list)
-                self._handle_list(composite_id, child_path, translate_value, trace_value, observed)
+            elif isinstance(trace_value, list) and not (isinstance(translate_value, list) and len(trace_value) > 0 and isinstance(translate_value[0], str)):
+                if translate_value is Ellipsis:
+                    translate_value = []
+                else:
+                    assert isinstance(translate_value, list)
+
+                self._handle_list(composite_id, child_path, translate_value, trace_value, observed, all_vars)
 
             # If the value is a dict, and we do not it to be a keyed list, then we assume that it is a real folder.
-            elif isinstance(translate_value, dict):
-                assert isinstance(trace_value, dict)
-                self._crawl(composite_id, translate_value, trace_value, child_path, observed)
+            elif isinstance(trace_value, dict):
+                if translate_value is Ellipsis:
+                    translate_value = {}
+                else:
+                    assert isinstance(translate_value, dict)
+
+                self._crawl(composite_id, translate_value, trace_value, child_path, observed, all_vars)
 
             # In all other cases, the variable is a leaf node (primitive).
             else:
-                observed[VarInfo(source_var_id=trace_value, target_var_id=child_var.var_id)].add(child_path)
+                var_info = VarInfo(source_var_id=trace_value, target_var_id=child_var.var_id)
+                all_vars.add(var_info)
+
+                # Not empty string, zero, or null as having been "observed."
+                # The boolean value `False` should still be counted.
+                if translate_value is not Ellipsis and (translate_value or translate_value is False):
+                    observed[var_info].add(child_path)
 
     def _extract(self, translate_composite: Composite, trace_composite: Composite, result: SourceCoverageFileExtractResult) -> None:
         assert set(translate_composite.content.keys()).issubset(set(trace_composite.content.keys()))
 
-        for period in translate_composite.content.keys():  # periods + "immutable"
-            observed: Dict[VarInfo, Set[Tuple[str, ...]]] = defaultdict(set)
-            self._crawl(translate_composite.composite_id, translate_composite.content[period], trace_composite.content[period], (), observed)
-            for var_info, target_paths in observed.items():
+        for period in trace_composite.content.keys():  # periods + "immutable"
+            observed_paths: Dict[VarInfo, Set[Tuple[str, ...]]] = defaultdict(set)
+            all_vars: Set[VarInfo] = set()
+            self._crawl(translate_composite.composite_id, translate_composite.content.get(period, {}), trace_composite.content[period], (), observed_paths, all_vars)
+            for var_info, target_paths in observed_paths.items():
                 result.var_counts[var_info] += len(target_paths)
+            result.all_vars.update(all_vars)
 
     def extract(self, composite_ids: List[str]) -> SourceCoverageFileExtractResult:
         extract_result = SourceCoverageFileExtractResult()
@@ -209,6 +215,11 @@ class SourceCoverageFileExtract:
 
     def _load_composite(self, base_dir: str, composite_id: str) -> Composite:
             relpath: str = relpath_for(composite_id)
-            with open(os.path.join(base_dir, relpath, "%s.json" % composite_id)) as translate_file:
-                content: Dict = json.load(translate_file)
+            composite_path = os.path.join(base_dir, relpath, "%s.json" % composite_id)
+            content: Dict
+            if not os.path.exists(composite_path):
+                content = {}
+            else:
+                with open(os.path.join(base_dir, relpath, "%s.json" % composite_id)) as translate_file:
+                    content = json.load(translate_file)
             return Composite(self.schema, content, composite_id=composite_id)
