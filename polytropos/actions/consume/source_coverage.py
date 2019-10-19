@@ -192,8 +192,6 @@ class SourceCoverageFileExtract:
                     observed[var_info].add(child_path)
 
     def _extract(self, translate_composite: Composite, trace_composite: Composite, result: SourceCoverageFileExtractResult) -> None:
-        assert set(translate_composite.content.keys()).issubset(set(trace_composite.content.keys()))
-
         for period in trace_composite.content.keys():  # periods + "immutable"
             observed_paths: Dict[VarInfo, Set[Tuple[str, ...]]] = defaultdict(set)
             all_vars: Set[VarInfo] = set()

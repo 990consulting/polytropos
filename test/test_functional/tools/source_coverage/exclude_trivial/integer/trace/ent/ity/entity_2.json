@@ -1,0 +1,47 @@
+{
+  "201210": {
+    "first_temporal_folder": {
+      "some_integer_2": "source_t_folder_integer_1_2"
+    },
+    "second_temporal_folder": {
+      "a_list": [
+        {
+          "some_integer_1": "source_t_list_integer_2_1",
+          "a_keyed_list": {
+            "bob": {
+              "some_integer_1": "source_t_keyed_list_integer_2_1"
+            },
+            "stacy": {
+              "some_integer_2":  "source_t_keyed_list_integer_2_2"
+            }
+          }
+        },
+        {
+          "some_integer_2": "source_t_list_integer_2_2",
+          "a_keyed_list": {
+            "egbert": {"some_integer_2": "source_t_keyed_list_integer_2_2"},
+            "blanche": {"some_integer_1":  "source_t_keyed_list_integer_2_1"}
+          }
+        }
+      ]
+    }
+  },
+  "201310": {
+    "first_temporal_folder": {
+      "some_integer_1": "source_t_folder_integer_1_1"
+    }
+  },
+  "immutable": {
+    "second_immutable_folder": {
+      "some_integer_2": "source_i_folder_integer_2_2",
+      "a_list": [
+        {
+          "a_keyed_list": {
+            "martha": {"some_integer_1": "source_i_keyed_list_integer_2_1"},
+            "jane": {"some_integer_2": "source_i_keyed_list_integer_2_2"}
+          }
+        }
+      ]
+    }
+  }
+}
