@@ -82,9 +82,9 @@ class SourceCoverageFile(Consume):
 
                 row = {
                     "source_var_id": source_var_id,
-                    "source_var_path": "/".join(source_var.absolute_path),
+                    "source_var_path": nesteddicts.path_to_str(source_var.absolute_path),
                     "target_var_id": target_var_id,
-                    "target_var_path": "/".join(target_var.absolute_path),
+                    "target_var_path": nesteddicts.path_to_str(target_var.absolute_path),
                     "data_type": source_var.data_type,
                     "n": self.coverage_result.var_counts.get(var_info, 0)
                 }
