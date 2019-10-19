@@ -1,0 +1,52 @@
+{
+  "201210": {
+    "first_temporal_folder": {
+      "some_integer_1": "source_t_folder_integer_1_1",
+      "a_list": [
+        {
+          "some_integer_2": "source_t_list_integer_1_2",
+          "a_keyed_list": {
+            "bob": {"some_integer_2": "source_t_keyed_list_integer_1_2"},
+            "stacy": {"some_integer_1":  "source_t_keyed_list_integer_1_1"}
+          }
+        },
+        {
+          "some_integer_1": "source_t_list_integer_1_1",
+          "a_keyed_list": {
+            "egbert": {"some_integer_1": "source_t_keyed_list_integer_1_1"},
+            "blanche": {"some_integer_2":  "source_t_keyed_list_integer_1_2"}
+          }
+        }
+      ]
+    }
+  },
+  "201310": {
+    "first_temporal_folder": {
+      "some_integer_2": "source_t_folder_integer_1_2"
+    }
+  },
+  "201410": {
+    "first_temporal_folder": {
+      "some_integer_1": "source_t_folder_integer_1_1"
+    },
+    "a_list": [
+      {"some_integer_2": "source_t_list_integer_1_2"},
+      {"some_integer_1": "source_t_list_integer_1_1"}
+    ]
+  },
+  "immutable": {
+    "first_immutable_folder": {
+      "a_list": [
+        {
+          "a_keyed_list": {
+            "martha": {"some_integer_1": "source_i_keyed_list_integer_1_1"},
+            "jane": {"some_integer_1": "source_i_keyed_list_integer_1_1"}
+          }
+        }
+      ]
+    },
+    "second_immutable_folder": {
+      "some_integer_2": "source_i_folder_integer_2_2"
+    }
+  }
+}

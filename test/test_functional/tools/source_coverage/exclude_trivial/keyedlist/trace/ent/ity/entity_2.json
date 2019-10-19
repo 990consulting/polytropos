@@ -1,0 +1,47 @@
+{
+  "201210": {
+    "first_temporal_folder": {
+      "some_text_2": "source_t_folder_text_1_2"
+    },
+    "second_temporal_folder": {
+      "a_list": [
+        {
+          "some_text_1": "source_t_list_text_2_1",
+          "a_keyed_list": {
+            "bob": {
+              "some_text_1": "source_t_keyed_list_text_2_1"
+            },
+            "stacy": {
+              "some_text_2":  "source_t_keyed_list_text_2_2"
+            }
+          }
+        },
+        {
+          "some_text_2": "source_t_list_text_2_2",
+          "a_keyed_list": {
+            "egbert": {"some_text_2": "source_t_keyed_list_text_2_2"},
+            "blanche": {"some_text_1":  "source_t_keyed_list_text_2_1"}
+          }
+        }
+      ]
+    }
+  },
+  "201310": {
+    "first_temporal_folder": {
+      "some_text_1": "source_t_folder_text_1_1"
+    }
+  },
+  "immutable": {
+    "second_immutable_folder": {
+      "some_text_2": "source_i_folder_text_2_2",
+      "a_list": [
+        {
+          "a_keyed_list": {
+            "martha": {"some_text_1": "source_i_keyed_list_text_2_1"},
+            "jane": {"some_text_2": "source_i_keyed_list_text_2_2"}
+          }
+        }
+      ]
+    }
+  }
+}
