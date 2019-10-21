@@ -258,6 +258,11 @@ class Variable:
         )
         if children:
             tree['children'] = children
+        if len(self.metadata) > 0:
+            tree["metadata"] = self.metadata
+        if len(self.sources) > 0:
+            tree["sources"] = self.sources
+
         return tree
 
     def dump(self) -> Dict:

@@ -1,0 +1,144 @@
+[
+  {
+    "varId": "example_1",
+    "dataType": "Folder",
+    "title": "outer folder",
+    "children": [
+      {
+        "varId": "example_1a",
+        "dataType": "Binary",
+        "title": "inner primitive 1",
+        "sources": [
+          "source_1",
+          "source_2",
+          "source_3"
+        ],
+        "metadata": {
+          "lorem": "ipsum",
+          "dolor": "sic"
+        }
+      },
+      {
+        "varId": "example_1b",
+        "dataType": "List",
+        "title": "inner list",
+        "sources": [
+          "red"
+        ],
+        "children": [
+          {
+            "varId": "example_1_b_i",
+            "dataType": "Folder",
+            "title": "third",
+            "children": [
+              {
+                "varId": "example_1_b_i_A",
+                "dataType": "Text",
+                "title": "innermost",
+                "sources": [
+                  "flooble"
+                ],
+                "metadata": {
+                  "\\n drop table \"students\";": "let's see how it likes this craziness",
+                  "\u221a": "\u2202"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "varId": "example_1c",
+        "dataType": "Currency",
+        "title": "inner primitive 2",
+        "sources": [
+          "alpha",
+          "beta"
+        ]
+      }
+    ]
+  },
+  {
+    "varId": "example_2",
+    "dataType": "List",
+    "title": "outer list",
+    "children": [
+      {
+        "varId": "example_2a",
+        "dataType": "Date",
+        "title": "inner primitive 1",
+        "sources": [
+          "gravy"
+        ]
+      },
+      {
+        "varId": "example_2b",
+        "dataType": "List",
+        "title": "inner list",
+        "sources": [
+          "ketchup"
+        ],
+        "children": [
+          {
+            "varId": "example_2b_innermost",
+            "dataType": "Decimal",
+            "title": "innermost",
+            "sources": [
+              "mustard"
+            ]
+          }
+        ]
+      },
+      {
+        "varId": "example_2c",
+        "dataType": "Decimal",
+        "title": "inner primitive 2",
+        "sources": [
+          "hoisin"
+        ]
+      }
+    ]
+  },
+  {
+    "varId": "example_3",
+    "dataType": "KeyedList",
+    "title": "outer KEYED list",
+    "sources": [
+      "venus"
+    ],
+    "children": [
+      {
+        "varId": "example_3a",
+        "dataType": "Integer",
+        "title": "inner primitive 1",
+        "sources": [
+          "mars"
+        ]
+      },
+      {
+        "varId": "example_3b",
+        "dataType": "List",
+        "title": "inner list",
+        "sources": [
+          "mercury"
+        ]
+      },
+      {
+        "varId": "example_3c",
+        "dataType": "Unary",
+        "title": "inner primitive 2",
+        "sources": [
+          "jupiter"
+        ]
+      }
+    ]
+  },
+  {
+    "varId": "example_4",
+    "dataType": "Text",
+    "title": "outer primitive",
+    "sources": [
+      "12345"
+    ]
+  }
+]
