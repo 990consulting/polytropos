@@ -4,9 +4,9 @@ class GUITreeToSpec:
     """Converts a tree from the Polytropos user interface into a Polytropos specification file."""
     def __init__(self, tree_spec: List[Dict]):
         self.tree_spec = tree_spec
-        self.ret: Optional[Dict] = None
+        self.ret: Dict = {}
 
-    def traverse(self, node: Dict, sort_order: int, parent_id: Optional[str] = None):
+    def traverse(self, node: Dict, sort_order: int, parent_id: Optional[str] = None) -> None:
         var_id: str = node["varId"]
         if var_id == "example_1a":
             print("breakpoint")
