@@ -105,7 +105,7 @@ def test_translate_first_source_is_not_descendant(translator, document, variable
         return {"c": 3, "d": 4, "e": 5}
 
     parent_source = Mock()
-    parent_source.check_ancestor = lambda source_id: source_id != "source1"
+    parent_source.is_ancestor_of = lambda source_id: source_id != "source1"
 
     parent_id = "parent"
     variable.sources = ["source1", "source2"]

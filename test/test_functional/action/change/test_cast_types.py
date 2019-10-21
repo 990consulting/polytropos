@@ -119,14 +119,14 @@ def test_decimal_fails(do_cast_error_test: Callable, raw: Any):
     do_cast_error_test("Decimal", raw)
 
 @pytest.mark.parametrize("raw,native", [
-    ("-10.0", -10.0),
-    ("10.0", 10.0),
-    ("10", 10.0),
-    ("-10", -10.0),
-    (-10.0, -10.0),
-    (10.0, 10.0),
-    (10, 10.0),
-    (-10, -10.0)
+    ("-10.32", -10),
+    ("10.70", 10),
+    ("10", 10),
+    ("-10", -10),
+    (-10.0, -10),
+    (10.0, 10),
+    (10, 10),
+    (-10, -10)
 ])
 def test_currency(do_simple_test: Callable, raw: Any, native: float):
     do_simple_test("Currency", raw, native)

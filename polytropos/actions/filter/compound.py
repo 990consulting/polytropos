@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from typing import Dict, List, Any, Iterator
 
@@ -54,5 +55,6 @@ class CompoundFilter(Step):  # type: ignore # https://github.com/python/mypy/iss
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
         composites_ids = list(find_all_composites(origin_dir))
-        for _ in self.context.run_in_thread_pool(self.process_composites, composites_ids, origin_dir, target_dir):
+        logging.info("Spawning parallel processes to perform CompoundFilter operation.")
+        for _ in self.context.run_in_process_pool(self.process_composites, composites_ids, origin_dir, target_dir):
             pass

@@ -2,6 +2,9 @@ from typing import TextIO, Optional, cast
 import click
 import logging
 
+from polytropos.actions.consume.source_coverage import SourceCoverageFile
+from polytropos.actions.translate import Translate
+from polytropos.actions.translate.trace import Trace
 from polytropos.ontology.schema import Schema
 
 from polytropos.actions.consume.coverage import CoverageFile
@@ -18,10 +21,12 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 register_all()
 
+
 @click.group()
 def cli() -> None:
     """Polytropos. Copyright (c) 2019 Applied Nonprofit Research."""
     pass
+
 
 @cli.command()
 @click.argument('data_path', type=click.Path(exists=True))
@@ -38,15 +43,18 @@ def task(data_path: str, config_path: str, task_name: str, input_path: Optional[
         task = Task.build(context, task_name)
         task.run()
 
+
 @cli.group()
 def schema() -> None:
     """Commands for viewing and manipulating schemas."""
     pass
 
+
 @schema.group()
 def linkage() -> None:
     """Import and export translation linkages."""
     pass
+
 
 @linkage.command(name="export")
 @click.argument('schema_basepath', type=click.Path(exists=True))
@@ -56,6 +64,7 @@ def linkage() -> None:
 def linkage_export(schema_basepath: str, source_schema: str, target_schema: str, output_file: TextIO) -> None:
     """Export a translation linkage."""
     ExportLinkages.from_files(schema_basepath, source_schema, target_schema, output_file)
+
 
 """
 @linkage.command(name="import")
@@ -69,6 +78,7 @@ def linkage_import(schema_basepath: str, source_schema: str, target_schema: str,
     ImportLinkages.from_files(schema_basepath, source_schema, target_schema, input_file, suffix)
 """
 
+
 @schema.command()
 @click.argument('schema_basepath', type=click.Path(exists=True))
 @click.argument('schema_name', type=str)
@@ -77,6 +87,7 @@ def catalog(schema_basepath: str, schema_name: str, output_file: TextIO) -> None
     """Export a CSV-formatted catalog of variables in a schema."""
     variable_catalog(schema_basepath, schema_name, output_file)
 
+
 @schema.command(name="treeview")
 @click.argument('schema_basepath', type=click.Path(exists=True))
 @click.argument('schema_name', type=str)
@@ -84,12 +95,14 @@ def schema_treeview(schema_basepath: str, schema_name: str) -> None:
     """Output an ASCII tree representation of a schema to stdout."""
     treeview.print_from_files(schema_basepath, schema_name)
 
+
 @schema.command(name="repair")
 @click.argument('schema_path', type=click.Path(exists=True))
 def schema_repair(schema_path: str) -> None:
     """Replaces the existing sort order in a schema (if any) with an arbitrary, but valid, sort order. No aspect of the
     old sort order will be preserved; the new order will be alphabetized by variable name."""
     repair_sort_order(schema_path)
+
 
 @schema.command(name="validate")
 @click.argument('schema_basepath', type=click.Path(exists=True))
@@ -101,6 +114,7 @@ def schema_validate(schema_basepath: str, schema_name: str, schema_source_name: 
     if schema_source_name is not None:
         source = Schema.load(schema_source_name, schema_basepath)
     Schema.load(schema_name, schema_basepath, source_schema=source)
+
 
 @cli.command()
 @click.argument('schema_basepath', type=click.Path(exists=True))
@@ -116,6 +130,41 @@ def coverage(schema_basepath: str, schema_name: str, data_path: str, output_pref
     tracks."""
     with Context.build("", "", input_dir=data_path, schemas_dir=schema_basepath) as context:
         CoverageFile.standalone(context, schema_name, output_prefix, cast(Optional[VariableId], t_group), cast(Optional[VariableId], i_group), exclude_trivial)
+
+
+@cli.command()
+@click.argument('schemas_dir', type=click.Path(exists=True))
+@click.argument('source_schema', type=str)
+@click.argument('target_schema', type=str)
+@click.argument('input_dir', type=click.Path(exists=True))
+@click.argument('output_dir', type=click.Path(exists=False))
+def trace(schemas_dir: str, source_schema: str, target_schema: str, input_dir: str, output_dir: str) -> None:
+    with Context.build("", "", input_dir=input_dir, output_dir=output_dir, schemas_dir=schemas_dir) as context:
+        Trace.standalone(context, source_schema, target_schema)
+
+
+@cli.command()
+@click.argument('schemas_dir', type=click.Path(exists=True))
+@click.argument('source_schema', type=str)
+@click.argument('target_schema', type=str)
+@click.argument('input_dir', type=click.Path(exists=True))
+@click.argument('output_dir', type=click.Path(exists=False))
+def translate(schemas_dir: str, source_schema: str, target_schema: str, input_dir: str, output_dir: str) -> None:
+    with Context.build("", "", input_dir=input_dir, output_dir=output_dir, schemas_dir=schemas_dir) as context:
+        Translate.standalone(context, source_schema, target_schema)
+
+
+@cli.command()
+@click.argument('schemas_dir', type=click.Path(exists=True))
+@click.argument('source_schema_name', type=str)
+@click.argument('target_schema_name', type=str)
+@click.argument('translate_dir', type=click.Path(exists=True))
+@click.argument('trace_dir', type=click.Path(exists=True))
+@click.argument('output_dir', type=click.Path(exists=False))
+def source_coverage(schemas_dir: str, source_schema_name: str, target_schema_name: str, translate_dir: str, trace_dir: str, output_dir: str) -> None:
+    """Produce a source coverage report."""
+    with Context.build("", "", output_dir=output_dir, schemas_dir=schemas_dir, clean_output_directory=False) as context:
+        SourceCoverageFile.standalone(context, translate_dir, trace_dir, source_schema_name, target_schema_name)
 
 
 if __name__ == "__main__":

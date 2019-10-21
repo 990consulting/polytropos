@@ -1,0 +1,126 @@
+{
+  "example_1": {
+    "name": "outer folder",
+    "data_type": "Folder",
+    "sort_order": 0
+  },
+  "example_1a": {
+    "name": "inner primitive 1",
+    "data_type": "Binary",
+    "parent": "example_1",
+    "sort_order": 0,
+    "sources": [
+      "source_1",
+      "source_2",
+      "source_3"
+    ],
+    "metadata": {
+      "lorem": "ipsum",
+      "dolor": "sic"
+    }
+  },
+  "example_1b": {
+    "name": "inner list",
+    "data_type": "List",
+    "parent": "example_1",
+    "sort_order": 1,
+    "sources": [
+      "red"
+    ]
+  },
+  "example_1_b_i": {
+    "name": "third",
+    "parent": "example_1b",
+    "data_type": "Folder",
+    "sort_order": 0
+  },
+  "example_1_b_i_A": {
+    "name": "innermost",
+    "data_type": "Text",
+    "parent": "example_1_b_i",
+    "sort_order": 0,
+    "sources": [
+      "flooble"
+    ],
+    "metadata": {
+      "\\n drop table \"students\";": "let's see how it likes this craziness",
+      "\u221a": "\u2202"
+    }
+  },
+  "example_1c": {
+    "name": "inner primitive 2",
+    "data_type": "Currency",
+    "parent": "example_1",
+    "sort_order": 2,
+    "sources": [
+      "alpha",
+      "beta"
+    ]
+  },
+  "example_2": {
+    "name": "outer list",
+    "data_type": "List",
+    "sort_order": 1
+  },
+  "example_2a": {
+    "name": "inner primitive 1",
+    "data_type": "Date",
+    "parent": "example_2",
+    "sort_order": 0,
+    "sources": ["gravy"]
+  },
+  "example_2b": {
+    "name": "inner list",
+    "data_type": "List",
+    "parent": "example_2",
+    "sort_order": 1,
+    "sources": ["ketchup"]
+  },
+  "example_2b_innermost": {
+    "name": "innermost",
+    "data_type": "Decimal",
+    "parent": "example_2b",
+    "sort_order": 0,
+    "sources": ["mustard"]
+  },
+  "example_2c": {
+    "name": "inner primitive 2",
+    "data_type": "Decimal",
+    "parent": "example_2",
+    "sort_order": 2,
+    "sources": ["hoisin"]
+  },
+  "example_3": {
+    "name": "outer KEYED list",
+    "data_type": "KeyedList",
+    "sort_order": 2,
+    "sources": ["venus"]
+  },
+  "example_3a": {
+    "name": "inner primitive 1",
+    "data_type": "Integer",
+    "parent": "example_3",
+    "sort_order": 0,
+    "sources": ["mars"]
+  },
+  "example_3b": {
+    "name": "inner list",
+    "data_type": "List",
+    "parent": "example_3",
+    "sort_order": 1,
+    "sources": ["mercury"]
+  },
+  "example_3c": {
+    "name": "inner primitive 2",
+    "data_type": "Unary",
+    "parent": "example_3",
+    "sort_order": 2,
+    "sources": ["jupiter"]
+  },
+  "example_4": {
+    "name": "outer primitive",
+    "data_type": "Text",
+    "sort_order": 3,
+    "sources": ["12345"]
+  }
+}

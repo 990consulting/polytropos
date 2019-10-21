@@ -17,6 +17,9 @@ def _repair_spec(track_spec: Dict[str, Dict]) -> None:
         child_names: Dict[str, VariableId] = {}
         for child_id, child in children.items():
             name: str = child["name"]
+            if name in child_names:
+                existing: VariableId = child_names[name]
+                raise ValueError("Variables '%s' and '%s' have the same parent and name." % (existing, child_id))
             assert name not in child_names
             child_names[name] = child_id
         sort_order: int = 0

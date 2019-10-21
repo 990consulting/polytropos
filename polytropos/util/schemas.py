@@ -14,7 +14,7 @@ def build_folders(target: Dict, path: List[str], name_prefix: str) -> VariableId
         }
         if len(path) > 1:
             parent_id: str = build_folders(target, path[:-1], name_prefix)
-            var_spec["parent_id"] = parent_id
+            var_spec["parent"] = parent_id
         target[cur_var_id] = var_spec
     else:
         assert target[cur_var_id]["data_type"] in {"Folder", "List", "KeyedList"}

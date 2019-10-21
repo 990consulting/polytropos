@@ -64,20 +64,12 @@ class Track(MutableMapping):
         if len(unexpected_fields) > 0:
             raise ValueError("unexpected variable fields: %s" % sorted(unexpected_fields))
 
-        try:
-            data_type = data['data_type']
-        except Exception as e:
-            print("breakpoint")
-            raise e
-        try:
-            del data['data_type']
-            cls = getattr(polytropos.ontology.variable, data_type)
-            var = cls(track=self, var_id=var_id, **data)
-            data['data_type'] = data_type
-            return var
-        except Exception as e:
-            print("breakpoint")
-            raise e
+        data_type = data['data_type']
+        del data['data_type']
+        cls = getattr(polytropos.ontology.variable, data_type)
+        var = cls(track=self, var_id=var_id, **data)
+        data['data_type'] = data_type
+        return var
 
     ###########################################
     # Mapping methods

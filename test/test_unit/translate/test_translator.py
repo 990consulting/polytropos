@@ -21,6 +21,15 @@ def target_track(source_track) -> Mock:
 
 
 @pytest.fixture()
+def create_document_value_provider() -> Mock:
+    def create_document_value_provider(doc: Dict[str, Any]):
+        m = Mock()
+        m.value = lambda path: doc[path[0]]
+        return m
+    return create_document_value_provider
+
+
+@pytest.fixture()
 def type_translator_class() -> Mock:
     def translator(_translator, _composite_id, _period, document, variable, _parent_id):
         translated = Mock()
@@ -53,54 +62,54 @@ def create_variable(var_id: str, name: str, parent_id: Optional[str], sort_order
     return var
 
 
-def test_translate_no_target_variables(source_track, target_track):
+def test_translate_no_target_variables(source_track, target_track, create_document_value_provider):
     target_track.values.return_value = []
     document = {"a": 1}
-    translator = Translator(target_track)
+    translator = Translator(target_track, create_document_value_provider)
 
     translated = translator("composite_id", "period", document)
     assert translated == OrderedDict()
 
 
-def test_translate_one_target_variable(monkeypatch, source_track, target_track, type_translator_class):
+def test_translate_one_target_variable(monkeypatch, source_track, target_track, type_translator_class, create_document_value_provider):
     monkeypatch.setattr(TypeTranslatorRegistry, "get_translator_class", type_translator_class)
 
     target_track.values.return_value = [create_variable("id_a", "a", None, sort_order=1)]
     document = {"a": 1, "b": 2}
-    translator = Translator(target_track)
+    translator = Translator(target_track, create_document_value_provider)
 
     translated = translator("composite_id", "period", document)
     assert translated == OrderedDict([("a", 101)])
 
 
-def test_translate_two_target_variables(monkeypatch, source_track, target_track, type_translator_class):
+def test_translate_two_target_variables(monkeypatch, source_track, target_track, type_translator_class, create_document_value_provider):
     monkeypatch.setattr(TypeTranslatorRegistry, "get_translator_class", type_translator_class)
 
     target_track.values.return_value = [create_variable("id_a", "a", None, sort_order=1), create_variable("id_b", "b", None, sort_order=2)]
     document = {"a": 1, "b": 2}
-    translator = Translator(target_track)
+    translator = Translator(target_track, create_document_value_provider)
 
     translated = translator("composite_id", "period", document)
     assert translated == OrderedDict([("a", 101), ("b", 102)])
 
 
-def test_translate_missing_source(monkeypatch, source_track, target_track, type_translator_class):
+def test_translate_missing_source(monkeypatch, source_track, target_track, type_translator_class, create_document_value_provider):
     monkeypatch.setattr(TypeTranslatorRegistry, "get_translator_class", type_translator_class)
 
     target_track.values.return_value = [create_variable("id_a", "a", None, 1), create_variable("id_b", "b", None, 2), create_variable("id_c", "c", None, 3)]
     document = {"a": 1, "b": 2}
-    translator = Translator(target_track)
+    translator = Translator(target_track, create_document_value_provider)
 
     translated = translator("composite_id", "period", document)
     assert translated == OrderedDict([("a", 101), ("b", 102)])
 
 
-def test_translate_exception(monkeypatch, source_track, target_track, type_translator_class):
+def test_translate_exception(monkeypatch, source_track, target_track, type_translator_class, create_document_value_provider):
     monkeypatch.setattr(TypeTranslatorRegistry, "get_translator_class", type_translator_class)
 
     target_track.values.return_value = [create_variable("id_a", "a", None, sort_order=1), create_variable("id_b", "b", None, sort_order=2)]
     document = {"a": 1, "b": AttributeError}
-    translator = Translator(target_track)
+    translator = Translator(target_track, create_document_value_provider)
 
     with pytest.raises(AttributeError):
         _ = translator("composite_id", "period", document)
@@ -118,7 +127,7 @@ def shuffle(to_shuffle: Dict) -> Dict:
 
 
 @pytest.mark.repeat(5)
-def test_translate_sort_order(monkeypatch, source_track, target_track, type_translator_class):
+def test_translate_sort_order(monkeypatch, source_track, target_track, type_translator_class, create_document_value_provider):
     monkeypatch.setattr(TypeTranslatorRegistry, "get_translator_class", type_translator_class)
 
     target_track.values.return_value = [
@@ -127,7 +136,7 @@ def test_translate_sort_order(monkeypatch, source_track, target_track, type_tran
         create_variable("id_c", "c", None, sort_order=2),
     ]
     document = shuffle({"a": 1, "b": 2, "c": 3})
-    translator = Translator(target_track)
+    translator = Translator(target_track, create_document_value_provider)
 
     translated = translator("composite_id", "period", document)
     assert translated == OrderedDict([("b", 102), ("c", 103), ("a", 101)])

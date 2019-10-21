@@ -7,7 +7,7 @@ from polytropos.actions.consume.tocsv.topo import Topological
 
 from polytropos.ontology.composite import Composite
 
-@dataclass(cmp=False)
+@dataclass(cmp=False)  # type: ignore # cmp is deprecated, use eq and order
 class Block:
     contents: Tuple
     as_block_value: AsBlockValue

@@ -1,0 +1,55 @@
+{
+  "201210": {
+    "first_temporal_folder": {
+      "some_integer_2": 100
+    },
+    "second_temporal_folder": {
+      "a_list": [
+        {
+          "some_integer_1": 1,
+          "a_keyed_list": {
+            "bob": {
+              "some_integer_1": 2,
+              "nested_made_up": 100.7
+            },
+            "stacy": {
+              "some_integer_2":  3,
+              "_nested_system": "this is ignored"
+            }
+          }
+        },
+        {
+          "some_integer_2": 4,
+          "a_keyed_list": {
+            "egbert": {"some_integer_2": 5},
+            "blanche": {"some_integer_1":  6}
+          }
+        }
+      ]
+    }
+  },
+  "201310": {
+    "first_temporal_folder": {
+      "some_integer_1": 200
+    },
+    "made_up_variable": 134
+  },
+  "201410": {
+    "made_up_variable": 412
+  },
+  "immutable": {
+    "second_immutable_folder": {
+      "some_integer_2": 300,
+      "a_list": [
+        {
+          "a_keyed_list": {
+            "martha": {"some_integer_1": 6},
+            "jane": {"some_integer_2": 7}
+          }
+        }
+      ]
+    },
+    "another_made_up_variable": true,
+    "_a_system_variable": "should be ignored"
+  }
+}

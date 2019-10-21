@@ -109,5 +109,6 @@ class Evolve(Step):
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
         composites: List[str] = list(find_all_composites(origin_dir))
+        logging.info("Spawning parallel processes to perform Evolve process on all composites.")
         for _ in self.context.run_in_process_pool(self.process_composites, composites, origin_dir, target_dir):
             pass

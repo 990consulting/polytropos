@@ -27,20 +27,21 @@ class Context:
     @classmethod
     def build(cls, conf_dir: str, data_dir: str, input_dir: Optional[str] = None, output_dir: Optional[str] = None, schemas_dir: Optional[str] = None,
               temp_dir: Optional[str] = None, no_cleanup: bool = False,
-              process_pool_chunk_size: Optional[int] = None, steppable_mode: bool = False) -> "Context":
+              process_pool_chunk_size: Optional[int] = None, steppable_mode: bool = False, clean_output_directory: bool = True) -> "Context":
 
         entities_input_dir = input_dir or os.path.join(data_dir, 'entities')
         entities_output_dir = output_dir or entities_input_dir
 
         if output_dir:
-            try:
-                logging.debug("Attempting to remove old output directory, if it exists.")
-                shutil.rmtree(output_dir)
-                logging.debug("Old output directory removed.")
-            except FileNotFoundError:
-                logging.debug("No old output directory.")
+            if clean_output_directory:
+                try:
+                    logging.debug("Attempting to remove old output directory, if it exists.")
+                    shutil.rmtree(output_dir)
+                    logging.debug("Old output directory removed.")
+                except FileNotFoundError:
+                    logging.debug("No old output directory.")
 
-            os.makedirs(output_dir)
+            os.makedirs(output_dir, exist_ok=True)
             temp_dir = temp_dir or os.path.join(output_dir, '_tmp')
         else:
             output_dir = os.path.join(conf_dir, "..") if conf_dir else "."
