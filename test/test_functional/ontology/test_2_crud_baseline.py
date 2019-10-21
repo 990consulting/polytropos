@@ -1,9 +1,10 @@
-from typing import Dict, Set, List
+from typing import Dict, Set, List, cast
+from unittest.mock import MagicMock
 
 import pytest
 
 from polytropos.ontology.track import Track
-from polytropos.ontology.variable import Variable
+from polytropos.ontology.variable import Variable, VariableId, Integer
 
 def test_targets_for_var_in(target_nested_dict_track):
     target_track: Track = target_nested_dict_track
@@ -22,20 +23,37 @@ def test_get_children_no_parents(target_nested_dict_track):
     source_var: Variable = source_track["source_folder_3"]
     assert [] == list(source_var.children)
 
-def test_tree_from_target_var_2(target_nested_dict_track):
-    """The tree takes a particular format intended for consumption by a particular React component. Only a few of the
-    properties variable properties are included. The format is demonstrated here."""
-
-    var: Variable = target_nested_dict_track["target_var_2"]
+def test_tree_with_metadata():
+    metadata: Dict = {
+        "foo": "bar",
+        "a": "b"
+    }
+    var: Variable = Integer(track=MagicMock(), var_id=cast(VariableId, "target_var_2"), name="second_target",
+                             sort_order=0, metadata=metadata, sources=[])
     expected: Dict = {
         "title": "second_target",
         "varId": "target_var_2",
-        "dataType": "Integer"
+        "dataType": "Integer",
+        "metadata": metadata
+    }
+    actual: Dict = var.tree
+    assert expected == actual
+
+def test_tree_with_sources():
+    sources: List[VariableId] = [cast(VariableId, x) for x in ("abc", "xyz")]
+    var: Variable = Integer(track=MagicMock(), var_id=cast(VariableId, "target_var_2"), name="second_target",
+                             sort_order=0, sources=sources)
+    expected: Dict = {
+        "title": "second_target",
+        "varId": "target_var_2",
+        "dataType": "Integer",
+        "sources": sources
     }
     actual: Dict = var.tree
     assert expected == actual
 
 def test_tree_from_source_folder_1(source_nested_dict_track):
+    """Demonstrate what the tree looks like with children."""
     var: Variable = source_nested_dict_track["source_folder_1"]
     expected: Dict = {
         "title": "outer_s",
