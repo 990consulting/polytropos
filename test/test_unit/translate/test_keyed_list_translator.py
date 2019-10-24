@@ -17,15 +17,13 @@ def test_no_sources(translator, document, variable):
 
 
 def test_two_sources_both_missing(translator, document, variable):
-    """Two sources defined, but both are missing from the source document - raises an exception."""
+    """Two sources defined, but both are missing from the source document - empty dict is returned."""
     variable.sources = ["source1", "source2"]
     document.variable_value.side_effect = SourceNotFoundException
     parent_id = None
 
     type_translator = KeyedListTranslator(translator, "composite_id", "period", document, variable, parent_id)
-    with pytest.raises(SourceNotFoundException):
-        _ = type_translator()
-
+    assert type_translator() == {}
 
 def test_two_sources_both_empty(translator, document, variable):
     """Two sources defined, and both are present but empty; empty dict is returned."""

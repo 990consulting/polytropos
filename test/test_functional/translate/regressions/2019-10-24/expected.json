@@ -1,5 +1,6 @@
 {
   "201206": {
+    "Transient (temporal)": {
       "Personnel": {
         "BAKER, SHAWN": {
           "Title": "REGIONAL DIRECTOR",
@@ -53,10 +54,6 @@
             "As it appeared on tax form": "HENRY C BARKHORN"
           }
         }
-    },
-    "Display (temporal)": {
-      "Hospital data": {
-        "Supplemental hospital information": []
       }
     }
   }

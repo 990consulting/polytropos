@@ -56,8 +56,6 @@ class Translator:
         # Translate all variables with the same parent
         children: List[Variable] = self.target_variables_by_parent[parent_id]
         for variable in children:  # type: Variable
-            if variable.var_id == "open990_t_000039":
-                print("Breakpoint")
             try:
                 type_translator: Callable = self.create_type_translator(composite_id, period, document_value_provider, variable, source_parent_id)
                 result: Any = type_translator()

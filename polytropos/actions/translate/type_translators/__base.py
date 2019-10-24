@@ -23,7 +23,6 @@ class BaseTypeTranslator(Generic[TSource, TResult]):
     result: TResult = field(default=cast(TResult, None), init=False)
     has_result: bool = field(default=False, init=False)
     result_is_ready: bool = field(default=False, init=False)
-    skip_source_not_found: bool = field(default=True, init=False)
 
     def __post_init__(self) -> None:
         if self.parent_id:
@@ -39,8 +38,6 @@ class BaseTypeTranslator(Generic[TSource, TResult]):
 
         for source_id in self.variable.sources:  # type: VariableId
             # We have to restrict the sources to the descendants of parent
-            if source_id == "semantic_temporal_000341":
-                print("breakpoint")
             if self.parent_source and not self.parent_source.is_ancestor_of(source_id):
                 continue
 
@@ -72,7 +69,5 @@ class BaseTypeTranslator(Generic[TSource, TResult]):
             source_value: TSource = self.variable_value(source_id)
         # If we get a SourceNotFoundError, the source variable simply did not exist
         except SourceNotFoundException:
-            if self.skip_source_not_found:
-                return
-            raise
+            return
         self.process_source_value(source_value, source_id)

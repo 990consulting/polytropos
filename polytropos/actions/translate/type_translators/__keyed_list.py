@@ -17,7 +17,6 @@ class KeyedListTranslator(BaseTypeTranslator[Dict[str, Dict[str, Any]], "Ordered
 
     def initialize(self) -> None:
         self.has_result = True
-        self.skip_source_not_found = False
 
     def process_source_value(self, source_value: Dict[str, Dict[str, Any]], source_id: VariableId) -> None:
         if source_value is None:
