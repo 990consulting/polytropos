@@ -16,8 +16,8 @@ class CrossSectionalUnivariateStatistic(Change, ABC):  # type: ignore
     """Calculate a univariate statistic based on all observations in a List or KeyedList."""
 
     def __init__(self, schema: Schema, lookups: Dict, subjects: Any, value_target: VariableId,
-                 argument: Optional[VariableId]=None, identifier: Optional[VariableId]=None,
-                 identifier_target: Optional[VariableId]=None):
+                 argument: Optional[VariableId] = None, identifier: Optional[VariableId] = None,
+                 identifier_target: Optional[VariableId] = None):
         super().__init__(schema, lookups)
         self.iterate_over: ValueIterator = value_iterator(schema, subjects, argument, identifier, identifier_target)
         self.identifier_target: Optional[VariableId] = identifier_target
