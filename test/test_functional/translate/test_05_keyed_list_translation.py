@@ -162,8 +162,8 @@ def test_no_sources(source_doc: Dict, source_spec: Dict, target_spec: Dict, crea
 
 @pytest.mark.parametrize(
     "create_document_value_provider, expected", [
-        (DocumentValueProvider, OrderedDict()),
-        (TraceDocumentValueProvider, OrderedDict())
+        (DocumentValueProvider, OrderedDict([("People", OrderedDict())])),
+        (TraceDocumentValueProvider, OrderedDict([("People", OrderedDict())]))
     ]
 )
 def test_two_sources_both_missing(source_spec: Dict, target_spec: Dict, create_document_value_provider, expected):

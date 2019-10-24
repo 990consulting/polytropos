@@ -225,6 +225,9 @@ class CoverageFileExtract:
     def _crawl(self, composite_id: str, content: Dict, observed: Set[Tuple], path: Tuple[str, ...]) -> None:
         for key, value in content.items():  # type: str, Any
             # Ignore system variables
+            if key is None or len(key) == 0:
+                raise ValueError("Composite %s had null or empty-string key with content %s"
+                                 % (composite_id, json.dumps(content)))
             if key[0] == "_":
                 continue
 

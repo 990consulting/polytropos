@@ -1,0 +1,493 @@
+{
+  "semantic_temporal_000001": {
+    "name": "return",
+    "data_type": "Folder",
+    "sort_order": 0,
+    "metadata": {
+      "short_description": "Tax return/filing."
+    }
+  },
+  "semantic_temporal_000175": {
+    "name": "compensation",
+    "data_type": "Folder",
+    "sort_order": 0,
+    "metadata": {
+      "short_description": "Compensation info from Schedule J and 990 Part VII (and possibly elsewhere later)."
+    },
+    "parent": "semantic_temporal_000001"
+  },
+  "semantic_temporal_000210": {
+    "name": "compensated",
+    "data_type": "KeyedList",
+    "sort_order": 0,
+    "metadata": {
+      "short_description": "Personnel compensation"
+    },
+    "parent": "semantic_temporal_000175"
+  },
+  "semantic_temporal_000420": {
+    "name": "breakdownw2",
+    "data_type": "Folder",
+    "sort_order": 0,
+    "metadata": {
+      "short_description": "Breakdown of W-2 and/or 1099-MISC compensation"
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000224": {
+    "name": "base_org",
+    "data_type": "Currency",
+    "sort_order": 0,
+    "metadata": {
+      "short_description": "Base compensation from org (from W-2 and/or 1099-MISC)"
+    },
+    "parent": "semantic_temporal_000420"
+  },
+  "semantic_temporal_000225": {
+    "name": "bonus_org",
+    "data_type": "Currency",
+    "sort_order": 1,
+    "metadata": {
+      "short_description": "Bonus and incentive compensation (from W-2 and/or 1099-MISC)"
+    },
+    "parent": "semantic_temporal_000420"
+  },
+  "semantic_temporal_000237": {
+    "name": "other_org",
+    "data_type": "Currency",
+    "sort_order": 2,
+    "metadata": {
+      "short_description": "Other reportable compensation from org (from W-2 and/or 1099-MISC)"
+    },
+    "parent": "semantic_temporal_000420"
+  },
+  "semantic_temporal_000419": {
+    "name": "compfromrelatedorgs",
+    "data_type": "Folder",
+    "sort_order": 1,
+    "metadata": {
+      "short_description": "Compensation variables that mention related organizations"
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000236": {
+    "name": "base_relatedorg",
+    "data_type": "Currency",
+    "sort_order": 0,
+    "metadata": {
+      "short_description": "Base compensation from related orgs (from W-2 and/or 1099-MISC)"
+    },
+    "parent": "semantic_temporal_000419"
+  },
+  "semantic_temporal_000226": {
+    "name": "bonus_relatedorg",
+    "data_type": "Currency",
+    "sort_order": 1,
+    "metadata": {
+      "short_description": "Bonus and incentive compensation from related orgs (from W-2 and/or 1099-MISC)"
+    },
+    "parent": "semantic_temporal_000419"
+  },
+  "semantic_temporal_000212": {
+    "name": "hrs_avg_relatedorg",
+    "data_type": "Decimal",
+    "sort_order": 2,
+    "metadata": {
+      "short_description": "Average hours per week working for related orgs"
+    },
+    "parent": "semantic_temporal_000419"
+  },
+  "semantic_temporal_000231": {
+    "name": "nontaxablebenefit_relatedorg",
+    "data_type": "Currency",
+    "sort_order": 3,
+    "metadata": {
+      "short_description": "Nontaxable benefits from related orgs"
+    },
+    "parent": "semantic_temporal_000419"
+  },
+  "semantic_temporal_000227": {
+    "name": "other_relatedorg",
+    "data_type": "Currency",
+    "sort_order": 4,
+    "metadata": {
+      "short_description": "Other reportable compensation from related orgs (from W-2 and/or 1099-MISC)"
+    },
+    "parent": "semantic_temporal_000419"
+  },
+  "semantic_temporal_000235": {
+    "name": "priordeferred_relatedorg",
+    "data_type": "Currency",
+    "sort_order": 5,
+    "metadata": {
+      "short_description": "Compensation (from related orgs) already reported as deferred compensation in a prior Form 990"
+    },
+    "parent": "semantic_temporal_000419"
+  },
+  "semantic_temporal_000221": {
+    "name": "reportable_relatedorg",
+    "data_type": "Currency",
+    "sort_order": 6,
+    "metadata": {
+      "short_description": "Reportable compensation from related orgs (W-2 / 1099-MISC)"
+    },
+    "parent": "semantic_temporal_000419"
+  },
+  "semantic_temporal_000229": {
+    "name": "retire_relatedorg",
+    "data_type": "Currency",
+    "sort_order": 7,
+    "metadata": {
+      "short_description": "Retirement and other deferred compensation from related orgs"
+    },
+    "parent": "semantic_temporal_000419"
+  },
+  "semantic_temporal_000233": {
+    "name": "tot_relatedorg",
+    "data_type": "Currency",
+    "sort_order": 8,
+    "metadata": {
+      "short_description": "Sum of base, bonus, other, retirement, and nontaxable compensation from related org"
+    },
+    "parent": "semantic_temporal_000419"
+  },
+  "semantic_temporal_000211": {
+    "name": "hrs_avg_org",
+    "data_type": "Decimal",
+    "sort_order": 2,
+    "metadata": {
+      "short_description": "Average hours per week working for org"
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000797": {
+    "name": "name_parsed",
+    "data_type": "Folder",
+    "sort_order": 3,
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000805": {
+    "name": "corporation_name",
+    "data_type": "Text",
+    "sort_order": 0,
+    "parent": "semantic_temporal_000797"
+  },
+  "semantic_temporal_000799": {
+    "name": "first_initial",
+    "data_type": "Text",
+    "sort_order": 1,
+    "parent": "semantic_temporal_000797"
+  },
+  "semantic_temporal_000798": {
+    "name": "given_name",
+    "data_type": "Text",
+    "sort_order": 2,
+    "parent": "semantic_temporal_000797"
+  },
+  "semantic_temporal_000808": {
+    "name": "last_first",
+    "data_type": "Text",
+    "sort_order": 3,
+    "parent": "semantic_temporal_000797"
+  },
+  "semantic_temporal_000803": {
+    "name": "last_initial",
+    "data_type": "Text",
+    "sort_order": 4,
+    "parent": "semantic_temporal_000797"
+  },
+  "semantic_temporal_000801": {
+    "name": "middle_initial",
+    "data_type": "Text",
+    "sort_order": 5,
+    "parent": "semantic_temporal_000797"
+  },
+  "semantic_temporal_000800": {
+    "name": "middle_name",
+    "data_type": "Text",
+    "sort_order": 6,
+    "parent": "semantic_temporal_000797"
+  },
+  "semantic_temporal_000806": {
+    "name": "original",
+    "data_type": "Text",
+    "sort_order": 7,
+    "parent": "semantic_temporal_000797"
+  },
+  "semantic_temporal_000807": {
+    "name": "standard",
+    "data_type": "Text",
+    "sort_order": 8,
+    "parent": "semantic_temporal_000797"
+  },
+  "semantic_temporal_000804": {
+    "name": "suffix_generational",
+    "data_type": "Text",
+    "sort_order": 9,
+    "parent": "semantic_temporal_000797"
+  },
+  "semantic_temporal_000802": {
+    "name": "surname",
+    "data_type": "Text",
+    "sort_order": 10,
+    "parent": "semantic_temporal_000797"
+  },
+  "semantic_temporal_000230": {
+    "name": "nontaxablebenefit_org",
+    "data_type": "Currency",
+    "sort_order": 4,
+    "metadata": {
+      "short_description": "Nontaxable benefits from org"
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000239": {
+    "name": "officer_director_trustee_keyemp",
+    "data_type": "Binary",
+    "sort_order": 5,
+    "metadata": {
+      "short_description": "Indicates that person is an officer, director, trustee, or key employee. Mutually exclusive with the highly compensated indicator."
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000222": {
+    "name": "other_organdrelatedorg",
+    "data_type": "Currency",
+    "sort_order": 6,
+    "metadata": {
+      "short_description": "Other compensation from the organization and related organizations (not reported on the W-2 or 1099-MISC) "
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000213": {
+    "name": "position",
+    "data_type": "Folder",
+    "sort_order": 7,
+    "metadata": {
+      "short_description": "Position held by compensated/key person"
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000219": {
+    "name": "former",
+    "data_type": "Unary",
+    "sort_order": 0,
+    "metadata": {
+      "short_description": "Former officers, key employees, and highest compensated employees who received more than $100,000 of reportable compensation from the org and any related orgs. Also, former directors or trustees that received, in the capacity as a former director or trustee of the org, more than $100,000 of reportable compensation from the org and any related orgs."
+    },
+    "parent": "semantic_temporal_000213"
+  },
+  "semantic_temporal_000218": {
+    "name": "hicompemployee",
+    "data_type": "Unary",
+    "sort_order": 1,
+    "metadata": {
+      "short_description": "One of the current five highest compensated employees other than officers, directors, trustees, or key employees. Received over $100,000 of reportable compensation."
+    },
+    "parent": "semantic_temporal_000213"
+  },
+  "semantic_temporal_000214": {
+    "name": "indivtrusteedirector",
+    "data_type": "Unary",
+    "sort_order": 2,
+    "metadata": {
+      "short_description": "Current individual trustee or director, regardless of amount of compensation"
+    },
+    "parent": "semantic_temporal_000213"
+  },
+  "semantic_temporal_000215": {
+    "name": "institrustee",
+    "data_type": "Unary",
+    "sort_order": 3,
+    "metadata": {
+      "short_description": "Current institutional trustee (not a person), regardless of amount of compensation"
+    },
+    "parent": "semantic_temporal_000213"
+  },
+  "semantic_temporal_000217": {
+    "name": "keyemployee",
+    "data_type": "Unary",
+    "sort_order": 4,
+    "metadata": {
+      "short_description": "Current key employee (over $150,000 of reportable compensation)"
+    },
+    "parent": "semantic_temporal_000213"
+  },
+  "semantic_temporal_000216": {
+    "name": "officer",
+    "data_type": "Unary",
+    "sort_order": 5,
+    "metadata": {
+      "short_description": "Current officer, regardless of amount of compensation"
+    },
+    "parent": "semantic_temporal_000213"
+  },
+  "semantic_temporal_000234": {
+    "name": "priordeferred_org",
+    "data_type": "Currency",
+    "sort_order": 8,
+    "metadata": {
+      "short_description": "Compensation already reported as deferred compensation in a prior Form 990"
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000220": {
+    "name": "reportable_org",
+    "data_type": "Currency",
+    "sort_order": 9,
+    "metadata": {
+      "short_description": "Reportable compensation from the org (W-2 / 1099-MISC)"
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000228": {
+    "name": "retire_org",
+    "data_type": "Currency",
+    "sort_order": 10,
+    "metadata": {
+      "short_description": "Retirement and other deferred compensation"
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000238": {
+    "name": "title",
+    "data_type": "Text",
+    "sort_order": 11,
+    "metadata": {
+      "short_description": "Title associated with the key/compensated person's name"
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000232": {
+    "name": "tot_org",
+    "data_type": "Currency",
+    "sort_order": 12,
+    "metadata": {
+      "short_description": "Sum of base, bonus, other, retirement, and nontaxable compensation from org"
+    },
+    "parent": "semantic_temporal_000210"
+  },
+  "semantic_temporal_000331": {
+    "name": "compensation_pf",
+    "data_type": "Folder",
+    "sort_order": 1,
+    "metadata": {
+      "short_description": "Compensation, including lists of compensated employees and contractors and summary values (all Part VIII) [PRIVATE FOUNDATION]"
+    },
+    "parent": "semantic_temporal_000175"
+  },
+  "semantic_temporal_000341": {
+    "name": "compensated",
+    "data_type": "KeyedList",
+    "sort_order": 0,
+    "metadata": {
+      "short_description": "Compensated foundation personnel"
+    },
+    "parent": "semantic_temporal_000331"
+  },
+  "semantic_temporal_000342": {
+    "name": "comp_tot",
+    "data_type": "Currency",
+    "sort_order": 0,
+    "metadata": {
+      "short_description": "Compensation of one of five highest paid employees"
+    },
+    "parent": "semantic_temporal_000341"
+  },
+  "semantic_temporal_000346": {
+    "name": "hicompemployee",
+    "data_type": "Unary",
+    "sort_order": 1,
+    "parent": "semantic_temporal_000341"
+  },
+  "semantic_temporal_000857": {
+    "name": "name_parsed",
+    "data_type": "Folder",
+    "sort_order": 2,
+    "parent": "semantic_temporal_000341"
+  },
+  "semantic_temporal_000865": {
+    "name": "corporation_name",
+    "data_type": "Text",
+    "sort_order": 0,
+    "parent": "semantic_temporal_000857"
+  },
+  "semantic_temporal_000859": {
+    "name": "first_initial",
+    "data_type": "Text",
+    "sort_order": 1,
+    "parent": "semantic_temporal_000857"
+  },
+  "semantic_temporal_000858": {
+    "name": "given_name",
+    "data_type": "Text",
+    "sort_order": 2,
+    "parent": "semantic_temporal_000857"
+  },
+  "semantic_temporal_000868": {
+    "name": "last_first",
+    "data_type": "Text",
+    "sort_order": 3,
+    "parent": "semantic_temporal_000857"
+  },
+  "semantic_temporal_000863": {
+    "name": "last_initial",
+    "data_type": "Text",
+    "sort_order": 4,
+    "parent": "semantic_temporal_000857"
+  },
+  "semantic_temporal_000861": {
+    "name": "middle_initial",
+    "data_type": "Text",
+    "sort_order": 5,
+    "parent": "semantic_temporal_000857"
+  },
+  "semantic_temporal_000860": {
+    "name": "middle_name",
+    "data_type": "Text",
+    "sort_order": 6,
+    "parent": "semantic_temporal_000857"
+  },
+  "semantic_temporal_000866": {
+    "name": "original",
+    "data_type": "Text",
+    "sort_order": 7,
+    "parent": "semantic_temporal_000857"
+  },
+  "semantic_temporal_000867": {
+    "name": "standard",
+    "data_type": "Text",
+    "sort_order": 8,
+    "parent": "semantic_temporal_000857"
+  },
+  "semantic_temporal_000864": {
+    "name": "suffix_generational",
+    "data_type": "Text",
+    "sort_order": 9,
+    "parent": "semantic_temporal_000857"
+  },
+  "semantic_temporal_000862": {
+    "name": "surname",
+    "data_type": "Text",
+    "sort_order": 10,
+    "parent": "semantic_temporal_000857"
+  },
+  "semantic_temporal_000345": {
+    "name": "officer_director_trustee_keyemp",
+    "data_type": "Binary",
+    "sort_order": 3,
+    "metadata": {
+      "short_description": "Officer, director, trustee, or key employee"
+    },
+    "parent": "semantic_temporal_000341"
+  },
+  "semantic_temporal_000344": {
+    "name": "title",
+    "data_type": "Text",
+    "sort_order": 4,
+    "metadata": {
+      "short_description": "Title of officer, director, trustee, or foundation manager"
+    },
+    "parent": "semantic_temporal_000341"
+  }
+}
