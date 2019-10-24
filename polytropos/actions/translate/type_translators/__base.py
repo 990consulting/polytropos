@@ -39,6 +39,8 @@ class BaseTypeTranslator(Generic[TSource, TResult]):
 
         for source_id in self.variable.sources:  # type: VariableId
             # We have to restrict the sources to the descendants of parent
+            if source_id == "semantic_temporal_000341":
+                print("breakpoint")
             if self.parent_source and not self.parent_source.is_ancestor_of(source_id):
                 continue
 

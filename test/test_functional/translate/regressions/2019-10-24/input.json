@@ -1,0 +1,64 @@
+{
+    "201206": {
+        "return": {
+            "compensation": {
+                "compensated": {
+                    "BAKER, SHAWN": {
+                        "breakdownw2": {
+                            "base_org": 158966,
+                            "bonus_org": 0,
+                            "other_org": 0
+                        },
+                        "compfromrelatedorgs": {
+                            "base_relatedorg": 0,
+                            "bonus_relatedorg": 0,
+                            "nontaxablebenefit_relatedorg": 0,
+                            "other_relatedorg": 0,
+                            "priordeferred_relatedorg": 0,
+                            "reportable_relatedorg": 0,
+                            "retire_relatedorg": 0,
+                            "tot_relatedorg": 0
+                        },
+                        "hrs_avg_org": 57.9,
+                        "name_parsed": {
+                            "given_name": "SHAWN",
+                            "original": "SHAWN BAKER",
+                            "standard": "SHAWN BAKER",
+                            "surname": "BAKER"
+                        },
+                        "nontaxablebenefit_org": 9321,
+                        "other_organdrelatedorg": 16343,
+                        "position": {
+                            "officer": true
+                        },
+                        "priordeferred_org": 0,
+                        "reportable_org": 158966,
+                        "retire_org": 7022,
+                        "title": "REGIONAL DIRECTOR",
+                        "tot_org": 175309
+                    },
+                    "BARKHORN, HENRY C.": {
+                        "compfromrelatedorgs": {
+                            "reportable_relatedorg": 0
+                        },
+                        "hrs_avg_org": 3.0,
+                        "name_parsed": {
+                            "given_name": "HENRY",
+                            "middle_initial": "C.",
+                            "original": "HENRY C BARKHORN",
+                            "standard": "HENRY C. BARKHORN",
+                            "surname": "BARKHORN"
+                        },
+                        "other_organdrelatedorg": 0,
+                        "position": {
+                            "indivtrusteedirector": true,
+                            "officer": true
+                        },
+                        "reportable_org": 0,
+                        "title": "CHAIRMAN"
+                    }
+                }
+            }
+        }
+    }
+}

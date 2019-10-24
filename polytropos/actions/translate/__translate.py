@@ -39,20 +39,25 @@ class Translate(Step):
         translate_temporal: Translator = Translator(target_schema_instance.temporal, cls.create_document_value_provider)
         return cls(context, target_schema_instance, translate_immutable, translate_temporal)
 
+    def do_translate(self, content: Dict, composite_id: str) -> Dict:
+        translated = {}
+        for key, value in content.items():
+            if key.isdigit():
+                translated[key] = self.translate_temporal(composite_id, key, value)
+            elif key == 'immutable':
+                translated[key] = self.translate_immutable(composite_id, key, value)
+            else:
+                pass
+        return translated
+
     def process_composite(self, origin_dir: str, target_base_dir: str, composite_id: str) -> None:
         logging.debug('Translating composite "%s".' % composite_id)
         relpath: str = relpath_for(composite_id)
         try:
-            translated = {}
             with open(os.path.join(origin_dir, relpath, "%s.json" % composite_id)) as origin_file:
-                composite = json.load(origin_file)
-                for key, value in composite.items():
-                    if key.isdigit():
-                        translated[key] = self.translate_temporal(composite_id, key, value)
-                    elif key == 'immutable':
-                        translated[key] = self.translate_immutable(composite_id, key, value)
-                    else:
-                        pass
+                content = json.load(origin_file)
+                translated: Dict = self.do_translate(content, composite_id)
+
             target_dir: str = os.path.join(target_base_dir, relpath)
             os.makedirs(target_dir, exist_ok=True)
             with open(os.path.join(target_dir, "%s.json" % composite_id), 'w') as target_file:
@@ -60,7 +65,7 @@ class Translate(Step):
         except Exception as e:
             logging.error("Error translating composite %s." % composite_id)
             traceback.print_exc()
-            raise
+            raise e
 
     def process_composites(self, origin_dir: str, target_dir: str, chunk: List[str]) -> None:
         start: float = time.time()

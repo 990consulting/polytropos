@@ -1,0 +1,378 @@
+{
+  "open990_t_000000": {
+    "name": "Transient (temporal)",
+    "data_type": "Folder",
+    "sort_order": 0
+  },
+  "open990_t_000039": {
+    "name": "Personnel",
+    "data_type": "KeyedList",
+    "sort_order": 0,
+    "sources": [
+      "semantic_temporal_000210",
+      "semantic_temporal_000341"
+    ],
+    "parent": "open990_t_000000"
+  },
+  "open990_t_000040": {
+    "name": "Title",
+    "data_type": "Text",
+    "sort_order": 0,
+    "sources": [
+      "semantic_temporal_000238",
+      "semantic_temporal_000344"
+    ],
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000041": {
+    "name": "Officer, director, trustee, or key employee",
+    "data_type": "Binary",
+    "sort_order": 1,
+    "sources": [
+      "semantic_temporal_000239",
+      "semantic_temporal_000345"
+    ],
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000042": {
+    "name": "Reportable comp from org",
+    "data_type": "Currency",
+    "sort_order": 2,
+    "sources": [
+      "semantic_temporal_000220"
+    ],
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000043": {
+    "name": "Average hours per week working for org",
+    "data_type": "Decimal",
+    "sort_order": 3,
+    "sources": [
+      "semantic_temporal_000211"
+    ],
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000044": {
+    "name": "Retirement and other deferred comp",
+    "data_type": "Currency",
+    "sort_order": 4,
+    "sources": [
+      "semantic_temporal_000228"
+    ],
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000045": {
+    "name": "Nontaxable benefits from org",
+    "data_type": "Currency",
+    "sort_order": 5,
+    "sources": [
+      "semantic_temporal_000230"
+    ],
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000046": {
+    "name": "Comp from org previously reported as deferred",
+    "data_type": "Currency",
+    "sort_order": 6,
+    "sources": [
+      "semantic_temporal_000234"
+    ],
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000047": {
+    "name": "Other comp, non-reportable, from org and related orgs",
+    "data_type": "Currency",
+    "sort_order": 7,
+    "sources": [
+      "semantic_temporal_000222"
+    ],
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000048": {
+    "name": "Sum of all comp from org",
+    "data_type": "Currency",
+    "sort_order": 8,
+    "sources": [
+      "semantic_temporal_000232",
+      "semantic_temporal_000342"
+    ],
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000050": {
+    "name": "Position checkboxes",
+    "data_type": "Folder",
+    "sort_order": 9,
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000051": {
+    "name": "Individual trustee or director",
+    "data_type": "Unary",
+    "sort_order": 0,
+    "sources": [
+      "semantic_temporal_000214"
+    ],
+    "parent": "open990_t_000050"
+  },
+  "open990_t_000052": {
+    "name": "Institutional trustee",
+    "data_type": "Unary",
+    "sort_order": 1,
+    "sources": [
+      "semantic_temporal_000215"
+    ],
+    "parent": "open990_t_000050"
+  },
+  "open990_t_000053": {
+    "name": "Officer",
+    "data_type": "Unary",
+    "sort_order": 2,
+    "sources": [
+      "semantic_temporal_000216"
+    ],
+    "parent": "open990_t_000050"
+  },
+  "open990_t_000054": {
+    "name": "Key employee (> $150k)",
+    "data_type": "Unary",
+    "sort_order": 3,
+    "sources": [
+      "semantic_temporal_000217"
+    ],
+    "parent": "open990_t_000050"
+  },
+  "open990_t_000055": {
+    "name": "Compensated > $100k",
+    "data_type": "Unary",
+    "sort_order": 4,
+    "sources": [
+      "semantic_temporal_000218",
+      "semantic_temporal_000346"
+    ],
+    "parent": "open990_t_000050"
+  },
+  "open990_t_000056": {
+    "name": "Former",
+    "data_type": "Unary",
+    "sort_order": 5,
+    "sources": [
+      "semantic_temporal_000219"
+    ],
+    "parent": "open990_t_000050"
+  },
+  "open990_t_000057": {
+    "name": "Breakdown of W-2 and 1099-MISC compensation",
+    "data_type": "Folder",
+    "sort_order": 10,
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000058": {
+    "name": "Base reportable compensation from org",
+    "data_type": "Currency",
+    "sort_order": 0,
+    "sources": [
+      "semantic_temporal_000224"
+    ],
+    "parent": "open990_t_000057"
+  },
+  "open990_t_000059": {
+    "name": "Bonus and incentive reportable compensation",
+    "data_type": "Currency",
+    "sort_order": 1,
+    "sources": [
+      "semantic_temporal_000225"
+    ],
+    "parent": "open990_t_000057"
+  },
+  "open990_t_000060": {
+    "name": "Other reportable compensation from org",
+    "data_type": "Currency",
+    "sort_order": 2,
+    "sources": [
+      "semantic_temporal_000237"
+    ],
+    "parent": "open990_t_000057"
+  },
+  "open990_t_000061": {
+    "name": "Employee's comp from related orgs",
+    "data_type": "Folder",
+    "sort_order": 11,
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000062": {
+    "name": "Reportable comp from related orgs ",
+    "data_type": "Currency",
+    "sort_order": 0,
+    "sources": [
+      "semantic_temporal_000221"
+    ],
+    "parent": "open990_t_000061"
+  },
+  "open990_t_000063": {
+    "name": "Average hours per week working for related orgs",
+    "data_type": "Decimal",
+    "sort_order": 1,
+    "sources": [
+      "semantic_temporal_000212"
+    ],
+    "parent": "open990_t_000061"
+  },
+  "open990_t_000064": {
+    "name": "Base reportable comp from related orgs",
+    "data_type": "Currency",
+    "sort_order": 2,
+    "sources": [
+      "semantic_temporal_000236"
+    ],
+    "parent": "open990_t_000061"
+  },
+  "open990_t_000065": {
+    "name": "Bonus and incentive reportable comp from related orgs",
+    "data_type": "Currency",
+    "sort_order": 3,
+    "sources": [
+      "semantic_temporal_000226"
+    ],
+    "parent": "open990_t_000061"
+  },
+  "open990_t_000066": {
+    "name": "Other reportable comp from related orgs",
+    "data_type": "Currency",
+    "sort_order": 4,
+    "sources": [
+      "semantic_temporal_000227"
+    ],
+    "parent": "open990_t_000061"
+  },
+  "open990_t_000067": {
+    "name": "Retirement and other deferred comp from related orgs",
+    "data_type": "Currency",
+    "sort_order": 5,
+    "sources": [
+      "semantic_temporal_000229"
+    ],
+    "parent": "open990_t_000061"
+  },
+  "open990_t_000068": {
+    "name": "Nontaxable benefits from related orgs",
+    "data_type": "Currency",
+    "sort_order": 6,
+    "sources": [
+      "semantic_temporal_000231"
+    ],
+    "parent": "open990_t_000061"
+  },
+  "open990_t_000069": {
+    "name": "Comp from related orgs previously reported as deferred",
+    "data_type": "Currency",
+    "sort_order": 7,
+    "sources": [
+      "semantic_temporal_000235"
+    ],
+    "parent": "open990_t_000061"
+  },
+  "open990_t_000070": {
+    "name": "Sum of all comp from related orgs",
+    "data_type": "Currency",
+    "sort_order": 8,
+    "sources": [
+      "semantic_temporal_000233"
+    ],
+    "parent": "open990_t_000061"
+  },
+  "open990_t_000071": {
+    "name": "Parsed name fields",
+    "data_type": "Folder",
+    "sort_order": 12,
+    "parent": "open990_t_000039"
+  },
+  "open990_t_000072": {
+    "name": "Corporation name",
+    "data_type": "Text",
+    "sort_order": 0,
+    "sources": [
+      "semantic_temporal_000805",
+      "semantic_temporal_000865"
+    ],
+    "parent": "open990_t_000071"
+  },
+  "open990_t_000073": {
+    "name": "First initial",
+    "data_type": "Text",
+    "sort_order": 1,
+    "sources": [
+      "semantic_temporal_000799",
+      "semantic_temporal_000859"
+    ],
+    "parent": "open990_t_000071"
+  },
+  "open990_t_000074": {
+    "name": "Given name",
+    "data_type": "Text",
+    "sort_order": 2,
+    "sources": [
+      "semantic_temporal_000798",
+      "semantic_temporal_000858"
+    ],
+    "parent": "open990_t_000071"
+  },
+  "open990_t_000075": {
+    "name": "Last initial",
+    "data_type": "Text",
+    "sort_order": 3,
+    "sources": [
+      "semantic_temporal_000803",
+      "semantic_temporal_000863"
+    ],
+    "parent": "open990_t_000071"
+  },
+  "open990_t_000076": {
+    "name": "Middle initial",
+    "data_type": "Text",
+    "sort_order": 4,
+    "sources": [
+      "semantic_temporal_000801",
+      "semantic_temporal_000861"
+    ],
+    "parent": "open990_t_000071"
+  },
+  "open990_t_000077": {
+    "name": "Middle name",
+    "data_type": "Text",
+    "sort_order": 5,
+    "sources": [
+      "semantic_temporal_000800",
+      "semantic_temporal_000860"
+    ],
+    "parent": "open990_t_000071"
+  },
+  "open990_t_000078": {
+    "name": "Generational suffix",
+    "data_type": "Text",
+    "sort_order": 6,
+    "sources": [
+      "semantic_temporal_000804",
+      "semantic_temporal_000864"
+    ],
+    "parent": "open990_t_000071"
+  },
+  "open990_t_000079": {
+    "name": "Surname",
+    "data_type": "Text",
+    "sort_order": 7,
+    "sources": [
+      "semantic_temporal_000802",
+      "semantic_temporal_000862"
+    ],
+    "parent": "open990_t_000071"
+  },
+  "open990_t_000080": {
+    "name": "As it appeared on tax form",
+    "data_type": "Text",
+    "sort_order": 8,
+    "sources": [
+      "semantic_temporal_000806",
+      "semantic_temporal_000866"
+    ],
+    "parent": "open990_t_000071"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "201206": {
+      "Personnel": {
+        "BAKER, SHAWN": {
+          "Title": "REGIONAL DIRECTOR",
+          "Reportable comp from org": 158966,
+          "Average hours per week working for org": 57.9,
+          "Retirement and other deferred comp": 7022,
+          "Nontaxable benefits from org": 9321,
+          "Comp from org previously reported as deferred": 0,
+          "Other comp, non-reportable, from org and related orgs": 16343,
+          "Sum of all comp from org": 175309,
+          "Position checkboxes": {
+            "Officer": true
+          },
+          "Breakdown of W-2 and 1099-MISC compensation": {
+            "Base reportable compensation from org": 158966,
+            "Bonus and incentive reportable compensation": 0,
+            "Other reportable compensation from org": 0
+          },
+          "Employee's comp from related orgs": {
+            "Reportable comp from related orgs ": 0,
+            "Base reportable comp from related orgs": 0,
+            "Bonus and incentive reportable comp from related orgs": 0,
+            "Other reportable comp from related orgs": 0,
+            "Retirement and other deferred comp from related orgs": 0,
+            "Nontaxable benefits from related orgs": 0,
+            "Comp from related orgs previously reported as deferred": 0,
+            "Sum of all comp from related orgs": 0
+          },
+          "Parsed name fields": {
+            "Given name": "SHAWN",
+            "Surname": "BAKER",
+            "As it appeared on tax form": "SHAWN BAKER"
+          }
+        },
+        "BARKHORN, HENRY C.": {
+          "Title": "CHAIRMAN",
+          "Reportable comp from org": 0,
+          "Average hours per week working for org": 3.0,
+          "Other comp, non-reportable, from org and related orgs": 0,
+          "Position checkboxes": {
+            "Individual trustee or director": true,
+            "Officer": true
+          },
+          "Employee's comp from related orgs": {
+            "Reportable comp from related orgs ": 0
+          },
+          "Parsed name fields": {
+            "Given name": "HENRY",
+            "Middle initial": "C.",
+            "Surname": "BARKHORN",
+            "As it appeared on tax form": "HENRY C BARKHORN"
+          }
+        }
+    },
+    "Display (temporal)": {
+      "Hospital data": {
+        "Supplemental hospital information": []
+      }
+    }
+  }
+}
