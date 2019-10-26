@@ -26,7 +26,7 @@ class Quantile(Scan):
     target: VariableId
     value_to_quantile: Dict[int, float] = field(default_factory=dict, init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         source_var = self.schema.get(self.source)
         target_var = self.schema.get(self.target)
 
