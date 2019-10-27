@@ -4,8 +4,8 @@ from polytropos.ontology.composite import Composite
 
 from polytropos.actions.filter import Filter
 from polytropos.actions.validator import VariableValidator
-from polytropos.ontology.variable.__variable import Binary, VariableId
-
+from polytropos.ontology.variable.__variable import VariableId
+from polytropos.ontology.variable import Binary
 
 @dataclass
 class RetainOnlyFemales(Filter):

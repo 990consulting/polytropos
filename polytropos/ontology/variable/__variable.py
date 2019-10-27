@@ -1,13 +1,11 @@
 import logging
 import json
-from abc import abstractmethod
 from collections import defaultdict, deque
 from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType, Iterable, Deque, cast
 from functools import partial
 from cachetools import cachedmethod
 from cachetools.keys import hashkey
 from polytropos.util.nesteddicts import path_to_str
-from datetime import datetime
 
 if TYPE_CHECKING:
     from polytropos.ontology.track import Track
@@ -381,114 +379,6 @@ class Container(Variable):
 class MultipleText(Variable):
     """TODO This is not yet handled anywhere, but exists in the wild"""
     pass
-
-class Primitive(Variable):
-    @abstractmethod
-    def cast(self, value: Optional[Any]) -> Optional[Any]:
-        pass
-
-
-class Integer(Primitive):
-    def cast(self, value: Optional[Any]) -> Optional[int]:
-        if value is None or value == "":
-            return None
-        return int(value)
-
-
-class Text(Primitive):
-    def cast(self, value: Optional[Any]) -> Optional[str]:
-        if value is None or value == "":
-            return None
-        return str(value)
-
-
-class Decimal(Primitive):
-    def cast(self, value: Optional[Any]) -> Optional[float]:
-        if value is None or value == "":
-            return None
-        return float(value)
-
-class Ratio(Decimal):
-    pass
-
-class Unary(Primitive):
-    def cast(self, value: Optional[Any]) -> Optional[bool]:
-        if value is None or value == "":
-            return None
-        if value is True:
-            return True
-        if not (isinstance(value, str) and value.lower() == "x"):
-            raise ValueError
-        return True
-
-
-class Binary(Primitive):
-    def cast(self, value: Optional[Any]) -> Optional[bool]:
-        if value is None or value == "":
-            return None
-        if isinstance(value, bool):
-            return value
-        vl = value.lower()
-        if vl in {"1", "true"}:
-            return True
-        if vl in {"0", "false"}:
-            return False
-        raise ValueError
-
-
-class Currency(Primitive):
-    def cast(self, value: Optional[Any]) -> Optional[float]:
-        if value is None or value == "":
-            return None
-        try:
-            return int(value)
-        except ValueError:
-            as_currency: int = int(float(value))
-            logging.warning("Encountered fractional currency value (%s). Rounding down to nearest dollar (%s)." % (
-                value, as_currency
-            ))
-            return as_currency
-
-class Phone(Primitive):
-    def cast(self, value: Optional[Any]) -> Optional[str]:
-        if value is None or value == "":
-            return None
-        return str(value)
-
-
-class Email(Primitive):
-    def cast(self, value: Optional[Any]) -> Optional[str]:
-        if value is None or value == "":
-            return None
-        return str(value)
-
-
-class URL(Primitive):
-    def cast(self, value: Optional[Any]) -> Optional[str]:
-        if value is None or value == "":
-            return None
-        return str(value)
-
-
-class Date(Primitive):
-    def cast(self, value: Optional[Any]) -> Optional[str]:
-        if value is None or value in {"", "000000"}:
-            return None
-        if len(value) == 6 and value.isdecimal():
-            year: str = value[:4]
-            month: str = value[4:]
-            return "%s-%s-01" % (year, month)
-
-        if len(value) >= 10:
-            retained = value[:10]
-
-            # Will raise a ValueError if unexpected content
-            datetime.strptime(retained, "%Y-%m-%d")
-
-            return retained
-
-        raise ValueError
-
 
 class Folder(Container):
     @property
