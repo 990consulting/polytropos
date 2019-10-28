@@ -21,11 +21,11 @@ class Delete(Change):
     immutable variables."""
     targets: List[VariableId]
 
-    def delete_multiple(self, var: Variable, content: Dict) -> None:
+    def delete_multiple(self, var: Variable, period_content: Dict) -> None:
         list_base_var: Variable = self.schema.get(var.nearest_list)
         assert not list_base_var.descends_from_list, "Nested list handling not implemented"
         try:
-            content: Union[Dict, List] = nesteddicts.get(content, list_base_var.absolute_path)
+            content: Union[Dict, List] = nesteddicts.get(period_content, list_base_var.absolute_path)
             if content is None:
                 return
         except MissingDataError:
@@ -53,7 +53,7 @@ class Delete(Change):
             else:
                 composite.del_observation(var.var_id, period)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.target_vars: List[Variable] = [self.schema.get(target) for target in self.targets]
         for var_id, var in zip(self.targets, self.target_vars):
             if var is None:

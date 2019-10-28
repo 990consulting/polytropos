@@ -195,7 +195,7 @@ class Variable:
             self.track[self.parent].children
         ))
 
-    @property
+    @property  # type: ignore
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'descends_from_list'))
     def descends_from_list(self) -> bool:
         """True iff this or any upstream variable is a list or keyed list."""
@@ -204,7 +204,7 @@ class Variable:
         parent = self.track[self.parent]
         return isinstance(parent, GenericList) or parent.descends_from_list
 
-    @property
+    @property  # type: ignore
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'nearest_list'))
     def nearest_list(self) -> VariableId:
         if not self.descends_from_list:
