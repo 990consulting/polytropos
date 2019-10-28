@@ -38,7 +38,7 @@ class Delete(Change):
                 continue
 
     def delete_immutable(self, var: Variable, composite: Composite) -> None:
-        if "immutable" not in composite:
+        if "immutable" not in composite.content:
             return
 
         if var.descends_from_list:

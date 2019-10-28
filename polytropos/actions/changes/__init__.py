@@ -4,3 +4,4 @@ def register_change_subclasses() -> None:
     from polytropos.actions.changes.prune import Prune
     from polytropos.actions.changes.available import BestAvailable
     import polytropos.actions.changes.stat
+    import polytropos.actions.changes.delete
