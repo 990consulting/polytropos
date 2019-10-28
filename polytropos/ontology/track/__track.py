@@ -127,21 +127,15 @@ class Track(MutableMapping):
         # Missing the temporal/immutable part for now
         return VariableId('{}_{}'.format(self.name, len(self._variables) + 1))
 
-    def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
+    def descendants_that(self, data_type: str=None, container: int=0, inside_list: int=0) \
             -> Iterator[VariableId]:
         """Provides a list of variable IDs in this track that meet certain criteria.
         :param data_type: The type of descendant to be found.
-        :param targets: If -1, include only variables that lack targets; if 1, only variables without targets.
         :param container: If -1, include only primitives; if 1, only containers.
         :param inside_list: If -1, include only elements outside lists; if 1, only inside lists.
         """
         for variable_id, variable in self._variables.items():
             if data_type is None or variable.data_type == data_type:
-                if targets:
-                    if targets == -1 and variable.has_targets:
-                        continue
-                    if targets == 1 and not variable.has_targets:
-                        continue
                 if container:
                     if container == -1 and not isinstance(variable, Primitive):
                         continue

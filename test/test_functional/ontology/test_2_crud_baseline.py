@@ -1,22 +1,9 @@
 from typing import Dict, Set, List, cast
 from unittest.mock import MagicMock
 
-import pytest
-
 from polytropos.ontology.track import Track
 from polytropos.ontology.variable import Variable, VariableId, Integer
 
-def test_targets_for_var_in(target_nested_dict_track):
-    target_track: Track = target_nested_dict_track
-    source_track: Track = target_track.source
-    actual: Set[str] = set(source_track["source_var_2"].targets())
-    expected: Set[str] = {"target_var_2"}
-    assert actual == expected
-
-def test_has_targets(target_nested_dict_track):
-    source_track = target_nested_dict_track.source
-    source_var: Variable = source_track["source_var_2"]
-    assert source_var.has_targets
 
 def test_get_children_no_parents(target_nested_dict_track):
     source_track = target_nested_dict_track.source

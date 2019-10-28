@@ -1,5 +1,6 @@
 import logging
 import json
+import warnings
 from collections import defaultdict, deque
 from typing import List as ListType, Dict, Iterator, TYPE_CHECKING, Optional, Set, Any, NewType, Iterable, Deque, cast
 from functools import partial
@@ -195,11 +196,7 @@ class Variable:
         ))
 
     @property
-    def has_targets(self) -> bool:
-        """True iff any downstream track contains a variable that depends on this one."""
-        return any(self.targets())
-
-    @property
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'descends_from_list'))
     def descends_from_list(self) -> bool:
         """True iff this or any upstream variable is a list or keyed list."""
         if not self.parent:
@@ -208,6 +205,7 @@ class Variable:
         return isinstance(parent, GenericList) or parent.descends_from_list
 
     @property
+    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'nearest_list'))
     def nearest_list(self) -> VariableId:
         if not self.descends_from_list:
             raise AttributeError
@@ -306,32 +304,20 @@ class Variable:
         return parent.get_first_list_ancestor()
 
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'descendants_that'))
-    def descendants_that(self, data_type: str=None, targets: int=0, container: int=0, inside_list: int=0) \
+    def descendants_that(self, data_type: str=None, container: int=0, inside_list: int=0) \
             -> Iterable[VariableId]:
         """Provides a list of variable IDs descending from this variable that meet certain criteria.
         :param data_type: The type of descendant to be found.
-        :param targets: If -1, include only variables that lack targets; if 1, only variables without targets.
         :param container: If -1, include only primitives; if 1, only containers.
         :param inside_list: If -1, include only elements outside lists; if 1, only inside lists.
         """
         ret: Deque[VariableId] = deque()
         for variable_id in self.track.descendants_that(
-            data_type, targets, container, inside_list
+            data_type, container, inside_list
         ):
             if self.is_ancestor_of(variable_id, stop_at_list=True):
                 ret.append(variable_id)
         return list(ret)
-
-    @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'targets'))
-    def targets(self) -> Iterable[VariableId]:
-        """Returns an iterator of the variable IDs for any variables that DIRECTLY depend on this one in the specified
-        stage. Raises an exception if this variable's stage is not the source stage for the specified stage."""
-        targets: Deque[VariableId] = deque()
-        if self.track.target:
-            for variable_id, variable in self.track.target.items():
-                if self.var_id in variable.sources:
-                    targets.append(variable_id)
-        return list(targets)
 
     @property   # type: ignore # Decorated property not supported
     @cachedmethod(lambda self: self._cache, key=partial(hashkey, 'targets'))
@@ -381,13 +367,7 @@ class MultipleText(Variable):
     pass
 
 class Folder(Container):
-    @property
-    def has_targets(self) -> bool:
-        return False
-
-    def targets(self) -> Iterator[VariableId]:
-        raise AttributeError
-
+    pass
 
 class GenericList(Container):
     pass
