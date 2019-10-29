@@ -1,7 +1,7 @@
 from typing import Optional
 
 import pytest
-from polytropos.ontology.variable import URL, Phone, Decimal, Currency, Integer, Ratio, Unary, Binary
+from polytropos.ontology.variable import URL, Phone, Decimal, Currency, Integer, Ratio, Unary, Binary, Email
 
 def _as_link(url: str) -> str:
     return URL.link_template.format(url, url)
@@ -125,3 +125,30 @@ def test_unary_false_raises():
 def test_binary(original: Optional[bool], expected: str):
     actual: str = Binary.display_format(original)
     assert actual == expected
+
+@pytest.mark.parametrize("original, expected", [
+    ("JOHN@PUBLIC.COM", '<a href="mailto:john@public.com">john@public.com</a>'),
+    ("JOHN.Q.PUBLIC@gmail.com", '<a href="mailto:john.q.public@gmail.com">john.q.public@gmail.com</a>'),
+    ("  JOHN.Q.PUBLIC@gmail.com", '<a href="mailto:john.q.public@gmail.com">john.q.public@gmail.com</a>'),
+    ("  john_q_public@nsa.gov.mil.us  ",
+     '<a href="mailto:john_q_public@nsa.gov.mil.us">john_q_public@nsa.gov.mil.us</a>'),
+])
+def test_email_valid(original: str, expected: str):
+    actual: str = Email.display_format(original)
+    assert actual == expected
+
+@pytest.mark.parametrize("original", [
+    "The following contains a valid email address: john@public.com",
+    "Robert'); DROP TABLE Students;--",
+    "Public, John <john@public.com>",
+    "@mytwitter",
+    "john@@public.com",
+    "john@public.c@m",
+    "DAVID@ .com",
+    "john @ public .com",
+    "john@public.com;",
+    "mailto:john@public.com"
+])
+def test_email_invalid(original: str):
+    actual: str = Email.display_format(original)
+    assert actual == original

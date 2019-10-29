@@ -192,6 +192,24 @@ class Email(Primitive):
             return None
         return str(value)
 
+    @classmethod
+    def display_format(cls, value: Optional[Any]) -> str:
+        if value is None:
+            return ""
+
+        if value.count("@") != 1:
+            return value
+
+        value = value.strip()
+        if re.match(r'[^@]+@[^@]+\.[^@]+', value) is None:
+            return value
+
+        if bool(re.search(r'[^-A-Za-z0-9@_.]', value)):
+            return value
+
+        value = value.lower()
+        return '<a href="mailto:' + value + '">' + value + '</a>'
+
 _common_tlds: Set[str] = {".org", ".com", ".edu", ".gov", ".mil", ".us", ".net", ".info", ".uk", ".eu", ".ca", ".au",
                           ".il"}
 

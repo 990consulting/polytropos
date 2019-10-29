@@ -5,4 +5,4 @@ from polytropos.ontology.variable.__variable import (
     MultipleText
 )
 from polytropos.ontology.variable.__primitive import Primitive, Integer, Text, Decimal, Ratio, Unary, Binary, Currency, \
-    Phone, Email, URL, Date
+    Phone, Email, URL, Date, EIN
