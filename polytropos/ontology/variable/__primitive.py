@@ -264,3 +264,36 @@ class Date(Primitive):
             return retained
 
         raise ValueError
+
+class EIN(Primitive):
+
+    @classmethod
+    def cast(cls, value: Optional[Any]) -> Optional[str]:
+        if value is None or value == "":
+            return None
+
+        return str(value)
+
+    @classmethod
+    def sanitize(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+
+        value = str(value).strip().replace("-", "")
+
+        if len(value) == 8 and value.isnumeric():
+            logging.warning("Padding 8-digit EIN '%s' with a zero" % value)
+            return "0" + value
+
+        return value
+
+    @classmethod
+    def display_format(cls, value: Optional[str]) -> str:
+        if value is None:
+            return ""
+
+        sanitized: str = cast(str, cls.sanitize(value))
+        if len(sanitized) != 9 or not sanitized.isnumeric():
+            return ""
+
+        return "{:}-{:}".format(sanitized[0:2], sanitized[2:9])
