@@ -38,8 +38,8 @@ class Sort(Change):
 
         return cast(List[Dict], ret)
 
-    def _sort_within_keyed_list_items(self, to_sort: Dict, path: List[str]) -> Dict[str, Dict]:
-        ret: Dict[str, Dict] = OrderedDict()
+    def _sort_within_keyed_list_items(self, to_sort: Dict, path: List[str]) -> Dict:
+        ret: Dict = OrderedDict()
         for key, value in to_sort.items():
             ret[key] = self._sort_within_folder(value, path)
 
