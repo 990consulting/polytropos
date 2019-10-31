@@ -33,7 +33,7 @@ class Sort(Change):
         """Sort the data inside of list elements. DO NOT sort the list items themselves."""
 
         ret: List[Optional[Dict]] = [None] * len(to_sort)
-        for i, child in to_sort:
+        for i, child in enumerate(to_sort):
             ret[i] = self._sort_within_folder(child, path)
 
         return cast(List[Dict], ret)
@@ -45,30 +45,32 @@ class Sort(Change):
 
         return ret
 
-    def _sort_within_folder(self, to_sort: Dict, path: List[str]) -> Dict:
+    def _sort_within_folder(self, to_sort: Optional[Dict], path: List[str]) -> Optional[Dict]:
+        if to_sort is None:
+            return None
         sorted_keys: Dict[str, Optional[Variable]] = self._get_sorted_keys(to_sort, path)
         ret: OrderedDict = OrderedDict()
         for key, var in sorted_keys.items():
+            value: Optional[Any] = to_sort[key]
             key_path: List[str] = path + [key]
-            if var is None:
-                ret[key] = to_sort[key]   # If it's not in the schema, don't traverse
-            elif to_sort[key] is None:
-                ret[key] = None
+            if var is None or value is None:
+                ret[key] = value
             elif var.data_type == "List":
-                ret[key] = self._sort_within_list_items(to_sort[key], key_path)
+                ret[key] = self._sort_within_list_items(value, key_path)
             elif var.data_type == "KeyedList":
-                ret[key] = self._sort_within_keyed_list_items(to_sort[key], key_path)
+                ret[key] = self._sort_within_keyed_list_items(value, key_path)
             elif var.data_type == "Folder":
-                ret[key] = self._sort_within_folder(to_sort[key], key_path)
+                ret[key] = self._sort_within_folder(value, key_path)
             else:
-                ret[key] = to_sort[key]
+                ret[key] = value
         return ret
 
     def __call__(self, composite: Composite) -> None:
         content: OrderedDict = OrderedDict()
         periods: List[str] = sorted(composite.periods)
         for period in periods:
-            content[period] = self._sort_within_folder(composite.content[period], [])
+            to_sort: Dict = composite.content[period]
+            content[period] = self._sort_within_folder(to_sort, [])
 
         if "immutable" in composite.content:
             content["immutable"] = self._sort_within_folder(composite.content["immutable"], [])
