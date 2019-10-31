@@ -220,7 +220,7 @@ def _has_common_tld(url: str) -> bool:
     return False
 
 class URL(Primitive):
-    link_template: str = '<a href="{:}" target="blank" rel="ugc">{:}</a>'
+    link_template: str = '<a href="{:}" target="_blank" rel="ugc">{:}</a>'
     @classmethod
     def cast(cls, value: Optional[Any]) -> Optional[str]:
         if value is None or value == "":

@@ -363,7 +363,6 @@ class Container(Variable):
     pass
 
 class MultipleText(Variable):
-    """TODO This is not yet handled anywhere, but exists in the wild"""
     pass
 
 class Folder(Container):
