@@ -2,7 +2,6 @@
 # occurs inside CompareFixtureToActual. This all-or-nothing method is used only when comparing folders nested inside of
 # Lists and KeyedLists.
 from typing import List as ListType, Dict, Optional, Any
-from collections.abc import Callable
 from polytropos.ontology.schema import Schema
 import polytropos.util.compare
 from polytropos.ontology.variable import Variable
@@ -18,6 +17,20 @@ def compare_primitives(fixture: Optional[Any], actual: Optional[Any]) -> bool:
         return True
 
     return polytropos.util.compare.compare(fixture, actual, allow_nested=False)
+
+
+def compare_multiple_text(fixture: Optional[ListType[str]], actual: Optional[ListType[str]]) -> bool:
+    """Compares a MultipleText data type from a fixture to the MultipleText actually observed.
+    The MultipleText is treated as an atomic object, so mismatches are all-or-nothing.
+    """
+
+    if actual in (POLYTROPOS_NA, POLYTROPOS_CONFIRMED_NA):
+        raise ValueError("Actual value contained ostensibly non-occurring sentinel %s" % actual)
+
+    assert fixture is None or isinstance(fixture, list) or fixture is POLYTROPOS_NA
+
+    return fixture == actual
+
 
 class CompareComplexVariable:
     def __init__(self, schema: Schema):
@@ -38,7 +51,7 @@ class CompareComplexVariable:
               list, as missing child fields in the fixture represent a lack of test coverage.
             - If the List contains a List, Folder, or KeyedList, a deep (recursive) comparison will be performed.
         """
-        assert fixture is not False and isinstance(fixture, list)
+        assert fixture is not None and isinstance(fixture, list)
 
         # (1) The actual List exists.
         if actual is None or not isinstance(actual, list):
@@ -83,9 +96,9 @@ class CompareComplexVariable:
             - The behavior of compare_folders and compare_keyed_lists are very different, even though both are comparing
               the same kind of Python object, because Folders and KeyedLists have very different meanings in Polytropos.
         """
-        if fixture is False or not isinstance(fixture, dict):
+        if fixture is None or not isinstance(fixture, dict):
             print("breakpoint")
-        assert fixture is not False and isinstance(fixture, dict)
+        assert fixture is not None and isinstance(fixture, dict)
 
         # (1) The actual KeyedList exists.
         if actual is None or not isinstance(actual, dict):
@@ -165,5 +178,8 @@ class CompareComplexVariable:
 
         if data_type == "KeyedList":
             return self.compare_keyed_lists(fixture, actual, path)
+
+        if data_type == "MultipleText":
+            return compare_multiple_text(fixture, actual)
 
         return compare_primitives(fixture, actual)
