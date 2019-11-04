@@ -4,7 +4,7 @@ from typing import Dict, Optional, List as ListType, Any
 from attr import dataclass
 
 from polytropos.tools.qc import POLYTROPOS_NA, POLYTROPOS_CONFIRMED_NA
-from polytropos.tools.qc.values import compare_primitives, CompareComplexVariable
+from polytropos.tools.qc.values import compare_primitives, CompareComplexVariable, compare_multiple_text
 from polytropos.util import nesteddicts
 
 from polytropos.ontology.schema import Schema
@@ -43,26 +43,36 @@ class Crawl:
             var: Optional[Variable] = self.schema.lookup(path)
             assert var is not None
             data_type = var.data_type
+
         if data_type == "Folder":
             assert f_subtree is not None
             for key, subfolder in f_subtree.items():
                 self._record_all_as_missing(subfolder, path + [key])
         else:
-            var_path: str = nesteddicts.path_to_str(path)
-            missing: MissingValue = MissingValue(self.entity_id, self.label, var_path, data_type, f_subtree)
-            self.outcome.missings.append(missing)
+            self._record_missing(path, data_type, f_subtree)
 
     def _record_match(self, path: ListType, data_type: str, value: Optional[Any]) -> None:
+        if not _is_simple_value(value):
+            value = json.dumps(value, sort_keys=True)
+
         path_str = nesteddicts.path_to_str(path)
         match: ValueMatch = ValueMatch(self.entity_id, self.label, path_str, data_type, value)
         self.outcome.matches.append(match)
 
     def _record_missing(self, path: ListType, data_type: str, value: Optional[Any]) -> None:
+        if not _is_simple_value(value):
+            value = json.dumps(value, sort_keys=True)
+
         path_str = nesteddicts.path_to_str(path)
         missing: MissingValue = MissingValue(self.entity_id, self.label, path_str, data_type, value)
         self.outcome.missings.append(missing)
 
     def _record_mismatch(self, path: ListType, data_type: str, expected: Optional[Any], actual: Optional[Any]) -> None:
+        if not _is_simple_value(expected):
+            expected = json.dumps(expected, sort_keys=True)
+        if not _is_simple_value(actual):
+            actual = json.dumps(actual, sort_keys=True)
+
         path_str = nesteddicts.path_to_str(path)
         mismatch: ValueMismatch = ValueMismatch(self.entity_id, self.label, path_str, data_type, expected, actual)
         self.outcome.mismatches.append(mismatch)
@@ -107,14 +117,24 @@ class Crawl:
         assert f_val != POLYTROPOS_NA  # Should have been handled at _inspect
         a_val: Optional[Any] = nesteddicts.get(a_tree, path, default=POLYTROPOS_CONFIRMED_NA)
         if a_val == POLYTROPOS_CONFIRMED_NA:
-            self._record_missing(path, data_type, json.dumps(f_val, sort_keys=True))
+            self._record_missing(path, data_type, f_val)
             return
 
         compare: CompareComplexVariable = CompareComplexVariable(self.schema)
         if compare(f_val, a_val, path=path):
-            self._record_match(path, data_type, json.dumps(f_val, sort_keys=True))
+            self._record_match(path, data_type, f_val)
         else:
-            self._record_mismatch(path, data_type, json.dumps(f_val, sort_keys=True), json.dumps(a_val, sort_keys=True))
+            self._record_mismatch(path, data_type, f_val, a_val)
+
+    def _inspect_multiple_text(self, data_type: str, f_val: Optional[ListType[str]], a_tree: Dict, path: ListType) -> None:
+        assert f_val != POLYTROPOS_NA  # Should have been handled at _inspect
+        a_val: Optional[ListType[str]] = nesteddicts.get(a_tree, path, default=POLYTROPOS_CONFIRMED_NA)
+        if a_val == POLYTROPOS_CONFIRMED_NA:
+            self._record_missing(path, data_type, f_val)
+        elif compare_multiple_text(f_val, a_val):
+            self._record_match(path, data_type, f_val)
+        else:
+            self._record_mismatch(path, data_type, f_val, a_val)
 
     def _inspect(self, key: str, f_tree: Optional[Any], a_tree: Dict, path: ListType[str]) -> None:
         child_path: ListType[str] = path + [key]
@@ -133,6 +153,8 @@ class Crawl:
             self._inspect_folder(f_tree, a_tree, child_path)
         elif data_type in {"List", "KeyedList"}:
             self._inspect_complex(data_type, f_tree, a_tree, child_path)
+        elif data_type == "MultipleText":
+            self._inspect_multiple_text(data_type, f_tree, a_tree, child_path)
         else:
             self._inspect_primitive(data_type, f_tree, a_tree, child_path)
 
@@ -163,3 +185,7 @@ class CrawlImmutable(Crawl):
     @property
     def label(self) -> str:
         return "immutable"
+
+
+def _is_simple_value(value: Any) -> bool:
+    return value is None or isinstance(value, (bool, int, float, str))
