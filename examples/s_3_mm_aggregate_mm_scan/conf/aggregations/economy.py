@@ -3,12 +3,11 @@ from typing import Iterator, Tuple, Dict, Iterable, Any, Optional
 
 from polytropos.ontology.composite import Composite
 
-from polytropos.ontology.variable.__variable import Decimal, Text, VariableId
+from polytropos.ontology.variable.__variable import VariableId
 
 from polytropos.actions.aggregate import Aggregate
 from polytropos.actions.validator import VariableValidator
-from polytropos.ontology.variable import Integer
-
+from polytropos.ontology.variable import Integer, Text, Decimal
 
 @dataclass
 class EconomicOverview(Aggregate):
