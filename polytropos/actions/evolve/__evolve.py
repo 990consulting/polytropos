@@ -96,7 +96,7 @@ class Evolve(Step):
             with open(target_filepath, 'w') as target_file:
                 json.dump(composite.content, target_file, indent=2)
         except Exception as e:
-            logging.error("Error processing composite %s during evolve step.")
+            logging.error("Error processing composite %s during evolve step." % composite_id)
             traceback.print_exc()
             raise
 

@@ -152,8 +152,8 @@ class Currency(Primitive):
             return int(value)
         except ValueError:
             as_currency: int = int(float(value))
-            logging.warning("Encountered fractional currency value (%s). Rounding down to nearest dollar (%s).", value,
-                            as_currency)
+            logging.debug("Encountered fractional currency value (%s). Rounding down to nearest dollar (%s).", value,
+                          as_currency)
 
             return as_currency
 
