@@ -10,7 +10,7 @@ from polytropos.actions.consume.tocsv.descriptors.fromraw import GetAllColumnNam
 @pytest.fixture()
 def all_column_names(schema) -> GetAllColumnNames:
     spec_to_names: DescriptorBlockToColumnNames = DescriptorBlockToColumnNames(schema)
-    return GetAllColumnNames(spec_to_names)
+    return GetAllColumnNames(spec_to_names, "id")
 
 @pytest.fixture()
 def do_test(all_column_names, basepath) -> Callable:
