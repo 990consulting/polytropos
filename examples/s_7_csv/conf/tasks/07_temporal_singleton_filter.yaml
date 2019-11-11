@@ -7,6 +7,7 @@ starting_with:
 steps:
   - Consume:
       name: ExportToCSV
+      id_col_name: TID
       filename: 07_temporal_singleton_filter.csv
       filters:
         - AtLeast:

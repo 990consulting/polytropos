@@ -1,4 +1,4 @@
-id,period,/t_folder/some_text
+TID,period,/t_folder/some_text
 composite_1,period_1,in a folder
 composite_4,period_1,P1(folder)
 composite_4,period_2,P2(folder)

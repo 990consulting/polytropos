@@ -25,18 +25,18 @@ def _get_all_blocks(schema: Schema, columns: List[Dict]) -> List[Block]:
     get_all_blocks: Callable = fromraw.GetAllBlocks(as_block_value)
     return get_all_blocks(columns)
 
-def _get_all_column_names(schema: Schema, columns: List[Dict]) -> List[str]:
+def _get_all_column_names(schema: Schema, columns: List[Dict], id_col_name: str) -> List[str]:
     spec_to_names: DescriptorBlockToColumnNames = DescriptorBlockToColumnNames(schema)
-    get_all_column_names: Callable = fromraw.GetAllColumnNames(spec_to_names)
+    get_all_column_names: Callable = fromraw.GetAllColumnNames(spec_to_names, id_col_name)
     return get_all_column_names(columns)
 
 
 class ExportToCSV(Consume):
     def __init__(self, context: Context, schema: Schema, filename: str, columns: List,
-                 filters: Optional[List]=None):
+                 filters: Optional[List] = None, id_col_name: str = "id"):
         super(ExportToCSV, self).__init__(context, schema)
         self.blocks: List[Block] = _get_all_blocks(schema, columns)
-        self.column_names: List[str] = _get_all_column_names(schema, columns)
+        self.column_names: List[str] = _get_all_column_names(schema, columns, id_col_name)
         self.fh: TextIO = open(os.path.join(context.output_dir, filename), 'w')
         self.writer: Any = csv.writer(self.fh)
         self.filters: List[Filter] = self._make_filters(filters)

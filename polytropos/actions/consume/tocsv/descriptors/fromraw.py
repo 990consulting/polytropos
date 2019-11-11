@@ -17,6 +17,7 @@ constructors: Dict[str, Type] = {
 @dataclass
 class GetAllColumnNames:
     spec_to_names: DescriptorBlockToColumnNames
+    id_col_name: str
 
     def __call__(self, full_spec: List[Dict]) -> List[str]:
         has_temporal: bool = False
@@ -30,9 +31,9 @@ class GetAllColumnNames:
             names_for_block = self.spec_to_names(block_spec[block_type])
             block_columns.extend(names_for_block)
         if has_temporal:
-            return list(itertools.chain(["id", "period"], block_columns))
+            return list(itertools.chain([self.id_col_name, "period"], block_columns))
         else:
-            return list(itertools.chain(["id"], block_columns))
+            return list(itertools.chain([self.id_col_name], block_columns))
 
 class GetAllBlocks:
     def __init__(self, as_block_value: AsBlockValue):
