@@ -6,3 +6,4 @@ def register_change_subclasses() -> None:
     import polytropos.actions.changes.stat
     import polytropos.actions.changes.delete
     import polytropos.actions.changes.sort
+    import polytropos.actions.changes.display
