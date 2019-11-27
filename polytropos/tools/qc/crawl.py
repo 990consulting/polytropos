@@ -9,7 +9,7 @@ from polytropos.util import nesteddicts
 
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.variable import Variable
-from polytropos.tools.qc.outcome import Outcome, ValueMatch, ValueMismatch, MissingValue
+from polytropos.tools.qc.outcome import Outcome, ValueMatch, ValueMismatch, MissingValue, InvalidPath
 import json
 
 @dataclass
@@ -136,12 +136,17 @@ class Crawl:
         else:
             self._record_mismatch(path, data_type, f_val, a_val)
 
+    def _record_invalid(self, path: ListType[str], content: Optional[Any]) -> None:
+        invalid: InvalidPath = InvalidPath(self.entity_id, nesteddicts.path_to_str(path), content)
+        self.outcome.invalids.append(invalid)
+
     def _inspect(self, key: str, f_tree: Optional[Any], a_tree: Dict, path: ListType[str]) -> None:
         child_path: ListType[str] = path + [key]
         var: Optional[Variable] = self.schema.lookup(child_path)
         if var is None:
-            raise ValueError("No variable called %s (record %s). Value: %s" % (nesteddicts.path_to_str(path + [key]),
-                                                                               self.entity_id, f_tree.__repr__()))
+            self._record_invalid(child_path, f_tree)
+            return
+
         data_type: str = var.data_type
 
         if f_tree == POLYTROPOS_NA:

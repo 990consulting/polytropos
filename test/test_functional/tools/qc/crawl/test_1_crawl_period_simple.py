@@ -4,7 +4,7 @@ from typing import Dict
 import pytest
 from polytropos.ontology.schema import Schema
 from polytropos.tools.qc.crawl import CrawlPeriod
-from polytropos.tools.qc.outcome import Outcome, ValueMatch, ValueMismatch, MissingValue
+from polytropos.tools.qc.outcome import Outcome, ValueMatch, ValueMismatch, MissingValue, InvalidPath
 
 @pytest.fixture
 def schema(empty_track, simple_track) -> Schema:
@@ -266,12 +266,13 @@ def test_not_tested_simple(schema, period, entity_id):
     {},
     {"not a thing": "blah blah"}
 ])
-def test_fixture_undefined_raises(schema, period, entity_id, observation):
+def test_fixture_undefined_records_invalid(schema, period, entity_id, observation):
     """Fixture contains an undefined field, resulting in an error state."""
     fixture: Dict = {
         "not a thing": "blah blah"
     }
-    outcome: Outcome = Outcome()
-    crawl: CrawlPeriod = CrawlPeriod(entity_id, schema, fixture, observation, outcome, period)
-    with pytest.raises(ValueError):
-        crawl()
+    expected: Outcome = Outcome()
+    expected.invalids.append(InvalidPath(entity_id, "/not a thing", "blah blah"))
+    actual: Outcome = Outcome()
+    crawl: CrawlPeriod = CrawlPeriod(entity_id, schema, fixture, observation, actual, period)
+    crawl()

@@ -8,7 +8,7 @@ from polytropos.ontology.composite import Composite
 from polytropos.ontology.schema import Schema
 from polytropos.tools.qc.compare import FixtureComparator
 
-from polytropos.tools.qc.outcome import Outcome, ValueMatch, ValueMismatch, MissingValue
+from polytropos.tools.qc.outcome import Outcome, ValueMatch, ValueMismatch, MissingValue, InvalidPath
 from polytropos.util.paths import find_all_composites, relpath_for
 
 def _get_composite(basepath: str, composite_id: str, schema: Schema) -> Optional[Composite]:
@@ -72,3 +72,13 @@ class FixtureOutcomes:
     def missing_value_ids(self) -> Iterator[str]:
         for outcome in self.outcomes:
             yield from outcome.missing_case_ids
+
+    @property
+    def invalid_paths(self) -> Iterator[InvalidPath]:
+        for outcome in self.outcomes:
+            yield from outcome.invalids
+
+    @property
+    def invalid_path_ids(self) -> Iterator[str]:
+        for outcome in self.outcomes:
+            yield from outcome.invalid_case_ids

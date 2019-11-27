@@ -24,11 +24,17 @@ class MissingValue(NamedTuple):
     data_type: str
     expected: Optional[Any]
 
+class InvalidPath(NamedTuple):
+    entity_id: str
+    var_path: str
+    expected: Optional[Any]
+
 @dataclass
 class Outcome:
     matches: Deque[ValueMatch] = field(init=False, default_factory=lambda: deque())
     mismatches: Deque[ValueMismatch] = field(init=False, default_factory=lambda: deque())
     missings: Deque[MissingValue] = field(init=False, default_factory=lambda: deque())
+    invalids: Deque[InvalidPath] = field(init=False, default_factory=lambda: deque())
 
     @property
     def match_case_ids(self) -> Iterator[str]:
@@ -45,6 +51,11 @@ class Outcome:
         for missing in self.missings:
             yield "/%s/%s%s" % (missing.entity_id, missing.observation, missing.var_path)
 
+    @property
+    def invalid_case_ids(self) -> Iterator[str]:
+        for invalid in self.invalids:
+            yield "/%s%s" % (invalid.entity_id, invalid.var_path)
+
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return False
@@ -56,6 +67,9 @@ class Outcome:
             return False
 
         if set(other.missings) != set(self.missings):
+            return False
+
+        if set(other.invalids) != set(self.invalids):
             return False
 
         return True
