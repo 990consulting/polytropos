@@ -12,9 +12,13 @@ from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import VariableId, Variable
 from polytropos.util import nesteddicts
 
+
 class CrossSectionalUnivariateStatistic(Change, ABC):  # type: ignore
     """Calculate a univariate statistic based on all observations in a List or KeyedList."""
 
+    # TODO Move most constructor arguments to a build class method that calls a validate class method. We want to be
+    #  able to eg detect that the user has specified an identifier when it doesn't make sense to do so (as with a
+    #  count)
     def __init__(self, schema: Schema, lookups: Dict, subjects: Any, value_target: VariableId,
                  argument: Optional[VariableId] = None, identifier: Optional[VariableId] = None,
                  identifier_target: Optional[VariableId] = None):
@@ -24,15 +28,19 @@ class CrossSectionalUnivariateStatistic(Change, ABC):  # type: ignore
         self.value_target: Optional[VariableId] = value_target
         self.temporal = self._check_class_temporality(subjects, value_target, argument, identifier, identifier_target)
 
-    def _assign(self, content: Dict, limit: Optional[Any], arg_limit: Optional[str]) -> None:
-        if limit is None:
+    def _assign(self, content: Dict, value: Optional[Any], value_identifier: Optional[str] = None) -> None:
+        """
+        Places a value (min, max, etc.) and possibly a value identifier (e.g. argmin) into the appropriate place in the
+        content dictionary.
+        """
+        if value is None:
             return
         target_path: ListType[str] = self.schema.get(self.value_target).absolute_path
-        nesteddicts.put(content, target_path, limit)
+        nesteddicts.put(content, target_path, value)
 
-        if self.identifier_target is not None and arg_limit != POLYTROPOS_NA:
+        if self.identifier_target is not None and value_identifier != POLYTROPOS_NA:
             id_target_path: ListType[str] = self.schema.get(self.identifier_target).absolute_path
-            nesteddicts.put(content, id_target_path, arg_limit)
+            nesteddicts.put(content, id_target_path, value_identifier)
 
     def _check_var_temporal(self, var_id: VariableId, status: Optional[bool]) -> bool:
         variable: Variable = self.schema.get(var_id)
@@ -67,6 +75,27 @@ class CrossSectionalUnivariateStatistic(Change, ABC):  # type: ignore
         assert temporal is not None
 
         return temporal
+
+class CrossSectionalCount(CrossSectionalUnivariateStatistic):
+    def _handle(self, content: Dict) -> int:
+        count: int = 0
+        for value, _ in self.iterate_over(content):
+            if value is not None:
+                count += 1
+        return count
+
+    def __call__(self, composite: Composite) -> None:
+        if self.temporal:
+            for period in composite.periods:
+                t_content: Dict = composite.content[period]
+                count: int = self._handle(t_content)
+                self._assign(t_content, count)
+        else:
+            i_content: Optional[Dict] = composite.content.get("immutable")
+            if i_content is None:
+                return
+            count = self._handle(i_content)
+            self._assign(i_content, count)
 
 class CrossSectionalMean(CrossSectionalUnivariateStatistic):
     def __call__(self, composite: Composite) -> None:
