@@ -2,17 +2,16 @@ from dataclasses import dataclass
 from typing import List
 
 import numpy
-from polytropos.ontology.composite import Composite
 
 from polytropos.actions.evolve.__change import Change
-from polytropos.actions.validator import VariableValidator
-from polytropos.ontology.variable import Decimal, VariableId
+from polytropos.ontology.composite import Composite
+from polytropos.ontology.variable import VariableId
 
 
 @dataclass
 class CalculateMeanProductivity(Change):
-    annual_prod_var: VariableId = VariableValidator(data_type=Decimal, temporal=1)
-    mean_prod_var: VariableId = VariableValidator(data_type=Decimal, temporal=-1)
+    annual_prod_var: VariableId
+    mean_prod_var: VariableId
 
     def __call__(self, composite: Composite):
         periods: List[str] = list(composite.periods)

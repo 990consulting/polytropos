@@ -1,17 +1,17 @@
 from dataclasses import dataclass
+
 import numpy
-from polytropos.ontology.composite import Composite
 
 from polytropos.actions.evolve.__change import Change
-from polytropos.actions.validator import VariableValidator
-from polytropos.ontology.variable import Decimal, Integer, VariableId
+from polytropos.ontology.composite import Composite
+from polytropos.ontology.variable import VariableId
 
 
 @dataclass
 class AssignAnnualBMI(Change):
-    annual_weight_var: VariableId = VariableValidator(data_type=Decimal, temporal=1)
-    height_var: VariableId = VariableValidator(data_type=[Decimal, Integer], temporal=-1)
-    annual_bmi_var: VariableId = VariableValidator(data_type=Decimal, temporal=1)
+    annual_weight_var: VariableId
+    height_var: VariableId
+    annual_bmi_var: VariableId
 
     def __call__(self, composite: Composite):
         h_squared = composite.get_immutable(self.height_var) ** 2
@@ -22,8 +22,8 @@ class AssignAnnualBMI(Change):
 
 @dataclass
 class AssignMeanBMI(Change):
-    annual_bmi_var: VariableId = VariableValidator(data_type=Decimal, temporal=1)
-    mean_bmi_var: VariableId = VariableValidator(data_type=Decimal, temporal=-1)
+    annual_bmi_var: VariableId
+    mean_bmi_var: VariableId
 
     def __call__(self, composite: Composite):
         bmis = [bmi for period, bmi in composite.get_all_observations(self.annual_bmi_var)]

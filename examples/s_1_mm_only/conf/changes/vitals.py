@@ -3,15 +3,15 @@ from dataclasses import dataclass
 
 from polytropos.actions.evolve.__change import Change
 from polytropos.actions.evolve.__lookup import lookup
-from polytropos.actions.validator import VariableValidator
 from polytropos.ontology.composite import Composite
-from polytropos.ontology.variable import Variable, Decimal
+from polytropos.ontology.variable import VariableId
+
 
 @dataclass
 class CalculateWeightGain(Change):
     """Determine the total weight gain over the observation period."""
-    weight_var: str = VariableValidator(data_type=Decimal)
-    weight_gain_var: str = VariableValidator(data_type=Decimal)
+    weight_var: VariableId
+    weight_gain_var: VariableId
 
     def __call__(self, composite: Composite):
         logging.debug("Beginning CalculateWeightGain")

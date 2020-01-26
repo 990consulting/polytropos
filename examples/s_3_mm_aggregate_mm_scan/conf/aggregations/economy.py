@@ -1,29 +1,26 @@
 from dataclasses import dataclass
-from typing import Iterator, Tuple, Dict, Iterable, Any, Optional
-
-from polytropos.ontology.composite import Composite
-
-from polytropos.ontology.variable.__variable import VariableId
+from typing import Iterator, Tuple, Dict, Iterable, Any
 
 from polytropos.actions.aggregate import Aggregate
-from polytropos.actions.validator import VariableValidator
-from polytropos.ontology.variable import Integer, Text, Decimal
+from polytropos.ontology.composite import Composite
+from polytropos.ontology.variable import VariableId
+
 
 @dataclass
 class EconomicOverview(Aggregate):
-    n_employee_var: VariableId = VariableValidator(data_type=Integer, temporal=1)
-    revenue_var: VariableId = VariableValidator(data_type=Decimal, temporal=1)
-    source_zip_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
-    source_city_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
-    source_state_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
+    n_employee_var: VariableId
+    revenue_var: VariableId
+    source_zip_var: VariableId
+    source_city_var: VariableId
+    source_state_var: VariableId
 
     # Output schema variables
-    n_company_var: VariableId = VariableValidator(data_type=Integer, temporal=1)
-    mean_employee_var: VariableId = VariableValidator(data_type=Decimal, temporal=1)
-    annual_prod_var: VariableId = VariableValidator(data_type=Decimal, temporal=1)
-    target_zip_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
-    target_city_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
-    target_state_var: VariableId = VariableValidator(data_type=Text, temporal=-1)
+    n_company_var: VariableId
+    mean_employee_var: VariableId
+    annual_prod_var: VariableId
+    target_zip_var: VariableId
+    target_city_var: VariableId
+    target_state_var: VariableId
 
     def __post_init__(self):
         # Internal variable used for reduce/analyze step

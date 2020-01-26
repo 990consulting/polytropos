@@ -1,17 +1,15 @@
 from dataclasses import dataclass
 from typing import Dict, Iterable, Any, Tuple
 
-from polytropos.ontology.composite import Composite
-
-from polytropos.actions.validator import VariableValidator
 from polytropos.actions.scan import Scan
-from polytropos.ontology.variable import Decimal, Integer, VariableId
+from polytropos.ontology.composite import Composite
+from polytropos.ontology.variable import VariableId
 
 
 @dataclass
 class AssignAverageBMIRank(Scan):
-    mean_bmi_var: VariableId = VariableValidator(data_type=Decimal, temporal=-1)
-    bmi_rank_var: VariableId = VariableValidator(data_type=Integer, temporal=-1)
+    mean_bmi_var: VariableId
+    bmi_rank_var: VariableId
 
     def __post_init__(self):
         self.ranked: Dict[str, int] = {}
