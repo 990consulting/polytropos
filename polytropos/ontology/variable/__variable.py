@@ -47,7 +47,7 @@ class Validator:
     @staticmethod
     def validate_name(variable: "Variable", name: str) -> None:
         if '/' in name or '.' in name:
-            raise ValueError
+            raise ValueError("bad name")
         sibling_names = set(
             variable.track[sibling].name
             for sibling in variable.siblings
