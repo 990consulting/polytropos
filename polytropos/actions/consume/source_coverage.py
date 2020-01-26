@@ -36,17 +36,20 @@ class SourceCoverageFileExtractResult:
 class SourceCoverageFile(Consume):
     translate_dir: str
     trace_dir: str
+    output_filename: Optional[str] = None
 
     coverage_result: SourceCoverageFileExtractResult = field(default_factory=SourceCoverageFileExtractResult, init=False)
 
     # noinspection PyTypeChecker
     @classmethod
-    def standalone(cls, context: Context, translate_dir: str, trace_dir: str, source_schema_name: str, target_schema_name: str) -> None:
+    def standalone(cls, context: Context, translate_dir: str, trace_dir: str, source_schema_name: str, target_schema_name: str, output_filename: str) -> None:
         source_schema: Optional[Schema] = Schema.load(source_schema_name, context.schemas_dir)
         assert source_schema is not None
+
         schema: Optional[Schema] = Schema.load(target_schema_name, context.schemas_dir, source_schema)
         assert schema is not None
-        coverage: "SourceCoverageFile" = cls(context, schema, translate_dir, trace_dir)
+
+        coverage: "SourceCoverageFile" = cls(context, schema, translate_dir, trace_dir, output_filename)
         coverage("dummy", None)
 
     def before(self) -> None:
@@ -60,7 +63,8 @@ class SourceCoverageFile(Consume):
             self.coverage_result.update(extract)
 
     def _write_coverage_file(self) -> None:
-        fn: str = os.path.join(self.context.output_dir, "source_coverage.csv")
+        output_filename: str = self.output_filename or "source_coverage.csv"
+        fn: str = os.path.join(self.context.output_dir, output_filename)
         logging.info("Writing coverage file to %s.", fn)
 
         columns: List[str] = ["source_var_id", "source_var_path", "target_var_id", "target_var_path", "data_type", "n"]
