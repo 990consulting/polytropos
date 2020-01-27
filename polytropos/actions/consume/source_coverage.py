@@ -190,7 +190,7 @@ class SourceCoverageFileExtract:
                 var_info = VarInfo(source_var_id=trace_value, target_var_id=child_var.var_id)
                 all_vars.add(var_info)
 
-                # Not empty string, zero, or null as having been "observed."
+                # Not count empty string, zero, or null as having been "observed."
                 # The boolean value `False` should still be counted.
                 if translate_value is not Ellipsis and (translate_value or translate_value is False):
                     observed[var_info].add(child_path)
