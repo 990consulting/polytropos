@@ -1,6 +1,6 @@
 import logging
 import json
-from typing import Iterator, Dict, TYPE_CHECKING, Any, Optional, List as ListType, Set
+from typing import Iterator, Dict, TYPE_CHECKING, Any, Optional, List as ListType, Set, Tuple
 from collections.abc import MutableMapping
 
 from polytropos.ontology.variable import (
@@ -14,6 +14,16 @@ from functools import partial
 
 if TYPE_CHECKING:
     from polytropos.ontology.schema import Schema
+
+
+class ValidationError(Exception):
+    """Represents a list of variable errors."""
+
+    def __init__(self, errors: ListType[Tuple[Variable, Exception]]):
+        self.errors: ListType[Tuple[Variable, Exception]] = errors
+
+    def __str__(self) -> str:
+        return "\n".join("%s: %s" % (var.var_id, ex) for (var, ex) in self.errors)
 
 
 class Track(MutableMapping):
@@ -52,12 +62,24 @@ class Track(MutableMapping):
 
         logging.info('Performing post-load validation on variables for track "%s".' % name)
         n = 0
+        validation_errors: ListType[Tuple[Variable, Exception]] = []
         for variable in self.values():
-            Validator.validate(variable, init=True)
+            try:
+                Validator.validate(variable, init=True)
+            except Exception as ex:
+                validation_errors.append((variable, ex))
             n += 1
             if n % 100 == 0:
-                logging.info("Validated %i variables.", n)
-        logging.info('All variables valid "%s".' % name)
+                if len(validation_errors) == 0:
+                    logging.info("Validated %i variables.", n)
+                else:
+                    logging.info("Validated %i variables (%i invalid).", n, len(validation_errors))
+
+        if len(validation_errors) == 0:
+            logging.info('All variables valid "%s".' % name)
+        else:
+            logging.error('%i variables valid, %i invalid "%s".' % (n-len(validation_errors), len(validation_errors), name))
+            raise ValidationError(validation_errors)
 
     def build_variable(self, data: Dict, var_id: VariableId) -> Variable:
         unexpected_fields = set(data.keys()).difference(Track.ALLOWED_VAR_SPEC_FIELDS)

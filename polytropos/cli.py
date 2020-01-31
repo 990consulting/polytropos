@@ -1,3 +1,4 @@
+import os
 from typing import TextIO, Optional, cast
 import click
 import logging
@@ -160,11 +161,12 @@ def translate(schemas_dir: str, source_schema: str, target_schema: str, input_di
 @click.argument('target_schema_name', type=str)
 @click.argument('translate_dir', type=click.Path(exists=True))
 @click.argument('trace_dir', type=click.Path(exists=True))
-@click.argument('output_dir', type=click.Path(exists=False))
-def source_coverage(schemas_dir: str, source_schema_name: str, target_schema_name: str, translate_dir: str, trace_dir: str, output_dir: str) -> None:
+@click.argument('output_path', type=click.Path(exists=False))
+def source_coverage(schemas_dir: str, source_schema_name: str, target_schema_name: str, translate_dir: str, trace_dir: str, output_path: str) -> None:
     """Produce a source coverage report."""
+    output_dir, output_filename = os.path.split(output_path)
     with Context.build("", "", output_dir=output_dir, schemas_dir=schemas_dir, clean_output_directory=False) as context:
-        SourceCoverageFile.standalone(context, translate_dir, trace_dir, source_schema_name, target_schema_name)
+        SourceCoverageFile.standalone(context, translate_dir, trace_dir, source_schema_name, target_schema_name, output_filename)
 
 
 if __name__ == "__main__":

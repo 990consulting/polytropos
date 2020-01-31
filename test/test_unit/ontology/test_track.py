@@ -2,7 +2,7 @@ from typing import Dict
 
 import pytest
 
-from polytropos.ontology.track import Track
+from polytropos.ontology.track import Track, ValidationError
 from polytropos.ontology.variable import VariableId
 
 
@@ -55,3 +55,53 @@ def test_variable_spec_unexpected_fields():
 
     with pytest.raises(ValueError, match=r"unexpected variable fields: \['comment', 'short_description'\]"):
         Track.build(spec, None, "")
+
+
+def test_variable_spec_one_error():
+    spec: Dict = {
+        "var1": {
+            "name": "name1",
+            "data_type": "Text",
+            "sort_order": 1
+        },
+        "var2": {
+            "name": "name.2",
+            "data_type": "Integer",
+            "sort_order": 0,
+            "metadata": {
+                "notes": "notes2"
+            }
+        },
+    }
+    with pytest.raises(ValidationError) as exc_info:
+        Track.build(spec, None, "")
+    assert len(exc_info.value.errors) == 1
+    lines = str(exc_info.value).split("\n")
+    assert lines == ["var2: bad name"]
+
+
+def test_variable_spec_two_errors():
+    spec: Dict = {
+        "var1": {
+            "name": "name/1",
+            "data_type": "Text",
+            "sort_order": 1
+        },
+        "var2": {
+            "name": "name2",
+            "data_type": "Integer",
+            "sort_order": 0,
+            "parent": "unknown",
+            "metadata": {
+                "notes": "notes2"
+            }
+        },
+    }
+    with pytest.raises(ValidationError) as exc_info:
+        Track.build(spec, None, "")
+    assert len(exc_info.value.errors) == 2
+    lines = str(exc_info.value).split("\n")
+    assert lines == [
+        "var1: bad name",
+        'var2: Variable "var2" lists "unknown" as its parent, but variable doesn\'t exist.',
+    ]

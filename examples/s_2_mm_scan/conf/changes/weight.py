@@ -1,18 +1,18 @@
 from dataclasses import dataclass
-import scipy.stats
+
 import numpy as np
-from polytropos.ontology.composite import Composite
+import scipy.stats
 
 from polytropos.actions.evolve import Change
-from polytropos.actions.validator import VariableValidator
-from polytropos.ontology.variable import Decimal
+from polytropos.ontology.composite import Composite
+from polytropos.ontology.variable import VariableId
 
 
 @dataclass
 class AssignRegressionStats(Change):
-    annual_weight_var: str = VariableValidator(data_type=Decimal, temporal=1)
-    weight_slope_var: str = VariableValidator(data_type=Decimal, temporal=-1)
-    weight_pval_var: str = VariableValidator(data_type=Decimal, temporal=-1)
+    annual_weight_var: VariableId
+    weight_slope_var: VariableId
+    weight_pval_var: VariableId
 
     def __call__(self, composite: Composite):
         years = sorted([int(year) for year in composite.periods])
