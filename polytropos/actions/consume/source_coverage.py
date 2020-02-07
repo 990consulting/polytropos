@@ -26,10 +26,16 @@ class SourceCoverageFileExtractResult:
         self.var_counts: Dict[VarInfo, int] = defaultdict(int)
         self.all_vars: Set[VarInfo] = set()
 
-    def update(self, other: "SourceCoverageFileExtractResult") -> None:
+    def merge(self, other: "SourceCoverageFileExtractResult") -> None:
         for var_info, count in other.var_counts.items():  # types: VarInfo, int
             self.var_counts[var_info] += count
         self.all_vars.update(other.all_vars)
+
+    def update(self, composite_id: str, period: str, all_vars: Set[VarInfo], observed_paths: Dict[VarInfo, Set[Tuple[str, ...]]]) -> None:
+        for var_info, target_paths in observed_paths.items():
+            assert len(target_paths) == 1
+            self.var_counts[var_info] += 1
+        self.all_vars.update(all_vars)
 
 
 @dataclass  # type: ignore # https://github.com/python/mypy/issues/5374
@@ -60,7 +66,7 @@ class SourceCoverageFile(Consume):
 
     def consume(self, extracts: Iterable[Any]) -> None:
         for extract in extracts:
-            self.coverage_result.update(extract)
+            self.coverage_result.merge(extract)
 
     def _write_coverage_file(self) -> None:
         output_filename: str = self.output_filename or "source_coverage.csv"
@@ -200,12 +206,10 @@ class SourceCoverageFileExtract:
             observed_paths: Dict[VarInfo, Set[Tuple[str, ...]]] = defaultdict(set)
             all_vars: Set[VarInfo] = set()
             self._crawl(translate_composite.composite_id, translate_composite.content.get(period, {}), trace_composite.content[period], (), observed_paths, all_vars)
-            for var_info, target_paths in observed_paths.items():
-                result.var_counts[var_info] += len(target_paths)
-            result.all_vars.update(all_vars)
+            result.update(trace_composite.composite_id, period, all_vars, observed_paths)
 
     def extract(self, composite_ids: List[str]) -> SourceCoverageFileExtractResult:
-        extract_result = SourceCoverageFileExtractResult()
+        extract_result = self.create_empty_result()
         for composite_id in composite_ids:
             logging.debug("Extracting data from composite %s", composite_id)
 
@@ -214,6 +218,9 @@ class SourceCoverageFileExtract:
             self._extract(translate_composite, trace_composite, extract_result)
 
         return extract_result
+
+    def create_empty_result(self) -> SourceCoverageFileExtractResult:
+        return SourceCoverageFileExtractResult()
 
     def _load_composite(self, base_dir: str, composite_id: str) -> Composite:
             relpath: str = relpath_for(composite_id)
