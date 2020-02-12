@@ -4,7 +4,8 @@ import logging
 import os
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Iterable, Tuple, Any, Optional, Dict, Set, List, NamedTuple
+from sys import intern
+from typing import Iterable, Tuple, Any, Optional, Dict, Set, List, NamedTuple, cast
 
 from polytropos.ontology.context import Context
 from polytropos.tools.qc import POLYTROPOS_NA
@@ -126,7 +127,8 @@ class SourceCoverageFileExtract:
         self.translate_dir = translate_dir
         self.trace_dir = trace_dir
 
-    def _handle_keyed_list(self, composite_id: str, child_path: Tuple[str, ...], translate_value: Dict, trace_value: Dict, observed: Dict[VarInfo, Set[Tuple[str, ...]]], all_vars: Set[VarInfo]) -> None:
+    def _handle_keyed_list(self, composite_id: str, child_path: Tuple[str, ...], translate_value: Dict, trace_value: Dict,
+                           observed: Dict[VarInfo, Set[Tuple[str, ...]]], all_vars: Set[VarInfo]) -> None:
         for key, trace_child_value in trace_value.items():
             translate_child_value = translate_value.get(key, {})
             self._crawl(composite_id, translate_child_value, trace_child_value, child_path, observed, all_vars)
@@ -193,7 +195,10 @@ class SourceCoverageFileExtract:
 
             # In all other cases, the variable is a leaf node (primitive).
             else:
-                var_info = VarInfo(source_var_id=trace_value, target_var_id=child_var.var_id)
+                var_info = VarInfo(
+                    source_var_id=cast(VariableId, intern(trace_value)),
+                    target_var_id=cast(VariableId, intern(child_var.var_id))
+                )
                 all_vars.add(var_info)
 
                 # Not count empty string, zero, or null as having been "observed."
@@ -202,11 +207,13 @@ class SourceCoverageFileExtract:
                     observed[var_info].add(child_path)
 
     def _extract(self, translate_composite: Composite, trace_composite: Composite, result: SourceCoverageFileExtractResult) -> None:
+        composite_id = intern(translate_composite.composite_id)
         for period in trace_composite.content.keys():  # periods + "immutable"
+            period = intern(period)
             observed_paths: Dict[VarInfo, Set[Tuple[str, ...]]] = defaultdict(set)
             all_vars: Set[VarInfo] = set()
-            self._crawl(translate_composite.composite_id, translate_composite.content.get(period, {}), trace_composite.content[period], (), observed_paths, all_vars)
-            result.update(trace_composite.composite_id, period, all_vars, observed_paths)
+            self._crawl(composite_id, translate_composite.content.get(period, {}), trace_composite.content[period], (), observed_paths, all_vars)
+            result.update(composite_id, period, all_vars, observed_paths)
 
     def extract(self, composite_ids: List[str]) -> SourceCoverageFileExtractResult:
         extract_result = self.create_empty_result()
@@ -223,12 +230,12 @@ class SourceCoverageFileExtract:
         return SourceCoverageFileExtractResult()
 
     def _load_composite(self, base_dir: str, composite_id: str) -> Composite:
-            relpath: str = relpath_for(composite_id)
-            composite_path = os.path.join(base_dir, relpath, "%s.json" % composite_id)
-            content: Dict
-            if not os.path.exists(composite_path):
-                content = {}
-            else:
-                with open(os.path.join(base_dir, relpath, "%s.json" % composite_id)) as translate_file:
-                    content = json.load(translate_file)
-            return Composite(self.schema, content, composite_id=composite_id)
+        relpath: str = relpath_for(composite_id)
+        composite_path = os.path.join(base_dir, relpath, "%s.json" % composite_id)
+        content: Dict
+        if not os.path.exists(composite_path):
+            content = {}
+        else:
+            with open(os.path.join(base_dir, relpath, "%s.json" % composite_id)) as translate_file:
+                content = json.load(translate_file)
+        return Composite(self.schema, content, composite_id=composite_id)
