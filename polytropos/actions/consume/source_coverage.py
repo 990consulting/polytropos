@@ -21,6 +21,12 @@ class VarInfo(NamedTuple):
     source_var_id: VariableId
     target_var_id: VariableId
 
+    def intern(self) -> "VarInfo":
+        return VarInfo(
+            source_var_id=cast(VariableId, intern(self.source_var_id)),
+            target_var_id=cast(VariableId, intern(self.target_var_id)),
+        )
+
 
 class SourceCoverageFileExtractResult:
     def __init__(self) -> None:
@@ -29,8 +35,8 @@ class SourceCoverageFileExtractResult:
 
     def merge(self, other: "SourceCoverageFileExtractResult") -> None:
         for var_info, count in other.var_counts.items():  # types: VarInfo, int
-            self.var_counts[var_info] += count
-        self.all_vars.update(other.all_vars)
+            self.var_counts[var_info.intern()] += count
+        self.all_vars.update((var_info.intern() for var_info in other.all_vars))
 
     def update(self, composite_id: str, period: str, all_vars: Set[VarInfo], observed_paths: Dict[VarInfo, Set[Tuple[str, ...]]]) -> None:
         for var_info, target_paths in observed_paths.items():
