@@ -139,8 +139,9 @@ def coverage(schema_basepath: str, schema_name: str, data_path: str, output_pref
 @click.argument('target_schema', type=str)
 @click.argument('input_dir', type=click.Path(exists=True))
 @click.argument('output_dir', type=click.Path(exists=False))
-def trace(schemas_dir: str, source_schema: str, target_schema: str, input_dir: str, output_dir: str) -> None:
-    with Context.build("", "", input_dir=input_dir, output_dir=output_dir, schemas_dir=schemas_dir) as context:
+@click.option('--chunk_size', type=click.INT)
+def trace(schemas_dir: str, source_schema: str, target_schema: str, input_dir: str, output_dir: str, chunk_size: Optional[int]) -> None:
+    with Context.build("", "", input_dir=input_dir, output_dir=output_dir, schemas_dir=schemas_dir, process_pool_chunk_size=chunk_size) as context:
         Trace.standalone(context, source_schema, target_schema)
 
 
