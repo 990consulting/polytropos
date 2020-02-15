@@ -6,7 +6,7 @@ import string
 from typing import Callable, Dict, List
 import pytest
 
-from polytropos.actions.consume.source_coverage import SourceCoverageFile
+from polytropos.actions.consume.source_coverage import SourceCoverage
 from polytropos.ontology.context import Context
 
 from polytropos.ontology.schema import Schema
@@ -82,7 +82,7 @@ def do_run(module_basepath: str, target_schema: Schema, output_basepath) -> Call
         trace_dir: str = os.path.join(module_basepath, data_type.lower(), "trace")
         output_dir: str = os.path.join(output_basepath, data_type.lower())
         with Context.build(conf_dir="dummy", data_dir="dummy", output_dir=output_dir) as context:
-            coverage: SourceCoverageFile = SourceCoverageFile(context, target_schema(data_type), translate_dir, trace_dir)
+            coverage: SourceCoverage = SourceCoverage(context, target_schema(data_type), translate_dir, trace_dir)
             coverage("dummy", "dummy")
     return _do_run
 

@@ -3,7 +3,7 @@ from typing import TextIO, Optional, cast
 import click
 import logging
 
-from polytropos.actions.consume.source_coverage import SourceCoverageFile
+from polytropos.actions.consume.source_coverage import SourceCoverage
 from polytropos.actions.translate import Translate
 from polytropos.actions.translate.trace import Trace
 from polytropos.ontology.schema import Schema
@@ -167,7 +167,7 @@ def source_coverage(schemas_dir: str, source_schema_name: str, target_schema_nam
     """Produce a source coverage report."""
     output_dir, output_filename = os.path.split(output_path)
     with Context.build("", "", output_dir=output_dir, schemas_dir=schemas_dir, clean_output_directory=False) as context:
-        SourceCoverageFile.standalone(context, translate_dir, trace_dir, source_schema_name, target_schema_name, output_filename)
+        SourceCoverage.standalone(context, translate_dir, trace_dir, source_schema_name, target_schema_name, output_filename)
 
 
 if __name__ == "__main__":
