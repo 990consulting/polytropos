@@ -6,7 +6,7 @@ import string
 from typing import Callable, Dict
 import pytest
 
-from polytropos.actions.consume.source_coverage import SourceCoverageFile
+from polytropos.actions.consume.source_coverage import SourceCoverage
 from polytropos.ontology.context import Context
 
 from polytropos.ontology.schema import Schema
@@ -97,7 +97,7 @@ def do_run(module_basepath: str, module_target_schema: Schema, output_basepath) 
         translate_dir: str = os.path.join(module_basepath, "translate")
         trace_dir: str = os.path.join(module_basepath, "trace")
         with Context.build(conf_dir="dummy", data_dir="dummy", output_dir=output_basepath) as context:
-            coverage: SourceCoverageFile = SourceCoverageFile(context, module_target_schema, translate_dir, trace_dir)
+            coverage: SourceCoverage = SourceCoverage(context, module_target_schema, translate_dir, trace_dir)
             coverage("dummy", "dummy")
     return _do_run
 
@@ -109,7 +109,7 @@ def do_run_transient(module_basepath: str, module_target_schema_with_transient, 
         trace_dir: str = os.path.join(module_basepath, "trace")
         output_dir: str = os.path.join(output_basepath, "transient")
         with Context.build(conf_dir="dummy", data_dir="dummy", output_dir=output_dir) as context:
-            coverage: SourceCoverageFile = SourceCoverageFile(context, module_target_schema_with_transient, translate_dir, trace_dir)
+            coverage: SourceCoverage = SourceCoverage(context, module_target_schema_with_transient, translate_dir, trace_dir)
             coverage("dummy", "dummy")
     return _do_run
 

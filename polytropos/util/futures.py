@@ -32,8 +32,8 @@ def run_in_process_pool(func: Func[T, R], items: List[T], *args: Any, chunk_size
         if chunk_size > MAX_PROCESS_POOL_CHUNK_SIZE:
             chunk_size = MAX_PROCESS_POOL_CHUNK_SIZE
 
-    executor = ProcessPoolExecutor(max_workers=workers_count)
-    yield from _run_in_pool(executor, func, items, *args, chunk_size=chunk_size)
+    with ProcessPoolExecutor(max_workers=workers_count) as executor:
+        yield from _run_in_pool(executor, func, items, *args, chunk_size=chunk_size)
 
 
 def run_in_thread_pool(func: Func[T, R], items: List[T], *args: Any, chunk_size: Optional[int] = None, workers_count: Optional[int] = None) -> Iterable[R]:
@@ -43,8 +43,8 @@ def run_in_thread_pool(func: Func[T, R], items: List[T], *args: Any, chunk_size:
     if len(items) == 0:
         return
 
-    executor = ThreadPoolExecutor(max_workers=workers_count)
-    yield from _run_in_pool(executor, func, items, *args, chunk_size=chunk_size)
+    with ThreadPoolExecutor(max_workers=workers_count) as executor:
+        yield from _run_in_pool(executor, func, items, *args, chunk_size=chunk_size)
 
 
 def _run_in_pool(executor: Executor, func: Func[T, R], items: List[T], *args: Any, chunk_size: Optional[int] = None) -> Iterable[R]:
