@@ -1,4 +1,5 @@
 import math
+import multiprocessing
 import os
 from concurrent.futures import as_completed, Executor, ThreadPoolExecutor, Future
 from concurrent.futures.process import ProcessPoolExecutor
@@ -32,7 +33,7 @@ def run_in_process_pool(func: Func[T, R], items: List[T], *args: Any, chunk_size
         if chunk_size > MAX_PROCESS_POOL_CHUNK_SIZE:
             chunk_size = MAX_PROCESS_POOL_CHUNK_SIZE
 
-    with ProcessPoolExecutor(max_workers=workers_count) as executor:
+    with ProcessPoolExecutor(max_workers=workers_count, mp_context=multiprocessing.get_context("spawn")) as executor:
         yield from _run_in_pool(executor, func, items, *args, chunk_size=chunk_size)
 
 
