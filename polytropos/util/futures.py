@@ -32,8 +32,8 @@ def run_in_process_pool(func: Func[T, R], items: List[T], *args: Any, chunk_size
         if chunk_size > MAX_PROCESS_POOL_CHUNK_SIZE:
             chunk_size = MAX_PROCESS_POOL_CHUNK_SIZE
 
-    with ProcessPoolExecutor(max_workers=workers_count) as executor:
-        yield from _run_in_pool(executor, func, items, *args, chunk_size=chunk_size)
+    executor = ProcessPoolExecutor(max_workers=workers_count)
+    yield from _run_in_pool(executor, func, items, *args, chunk_size=chunk_size)
 
 
 def run_in_thread_pool(func: Func[T, R], items: List[T], *args: Any, chunk_size: Optional[int] = None, workers_count: Optional[int] = None) -> Iterable[R]:
@@ -43,8 +43,8 @@ def run_in_thread_pool(func: Func[T, R], items: List[T], *args: Any, chunk_size:
     if len(items) == 0:
         return
 
-    with ThreadPoolExecutor(max_workers=workers_count) as executor:
-        yield from _run_in_pool(executor, func, items, *args, chunk_size=chunk_size)
+    executor = ThreadPoolExecutor(max_workers=workers_count)
+    yield from _run_in_pool(executor, func, items, *args, chunk_size=chunk_size)
 
 
 def _run_in_pool(executor: Executor, func: Func[T, R], items: List[T], *args: Any, chunk_size: Optional[int] = None) -> Iterable[R]:
@@ -60,8 +60,9 @@ def _run_in_pool(executor: Executor, func: Func[T, R], items: List[T], *args: An
             future = executor.submit(func, chunk, *args)
             futures[future] = len(chunk)
         with tqdm(total=len(items)) as pbar:
-            for future in as_completed(futures.keys()):
+            for future in as_completed(set(futures.keys())):
                 pbar.update(futures[future])
+                del futures[future]
                 e = future.exception()
                 if e is not None:
                     exceptions.append(e)
