@@ -60,8 +60,9 @@ def _run_in_pool(executor: Executor, func: Func[T, R], items: List[T], *args: An
             future = executor.submit(func, chunk, *args)
             futures[future] = len(chunk)
         with tqdm(total=len(items)) as pbar:
-            for future in as_completed(futures.keys()):
+            for future in as_completed(set(futures.keys())):
                 pbar.update(futures[future])
+                del futures[future]
                 e = future.exception()
                 if e is not None:
                     exceptions.append(e)
