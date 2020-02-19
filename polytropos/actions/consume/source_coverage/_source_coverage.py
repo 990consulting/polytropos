@@ -45,7 +45,7 @@ class SourceCoverage(Consume):
 
     def consume(self, extracts: Iterable[Any]) -> None:
         for extract in extracts:
-            self.coverage_result.merge(extract)
+            self.coverage_result.merge_serialized_state(extract)
 
     def _write_coverage_file(self) -> None:
         output_filename: str = self.output_filename or "source_coverage.csv"
@@ -93,7 +93,7 @@ class SourceCoverage(Consume):
         assert translate_composite_ids.issubset(trace_composite_ids)
 
         coverage = SourceCoverageExtract(self.schema, self.translate_dir, self.trace_dir)
-        per_composite_results: Iterable[SourceCoverageResult] = self.context.run_in_process_pool(coverage.extract, list(trace_composite_ids))
+        per_composite_results: Iterable[bytes] = self.context.run_in_process_pool(coverage.extract, list(trace_composite_ids))
 
         self.consume(per_composite_results)
         self.after()
