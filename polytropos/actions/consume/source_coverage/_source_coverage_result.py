@@ -23,18 +23,20 @@ class SourceCoverageResult:
             self.var_counts[var_info] += 1
         self.all_vars.update(all_vars)
 
-    def serialize_state(self) -> bytes:
+    def serialize_state(self, state_path: str) -> None:
         """Return serialized state to send it to the master process."""
 
         all_vars: List[VarInfo] = list(self.all_vars)
         all_vars_indexes: Dict[VarInfo, int] = {var_info: i for i, var_info in enumerate(all_vars)}
         var_counts: Dict[int, int] = {all_vars_indexes[var_info]: count for var_info, count in self.var_counts.items()}
-        return pickle.dumps((all_vars, var_counts))
+        with open(state_path, "wb") as f:
+            pickle.dump((all_vars, var_counts), f)
 
-    def merge_serialized_state(self, state: bytes) -> None:
+    def merge_serialized_state(self, state_path: str) -> None:
         """Merge serialized state to combine results from child threads/processes."""
 
-        all_vars, var_counts = cast(Tuple[List[VarInfo], Dict[int, int]], pickle.loads(state))
+        with open(state_path, "rb") as f:
+            all_vars, var_counts = cast(Tuple[List[VarInfo], Dict[int, int]], pickle.load(f))
         for var_info_index, count in var_counts.items():  # types: int, int
             self.var_counts[all_vars[var_info_index]] += count
         self.all_vars.update(all_vars)

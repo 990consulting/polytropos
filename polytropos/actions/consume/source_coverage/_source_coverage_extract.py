@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import uuid
 from collections import defaultdict
 from typing import Dict, Set, Tuple, List, Optional, Any
 
@@ -18,10 +19,11 @@ class SourceCoverageExtract:
     Can be called on separate process (all instance fields ard arguments/results of methods are serializable).
     """
 
-    def __init__(self, schema: Schema, translate_dir: str, trace_dir: str):
+    def __init__(self, schema: Schema, translate_dir: str, trace_dir: str, temp_dir: str):
         self.schema = schema
         self.translate_dir = translate_dir
         self.trace_dir = trace_dir
+        self.temp_dir = temp_dir
 
     def _handle_keyed_list(self, composite_id: str, child_path: Tuple[str, ...], translate_value: Dict, trace_value: Dict,
                            observed: Dict[VarInfo, Set[Tuple[str, ...]]], all_vars: Set[VarInfo]) -> None:
@@ -108,7 +110,7 @@ class SourceCoverageExtract:
             self._crawl(composite_id, translate_composite.content.get(period, {}), trace_composite.content[period], (), observed_paths, all_vars)
             result.update(composite_id, period, all_vars, observed_paths)
 
-    def extract(self, composite_ids: List[str]) -> bytes:
+    def extract(self, composite_ids: List[str]) -> str:
         """Produces source coverage result for a chunk of composites."""
 
         result = self.create_empty_result()
@@ -119,7 +121,9 @@ class SourceCoverageExtract:
             trace_composite: Composite = self._load_composite(self.trace_dir, composite_id)
             self._extract(translate_composite, trace_composite, result)
 
-        return result.serialize_state()
+        state_path = os.path.join(self.temp_dir, str(uuid.uuid4()))
+        result.serialize_state(state_path)
+        return state_path
 
     def create_empty_result(self) -> SourceCoverageResult:
         return SourceCoverageResult()

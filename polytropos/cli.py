@@ -163,10 +163,12 @@ def translate(schemas_dir: str, source_schema: str, target_schema: str, input_di
 @click.argument('translate_dir', type=click.Path(exists=True))
 @click.argument('trace_dir', type=click.Path(exists=True))
 @click.argument('output_path', type=click.Path(exists=False))
-def source_coverage(schemas_dir: str, source_schema_name: str, target_schema_name: str, translate_dir: str, trace_dir: str, output_path: str) -> None:
+@click.option('--chunk_size', type=click.INT)
+def source_coverage(schemas_dir: str, source_schema_name: str, target_schema_name: str, translate_dir: str, trace_dir: str, output_path: str,
+                    chunk_size: Optional[int]) -> None:
     """Produce a source coverage report."""
     output_dir, output_filename = os.path.split(output_path)
-    with Context.build("", "", output_dir=output_dir, schemas_dir=schemas_dir, clean_output_directory=False) as context:
+    with Context.build("", "", output_dir=output_dir, schemas_dir=schemas_dir, clean_output_directory=False, process_pool_chunk_size=chunk_size) as context:
         SourceCoverage.standalone(context, translate_dir, trace_dir, source_schema_name, target_schema_name, output_filename)
 
 

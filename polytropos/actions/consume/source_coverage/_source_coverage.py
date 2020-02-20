@@ -92,8 +92,8 @@ class SourceCoverage(Consume):
         trace_composite_ids = set(find_all_composites(self.trace_dir))
         assert translate_composite_ids.issubset(trace_composite_ids)
 
-        coverage = SourceCoverageExtract(self.schema, self.translate_dir, self.trace_dir)
-        per_composite_results: Iterable[bytes] = self.context.run_in_process_pool(coverage.extract, list(trace_composite_ids))
-
+        coverage = SourceCoverageExtract(self.schema, self.translate_dir, self.trace_dir, self.context.temp_dir)
+        per_composite_results: List[str] = list(self.context.run_in_process_pool(coverage.extract, list(trace_composite_ids)))
+        logging.info("Merging chunk results.")
         self.consume(per_composite_results)
         self.after()
