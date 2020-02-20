@@ -92,12 +92,13 @@ class SourceCoverageExtract:
             # In all other cases, the variable is a leaf node (primitive).
             else:
                 var_info = VarInfo(trace_value, child_var.var_id)
-                all_vars.add(var_info)
+                if self.should_include_variable(var_info):
+                    all_vars.add(var_info)
 
-                # Not count empty string, zero, or null as having been "observed."
-                # The boolean value `False` should still be counted.
-                if translate_value is not Ellipsis and (translate_value or translate_value is False):
-                    observed[var_info].add(child_path)
+                    # Not count empty string, zero, or null as having been "observed."
+                    # The boolean value `False` should still be counted.
+                    if translate_value is not Ellipsis and (translate_value or translate_value is False):
+                        observed[var_info].add(child_path)
 
     def _extract(self, translate_composite: Composite, trace_composite: Composite, result: SourceCoverageResult) -> None:
         composite_id = translate_composite.composite_id
@@ -107,7 +108,7 @@ class SourceCoverageExtract:
             self._crawl(composite_id, translate_composite.content.get(period, {}), trace_composite.content[period], (), observed_paths, all_vars)
             result.update(composite_id, period, all_vars, observed_paths)
 
-    def extract(self, composite_ids: List[str]) -> SourceCoverageResult:
+    def extract(self, composite_ids: List[str]) -> bytes:
         """Produces source coverage result for a chunk of composites."""
 
         result = self.create_empty_result()
@@ -118,7 +119,7 @@ class SourceCoverageExtract:
             trace_composite: Composite = self._load_composite(self.trace_dir, composite_id)
             self._extract(translate_composite, trace_composite, result)
 
-        return result
+        return result.serialize_state()
 
     def create_empty_result(self) -> SourceCoverageResult:
         return SourceCoverageResult()
@@ -133,3 +134,6 @@ class SourceCoverageExtract:
             with open(os.path.join(base_dir, relpath, "%s.json" % composite_id)) as translate_file:
                 content = json.load(translate_file)
         return Composite(self.schema, content, composite_id=composite_id)
+
+    def should_include_variable(self, var_info: VarInfo) -> bool:
+        return True
