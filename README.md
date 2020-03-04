@@ -18,3 +18,12 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 By contributing to this repository, you agree that any and all contributions immediately become the sole property of [Applied Nonprofit Research, LLC](https://appliednonprofitresearch.com).
+
+### PyPi update
+
+First advance version in `setup.py`. Then:
+
+```
+python setup.py sdist
+twine upload dist/<version>.zip
+```

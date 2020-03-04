@@ -1,3 +1,4 @@
+import copy
 from typing import Dict
 
 import pytest
@@ -63,4 +64,31 @@ def test_filter_latest(composite, schema, context):
         "immutable": {"_should not touch this": None}
     }
 
+    assert composite.content == expected
+
+def test_filter_two_latest(composite, schema, context):
+    latest_filter: LatestFilter = LatestFilter(context, schema, n_periods=2)
+    latest_filter.narrow(composite)
+
+    expected: Dict = {
+        "2": {"key": "B"},
+        "3": {"key": "C"},
+        "immutable": {"_should not touch this": None}
+    }
+    assert composite.content == expected
+
+def test_filter_zero_latest(composite, schema, context):
+    latest_filter: LatestFilter = LatestFilter(context, schema, n_periods=0)
+    latest_filter.narrow(composite)
+
+    expected: Dict = {
+        "immutable": {"_should not touch this": None}
+    }
+    assert composite.content == expected
+
+def test_filter_four_latest(composite, schema, context):
+    latest_filter: LatestFilter = LatestFilter(context, schema, n_periods=0)
+    latest_filter.narrow(composite)
+
+    expected: Dict = copy.copy(composite.content)
     assert composite.content == expected
