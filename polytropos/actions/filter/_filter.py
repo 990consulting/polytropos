@@ -2,7 +2,7 @@ import logging
 import os
 import json
 from dataclasses import dataclass
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Type
 
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.context import Context
@@ -28,7 +28,13 @@ class Filter(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
     def build(cls, context: Context, schema: Schema, name: str, **kwargs):  # type: ignore
         logging.info('Building instance of filter class "%s"' % name)
         filters = load(cls)
-        return filters[name](context=context, schema=schema, **kwargs)
+        filter_class = filters[name]
+        return filter_class.build_filter(filter_class, context, schema, **kwargs)
+
+    # noinspection PyMethodOverriding
+    @classmethod
+    def build_filter(cls, filter: Type, context: Context, schema: Schema, **kwargs):  # type: ignore
+        return filter(context=context, schema=schema, **kwargs)
 
     def passes(self, composite: Composite) -> bool:
         """Evaluate whether the entire Composite should be included at the next Step or not."""

@@ -21,9 +21,6 @@ class UnivariateCompositeTester(ABC):
         pass
 
     def __call__(self, composite: Composite) -> bool:
-        if not self.parent.filters:
-            return True
-
         if not self.parent.variable.temporal:
             try:
                 value: Any = composite.get_immutable(self.parent.var_id)

@@ -1,0 +1,16 @@
+from polytropos.actions.filter.logical_operators.__logical_operator import LogicalOperator
+from polytropos.ontology.composite import Composite
+
+
+class And(LogicalOperator):
+    def passes_composite(self, composite: Composite) -> bool:
+        for operand in self.operands:
+            if not operand.passes(composite):
+                return False
+        return True
+
+    def passes_period(self, composite: Composite, period: str) -> bool:
+        for operand in self.operands:
+            if not operand.passes_period(composite, period):
+                return False
+        return True
