@@ -1,15 +1,14 @@
 from typing import List
 
-from polytropos.actions.filter.logical_operators.__logical_operator import LogicalOperator
-from polytropos.actions.filter.univariate.__univariate import BaseUnivariateFilter
+from polytropos.actions.filter.logical_operators._logical_operator import LogicalOperator
+from polytropos.actions.filter._nestable_filter import NestableFilter
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
 
 
 class Not(LogicalOperator):
-    def __init__(self, context: Context, schema: Schema, operands: List[BaseUnivariateFilter],
-                 narrows: bool = True, filters: bool = True):
+    def __init__(self, context: Context, schema: Schema, operands: List[NestableFilter], narrows: bool = True, filters: bool = True):
         assert len(operands) == 1, "Not operator should contain a single child"
         super().__init__(context, schema, operands, narrows, filters)
 

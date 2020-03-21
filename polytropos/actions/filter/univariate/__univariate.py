@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Any, cast, List, Dict, Type, Callable
+from typing import Any, cast, Dict
 
+from polytropos.actions.filter._nestable_filter import NestableFilter
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
 from polytropos.util.nesteddicts import MissingDataError, MISSING_VALUE
 
-from polytropos.actions.filter import Filter
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.variable import VariableId, Variable, Primitive
 
@@ -21,35 +21,7 @@ TESTERS: Dict = {
 }
 
 
-class BaseUnivariateFilter(Filter, ABC):
-    def __init__(self, context: Context, schema: Schema, narrows: bool = True, filters: bool = True):
-        super().__init__(context, schema)
-        self.narrows: bool = narrows
-        self.filters: bool = filters
-
-    @abstractmethod
-    def passes_composite(self, composite: Composite) -> bool:
-        pass
-
-    @abstractmethod
-    def passes_period(self, composite: Composite, period: str) -> bool:
-        pass
-
-    def passes(self, composite: Composite) -> bool:
-        if not self.filters:
-            return True
-        return self.passes_composite(composite)
-
-    def narrow(self, composite: Composite) -> None:
-        if not self.narrows:
-            return
-
-        for period in composite.periods:
-            if not self.passes_period(composite, period):
-                del composite.content[period]
-
-
-class UnivariateFilter(BaseUnivariateFilter, ABC):
+class UnivariateFilter(NestableFilter, ABC):
     """A filter that involves checking values against only one variable."""
 
     def __init__(self, context: Context, schema: Schema, var_id: str, narrows: bool = True, filters: bool = True,

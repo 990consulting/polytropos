@@ -4,8 +4,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from polytropos.actions.filter.logical_operators.__logical_operator import LogicalOperator
-from polytropos.actions.filter.univariate.__univariate import BaseUnivariateFilter
+from polytropos.actions.filter._nestable_filter import NestableFilter
+from polytropos.actions.filter.logical_operators._logical_operator import LogicalOperator
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
@@ -21,7 +21,7 @@ def schema() -> Schema:
     return MagicMock()
 
 
-class DummyContainsFilter(BaseUnivariateFilter):
+class DummyContainsFilter(NestableFilter):
     def __init__(self, context: Context, schema: Schema, narrows: bool, filters: bool, composite_part: str, period_part: str):
         super().__init__(context, schema, narrows, filters)
         self.composite_part = composite_part

@@ -51,7 +51,7 @@ def test_single_operand(context, schema, narrows, filters, narrow_content):
      [
          {"immutable": "immutable_12", "p": "p_12", "q": "q_12", "pq": "pq_12", "py": "py_12"},
          {"immutable": "immutable_21", "pq": "pq_21", "qp": "qp_21", "p": "p_21"},
-         {"immutable": "immutable_31", "pq": "pq_31", "p": "p_31"},
+         {"immutable": "immutable_31", "pq": "pq_31", "p": "p_31", "q": "q_31"},
          {"immutable": "immutable_33", "qp": "qp_33", "q": "q_33"},
      ]),
 ])
@@ -64,7 +64,7 @@ def test_two_operands(context, schema, narrows, filters, narrow_content):
     composites: List[Composite] = [
         create_composite(schema, "12", ["p", "q", "pq", "py", "immutable"]),
         create_composite(schema, "21", ["qp", "pq", "p", "x", "immutable"]),
-        create_composite(schema, "31", ["immutable", "pq", "x", "p"]),
+        create_composite(schema, "31", ["immutable", "pq", "x", "p", "q"]),
         create_composite(schema, "33", ["immutable", "qp", "y", "q"]),
     ]
 

@@ -1,4 +1,4 @@
-from polytropos.actions.filter.logical_operators.__logical_operator import LogicalOperator
+from polytropos.actions.filter.logical_operators._logical_operator import LogicalOperator
 from polytropos.ontology.composite import Composite
 
 

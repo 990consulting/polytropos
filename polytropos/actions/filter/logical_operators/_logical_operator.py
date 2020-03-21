@@ -1,24 +1,21 @@
-import logging
 from abc import ABC
-from typing import List, Any, Type
+from typing import List, Type
 
 from polytropos.actions.filter import Filter
-from polytropos.actions.filter.univariate.__univariate import BaseUnivariateFilter
+from polytropos.actions.filter._nestable_filter import NestableFilter
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
-from polytropos.util.loader import load
 
 
-class LogicalOperator(BaseUnivariateFilter, ABC):
-    def __init__(self, context: Context, schema: Schema, operands: List[BaseUnivariateFilter],
-                 narrows: bool = True, filters: bool = True):
+class LogicalOperator(NestableFilter, ABC):
+    def __init__(self, context: Context, schema: Schema, operands: List[NestableFilter], narrows: bool = True, filters: bool = True):
         super().__init__(context, schema, narrows, filters)
 
         assert len(operands) >= 1, "Logical operator should have children"
         for operand in operands:
-            assert isinstance(operand, BaseUnivariateFilter)
+            assert isinstance(operand, NestableFilter)
 
-        self.operands: List[BaseUnivariateFilter] = operands
+        self.operands: List[NestableFilter] = operands
 
     # noinspection PyMethodOverriding
     @classmethod
