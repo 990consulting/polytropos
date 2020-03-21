@@ -6,7 +6,7 @@ resulting_in:
   data: generic/compound
 
 steps:
-  - CompoundFilter:
+  - SequentialFilter:
     - LatestFilter: {}
     - ImmutableValueThreshold:
         threshold_var: immutable_var

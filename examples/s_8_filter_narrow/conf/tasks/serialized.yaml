@@ -3,7 +3,7 @@ starting_with:
   schema: generic
 
 resulting_in:
-  data: generic/sequential
+  data: generic/serialized
 
 steps:
   - Filter:

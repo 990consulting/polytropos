@@ -8,7 +8,7 @@ def register_filter_subclasses() -> None:
     from polytropos.actions.filter.multivariate.has_any import HasAnySpecificValues
     from polytropos.actions.filter.univariate.comparison import AtLeast, AtMost, GreaterThan, LessThan, NotEqualTo
     from polytropos.actions.filter.univariate.exists import Exists, DoesNotExist
-    from polytropos.actions.filter.compound import CompoundFilter
+    from polytropos.actions.filter.sequential_filter import SequentialFilter
     from polytropos.actions.filter.univariate.one_of import MatchesOneOf, ContainsOneOf
     from polytropos.actions.filter.logical_operators.and_operator import And
     from polytropos.actions.filter.logical_operators.or_operator import Or

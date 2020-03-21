@@ -16,7 +16,7 @@ from polytropos.actions.scan import Scan
 from polytropos.actions.filter import Filter
 from polytropos.actions.aggregate import Aggregate
 from polytropos.actions.translate import Translate
-from polytropos.actions.filter.compound import CompoundFilter  # This is a subclass of Step, not of Filter
+from polytropos.actions.filter.sequential_filter import SequentialFilter  # This is a subclass of Step, not of Filter
 
 # Step class name deserialization
 STEP_TYPES = {
@@ -73,8 +73,8 @@ class Task:
             )
             for class_name, args in step.items():
                 # Compound filters have a list of arguments
-                if class_name == "CompoundFilter":
-                    step_instance: Step = CompoundFilter.build(self.context, current_schema, *args)  # type: ignore
+                if class_name == "SequentialFilter":
+                    step_instance: Step = SequentialFilter.build(self.context, current_schema, *args)  # type: ignore
                 # Everything else takes a dict of arguments
                 else:
                     step_instance: Step = self.append_normal_step(class_name, current_schema, args)  # type: ignore
