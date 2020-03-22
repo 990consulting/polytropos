@@ -1,7 +1,6 @@
 from abc import ABC
-from typing import List, Type
+from typing import List, Type, Any, Dict, Union
 
-from polytropos.actions.filter import Filter
 from polytropos.actions.filter._nestable_filter import NestableFilter
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
@@ -19,12 +18,15 @@ class LogicalOperator(NestableFilter, ABC):
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build_filter(cls, filter: Type, context: Context, schema: Schema, operands: List[str], **kwargs):  # type: ignore
-        operator_operands = []
-        for operand_spec in operands:
+    def build_filter(cls, filter_class: Type, context: Context, schema: Schema, filters: bool, narrows: bool, pass_condition: str, operand_specs: List[Union[str, Dict[str, Any]]], **kwargs):  # type: ignore
+        operands = []
+        for operand_spec in operand_specs:
             if isinstance(operand_spec, str):
-                operator_operands.append(Filter.build(context, schema, name=operand_spec))
+                operands.append(NestableFilter.build(context, schema, name=operand_spec, filters=filters, narrows=narrows, pass_condition=pass_condition))
             elif isinstance(operand_spec, dict):
                 for name, spec in operand_spec.items():
-                    operator_operands.append(Filter.build(context, schema, name=name, **spec))
-        return filter(context, schema, operator_operands)
+                    if isinstance(spec, list):
+                        operands.append(LogicalOperator.build(context, schema, name=name, filters=filters, narrows=narrows, pass_condition=pass_condition, operand_specs=spec))
+                    else:
+                        operands.append(NestableFilter.build(context, schema, name=name, filters=filters, narrows=narrows, pass_condition=pass_condition, **spec))
+        return filter_class(context, schema, operands=operands, narrows=narrows, filters=filters)
