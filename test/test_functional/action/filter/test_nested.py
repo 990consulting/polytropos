@@ -104,7 +104,7 @@ def test_nested_parameter(context, schema, parameter):
 @pytest.mark.parametrize("narrows", [True, False])
 @pytest.mark.parametrize("filters", [True, False])
 @pytest.mark.parametrize("pass_condition", ["any", "all", "never"])
-def test_nested_content(context, schema, narrows, filters, pass_condition):
+def test_nested_logical_operators(context, schema, narrows, filters, pass_condition):
     content = yaml.load("""
     Or:
       - And:
@@ -175,3 +175,23 @@ def test_nested_content(context, schema, narrows, filters, pass_condition):
     assert child3_0.narrows == narrows
     assert child3_0.pass_condition == pass_condition
     assert child3_0.param51 == "value51"
+
+
+@pytest.mark.parametrize("narrows", [True, False])
+@pytest.mark.parametrize("filters", [True, False])
+@pytest.mark.parametrize("pass_condition", ["any", "all", "never"])
+def test_nested_filter(context, schema, narrows, filters, pass_condition):
+    content = yaml.load("""
+    
+    Filter3:
+      param32: 132
+    """, yaml.Loader)
+    nested_filter = NestedFilter.build(context, schema, content, filters, narrows, pass_condition)
+
+    child0: Filter3 = nested_filter.content
+    assert isinstance(child0, Filter3)
+    assert child0.filters == filters
+    assert child0.narrows == narrows
+    assert child0.pass_condition == pass_condition
+    assert child0.param31 == "default31"
+    assert child0.param32 == 132

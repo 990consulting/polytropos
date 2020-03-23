@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, cast
 
 from polytropos.actions.filter._nestable_filter import NestableFilter
 from polytropos.actions.filter.logical_operators._logical_operator import LogicalOperator
@@ -17,10 +17,13 @@ class NestedFilter(Step):  # type: ignore # https://github.com/python/mypy/issue
         assert isinstance(content, Dict), "NestedFilter content should be a dictionary"
         assert len(content) == 1, "NestedFilter content should contain the only direct child"
 
-        filter_name, operand_specs = content.popitem()
-        assert isinstance(operand_specs, list), "NestedFilter content should be a list"
-        content_filter = LogicalOperator.build(context, schema, filter_name, filters=filters, narrows=narrows, pass_condition=pass_condition, operand_specs=operand_specs)
-        return cls(content_filter)
+        filter_class_name, filter_spec = content.popitem()
+        if LogicalOperator.is_logical_operator(filter_class_name):
+            assert isinstance(filter_spec, list), "LogicalOperator content should be a list"
+            content_filter = LogicalOperator.build(context, schema, filter_class_name, filters=filters, narrows=narrows, pass_condition=pass_condition, operand_specs=filter_spec)
+        else:
+            content_filter = NestableFilter.build(context, schema, filter_class_name, filters=filters, narrows=narrows, pass_condition=pass_condition, **filter_spec)
+        return cls(cast(NestableFilter, content_filter))
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
         self.content(origin_dir, target_dir)

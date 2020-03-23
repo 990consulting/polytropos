@@ -11,6 +11,7 @@ class Or(LogicalOperator):
 
     def passes_period(self, composite: Composite, period: str) -> bool:
         for operand in self.operands:
+            # We should check operand.passes(composite) to skip not passed composites
             if operand.passes(composite) and operand.passes_period(composite, period):
                 return True
         return False

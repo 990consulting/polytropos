@@ -2,7 +2,7 @@ import logging
 import os
 import json
 from dataclasses import dataclass
-from typing import Dict, Optional, List, Type
+from typing import Dict, List, Type, Any
 
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.context import Context
@@ -25,7 +25,7 @@ class Filter(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build(cls, context: Context, schema: Schema, name: str, **kwargs):  # type: ignore
+    def build(cls, context: Context, schema: Schema, name: str, **kwargs: Any) -> "Filter":  # type: ignore
         logging.info('Building instance of filter class "%s"' % name)
         filters = load(cls)
         filter_class = filters[name]
@@ -33,7 +33,8 @@ class Filter(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
 
     # noinspection PyMethodOverriding
     @classmethod
-    def build_filter(cls, filter_class: Type, context: Context, schema: Schema, **kwargs):  # type: ignore
+    def build_filter(cls, filter_class: Type, context: Context, schema: Schema, **kwargs: Any) -> "Filter":
+        """Build creates a filter instance"""
         return filter_class(context=context, schema=schema, **kwargs)
 
     def passes(self, composite: Composite) -> bool:
