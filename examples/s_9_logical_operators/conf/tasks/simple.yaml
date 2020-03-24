@@ -1,0 +1,16 @@
+starting_with:
+  data: generic/origin
+  schema: generic
+
+resulting_in:
+  data: generic/simple
+
+steps:
+  - NestedFilter:
+      content:
+        MatchesOneOf:
+          var_id: temporal_var_1
+          values:
+            - 10
+            - 11
+            - 12

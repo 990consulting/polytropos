@@ -1,0 +1,6 @@
+{
+  "1": {"temporal_int_1": 11, "temporal_int_2":  20},
+  "immutable": {
+    "immutable_int": 2
+  }
+}

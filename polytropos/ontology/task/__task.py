@@ -6,6 +6,7 @@ from typing import Optional, Any, List, Dict
 import yaml
 from tempfile import mkdtemp
 from polytropos.actions.consume import Consume
+from polytropos.actions.filter.logical_operators._logical_operator import LogicalOperator
 from polytropos.actions.step import Step
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.context import Context
@@ -17,6 +18,7 @@ from polytropos.actions.filter import Filter
 from polytropos.actions.aggregate import Aggregate
 from polytropos.actions.translate import Translate
 from polytropos.actions.filter.sequential_filter import SequentialFilter  # This is a subclass of Step, not of Filter
+from polytropos.actions.filter.nested_filter import NestedFilter  # This is a subclass of Step, not of Filter
 
 # Step class name deserialization
 STEP_TYPES = {
@@ -72,6 +74,9 @@ class Task:
                 'Step description can have only one key, value pair'
             )
             for class_name, args in step.items():
+                if class_name == "Filter" and LogicalOperator.is_logical_operator(args["name"]):
+                    raise ValueError("LogicalOperator filter can be used in NestedFilter only")
+
                 # Sequential filters have a list of arguments
                 if class_name == "SequentialFilter":
                     step_instance: Step = SequentialFilter.build(self.context, current_schema, *args)  # type: ignore
