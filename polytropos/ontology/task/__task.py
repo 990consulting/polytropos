@@ -72,7 +72,7 @@ class Task:
                 'Step description can have only one key, value pair'
             )
             for class_name, args in step.items():
-                # Compound filters have a list of arguments
+                # Sequential filters have a list of arguments
                 if class_name == "SequentialFilter":
                     step_instance: Step = SequentialFilter.build(self.context, current_schema, *args)  # type: ignore
                 # Everything else takes a dict of arguments
