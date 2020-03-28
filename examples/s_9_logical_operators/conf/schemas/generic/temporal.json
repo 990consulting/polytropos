@@ -1,0 +1,12 @@
+{
+  "temporal_var_1": {
+    "name": "temporal_int_1",
+    "data_type": "Integer",
+    "sort_order": 0
+  },
+  "temporal_var_2": {
+    "name": "temporal_int_2",
+    "data_type": "Integer",
+    "sort_order": 1
+  }
+}

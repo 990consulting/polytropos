@@ -15,14 +15,14 @@ from polytropos.actions.filter import Filter
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
 
-class CompoundFilter(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
+class SequentialFilter(Step):  # type: ignore # https://github.com/python/mypy/issues/5374
     def __init__(self, context: Context, schema: Schema, f_iter: InMemoryFilterIterator):
         self.f_iter = f_iter
         self.context = context
         self.schema = schema
 
     @classmethod
-    def build(cls, context: "Context", schema: "Schema", *children: List[Dict]) -> "CompoundFilter":  # type: ignore
+    def build(cls, context: "Context", schema: "Schema", *children: List[Dict]) -> "SequentialFilter":  # type: ignore
         filters: List[Filter] = []
         for child_spec in children:
             assert isinstance(child_spec, dict) and len(child_spec) == 1
@@ -55,6 +55,6 @@ class CompoundFilter(Step):  # type: ignore # https://github.com/python/mypy/iss
 
     def __call__(self, origin_dir: str, target_dir: str) -> None:
         composites_ids = list(find_all_composites(origin_dir))
-        logging.info("Spawning parallel processes to perform CompoundFilter operation.")
+        logging.info("Spawning parallel processes to perform SequentialFilter operation.")
         for _ in self.context.run_in_process_pool(self.process_composites, composites_ids, origin_dir, target_dir):
             pass

@@ -6,9 +6,8 @@ resulting_in:
   data: generic/sequential
 
 steps:
-  - Filter:
-      name: LatestFilter
-  - Filter:
-      name: ImmutableValueThreshold
-      threshold_var: immutable_var
-      threshold: 7
+  - SequentialFilter:
+    - LatestFilter: {}
+    - ImmutableValueThreshold:
+        threshold_var: immutable_var
+        threshold: 7

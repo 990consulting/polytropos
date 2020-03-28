@@ -1,0 +1,30 @@
+starting_with:
+  data: generic/origin
+  schema: generic
+
+resulting_in:
+  data: generic/nested_all
+
+steps:
+  - NestedFilter:
+      pass_condition: all
+      content:
+        Or:
+          - MatchesOneOf:
+              var_id: temporal_var_2
+              values:
+                - 25
+                - 26
+          - And:
+              - MatchesOneOf:
+                  var_id: temporal_var_1
+                  values:
+                    - 10
+                    - 11
+                    - 12
+              - MatchesOneOf:
+                  var_id: temporal_var_2
+                  values:
+                    - 20
+                    - 21
+                    - 22

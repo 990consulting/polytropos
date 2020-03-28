@@ -29,7 +29,7 @@ def run_task(basepath) -> Callable:
             task.context.entities_input_dir, expected_location
         )
         composite_ids: List = list(find_all_composites(expected_path))
-        assert list(find_all_composites(expected_path)) == composite_ids
+        assert sorted(find_all_composites(actual_path)) == sorted(composite_ids)
         for composite_id in composite_ids:
             relpath: str = relpath_for(composite_id)
             with open(os.path.join(actual_path, relpath, "%s.json" % composite_id)) as f:
