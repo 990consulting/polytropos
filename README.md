@@ -2,7 +2,7 @@
 
 **UNDER DEVELOPMENT.** Documentation coming soon.
 
-Copyright (c) 2019 [Applied Nonprofit Research, LLC](https://appliednonprofitresearch.com).
+Copyright (c) 2019-2020 [Applied Nonprofit Research, LLC](https://appliednonprofitresearch.com).
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
