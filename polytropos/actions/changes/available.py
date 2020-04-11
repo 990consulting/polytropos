@@ -16,6 +16,7 @@ class BestAvailable(Change):
     target: VariableId
     immutable_source: Optional[VariableId] = field(default=None)
     use_older_periods: bool = field(default=True)
+    bestAvailableV2: BestAvailableV2 = field(init=False)
 
     def __post_init__(self) -> None:
         sources = []

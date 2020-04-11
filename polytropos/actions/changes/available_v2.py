@@ -15,13 +15,13 @@ class BestAvailableV2(Change):
     target: VariableId
     sources: List[VariableId]
     use_only_current: bool = field(default=False)
+    temporal_sources: Set[VariableId] = field(init=False, default_factory=set)
 
     def __post_init__(self) -> None:
         target_var: Optional[Variable] = self.schema.get(self.target, track_type=TrackType.IMMUTABLE)
         if target_var is None:
             raise ValueError('Unknown target variable "%s"' % self.target)
 
-        self.temporal_sources: Set[VariableId] = set()
         for source_var_id in self.sources:
             source_var: Optional[Variable] = self.schema.get(source_var_id)
             if source_var is None:
