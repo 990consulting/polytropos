@@ -6,7 +6,8 @@ resulting_in:
   data: generic/nested
 
 steps:
-  - NestedFilter:
+  - Filter:
+      name: NestedFilter
       content:
         Or:
           - MatchesOneOf:

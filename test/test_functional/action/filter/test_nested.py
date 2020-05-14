@@ -68,7 +68,7 @@ def schema() -> Schema:
 
 def test_empty_content(context, schema):
     with pytest.raises(AssertionError, match="NestedFilter content should contain the only direct child"):
-        NestedFilter.build(context, schema, {}, True, False, "any")
+        NestedFilter(context, schema, {}, True, False, "any")
 
 
 def test_array_content(context, schema):
@@ -76,7 +76,7 @@ def test_array_content(context, schema):
     - Or
     """, yaml.Loader)
     with pytest.raises(AssertionError, match="NestedFilter content should be a dictionary"):
-        NestedFilter.build(context, schema, content, True, False, "any")
+        NestedFilter(context, schema, content, True, False, "any")
 
 
 def test_multiple_content(context, schema):
@@ -85,7 +85,7 @@ def test_multiple_content(context, schema):
     And:
     """, yaml.Loader)
     with pytest.raises(AssertionError, match="NestedFilter content should contain the only direct child"):
-        NestedFilter.build(context, schema, content, True, False, "any")
+        NestedFilter(context, schema, content, True, False, "any")
 
 
 @pytest.mark.parametrize("parameter", ["filters", "narrows", "pass_condition"])
@@ -98,7 +98,7 @@ def test_nested_parameter(context, schema, parameter):
         - Filter2
     """, yaml.Loader)
     with pytest.raises(TypeError, match=f"got multiple values for keyword argument '{parameter}'"):
-        NestedFilter.build(context, schema, content, True, True, "any")
+        NestedFilter(context, schema, content, True, True, "any")
 
 
 @pytest.mark.parametrize("narrows", [True, False])
@@ -119,9 +119,9 @@ def test_nested_logical_operators(context, schema, narrows, filters, pass_condit
         - Filter5:
             param51: value51  
     """, yaml.Loader)
-    nested_filter = NestedFilter.build(context, schema, content, filters, narrows, pass_condition)
+    nested_filter = NestedFilter(context, schema, content, filters, narrows, pass_condition)
 
-    root_node: Or = nested_filter.content
+    root_node: Or = nested_filter.child
     assert isinstance(root_node, Or)
     assert root_node.filters == filters
     assert root_node.narrows == narrows
@@ -186,9 +186,9 @@ def test_nested_filter(context, schema, narrows, filters, pass_condition):
     Filter3:
       param32: 132
     """, yaml.Loader)
-    nested_filter = NestedFilter.build(context, schema, content, filters, narrows, pass_condition)
+    nested_filter = NestedFilter(context, schema, content, filters, narrows, pass_condition)
 
-    child0: Filter3 = nested_filter.content
+    child0: Filter3 = nested_filter.child
     assert isinstance(child0, Filter3)
     assert child0.filters == filters
     assert child0.narrows == narrows

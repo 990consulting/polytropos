@@ -6,7 +6,8 @@ resulting_in:
   data: generic/simple
 
 steps:
-  - NestedFilter:
+  - Filter:
+      name: NestedFilter
       content:
         MatchesOneOf:
           var_id: temporal_var_1

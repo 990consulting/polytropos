@@ -6,7 +6,8 @@ resulting_in:
   data: generic/nested_all
 
 steps:
-  - NestedFilter:
+  - Filter:
+      name: NestedFilter
       pass_condition: all
       content:
         Or:

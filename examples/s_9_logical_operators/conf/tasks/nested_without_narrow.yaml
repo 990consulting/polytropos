@@ -6,7 +6,8 @@ resulting_in:
   data: generic/nested_without_narrow
 
 steps:
-  - NestedFilter:
+  - Filter:
+      name: NestedFilter
       narrows: false
       content:
         Or:
