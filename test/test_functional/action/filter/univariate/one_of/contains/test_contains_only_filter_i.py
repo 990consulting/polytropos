@@ -11,7 +11,7 @@ from polytropos.ontology.composite import Composite
 @pytest.fixture()
 def do_test(schema, composites) -> Callable:
     def _do_test(values: List[str], expected: List[Composite]):
-        the_filter: Filter = ContainsOneOf(None, schema, "i_text", values, narrows=False)
+        the_filter: Filter = ContainsOneOf(None, schema, "i_text", values=values, narrows=False)
         f_iter: Callable = InMemoryFilterIterator([the_filter])
         actual: List[Composite] = list(f_iter(composites))
         assert actual == expected

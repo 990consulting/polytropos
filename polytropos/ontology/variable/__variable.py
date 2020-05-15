@@ -371,10 +371,8 @@ class Folder(Container):
 class GenericList(Container):
     pass
 
-
 class List(GenericList):
     pass
-
 
 class KeyedList(GenericList):
     pass

@@ -20,7 +20,7 @@ def do_test(schema, composites) -> Callable:
             composite: Composite = Composite(schema, content, composite_id=composites[i].composite_id)
             expected.append(composite)
             
-        the_filter: Filter = ContainsOneOf(None, schema, "t_text", values, filters=False)
+        the_filter: Filter = ContainsOneOf(None, schema, "t_text", values=values, filters=False)
         f_iter: Callable = InMemoryFilterIterator([the_filter])
         actual: List[Composite] = list(f_iter(composites))
         assert actual == expected

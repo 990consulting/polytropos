@@ -23,11 +23,13 @@ class NestedFilter(Filter):  # type: ignore # https://github.com/python/mypy/iss
         self.child: NestableFilter
         if LogicalOperator.is_logical_operator(filter_class_name):
             assert isinstance(filter_spec, list), "LogicalOperator content should be a list"
-            self.child = LogicalOperator.build(context, schema, filter_class_name, filters=filters, narrows=narrows,
-                                               pass_condition=pass_condition, operand_specs=filter_spec)
+            self.child = cast(NestableFilter, LogicalOperator.build(context, schema, filter_class_name, filters=filters,
+                                                                    narrows=narrows, pass_condition=pass_condition,
+                                                                    operand_specs=filter_spec))
         else:
-            self.child = NestableFilter.build(context, schema, filter_class_name, filters=filters, narrows=narrows,
-                                              pass_condition=pass_condition, **filter_spec)
+            self.child = cast(NestableFilter, NestableFilter.build(context, schema, filter_class_name, filters=filters,
+                                                                   narrows=narrows, pass_condition=pass_condition,
+                                                                   **filter_spec))
 
     def passes(self, composite: Composite) -> bool:
         """Evaluate whether the entire Composite should be included at the next Step or not."""

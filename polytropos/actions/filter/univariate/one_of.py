@@ -1,23 +1,51 @@
+import os
 from abc import ABC
-from typing import Any, cast, List
+from collections import deque
+from typing import Any, cast, List, Optional, Iterable, Deque
 
 from polytropos.actions.filter.univariate.__univariate import UnivariateFilter
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
 
+def get_raw_values(values: Optional[List], file_name: Optional[str], clazz: str) -> Iterable[str]:
+    if values is not None and file_name is not None:
+        raise ValueError("You set both the 'file_name' and 'values' parameter for a {} filter. You can supply "
+                         "matching values either in-line or in a file, but not both.".format(clazz))
+
+    if values is not None and len(values) > 0:
+        return values
+
+    if file_name is not None and not os.path.exists(file_name):
+        raise FileNotFoundError("Values file '{}' not found for {} filter.".format(file_name, clazz))
+
+    if file_name is not None:
+        file_vals: Deque[str] = deque()
+        for line_num, line in enumerate(open(file_name)):
+            value_from_file: str = line.strip()
+            if value_from_file == "":
+                raise ValueError("Empty line encountered at line {} of values file '{}' for {} filter."
+                                 .format(line_num + 1, file_name, clazz))
+
+            file_vals.append(value_from_file)
+
+        if len(file_vals) == 0:
+            raise ValueError("Empty values file '{}' for {} filter.".format(file_name, clazz))
+
+        return file_vals
+
+    raise ValueError('Must provide at least one matching value for "one-of" filters.')
+
 class OneOfFilter(UnivariateFilter, ABC):
-    def __init__(self, context: Context, schema: Schema, var_id: str, values: List, narrows: bool = True,
-                 filters: bool = True, pass_condition: str = "any"):
+    def __init__(self, context: Context, schema: Schema, var_id: str, narrows: bool = True,
+                 filters: bool = True, pass_condition: str = "any", values: Optional[List] = None,
+                 file_name: Optional[str] = None):
 
         super(OneOfFilter, self).__init__(context, schema, var_id, narrows=narrows, filters=filters,
                                           pass_condition=pass_condition)
 
-        if values is None or len(values) == 0:
-            raise ValueError('Must provide at least one matching value for "one-of" filters.')
+        raw_values: Iterable[str] = get_raw_values(values, file_name, self.__class__.__name__)
 
-        self._validate()
-
-        self.values = {self.variable.cast(value) for value in values}
+        self.values = {self.variable.cast(value) for value in raw_values}
 
         if self.variable.data_type == "Text":
             self.values = {cast(str, value).lower() for value in self.values}
