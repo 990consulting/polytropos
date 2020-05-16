@@ -8,6 +8,7 @@ from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
 
 def get_raw_values(values: Optional[List], file_name: Optional[str], clazz: str) -> Iterable[str]:
+    abspath: str = os.path.abspath(file_name)
     if values is not None and file_name is not None:
         raise ValueError("You set both the 'file_name' and 'values' parameter for a {} filter. You can supply "
                          "matching values either in-line or in a file, but not both.".format(clazz))
@@ -16,7 +17,7 @@ def get_raw_values(values: Optional[List], file_name: Optional[str], clazz: str)
         return values
 
     if file_name is not None and not os.path.exists(file_name):
-        raise FileNotFoundError("Values file '{}' not found for {} filter.".format(file_name, clazz))
+        raise FileNotFoundError("Values file '{}' not found for {} filter.".format(abspath, clazz))
 
     if file_name is not None:
         file_vals: Deque[str] = deque()
@@ -24,12 +25,12 @@ def get_raw_values(values: Optional[List], file_name: Optional[str], clazz: str)
             value_from_file: str = line.strip()
             if value_from_file == "":
                 raise ValueError("Empty line encountered at line {} of values file '{}' for {} filter."
-                                 .format(line_num + 1, file_name, clazz))
+                                 .format(line_num + 1, abspath, clazz))
 
             file_vals.append(value_from_file)
 
         if len(file_vals) == 0:
-            raise ValueError("Empty values file '{}' for {} filter.".format(file_name, clazz))
+            raise ValueError("Empty values file '{}' for {} filter.".format(abspath, clazz))
 
         return file_vals
 
