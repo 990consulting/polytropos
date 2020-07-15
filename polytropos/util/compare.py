@@ -1,6 +1,5 @@
 from math import isclose
-from typing import Dict, List, Any
-
+from typing import Dict, List, Any, Optional
 
 def compare_dict(data1: Dict, data2: Dict) -> bool:
     if data1.keys() != data2.keys():
@@ -26,9 +25,11 @@ def compare_float(data1: float, data2: float) -> bool:
     return isclose(data1, data2)
 
 
-def compare(data1: Any, data2: Any, allow_nested: bool = True) -> bool:
+def compare(data1: Optional[Any], data2: Optional[Any], allow_nested: bool = True) -> bool:
     """Compare two json-like nested structures using approximate matching for
     numeric values"""
+    if data1 is None and data2 is None:
+        return True
     if type(data1) == int and type(data2) == float:
         return compare_float(data1, data2)
     if type(data1) == float and type(data2) == int:

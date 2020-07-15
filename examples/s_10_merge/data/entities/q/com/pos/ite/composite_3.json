@@ -1,0 +1,22 @@
+{
+  "period_1": {
+    "t_folder": {
+      "some_text": "this is wrong"
+    },
+    "some_text": "bbbb",
+    "t_list": [
+      {"some_text": "should never appear"},
+      {"some_text": "dddd"}
+    ]
+  },
+  "period_2": {
+    "t_folder": {
+      "some_text": "1111"
+    },
+    "some_text": "2222",
+    "t_list": [
+      {"some_text": "3333"}
+    ],
+    "not a valid field": "should show up anyway"
+  }
+}

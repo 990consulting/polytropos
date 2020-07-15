@@ -1,0 +1,21 @@
+{
+  "period_2": {
+    "some_text": "P2(root)",
+    "t_folder": {
+      "some_text": "P2(folder)"
+    },
+    "t_list": [
+      {"some_text": "P2(list)(A)"},
+      {"some_text": "P2(list)(B)"}
+    ]
+  },
+  "immutable": {
+    "i_folder": {
+      "some_text": "I(folder)"
+    },
+    "simple_keyed_list": {
+      "nl_1": {"some_text": "111"},
+      "nl_2": {}
+    }
+  }
+}

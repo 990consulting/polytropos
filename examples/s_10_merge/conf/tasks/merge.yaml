@@ -1,0 +1,12 @@
+---
+
+starting_with:
+  data: p
+  schema: composite
+
+resulting_in:
+  data: actual
+
+steps:
+  - Merge:
+      secondary: q
