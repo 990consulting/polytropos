@@ -41,7 +41,7 @@ def _merge_dicts(primary_content: Dict, secondary_content: Dict) -> Dict:
 
     return ret
 
-def _merge_one(ein: str, primary_dir: str, secondary_dir: str, target_dir: str) -> str:
+def _merge_one(ein: str, primary_dir: str, secondary_dir: str, target_dir: str) -> None:
     relpath: str = relpath_for(ein)
     primary_fn: str = os.path.join(primary_dir, relpath, "{}.json".format(ein))
     secondary_fn: str = os.path.join(secondary_dir, relpath, "{}.json".format(ein))
@@ -78,11 +78,11 @@ class Merge(Step):
 
         return primary_only, common, secondary_only
 
-    def _copy_directly(self, p_only: Set[str], q_only: Set[str], primary_dir: str, target_dir: str):
+    def _copy_directly(self, p_only: Set[str], q_only: Set[str], primary_dir: str, target_dir: str) -> None:
         _do_copy_all(p_only, primary_dir, target_dir)
         _do_copy_all(q_only, self.secondary_dir, target_dir)
 
-    def _merge_common(self, eins: str, primary_dir: str, target_dir: str) -> None:
+    def _merge_common(self, eins: Set[str], primary_dir: str, target_dir: str) -> None:
         for ein in eins:
             _merge_one(ein, primary_dir, self.secondary_dir, target_dir)
 
