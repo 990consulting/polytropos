@@ -6,7 +6,7 @@ from polytropos.ontology.composite import Composite
 
 from polytropos.ontology.schema import Schema
 
-from polytropos.actions.changes.stat.cross_sectional.univariate import CrossSectionalCount, CrossSectionalMinimum
+from polytropos.actions.changes.stat.cross_sectional.univariate import CrossSectionalCount
 from polytropos.actions.evolve import Change
 from polytropos.ontology.track import Track
 from polytropos.ontology.variable import VariableId
