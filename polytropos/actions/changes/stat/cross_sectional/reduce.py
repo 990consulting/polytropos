@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
 from typing import Optional, Any, Dict
 
 from polytropos.actions.changes.stat.cross_sectional.univariate import CrossSectionalUnivariateStatistic
@@ -20,8 +19,16 @@ class CrossSectionalReduce(CrossSectionalUnivariateStatistic, ABC):
             i_content: Optional[Dict] = composite.content.get("immutable")
             if i_content is None:
                 return
-            value: Any = self._handle(i_content)
+            value = self._handle(i_content)
             self._assign(i_content, value)
+
+class CrossSectionalSum(CrossSectionalReduce):
+    def _handle(self, content: Dict) -> float:
+        total: float = 0.0
+        for value, _ in self.iterate_over(content):
+            if value is not None:
+                total += value
+        return total
 
 class CrossSectionalCount(CrossSectionalReduce):
     def _handle(self, content: Dict) -> int:
@@ -32,8 +39,16 @@ class CrossSectionalCount(CrossSectionalReduce):
         return count
 
 class CrossSectionalMean(CrossSectionalReduce):
-    def _handle(self, content: Dict) -> None:
-        assert False, "Not yet implemented!"
+    def _handle(self, content: Dict) -> Optional[float]:
+        total: float = 0.0
+        n_non_null: int = 0
+        for value, _ in self.iterate_over(content):
+            if value is not None:
+                n_non_null += 1
+                total += value
+        if n_non_null == 0:
+            return None
+        return total / n_non_null
 
 class CrossSectionalMedian(CrossSectionalReduce):
     def _handle(self, content: Dict) -> None:
