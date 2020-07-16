@@ -8,7 +8,6 @@ from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
 
 def get_raw_values(values: Optional[List], file_name: Optional[str], clazz: str) -> Iterable[str]:
-    abspath: str = os.path.abspath(file_name)
     if values is not None and file_name is not None:
         raise ValueError("You set both the 'file_name' and 'values' parameter for a {} filter. You can supply "
                          "matching values either in-line or in a file, but not both.".format(clazz))
@@ -17,9 +16,10 @@ def get_raw_values(values: Optional[List], file_name: Optional[str], clazz: str)
         return values
 
     if file_name is not None and not os.path.exists(file_name):
-        raise FileNotFoundError("Values file '{}' not found for {} filter.".format(abspath, clazz))
+        raise FileNotFoundError("Values file '{}' not found for {} filter.".format(file_name, clazz))
 
     if file_name is not None:
+        abspath: str = os.path.abspath(file_name)
         file_vals: Deque[str] = deque()
         for line_num, line in enumerate(open(file_name)):
             value_from_file: str = line.strip()

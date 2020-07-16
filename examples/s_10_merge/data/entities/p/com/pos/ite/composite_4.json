@@ -1,0 +1,16 @@
+{
+  "period_1": {
+    "some_text": "P1(root)",
+    "t_folder": {
+      "some_text": "P1(folder)"
+    }
+  },
+  "immutable": {
+    "i_folder": {
+      "some_text": null
+    },
+    "simple_keyed_list": {
+      "nl_2": {"some_text": "222"}
+    }
+  }
+}

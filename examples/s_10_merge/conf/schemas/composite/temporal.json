@@ -1,0 +1,29 @@
+{
+  "t_folder_in_root": {
+    "name": "t_folder",
+    "data_type": "Folder",
+    "sort_order": 0
+  },
+  "t_list_in_root": {
+    "name": "t_list",
+    "data_type": "List",
+    "sort_order": 2
+  },
+  "t_text_in_folder": {
+    "name": "some_text",
+    "data_type": "Text",
+    "sort_order": 0,
+    "parent": "t_folder_in_root"
+  },
+  "t_text_in_list": {
+    "name": "some_text",
+    "data_type": "Text",
+    "sort_order": 0,
+    "parent": "t_list_in_root"
+  },
+  "t_text_in_root": {
+    "name": "some_text",
+    "data_type": "Text",
+    "sort_order": 1
+  }
+}
