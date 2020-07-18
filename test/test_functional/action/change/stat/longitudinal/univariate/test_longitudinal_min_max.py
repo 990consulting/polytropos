@@ -3,7 +3,7 @@ from typing import Dict, cast
 
 import pytest
 
-from polytropos.actions.changes.stat.longitudinal import LongitudinalMaximum, LongitudinalMinimum
+from polytropos.actions.changes.stat.longitudinal.minmax import LongitudinalMaximum, LongitudinalMinimum
 from polytropos.actions.evolve import Change
 from polytropos.ontology.composite import Composite
 
