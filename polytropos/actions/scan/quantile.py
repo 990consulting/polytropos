@@ -19,7 +19,7 @@ def val2qtile(observations: Counter) -> Dict[int, float]:
 
 @dataclass
 class Quantile(Scan):
-    """Extracts an numeric value from each composite, assigning a quantile score to each unique value. For each
+    """Extracts an numeric avlue from each composite, assigning a quantile score to each unique value. For each
     observation with a non-null source value, store the associated quantile in the target variable."""
 
     source: VariableId
