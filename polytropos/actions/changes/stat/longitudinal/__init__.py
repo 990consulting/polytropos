@@ -1,2 +1,2 @@
-from polytropos.actions.changes.stat.longitudinal.univariate import LongitudinalMinimum
-from polytropos.actions.changes.stat.longitudinal.univariate import LongitudinalMaximum
+import polytropos.actions.changes.stat.longitudinal.minmax
+import polytropos.actions.changes.stat.longitudinal.reduce
