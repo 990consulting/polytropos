@@ -3,6 +3,7 @@ import os
 from typing import List, Dict, Optional, Type, Iterator, TYPE_CHECKING
 
 from polytropos.actions.evolve import Change
+from polytropos.actions.evolve.__lookup import load_lookups
 from polytropos.util.loader import load
 
 if TYPE_CHECKING:
@@ -23,12 +24,7 @@ class _EvolveFactory:
         self.context: "Context" = context
 
     def _load_lookups(self) -> Dict[str, Dict]:
-        loaded_lookups: Dict = {}
-        lookups = self.requested_lookups
-        for lookup in lookups:
-            with open(os.path.join(self.context.lookups_dir, lookup + '.json'), 'r') as l:
-                loaded_lookups[lookup] = json.load(l)
-        return loaded_lookups
+        return load_lookups(self.requested_lookups, self.context.lookups_dir)
 
     def _construct_change(self, class_name: str, mappings: Dict[str, str], loaded_lookups: Dict[str, Dict]) -> Change:
         change_class: Type = self.change_classes[class_name]
