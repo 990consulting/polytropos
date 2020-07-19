@@ -2,7 +2,7 @@ import csv
 import json
 import os
 import logging
-from typing import Type, Callable, Any, Dict, List, Optional, Sequence
+from typing import Type, Callable, Any, Dict, List, Optional, Sequence, cast
 
 def lookup(name: str) -> Callable[[Type], Type]:
     """Intended to be a decorator on the constructor for a Change. Verifies that the specified lookup table has been
@@ -37,7 +37,7 @@ def _load_csv(filename: str, lookup_name: str) -> Dict:
     ret: Dict[str, Dict] = {}
     with open(filename) as fh:
         reader: csv.DictReader = csv.DictReader(fh)
-        fieldnames: Sequence[str] = reader.fieldnames
+        fieldnames: Sequence[str] = cast(Sequence[str], reader.fieldnames)
         key_column: str = fieldnames[0]
         logging.info('Treating first column ({}) as key column for .csv lookup "{}"'.format(key_column, lookup_name))
         for row in reader:
