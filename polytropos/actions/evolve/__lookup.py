@@ -3,6 +3,7 @@ import json
 import os
 import logging
 from typing import Type, Callable, Any, Dict, List, Optional, Sequence, cast
+from collections import OrderedDict
 
 def lookup(name: str) -> Callable[[Type], Type]:
     """Intended to be a decorator on the constructor for a Change. Verifies that the specified lookup table has been
@@ -34,7 +35,7 @@ def _resolve_filename(lookup_name: str, base_dir: str) -> str:
                                 .format(lookup_name, base_dir))
 
 def _load_csv(filename: str, lookup_name: str) -> Dict:
-    ret: Dict[str, Dict] = {}
+    ret: Dict[str, Dict] = OrderedDict()
     with open(filename) as fh:
         reader: csv.DictReader = csv.DictReader(fh)
         fieldnames: Sequence[str] = cast(Sequence[str], reader.fieldnames)
