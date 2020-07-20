@@ -5,7 +5,6 @@ from typing import Any, Set, Tuple, Dict, Optional
 from polytropos.util.paths import find_all_composites, relpath_for
 
 from polytropos.actions.step import Step
-from dataclasses import dataclass
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
 import shutil
@@ -55,7 +54,7 @@ def _merge_one(ein: str, primary_dir: str, secondary_dir: str, target_dir: str) 
     target_fn: str = os.path.join(target_dir, relpath, "{}.json".format(ein))
     os.makedirs(os.path.dirname(target_fn), exist_ok=True)
     with open(target_fn, "w") as t_fh:
-        json.dump(merged_content, t_fh)
+        json.dump(merged_content, t_fh, indent=2)
 
 class Merge(Step):
     def __init__(self, context: Context, schema: Schema, secondary: str):
