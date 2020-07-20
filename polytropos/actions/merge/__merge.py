@@ -4,6 +4,7 @@ from typing import Any, Set, Tuple, Dict, Optional
 
 from polytropos.util.paths import find_all_composites, relpath_for
 
+from polytropos.actions.merge.util import merge_dicts
 from polytropos.actions.step import Step
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
@@ -17,28 +18,6 @@ def _do_copy_all(eins: Set[str], source_dir: str, target_dir: str) -> None:
         os.makedirs(os.path.dirname(target), exist_ok=True)
         shutil.copyfile(source, target)
 
-def _resolve_common_key(primary: Optional[Any], secondary: Optional[Any]) -> Optional[Any]:
-    if primary is not None and secondary is not None and isinstance(primary, dict) and isinstance(secondary, dict):
-        return _merge_dicts(primary, secondary)
-
-    # If key is present in primary and secondary, always use primary value
-    return primary
-
-def _merge_dicts(primary_content: Dict, secondary_content: Dict) -> Dict:
-    primary_keys: Set[str] = set(primary_content.keys())
-    secondary_keys: Set[str] = set(secondary_content.keys())
-
-    ret: Dict = {}
-
-    for key in primary_keys - secondary_keys:
-        ret[key] = primary_content[key]
-    for key in secondary_keys - primary_keys:
-        ret[key] = secondary_content[key]
-
-    for key in primary_keys.intersection(secondary_keys):
-        ret[key] = _resolve_common_key(primary_content[key], secondary_content[key])
-
-    return ret
 
 def _merge_one(ein: str, primary_dir: str, secondary_dir: str, target_dir: str) -> None:
     relpath: str = relpath_for(ein)
@@ -49,7 +28,7 @@ def _merge_one(ein: str, primary_dir: str, secondary_dir: str, target_dir: str) 
         primary_content: Dict = json.load(p_fh)
         secondary_content: Dict = json.load(s_fh)
 
-    merged_content: Dict = _merge_dicts(primary_content, secondary_content)
+    merged_content: Dict = merge_dicts(primary_content, secondary_content)
 
     target_fn: str = os.path.join(target_dir, relpath, "{}.json".format(ein))
     os.makedirs(os.path.dirname(target_fn), exist_ok=True)
