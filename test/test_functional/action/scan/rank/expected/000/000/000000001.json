@@ -1,0 +1,8 @@
+{
+  "immutable": {
+    "integer_source": 1,
+    "currency_source": 1,
+    "decimal_source": 0.1,
+    "rank": 4
+  }
+}
