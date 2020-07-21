@@ -16,10 +16,11 @@ def get_raw_values(values: Optional[List], file_name: Optional[str], clazz: str)
         return values
 
     if file_name is not None and not os.path.exists(file_name):
-        raise FileNotFoundError("Values file '{}' not found for {} filter.".format(file_name, clazz))
+        abspath: str = os.path.abspath(file_name)
+        raise FileNotFoundError("Values file '{}' not found for {} filter.".format(abspath, clazz))
 
     if file_name is not None:
-        abspath: str = os.path.abspath(file_name)
+        abspath = os.path.abspath(file_name)
         file_vals: Deque[str] = deque()
         for line_num, line in enumerate(open(file_name)):
             value_from_file: str = line.strip()
