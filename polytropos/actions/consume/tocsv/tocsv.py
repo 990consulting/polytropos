@@ -1,3 +1,4 @@
+import logging
 import csv
 import json
 import os
@@ -37,7 +38,10 @@ class ExportToCSV(Consume):
         super(ExportToCSV, self).__init__(context, schema)
         self.blocks: List[Block] = _get_all_blocks(schema, columns)
         self.column_names: List[str] = _get_all_column_names(schema, columns, id_col_name)
-        self.fh: TextIO = open(os.path.join(context.output_dir, filename), 'w')
+
+        abspath: str = os.path.abspath(os.path.join(context.entities_output_dir, filename))
+        logging.info("Opening {} for CSV export.".format(abspath))
+        self.fh: TextIO = open(abspath, 'w')
         self.writer: Any = csv.writer(self.fh)
         self.filters: List[Filter] = self._make_filters(filters)
 
