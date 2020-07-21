@@ -92,9 +92,10 @@ def catalog(schema_basepath: str, schema_name: str, output_file: TextIO) -> None
 @schema.command(name="treeview")
 @click.argument('schema_basepath', type=click.Path(exists=True))
 @click.argument('schema_name', type=str)
-def schema_treeview(schema_basepath: str, schema_name: str) -> None:
+@click.option('--hide_ids', is_flag=True)
+def schema_treeview(schema_basepath: str, schema_name: str, hide_ids: bool) -> None:
     """Output an ASCII tree representation of a schema to stdout."""
-    treeview.print_from_files(schema_basepath, schema_name)
+    treeview.print_from_files(schema_basepath, schema_name, hide_ids)
 
 
 @schema.command(name="repair")
