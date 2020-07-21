@@ -9,7 +9,6 @@ from polytropos.actions.step import Step
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
 
-# TODO: This needs to itself become a type of filter.
 class NestedFilter(Filter):  # type: ignore # https://github.com/python/mypy/issues/5374
 
     def __init__(self, context: Context, schema: Schema, content: Dict, filters: bool = True, narrows: bool = True,
