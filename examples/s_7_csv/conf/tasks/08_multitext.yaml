@@ -1,0 +1,14 @@
+---
+
+starting_with:
+  data: composite
+  schema: composite
+
+steps:
+  - Consume:
+      name: ExportToCSV
+      id_col_name: TID
+      filename: 08_multitext.csv
+      columns:
+        - temporal_block:
+            - t_multitext

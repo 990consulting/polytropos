@@ -6,7 +6,8 @@
     "some_text": "in the root",
     "t_list": [
       {"some_text": "in a list"}
-    ]
+    ],
+    "some_multitext": ["a", "b", "c"]
   },
   "immutable": {
     "simple_list": [

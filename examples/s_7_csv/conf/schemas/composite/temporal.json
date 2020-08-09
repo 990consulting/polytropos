@@ -25,5 +25,10 @@
     "name": "some_text",
     "data_type": "Text",
     "sort_order": 1
+  },
+  "t_multitext": {
+    "name": "some_multitext",
+    "data_type": "MultipleText",
+    "sort_order": 3
   }
 }

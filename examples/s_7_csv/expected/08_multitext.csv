@@ -1,0 +1,7 @@
+TID,period,/some_multitext
+composite_3,period_1,"1, 2, 3"
+composite_3,period_2,
+composite_2,,
+composite_4,period_1,
+composite_4,period_2,just one element
+composite_1,period_1,"a, b, c"

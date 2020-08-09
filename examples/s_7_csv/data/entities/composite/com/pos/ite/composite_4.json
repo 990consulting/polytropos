@@ -3,7 +3,8 @@
     "some_text": "P1(root)",
     "t_folder": {
       "some_text": "P1(folder)"
-    }
+    },
+    "some_multitext": []
   },
   "period_2": {
     "some_text": "P2(root)",
@@ -13,7 +14,8 @@
     "t_list": [
       {"some_text": "P2(list)(A)"},
       {"some_text": "P2(list)(B)"}
-    ]
+    ],
+    "some_multitext": ["just one element"]
   },
   "immutable": {
     "i_folder": {

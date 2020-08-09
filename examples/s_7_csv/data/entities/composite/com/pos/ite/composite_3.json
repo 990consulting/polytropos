@@ -7,7 +7,8 @@
     "t_list": [
       {"some_text": "cccc"},
       {"some_text": "dddd"}
-    ]
+    ],
+    "some_multitext": ["1", "2", "3"]
   },
   "period_2": {
     "t_folder": {

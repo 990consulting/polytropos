@@ -37,15 +37,16 @@ def setup_and_teardown():
     "04_immutable_and_temporal_singletons.csv",
     "05_temporal_list_and_immutable_keyed_list.csv",
     "06_deep_nesting.csv",
-    "07_temporal_singleton_filter.csv"
+    "07_temporal_singleton_filter.csv",
+    "08_multitext.csv"
 ])
 def test_all_fixtures(filename: str):
     actual_path: str = os.path.join(WORKING_PATH, filename)
     expected_path: str = os.path.join(FIXTURE_PATH, "expected", filename)
     with open(expected_path) as expected_fh, open(actual_path) as actual_fh:
         # The exporter writes composites as they are processed, which means order is essentially random
-        actual: List[str] = sorted(line for line in csv.reader(actual_fh))
-        expected: List[str] = sorted(line for line in csv.reader(expected_fh))
+        actual: List[List[str]] = sorted(line for line in csv.reader(actual_fh))
+        expected: List[List[str]] = sorted(line for line in csv.reader(expected_fh))
     if actual != expected:
         print("breakpoint")
     assert actual == expected

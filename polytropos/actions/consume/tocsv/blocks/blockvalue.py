@@ -6,10 +6,6 @@ from polytropos.ontology.schema import Schema
 from polytropos.ontology.variable import Variable, Primitive, KeyedList, VariableId
 import itertools
 
-def _unpack_as_singleton(var_id: str, values: Dict) -> Iterator[List]:
-    value: Optional[Any] = values.get(var_id)
-    yield [[value]]
-
 # SO 10823877
 def flatten(container: Union[List, Tuple]) -> Iterator:
     """Flattens an arbitrarily nested list."""
@@ -41,6 +37,12 @@ class AsBlockValue:
                     num_columns += 1
         return num_columns
 
+    def _unpack_as_singleton(self, var_id: str, values: Dict) -> Iterator[List]:
+        value: Optional[Any] = values.get(var_id)
+        if value is not None and self.schema.get(var_id).data_type == "MultipleText":
+            value = ", ".join(value)
+        yield [[value]]
+
     def _unpack_as_list(self, block: Tuple, values: Optional[List]) -> Iterator[List[Optional[Any]]]:
         if values is None:
             yield [[None] * self.find_num_columns(block)]
@@ -61,7 +63,7 @@ class AsBlockValue:
         block_values: List = [None] * len(block)
         for i, subblock in enumerate(block):
             if isinstance(subblock, str):
-                block_values[i] = _unpack_as_singleton(subblock, values)
+                block_values[i] = self._unpack_as_singleton(subblock, values)
             elif isinstance(subblock, tuple):
                 root_id: VariableId = subblock[0]
                 root_var: Variable = self.schema.get(root_id)
