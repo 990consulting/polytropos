@@ -81,6 +81,9 @@ class _Crawl:
         elif var.data_type == "Folder":
             self._crawl_folder(node, path, period)
 
+        elif var.data_type == "MultipleText":
+            pass
+
         else:
             raise ValueError
 

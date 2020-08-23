@@ -1,6 +1,6 @@
 """Verify that Translate will accept an arbitrary list of strings to be treated as equivalent to None."""
 
-from typing import Dict, Callable, List, Set
+from typing import Dict, Callable, Set
 
 import pytest
 
