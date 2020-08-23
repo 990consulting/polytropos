@@ -1,5 +1,6 @@
 import logging
-from typing import Dict, List, Any, Optional
+from dataclasses import dataclass, field
+from typing import Dict, List, Any, Optional, Set
 
 from polytropos.ontology.composite import Composite
 
@@ -7,9 +8,10 @@ from polytropos.actions.evolve import Change
 from polytropos.ontology.variable import Variable, Primitive
 from polytropos.util import nesteddicts
 
+@dataclass
 class _Crawl:
-    def __init__(self, composite: Composite):
-        self.composite = composite
+    composite: Composite
+    na_values: Set[str]
 
     def _crawl_list(self, node: List, path: List, period: Optional[str]) -> None:
         for child in node:  # type: Dict
@@ -26,7 +28,11 @@ class _Crawl:
             if key.startswith("_"):
                 logging.debug("Ignoring system variable %s" % nesteddicts.path_to_str(path + [key]))
                 continue
-            value = node[key]
+            value: Optional[Any] = node[key]
+
+            if isinstance(value, str) and value in self.na_values:
+                value = None
+
             child_path = path + [key]
 
             var: Optional[Variable] = self.composite.schema.lookup(child_path)
@@ -90,11 +96,14 @@ class _Crawl:
         if "immutable" in self.composite.content:
             self._cast_immutable()
 
+@dataclass  # type: ignore
 class Cast(Change):
     """Crawls all periods (and immutable), casting variables according to their data type. Records an exception if a
     path exists that does not correspond to a variable. If a variable has a value that is incompatible with its variable
     type, it is deleted and Ignores paths that start with underscores."""
 
+    na_values: Set[str] = field(default_factory=set)
+
     def __call__(self, composite: Composite) -> None:
-        crawl: _Crawl = _Crawl(composite)
+        crawl: _Crawl = _Crawl(composite, self.na_values)
         crawl()

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict, Optional, List as ListType, Any
+from typing import Dict, Optional, List as ListType, Any, cast
 
 from attr import dataclass
 
@@ -156,7 +156,8 @@ class Crawl:
         if data_type == "Folder" and not isinstance(f_tree, dict):
             self._record_invalid(child_path, f_tree)
         elif data_type == "Folder":
-            self._inspect_folder(f_tree, a_tree, child_path)
+            f_tree_dict: Dict = cast(Dict, f_tree)
+            self._inspect_folder(f_tree_dict, a_tree, child_path)
         elif data_type in {"List", "KeyedList"}:
             self._inspect_complex(data_type, f_tree, a_tree, child_path)
         elif data_type == "MultipleText":

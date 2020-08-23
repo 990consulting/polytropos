@@ -1,8 +1,6 @@
 import json
 import os
-from typing import Dict, Callable
-from unittest.mock import MagicMock
-import shutil
+from typing import Dict
 
 import pytest
 
