@@ -77,6 +77,10 @@ class Crawl:
         mismatch: ValueMismatch = ValueMismatch(self.entity_id, self.label, path_str, data_type, expected, actual)
         self.outcome.mismatches.append(mismatch)
 
+    def _record_invalid(self, path: ListType[str], content: Optional[Any]) -> None:
+        invalid: InvalidPath = InvalidPath(self.entity_id, nesteddicts.path_to_str(path), content)
+        self.outcome.invalids.append(invalid)
+
     # TODO Since a_tree is now invariant, factor out the traverse/inspect logic into a class after tests pass
     def _handle_explicit_na(self, data_type: str, a_tree: Dict, path: ListType) -> None:
         a_val: Optional[Any] = nesteddicts.get(a_tree, path, default=POLYTROPOS_CONFIRMED_NA)
@@ -136,10 +140,6 @@ class Crawl:
         else:
             self._record_mismatch(path, data_type, f_val, a_val)
 
-    def _record_invalid(self, path: ListType[str], content: Optional[Any]) -> None:
-        invalid: InvalidPath = InvalidPath(self.entity_id, nesteddicts.path_to_str(path), content)
-        self.outcome.invalids.append(invalid)
-
     def _inspect(self, key: str, f_tree: Optional[Any], a_tree: Dict, path: ListType[str]) -> None:
         child_path: ListType[str] = path + [key]
         var: Optional[Variable] = self.schema.lookup(child_path)
@@ -153,8 +153,9 @@ class Crawl:
             self._handle_explicit_na(data_type, a_tree, child_path)
             return
 
-        if data_type == "Folder":
-            assert isinstance(f_tree, dict)
+        if data_type == "Folder" and not isinstance(f_tree, dict):
+            self._record_invalid(child_path, f_tree)
+        elif data_type == "Folder":
             self._inspect_folder(f_tree, a_tree, child_path)
         elif data_type in {"List", "KeyedList"}:
             self._inspect_complex(data_type, f_tree, a_tree, child_path)
