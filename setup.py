@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="polytropos",
-    version="1.6.11",
+    version="1.6.12",
     license='agpl-3.0',
     url='https://github.com/borenstein/polytropos',
     long_description=long_description,

@@ -27,6 +27,7 @@ class MissingValue(NamedTuple):
 class InvalidPath(NamedTuple):
     entity_id: str
     var_path: str
+    observation: str
     expected: Optional[Any]
 
 @dataclass
@@ -54,7 +55,7 @@ class Outcome:
     @property
     def invalid_case_ids(self) -> Iterator[str]:
         for invalid in self.invalids:
-            yield "/%s%s" % (invalid.entity_id, invalid.var_path)
+            yield "/%s/%s%s" % (invalid.entity_id, invalid.observation, invalid.var_path)
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):

@@ -78,7 +78,7 @@ class Crawl:
         self.outcome.mismatches.append(mismatch)
 
     def _record_invalid(self, path: ListType[str], content: Optional[Any]) -> None:
-        invalid: InvalidPath = InvalidPath(self.entity_id, nesteddicts.path_to_str(path), content)
+        invalid: InvalidPath = InvalidPath(self.entity_id, nesteddicts.path_to_str(path), self.label, content)
         self.outcome.invalids.append(invalid)
 
     # TODO Since a_tree is now invariant, factor out the traverse/inspect logic into a class after tests pass

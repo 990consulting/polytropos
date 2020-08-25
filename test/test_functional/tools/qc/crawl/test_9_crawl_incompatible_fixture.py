@@ -16,7 +16,7 @@ def test_fixture_boolean_spec_folder(simple_track: Track, empty_track: Track, en
         }
     }
     expected: Outcome = Outcome()
-    expected.invalids.append(InvalidPath(entity_id, "/outer", True))
+    expected.invalids.append(InvalidPath(entity_id, "/outer", "immutable", True))
 
     actual: Outcome = Outcome()
 

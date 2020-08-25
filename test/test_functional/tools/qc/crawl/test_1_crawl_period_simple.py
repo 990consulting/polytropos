@@ -272,7 +272,7 @@ def test_fixture_undefined_records_invalid(schema, period, entity_id, observatio
         "not a thing": "blah blah"
     }
     expected: Outcome = Outcome()
-    expected.invalids.append(InvalidPath(entity_id, "/not a thing", "blah blah"))
+    expected.invalids.append(InvalidPath(entity_id, "/not a thing", "immutable", "blah blah"))
     actual: Outcome = Outcome()
     crawl: CrawlPeriod = CrawlPeriod(entity_id, schema, fixture, observation, actual, period)
     crawl()
