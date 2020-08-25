@@ -7,6 +7,7 @@ import polytropos.util.compare
 from polytropos.ontology.variable import Variable
 from polytropos.tools.qc import POLYTROPOS_CONFIRMED_NA, POLYTROPOS_NA
 from polytropos.util.nesteddicts import path_to_str
+import logging
 
 def compare_primitives(fixture: Optional[Any], actual: Optional[Any]) -> bool:
     """Compares two primitive values. Returns true if and only if they are identical, or both null."""
@@ -27,7 +28,8 @@ def compare_multiple_text(fixture: Optional[ListType[str]], actual: Optional[Lis
     if actual in (POLYTROPOS_NA, POLYTROPOS_CONFIRMED_NA):
         raise ValueError("Actual value contained ostensibly non-occurring sentinel %s" % actual)
 
-    assert fixture is None or isinstance(fixture, list) or fixture is POLYTROPOS_NA
+    if not (fixture is None or isinstance(fixture, list) or fixture is POLYTROPOS_NA):
+        logging.warning("Illegal MultipleText fixture '{}' (class {})".format(str(fixture), fixture.__class__.__name__))
 
     return fixture == actual
 

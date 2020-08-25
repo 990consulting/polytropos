@@ -87,7 +87,10 @@ class SourceCoverageExtract:
                 if translate_value is Ellipsis:
                     translate_value = {}
                 else:
-                    assert isinstance(translate_value, dict)
+                    if not isinstance(translate_value, dict):
+                        logging.error("Expected a dict but got a {} in composite {}. Skipping.".format(
+                            translate_value.__class__.__name__, composite_id))
+                        return
 
                 self._crawl(composite_id, translate_value, trace_value, child_path, observed, all_vars)
 
