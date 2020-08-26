@@ -26,16 +26,31 @@ def schema() -> Schema:
 @pytest.mark.parametrize("value", [
     ["A", "B", "C"],
     [],
-    None,
-    "This is actually invalid, but it shouldn't have an effect"
+    None
 ])
-def test_cast_ignores_multiple_text(schema, value):
+def test_cast_ignores_valid_multiple_text(schema, value):
     content: Dict = {
         "immutable": {
             "the_var": value
         }
     }
     expected: Dict = copy.deepcopy(content)
+    composite: Composite = Composite(schema, content)
+    cast: Cast = Cast(schema, {})
+    cast(composite)
+    assert composite.content == expected
+
+def test_bare_str_multitext_gets_embedded_in_list(schema):
+    content: Dict = {
+        "immutable": {
+            "the_var": "should be in a list"
+        }
+    }
+    expected: Dict = {
+        "immutable": {
+            "the_var": ["should be in a list"]
+        }
+    }
     composite: Composite = Composite(schema, content)
     cast: Cast = Cast(schema, {})
     cast(composite)

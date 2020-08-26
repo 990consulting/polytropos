@@ -5,7 +5,7 @@ from typing import Dict, List, Any, Optional, Set
 from polytropos.ontology.composite import Composite
 
 from polytropos.actions.evolve import Change
-from polytropos.ontology.variable import Variable, Primitive
+from polytropos.ontology.variable import Variable, Primitive, MultipleText
 from polytropos.util import nesteddicts
 
 @dataclass
@@ -51,6 +51,11 @@ class _Crawl:
                     logging.warning('Could not cast value "%s" into data type "%s"' % (value, var.data_type))
                     self._record_exception("cast_errors", path, {key: value}, period)
                     del node[key]
+            elif isinstance(var, MultipleText):
+                cur_value: Optional[Any] = node[key]
+                if isinstance(cur_value, str):
+                    node[key] = [cur_value]
+
             else:
                 self._crawl(value, child_path, period)
 
@@ -80,9 +85,6 @@ class _Crawl:
 
         elif var.data_type == "Folder":
             self._crawl_folder(node, path, period)
-
-        elif var.data_type == "MultipleText":
-            pass
 
         else:
             raise ValueError
