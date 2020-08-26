@@ -1,4 +1,3 @@
-import copy
 from typing import Dict, Callable
 from unittest.mock import MagicMock
 
@@ -109,11 +108,10 @@ def test_prunes_inside_lists(do_test):
     }
     do_test(content, expected)
 
-def test_a_list_of_empty_dicts_is_not_pruned(do_test):
+def test_a_list_of_empty_dicts_is_pruned(do_test):
     content: Dict = {
         "period_1": {
             "a list of empty dicts": [{}] * 5
         }
     }
-    expected: Dict = copy.deepcopy(content)
-    do_test(content, expected)
+    do_test(content, {})
