@@ -72,11 +72,11 @@ def context() -> Context:
 @pytest.fixture(scope="module")
 def output_basepath() -> str:
     dirname: str = ''.join([random.choice(string.ascii_letters) for n in range(10)])
-    return "/tmp/%s" % dirname
+    return "/tmp/source_cvg_exclude_trivial_%s" % dirname
 
 
 @pytest.fixture(scope="module")
-def do_run(module_basepath: str, target_schema: Schema, output_basepath) -> Callable:
+def do_run(module_basepath: str, target_schema: Callable, output_basepath) -> Callable:
     def _do_run(data_type: str):
         translate_dir: str = os.path.join(module_basepath, data_type.lower(), "translate")
         trace_dir: str = os.path.join(module_basepath, data_type.lower(), "trace")
@@ -86,7 +86,6 @@ def do_run(module_basepath: str, target_schema: Schema, output_basepath) -> Call
             coverage("dummy", "dummy")
     return _do_run
 
-
 @pytest.fixture(scope="module", autouse=True)
 def setup(do_run, output_basepath) -> None:
     os.mkdir(output_basepath)
@@ -94,9 +93,9 @@ def setup(do_run, output_basepath) -> None:
         os.makedirs(os.path.join(output_basepath, data_type.lower()))
         do_run(data_type)
 
-    yield
+    #yield
 
-    shutil.rmtree(output_basepath)
+    #shutil.rmtree(output_basepath)
 
 
 @pytest.mark.parametrize("data_type", data_types)

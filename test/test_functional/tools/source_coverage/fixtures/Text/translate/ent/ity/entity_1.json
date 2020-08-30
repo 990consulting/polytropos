@@ -1,0 +1,50 @@
+{
+  "201210": {
+    "target_temporal_folder": {
+      "target_text_1": "a",
+      "target_list": [
+        {
+          "target_text_2": "b",
+          "target_keyed_list": {
+            "bob": {"target_text_2": "c"},
+            "stacy": {"target_text_1":  "d"}
+          }
+        },
+        {
+          "target_text_1": "e",
+          "target_keyed_list": {
+            "egbert": {"target_text_1": "f"},
+            "blanche": {"target_text_2":  "g"}
+          }
+        }
+      ]
+    }
+  },
+  "201310": {
+    "target_temporal_folder": {
+      "target_text_2": "h"
+    }
+  },
+  "201410": {
+    "target_temporal_folder": {
+      "target_text_1": "i"
+    },
+    "target_list": [
+      {"target_text_2": "j"},
+      {"target_text_1": "k"}
+    ]
+  },
+  "immutable": {
+    "target_immutable_folder": {
+      "target_list": [
+        {
+          "target_keyed_list": {
+            "martha": {"target_text_1": "l"},
+            "jane": {"target_text_1": "m"}
+          }
+        }
+      ],
+      "target_text_2": "n"
+    }
+  }
+}

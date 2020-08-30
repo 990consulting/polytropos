@@ -6,7 +6,8 @@ from typing import Iterable, Any, Optional, List
 
 from polytropos.actions.consume import Consume
 from polytropos.actions.consume.source_coverage._source_coverage_extract import SourceCoverageExtract
-from polytropos.actions.consume.source_coverage._source_coverage_result import SourceCoverageResult
+from polytropos.actions.consume.source_coverage._source_coverage_result import SourceCoverageResult, \
+    MergedSourceCoverageResult
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
@@ -23,7 +24,10 @@ class SourceCoverage(Consume):
     trace_dir: str
     output_filename: Optional[str] = None
 
-    coverage_result: SourceCoverageResult = field(default_factory=SourceCoverageResult, init=False)
+    coverage_result: MergedSourceCoverageResult = field(init=False)
+
+    def __post_init__(self):
+        self.coverage_result = MergedSourceCoverageResult(self.schema)
 
     # noinspection PyTypeChecker
     @classmethod
@@ -60,7 +64,7 @@ class SourceCoverage(Consume):
         with open(fn, "w") as fh:
             writer: csv.DictWriter = csv.DictWriter(fh, columns)
             writer.writeheader()
-            for var_info in sorted(self.coverage_result.all_vars):
+            for var_info in sorted(self.coverage_result):
                 source_var_id = var_info.source_var_id
                 target_var_id = var_info.target_var_id
 
@@ -75,7 +79,7 @@ class SourceCoverage(Consume):
                     "target_var_id": target_var_id,
                     "target_var_path": nesteddicts.path_to_str(target_var.absolute_path),
                     "data_type": source_var.data_type,
-                    "n": self.coverage_result.var_counts.get(var_info, 0)
+                    "n": self.coverage_result[var_info]
                 }
                 writer.writerow(row)
 

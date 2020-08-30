@@ -1,0 +1,50 @@
+{
+  "201210": {
+    "target_temporal_folder": {
+      "target_text_1": "source_t_folder_text_1_1",
+      "target_list": [
+        {
+          "target_text_2": "source_t_list_text_1_2",
+          "target_keyed_list": {
+            "bob": {"target_text_2": "source_t_keyed_list_text_1_2"},
+            "stacy": {"target_text_1":  "source_t_keyed_list_text_1_1"}
+          }
+        },
+        {
+          "target_text_1": "source_t_list_text_1_1",
+          "target_keyed_list": {
+            "egbert": {"target_text_1": "source_t_keyed_list_text_1_1"},
+            "blanche": {"target_text_2":  "source_t_keyed_list_text_1_2"}
+          }
+        }
+      ]
+    }
+  },
+  "201310": {
+    "target_temporal_folder": {
+      "target_text_2": "source_t_folder_text_1_2"
+    }
+  },
+  "201410": {
+    "target_temporal_folder": {
+      "target_text_1": "source_t_folder_text_1_1"
+    },
+    "target_list": [
+      {"target_text_2": "source_t_list_text_1_2"},
+      {"target_text_1": "source_t_list_text_1_1"}
+    ]
+  },
+  "immutable": {
+    "target_immutable_folder": {
+      "target_list": [
+        {
+          "target_keyed_list": {
+            "martha": {"target_text_1": "source_i_keyed_list_text_1_1"},
+            "jane": {"target_text_1": "source_i_keyed_list_text_1_1"}
+          }
+        }
+      ],
+      "target_text_2": "source_i_folder_text_2_2"
+    }
+  }
+}

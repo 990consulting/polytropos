@@ -108,7 +108,7 @@ class Track(MutableMapping):
     def __len__(self) -> int:
         return len(self._variables)
 
-    def __iter__(self) -> Iterator[VariableId]:
+    def __iter__(self) -> Iterator[VariableId]:  # somehow, this permits track.values() to return Variables also. How?
         return self._variables.__iter__()
 
     def __eq__(self, other: Optional[Any]) -> bool:

@@ -111,7 +111,7 @@ class SourceCoverageExtract:
             observed_paths: Dict[VarInfo, Set[Tuple[str, ...]]] = defaultdict(set)
             all_vars: Set[VarInfo] = set()
             self._crawl(composite_id, translate_composite.content.get(period, {}), trace_composite.content[period], (), observed_paths, all_vars)
-            result.update(composite_id, period, all_vars, observed_paths)
+            result.update(all_vars, observed_paths)
 
     def extract(self, composite_ids: List[str]) -> str:
         """Produces source coverage result for a chunk of composites."""
