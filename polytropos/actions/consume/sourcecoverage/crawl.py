@@ -4,6 +4,7 @@ from typing import Tuple, Dict, List, Optional, Any
 
 from polytropos.actions.consume.sourcecoverage.pair import SourceTargetPair
 from polytropos.actions.consume.sourcecoverage.result import SourceCoverageResult
+from polytropos.ontology.composite import Composite
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.variable import Variable
 from polytropos.tools.qc import POLYTROPOS_NA
@@ -94,6 +95,9 @@ class Crawl:
                 if translate_value is not Ellipsis and (translate_value or translate_value is False):
                     self.result.pair_counts[pair] += 1
 
-    def __call__(self, translate_content: Dict, trace_content: Dict) -> SourceCoverageResult:
-        self._crawl(translate_content, trace_content, ())
+    def __call__(self, translation: Dict, trace: Dict) -> SourceCoverageResult:
+        for period in trace.keys():  # periods + "immutable"
+            translate_content: Dict = translation[period]
+            trace_content: Dict = trace[period]
+            self._crawl(translate_content, trace_content, ())
         return self.result

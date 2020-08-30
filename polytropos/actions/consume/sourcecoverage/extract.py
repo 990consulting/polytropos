@@ -24,12 +24,11 @@ class SourceCoverageExtract:
 
     def _extract(self, translate_composite: Composite, trace_composite: Composite, result: SourceCoverageResult) -> None:
         composite_id = translate_composite.composite_id
-        for period in trace_composite.content.keys():  # periods + "immutable"
-            translate_content: Dict = translate_composite.content.get(period, {})
-            trace_content: Dict = trace_composite.content[period]
-            crawl: Crawl = Crawl(composite_id, self.schema)
-            composite_result: SourceCoverageResult = crawl(translate_content, trace_content)
-            result.update(composite_result)
+        crawl: Crawl = Crawl(composite_id, self.schema)
+        translation: Dict = translate_composite.content
+        trace: Dict = trace_composite.content
+        composite_result: SourceCoverageResult = crawl(translation, trace)
+        result.update(composite_result)
 
     def _load_composite(self, base_dir: str, composite_id: str) -> Composite:
         relpath: str = relpath_for(composite_id)
