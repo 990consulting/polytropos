@@ -5,7 +5,7 @@ import pytest
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.track import Track
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def source_half_spec() -> Callable:
     def _half_spec(cardinal: int, ordinal: str, track_name: str, data_type: str) -> Dict:
         prefix: str = track_name[0]
@@ -77,7 +77,7 @@ def source_half_spec() -> Callable:
         }
     return _half_spec
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def source_track(source_half_spec) -> Callable:
     def _track(track_name: str, data_type: str) -> Track:
         first_half: Dict = source_half_spec(1, "first", track_name, data_type)
@@ -86,7 +86,7 @@ def source_track(source_half_spec) -> Callable:
         return Track.build(spec, None, track_name)
     return _track
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def source_schema(source_track) -> Callable:
     def _source_schema(data_type: str = "Text") -> Schema:
         temporal: Track = source_track("temporal", data_type)
@@ -94,7 +94,7 @@ def source_schema(source_track) -> Callable:
         return Schema(temporal, immutable, name="source")
     return _source_schema
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def target_spec() -> Callable:
     def _target_spec(track_name: str, data_type: str) -> Dict:
         prefix: str = track_name[0]
@@ -175,7 +175,7 @@ def target_spec() -> Callable:
         }
     return _target_spec
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def target_schema(target_spec: Callable) -> Callable:
     def _target_schema(source: Schema, data_type: str = "Text") -> Schema:
         temporal_spec: Dict = target_spec("temporal", data_type)
