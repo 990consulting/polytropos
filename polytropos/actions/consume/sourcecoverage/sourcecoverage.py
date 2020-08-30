@@ -5,9 +5,8 @@ from dataclasses import dataclass, field
 from typing import Iterable, Any, Optional, List
 
 from polytropos.actions.consume import Consume
-from polytropos.actions.consume.source_coverage._source_coverage_extract import SourceCoverageExtract
-from polytropos.actions.consume.source_coverage._source_coverage_result import SourceCoverageResult, \
-    MergedSourceCoverageResult
+from polytropos.actions.consume.sourcecoverage.extract import SourceCoverageExtract
+from polytropos.actions.consume.sourcecoverage.result import SourceCoverageResult, MergedSourceCoverageResult
 from polytropos.ontology.composite import Composite
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema

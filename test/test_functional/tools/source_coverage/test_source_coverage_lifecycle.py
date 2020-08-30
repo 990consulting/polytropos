@@ -7,7 +7,7 @@ import random
 import string
 import os
 
-from polytropos.actions.consume.source_coverage import SourceCoverage
+from polytropos.actions.consume.sourcecoverage import SourceCoverage
 from polytropos.ontology.context import Context
 from polytropos.ontology.schema import Schema
 
