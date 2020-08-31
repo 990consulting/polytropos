@@ -12,6 +12,8 @@ def _import_var_pairs(schema: Optional[Schema]) -> Set[SourceTargetPair]:
     ret: Set[SourceTargetPair] = set()
 
     for target_var in schema:  # type: Variable
+        if target_var.data_type in {"Folder", "List", "KeyedList"}:
+            continue
         target_var_id: VariableId = target_var.var_id
         for source_var_id in target_var.sources:
             var_info: SourceTargetPair = SourceTargetPair(source_var_id, target_var_id)
