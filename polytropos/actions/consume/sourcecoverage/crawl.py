@@ -1,7 +1,6 @@
 import logging
 from dataclasses import dataclass, field
 from typing import Tuple, Dict, List, Optional, Any
-
 from polytropos.actions.consume.sourcecoverage.pair import SourceTargetPair
 from polytropos.actions.consume.sourcecoverage.result import SourceCoverageResult
 from polytropos.ontology.schema import Schema
@@ -95,7 +94,10 @@ class Crawl:
 
     def __call__(self, translation: Dict, trace: Dict) -> SourceCoverageResult:
         for period in trace.keys():  # periods + "immutable"
-            translate_content: Dict = translation[period]
+            if period not in translation:
+                logging.warning("Period {} is in the trace for {}, but not its translation.".format(period,
+                                                                                                    self.composite_id))
+            translate_content: Dict = translation.get(period, {})
             trace_content: Dict = trace[period]
             self._crawl(translate_content, trace_content, ())
         return self.result
