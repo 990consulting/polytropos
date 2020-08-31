@@ -1,6 +1,6 @@
 {
   "201210": {
-    "target_temporal_folder": {
+    "target_t_folder": {
       "target_text_2": "source_t_folder_text_1_2",
       "target_list": [
         {
@@ -26,12 +26,12 @@
     "target_t_root_text_1": "source_t_root_text_2_1"
   },
   "201310": {
-    "target_temporal_folder": {
+    "target_t_folder": {
       "target_text_1": "source_t_folder_text_1_1"
     }
   },
   "immutable": {
-    "target_immutable_folder": {
+    "target_i_folder": {
       "target_text_2": "source_i_folder_text_2_2",
       "target_list": [
         {

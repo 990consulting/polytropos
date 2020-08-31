@@ -1,6 +1,6 @@
 {
   "201210": {
-    "target_temporal_folder": {
+    "target_t_folder": {
       "target_text_1": "a",
       "target_list": [
         {
@@ -21,21 +21,21 @@
     }
   },
   "201310": {
-    "target_temporal_folder": {
+    "target_t_folder": {
       "target_text_2": "h"
     }
   },
   "201410": {
-    "target_temporal_folder": {
+    "target_t_folder": {
       "target_text_1": "i"
     },
-    "target_list": [
+    "out_of_place_target_list": [
       {"target_text_2": "j"},
       {"target_text_1": "k"}
     ]
   },
   "immutable": {
-    "target_immutable_folder": {
+    "target_i_folder": {
       "target_list": [
         {
           "target_keyed_list": {

@@ -4,7 +4,6 @@ from typing import Tuple, Dict, List, Optional, Any
 
 from polytropos.actions.consume.sourcecoverage.pair import SourceTargetPair
 from polytropos.actions.consume.sourcecoverage.result import SourceCoverageResult
-from polytropos.ontology.composite import Composite
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.variable import Variable
 from polytropos.tools.qc import POLYTROPOS_NA

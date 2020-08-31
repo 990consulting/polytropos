@@ -2,48 +2,352 @@ import os
 from typing import List, Tuple, Iterable, cast, Dict, Callable
 import json
 
+import pytest
+
 from polytropos.actions.consume.sourcecoverage.crawl import Crawl
-from polytropos.actions.consume.sourcecoverage.pair import SourceTargetPair
 from polytropos.actions.consume.sourcecoverage.result import SourceCoverageResult
 from polytropos.ontology.schema import Schema
-from polytropos.ontology.variable import VariableId
 
-def _as_result(counts: Iterable[Tuple[str, str, int]]) -> SourceCoverageResult:
-    ret: SourceCoverageResult = SourceCoverageResult()
-    for source_var_str, target_var_str, n_obs in counts:
-        source_var: VariableId = cast(VariableId, source_var_str)
-        target_var: VariableId = cast(VariableId, target_var_str)
-        pair: SourceTargetPair = SourceTargetPair(source_var, target_var)
-        ret.observed_pairs.add(pair)
-        ret.pair_counts[pair] = n_obs
-    return ret
-
-def test_entity_1(basepath: str, source_schema: Callable, target_schema: Callable):
-    fixture_path: str = os.path.join(basepath, "test_functional", "tools", "source_coverage", "fixtures",
-                                     "text_no_trivial")
-
-    trace_fn: str = os.path.join(fixture_path, "trace", "ent", "ity", "entity_1.json")
-    translate_fn: str = os.path.join(fixture_path, "translate", "ent", "ity", "entity_1.json")
-
-    with open(trace_fn) as trace_fh, open(translate_fn) as translate_fh:
-        trace: Dict = json.load(trace_fh)
-        translation: Dict = json.load(translate_fh)
-
-    source: Schema = source_schema("Text")
-    target: Schema = target_schema(source, "Text")
-
-    crawl: Crawl = Crawl("entity_1", target)
-
-    expected_pair_counts: List[Tuple[str, str, int]] = [
-        ("source_t_folder_text_1_1", "target_t_folder_text_1", 2),
-        ("source_t_list_text_1_2", "target_t_list_text_2", 2),
-        ("source_t_keyed_list_text_1_2", "target_t_keyed_list_text_2", 2),
-        ("source_t_keyed_list_text_1_1", "target_t_keyed_list_text_1", 2),
-        ("source_t_folder_text_1_2", "target_t_folder_text_2", 1),
-        ("source_t_list_text_1_1", "target_t_list_text_1", 1),
-        ("source_i_keyed_list_text_1_1", "target_i_keyed_list_text_1", 2),
-        ("source_i_folder_text_2_2", "target_i_folder_text_2", 1)
+def test_primitive_in_root_two_periods(do_crawl_test) -> None:
+    translation: Dict = {
+        "201012": {"target_t_root_text_1": "lorem"},
+        "201112": {"target_t_root_text_1": "ipsum"}
+    }
+    trace: Dict = {
+        "201012": {"target_t_root_text_1": "source_t_root_text_1_1"},
+        "201112": {"target_t_root_text_1": "source_t_root_text_1_1"}
+    }
+    expected: List[Tuple[str, str, int]] = [
+        ("source_t_root_text_1_1", "target_t_root_text_1", 2)
     ]
-    expected: SourceCoverageResult = _as_result(expected_pair_counts)
-    actual: SourceCoverageResult = crawl(translation, trace)
-    assert actual == expected
+    do_crawl_test(translation, trace, expected)
+
+def test_primitive_in_root_two_periods_one_none(do_crawl_test) -> None:
+    translation: Dict = {
+        "201012": {"target_t_root_text_1": None},
+        "201112": {"target_t_root_text_1": "ipsum"}
+    }
+    trace: Dict = {
+        "201012": {"target_t_root_text_1": "source_t_root_text_1_1"},
+        "201112": {"target_t_root_text_1": "source_t_root_text_1_1"}
+    }
+    expected: List[Tuple[str, str, int]] = [
+        ("source_t_root_text_1_1", "target_t_root_text_1", 1)
+    ]
+    do_crawl_test(translation, trace, expected)
+
+@pytest.mark.parametrize("data_type, trivial, nontrivial", [
+    ("Text", "", "foo"),
+    ("Integer", 0, 1),
+    ("Currency", 0, 1),
+    ("Decimal", 0.0, 1.0),
+    ("Integer", 0, -1),
+    ("Currency", 0, -1),
+    ("Decimal", 0.0, -1.0)
+])
+def test_primitive_in_root_two_periods_one_trivial(do_crawl_test, data_type, trivial, nontrivial) -> None:
+    source: str = "source_t_root_{}_1_1".format(data_type.lower())
+    target: str = "target_t_root_{}_1".format(data_type.lower())
+
+    translation: Dict = {
+        "201012": {target: trivial},
+        "201112": {target: nontrivial}
+    }
+    trace: Dict = {
+        "201012": {target: source},
+        "201112": {target: source}
+    }
+    expected: List[Tuple[str, str, int]] = [
+        (source, target, 1)
+    ]
+    do_crawl_test(translation, trace, expected, data_type=data_type)
+
+def test_primitive_in_folder_two_periods(do_crawl_test) -> None:
+    translation: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_text_1": "lorem"
+            }
+        },
+        "201112": {
+            "target_t_folder": {
+                "target_text_1": "ipsum"
+            }
+        }
+    }
+    trace: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_text_1": "source_t_folder_text_1_1"
+            }
+        },
+        "201112": {
+            "target_t_folder": {
+                "target_text_1": "source_t_folder_text_1_1"
+            }
+        }
+    }
+    expected: List[Tuple[str, str, int]] = [
+        ("source_t_folder_text_1_1", "target_t_folder_text_1", 2)
+    ]
+    do_crawl_test(translation, trace, expected)
+
+def test_primitive_in_list_two_periods(do_crawl_test) -> None:
+    translation: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_text_1": "lorem"
+                    }
+                ]
+            }
+        },
+        "201112": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_text_1": "ipsum"
+                    }
+                ]
+            }
+        }
+    }
+    trace: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_text_1": "source_t_list_text_1_1"
+                    }
+                ]
+            }
+        },
+        "201112": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_text_1": "source_t_list_text_1_1"
+                    }
+                ]
+            }
+        }
+    }
+    expected: List[Tuple[str, str, int]] = [
+        ("source_t_list_text_1_1", "target_t_list_text_1", 2)
+    ]
+    do_crawl_test(translation, trace, expected)
+
+def test_primitive_in_list_two_values_one_period(do_crawl_test) -> None:
+    translation: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_text_1": "lorem"
+                    },
+                    {
+                        "target_text_1": "ipsum"
+                    }
+                ]
+            }
+        }
+    }
+    trace: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_text_1": "source_t_list_text_1_1"
+                    },
+                    {
+                        "target_text_1": "source_t_list_text_1_1"
+                    }
+                ]
+            }
+        }
+    }
+    expected: List[Tuple[str, str, int]] = [
+        ("source_t_list_text_1_1", "target_t_list_text_1", 2)
+    ]
+    do_crawl_test(translation, trace, expected)
+
+def test_primitive_in_keyed_list_two_values_one_period_one_list_item(do_crawl_test) -> None:
+    translation: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_keyed_list": {
+                            "red": {
+                                "target_text_1": "lorem"
+                            },
+                            "blue": {
+                                "target_text_1": "ipsum"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    trace: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_keyed_list": {
+                            "red": {
+                                "target_text_1": "source_t_keyed_list_text_1_1"
+                            },
+                            "blue": {
+                                "target_text_1": "source_t_keyed_list_text_1_1"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    expected: List[Tuple[str, str, int]] = [
+        ("source_t_keyed_list_text_1_1", "target_t_keyed_list_text_1", 2)
+    ]
+    do_crawl_test(translation, trace, expected)
+
+def test_primitive_in_keyed_list_four_values_one_period_two_list_items(do_crawl_test) -> None:
+    translation: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_keyed_list": {
+                            "red": {
+                                "target_text_1": "lorem"
+                            },
+                            "blue": {
+                                "target_text_1": "ipsum"
+                            }
+                        }
+                    },
+                    {
+                        "target_keyed_list": {
+                            "green": {
+                                "target_text_1": "lorem"
+                            },
+                            "purple": {
+                                "target_text_1": "ipsum"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    trace: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_keyed_list": {
+                            "red": {
+                                "target_text_1": "source_t_keyed_list_text_1_1"
+                            },
+                            "blue": {
+                                "target_text_1": "source_t_keyed_list_text_1_1"
+                            }
+                        }
+                    },
+                    {
+                        "target_keyed_list": {
+                            "green": {
+                                "target_text_1": "source_t_keyed_list_text_1_1"
+                            },
+                            "purple": {
+                                "target_text_1": "source_t_keyed_list_text_1_1"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    expected: List[Tuple[str, str, int]] = [
+        ("source_t_keyed_list_text_1_1", "target_t_keyed_list_text_1", 4)
+    ]
+    do_crawl_test(translation, trace, expected)
+
+def test_primitive_in_keyed_list_four_values_two_periods_one_list_item(do_crawl_test) -> None:
+    translation: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_keyed_list": {
+                            "red": {
+                                "target_text_1": "lorem"
+                            },
+                            "blue": {
+                                "target_text_1": "ipsum"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "201112": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_keyed_list": {
+                            "green": {
+                                "target_text_1": "lorem"
+                            },
+                            "purple": {
+                                "target_text_1": "ipsum"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+    trace: Dict = {
+        "201012": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_keyed_list": {
+                            "red": {
+                                "target_text_1": "source_t_keyed_list_text_1_1"
+                            },
+                            "blue": {
+                                "target_text_1": "source_t_keyed_list_text_1_1"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "201112": {
+            "target_t_folder": {
+                "target_list": [
+                    {
+                        "target_keyed_list": {
+                            "green": {
+                                "target_text_1": "source_t_keyed_list_text_1_1"
+                            },
+                            "purple": {
+                                "target_text_1": "source_t_keyed_list_text_1_1"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    expected: List[Tuple[str, str, int]] = [
+        ("source_t_keyed_list_text_1_1", "target_t_keyed_list_text_1", 4)
+    ]
+
+    do_crawl_test(translation, trace, expected)

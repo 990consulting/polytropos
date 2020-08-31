@@ -1,3 +1,4 @@
+import json
 import pickle
 from collections import Counter
 from collections.abc import Mapping
@@ -20,6 +21,7 @@ def _import_var_pairs(schema: Optional[Schema]) -> Set[SourceTargetPair]:
 class SourceCoverageResult:
     """Represents observed source->value pairs in a scan of the actual data."""
 
+    # TODO Get rid of `observed_pairs`
     def __init__(self) -> None:
         self.observed_pairs: Set[SourceTargetPair] = set()
         self.pair_counts: Counter = Counter()
@@ -45,6 +47,10 @@ class SourceCoverageResult:
         if other.pair_counts != self.pair_counts:
             return False
         return True
+
+    def __repr__(self):
+        as_str: Dict = {str(pair): count for pair, count in self.pair_counts.items()}
+        return json.dumps(as_str, default=str, indent=2)
 
 class MergedSourceCoverageResult(Mapping):
     """Represents the coverage of all source->value pairs, including those that are never observed."""
