@@ -25,11 +25,11 @@ def output_dir() -> str:
 
 @pytest.fixture()
 def do_run(source_schema: Callable, target_schema: Callable) -> Callable:
-    def _do_run(case: str, data_type: str, output_dir: str) -> None:
-        source: Schema = source_schema(data_type)
-        target: Schema = target_schema(source, data_type)
-        translate_dir: str = os.path.join(MODULE_BASEPATH, "fixtures", case, "translate")
-        trace_dir: str = os.path.join(MODULE_BASEPATH, "fixtures", case, "trace")
+    def _do_run(output_dir: str) -> None:
+        source: Schema = source_schema("Text")
+        target: Schema = target_schema(source, "Text")
+        translate_dir: str = os.path.join(MODULE_BASEPATH, "fixtures", "translate")
+        trace_dir: str = os.path.join(MODULE_BASEPATH, "fixtures", "trace")
 
         with Context.build(conf_dir="/tmp/dummy", data_dir="/tmp/dummy", output_dir=output_dir) as context:
             coverage: SourceCoverage = SourceCoverage(context, target, translate_dir, trace_dir)
@@ -37,18 +37,12 @@ def do_run(source_schema: Callable, target_schema: Callable) -> Callable:
 
     return _do_run
 
-@pytest.fixture()
-def do_test(do_run, output_dir) -> Callable:
-    def _do_test(case: str, data_type: str) -> None:
-        do_run(case, data_type, output_dir)
-        expected_path: str = os.path.join(MODULE_BASEPATH, "fixtures", case, "source_coverage.csv")
-        actual_path: str = os.path.join(output_dir, "source_coverage.csv")
-        with open(expected_path) as expected_fh, open(actual_path) as actual_fh:
-            expected: csv.DictReader = csv.DictReader(expected_fh)
-            actual: csv.DictReader = csv.DictReader(actual_fh)
-            for a, e in zip(actual, expected):
-                assert a == e
-    return _do_test
-
-def test_text_no_trivial(do_test):
-    do_test("text_no_trivial", "Text")
+def test_text_no_trivial(do_run, output_dir):
+    do_run(output_dir)
+    expected_path: str = os.path.join(MODULE_BASEPATH, "fixtures", "source_coverage.csv")
+    actual_path: str = os.path.join(output_dir, "source_coverage.csv")
+    with open(expected_path) as expected_fh, open(actual_path) as actual_fh:
+        expected: csv.DictReader = csv.DictReader(expected_fh)
+        actual: csv.DictReader = csv.DictReader(actual_fh)
+        for a, e in zip(actual, expected):
+            assert a == e

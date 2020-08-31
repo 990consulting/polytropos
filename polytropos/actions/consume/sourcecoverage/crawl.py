@@ -47,8 +47,8 @@ class Crawl:
             # noinspection PyProtectedMember
             child_var: Optional[Variable] = self.schema._var_path_cache.get(child_path)
 
-            # Exclude missing or transient variable from the coverage report
-            if child_var is None or child_var.transient:
+            # Exclude missing variable from the coverage report
+            if child_var is None:
                 continue
 
             # For known keyed lists, skip over the particular key names. Beyond this, we don't worry at this stage

@@ -6,20 +6,18 @@ from typing import Dict, List, Tuple
 import pytest
 
 @pytest.fixture()
-def e1_trans(basepath: str) -> Dict:
-    fixture_path: str = os.path.join(basepath, "test_functional", "tools", "source_coverage", "fixtures",
-                                     "text_no_trivial")
+def fixture_path(basepath: str) -> str:
+    return os.path.join(basepath, "test_functional", "tools", "source_coverage", "fixtures")
 
+@pytest.fixture()
+def e1_trans(fixture_path: str) -> Dict:
     translate_fn: str = os.path.join(fixture_path, "translate", "ent", "ity", "entity_1.json")
     with open(translate_fn) as translate_fh:
         translation: Dict = json.load(translate_fh)
     return translation
 
 @pytest.fixture()
-def e1_trace(basepath: str) -> Dict:
-    fixture_path: str = os.path.join(basepath, "test_functional", "tools", "source_coverage", "fixtures",
-                                     "text_no_trivial")
-
+def e1_trace(fixture_path: str) -> Dict:
     trace_fn: str = os.path.join(fixture_path, "trace", "ent", "ity", "entity_1.json")
     with open(trace_fn) as trace_fh:
         trace: Dict = json.load(trace_fh)
