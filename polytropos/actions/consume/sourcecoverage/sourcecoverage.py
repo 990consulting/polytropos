@@ -25,7 +25,7 @@ class SourceCoverage(Consume):
 
     coverage_result: MergedSourceCoverageResult = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.coverage_result = MergedSourceCoverageResult(self.schema)
 
     # noinspection PyTypeChecker

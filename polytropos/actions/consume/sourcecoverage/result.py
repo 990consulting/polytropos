@@ -8,7 +8,7 @@ from polytropos.actions.consume.sourcecoverage.pair import SourceTargetPair
 from polytropos.ontology.schema import Schema
 from polytropos.ontology.variable import VariableId, Variable
 
-def _import_var_pairs(schema: Optional[Schema]) -> Set[SourceTargetPair]:
+def _import_var_pairs(schema: Schema) -> Set[SourceTargetPair]:
     ret: Set[SourceTargetPair] = set()
 
     for target_var in schema:  # type: Variable
@@ -45,7 +45,7 @@ class SourceCoverageResult:
             return False
         return True
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         as_str: Dict = {str(pair): count for pair, count in self.pair_counts.items()}
         return json.dumps(as_str, default=str, indent=2)
 
