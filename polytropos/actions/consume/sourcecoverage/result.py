@@ -23,19 +23,16 @@ def _import_var_pairs(schema: Optional[Schema]) -> Set[SourceTargetPair]:
 class SourceCoverageResult:
     """Represents observed source->value pairs in a scan of the actual data."""
 
-    # TODO Get rid of `observed_pairs`
     def __init__(self) -> None:
-        self.observed_pairs: Set[SourceTargetPair] = set()
         self.pair_counts: Counter = Counter()
 
     def update(self, other: "SourceCoverageResult") -> None:
-        self.observed_pairs |= other.observed_pairs
         self.pair_counts += other.pair_counts
 
     def serialize_state(self, state_path: str) -> None:
         """Return serialized state to send it to the master process."""
 
-        all_vars: List[SourceTargetPair] = list(self.observed_pairs)
+        all_vars: List[SourceTargetPair] = list(self.pair_counts.keys())
         all_vars_indexes: Dict[SourceTargetPair, int] = {var_info: i for i, var_info in enumerate(all_vars)}
         var_counts: Dict[int, int] = {all_vars_indexes[var_info]: count for var_info, count in self.pair_counts.items()}
         with open(state_path, "wb") as f:
@@ -43,8 +40,6 @@ class SourceCoverageResult:
 
     def __eq__(self, other: Optional[Any]) -> bool:
         if other is None or other.__class__ != self.__class__:
-            return False
-        if other.observed_pairs != self.observed_pairs:
             return False
         if other.pair_counts != self.pair_counts:
             return False

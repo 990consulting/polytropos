@@ -221,7 +221,6 @@ def as_result() -> Callable:
             source_var: VariableId = cast(VariableId, source_var_str)
             target_var: VariableId = cast(VariableId, target_var_str)
             pair: SourceTargetPair = SourceTargetPair(source_var, target_var)
-            ret.observed_pairs.add(pair)
             ret.pair_counts[pair] = n_obs
         return ret
     return _as_result

@@ -87,7 +87,6 @@ class Crawl:
             # In all other cases, the variable is a leaf node (primitive).
             else:
                 pair: SourceTargetPair = SourceTargetPair(trace_value, child_var.var_id)
-                self.result.observed_pairs.add(pair)
 
                 # Not count empty string, zero, or null as having been "observed."
                 # The boolean value `False` should still be counted.
