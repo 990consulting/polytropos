@@ -3,7 +3,7 @@ from typing import TextIO, Optional, cast
 import click
 import logging
 
-from polytropos.actions.consume.source_coverage import SourceCoverage
+from polytropos.actions.consume.sourcecoverage import SourceCoverage
 from polytropos.actions.translate import Translate
 from polytropos.actions.translate.trace import Trace
 from polytropos.ontology.schema import Schema
